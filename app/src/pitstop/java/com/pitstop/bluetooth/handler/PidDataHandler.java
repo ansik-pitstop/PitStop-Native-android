@@ -42,10 +42,10 @@ public class PidDataHandler {
     private final Runnable periodicPidStatsLogger = new Runnable() {
         @Override
         public void run() {
-            Logger.getInstance().logI(TAG,"Pid retrieval info for last 60 seconds: total="
+            Logger.getInstance().logI(TAG,"Pid retrieval info for last 600 seconds: total="
                     +pidsReceived+", invalid="+nullPidsReceived+", sent="+pidsSavedToServer,
                     DebugMessage.TYPE_BLUETOOTH);
-            handler.postDelayed(this,60000);
+            handler.postDelayed(this,600000);
         }
     };
 

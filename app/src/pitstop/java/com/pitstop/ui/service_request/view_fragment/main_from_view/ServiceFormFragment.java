@@ -102,8 +102,6 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
     private ServiceFormPresenter presenter;
 
-    private RequestServiceCallback callback;
-
     private TimeAdapter timeAdapter;
 
     private Context context;
@@ -113,9 +111,13 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
     private IssueAdapter serviceChosenAdapter;
 
-    public void setActivityCallback(RequestServiceCallback callback) {
-        Log.d(TAG, "setActivityCallback()");
-        this.callback = callback;
+    @Override
+    public RequestServiceCallback getRequestServiceCallback(){
+        try{
+            return (RequestServiceCallback)getActivity();
+        }catch(Exception e){
+            return null;
+        }
     }
 
     @Override
@@ -141,7 +143,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
 
         MixpanelHelper mixpanelHelper = new MixpanelHelper(application);
 
-        presenter = new ServiceFormPresenter(callback, component, mixpanelHelper);
+        presenter = new ServiceFormPresenter(component, mixpanelHelper);
 
         timeButton.setOnClickListener(v -> presenter.timeButtonClicked());
         dateButton.setOnClickListener(v -> presenter.dateButtonClicked());

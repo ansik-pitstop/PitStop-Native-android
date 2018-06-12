@@ -56,7 +56,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
             //See how long we've been still for, if at all
             if (softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
-                Logger.getInstance().logI(tag,"soft end end time=${it.time}"
+                Logger.getInstance().logD(tag,"soft end end time=${it.time}"
                         ,DebugMessage.TYPE_USE_CASE)
                 hardEnd = it.time
 
@@ -90,11 +90,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
-                            && (hardStart == -1L || softStart != -1L || softEnd != -1L)){
+                            && (hardStart == -1L || softStart == -1L || softEnd != -1L)){
                         if (hardStart == -1L) hardStart = it.time
                         if (softStart == -1L) softStart = it.time
                         softEnd = -1
-                        Logger.getInstance().logI(tag,"Hard start time=${it.time}" +
+                        Logger.getInstance().logD(tag,"Hard start time=${it.time}" +
                                 ", hardstart = $hardStart, softStart=$softStart, softEnd=$softEnd"
                                 ,DebugMessage.TYPE_USE_CASE)
                     }
@@ -148,12 +148,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     }
                 }
                 (DetectedActivity.STILL) -> {
-                    if (it.conf >= HIGH_STILL_CONF && (softStart != -1L || hardStart != -1L)){
-                        if (softEnd == -1L){
-                            softEnd = it.time
-                            Logger.getInstance().logD(tag,"Soft end start found time=${it.time}"
-                                    ,DebugMessage.TYPE_USE_CASE)
-                        }
+                    if (it.conf >= HIGH_STILL_CONF && softEnd == -1L
+                            && (softStart != -1L || hardStart != -1L)){
+                        softEnd = it.time
+                        Logger.getInstance().logD(tag,"Soft end start found time=${it.time}"
+                                ,DebugMessage.TYPE_USE_CASE)
                     }
                 }
             }
@@ -165,9 +164,13 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         processedTrips.filter { !it.isEmpty() }.forEach({
             val recordedLocationList = mutableSetOf<LocationData>()
-            it.forEach { carLocation ->
-                recordedLocationList.add(LocationData(carLocation.time/1000, PendingLocation(carLocation.longitude
-                        ,carLocation.latitude,carLocation.time/1000)))
+            it.forEachIndexed { i,carLocation ->
+                //Do not include points in the same location back to back
+                if ((it.lastIndex != i && it[i+1].latitude != carLocation.latitude
+                        || it[i+1].longitude != carLocation.longitude ) || it.lastIndex == i){
+                    recordedLocationList.add(LocationData(carLocation.time/1000, PendingLocation(carLocation.longitude
+                            ,carLocation.latitude,carLocation.time/1000)))
+                }
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
             val tripData = TripData(it[0].time/1000,it[0].vin,recordedLocationList)
@@ -186,6 +189,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 end = softStart
             val removedLocs = localLocationStorage.remove(locations.filter { it.time < end})
             val removedActivities = localActivityStorage.remove(activities.filter {it.time < end})
+            Logger.getInstance().logI(tag, "Processed trips, empty"
+                    ,DebugMessage.TYPE_USE_CASE)
             Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
                     "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
 

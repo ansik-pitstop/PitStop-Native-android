@@ -26,7 +26,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val GOT_LOCATION = "got_location"
         const val LOCATION_EXTRA = "location_extra"
         const val ACTION_PROCESS_UPDATE = "action_process_update"
-        const val MIN_LOC_ACCURACY = 60
+        const val MIN_LOC_ACCURACY = 100
     }
 
     override fun onReceive(context: Context, intent: Intent) {
