@@ -23,7 +23,7 @@
     
     <Button
         android:id="@+id/facebook_signin_button"
-        android:layout_below="@id/title"
+        android:layout_above="@id/seperator"
         android:text="Sign In With Facebook"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:layout_below="@id/facebook_signin_button"
+        android:layout_above="@id/email_field"
         android:id="@+id/seperator"
         android:text="or"
         android:layout_marginTop="20dp"
@@ -46,7 +46,8 @@
     
     <EditText
         android:id="@+id/email_field"
-        android:layout_below="@id/seperator"
+        android:layout_above="@id/password_field"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:hint="Email"
@@ -58,8 +59,9 @@
 
     <EditText
         android:id="@+id/password_field"
-        android:layout_below="@id/email_field"
-        android:layout_marginTop="5dp"
+        android:layout_above="@id/login_button"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:hint="Password"
@@ -85,7 +87,7 @@
 
     <TextView
         android:id="@+id/signup_text"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:layout_alignParentBottom="true"
         android:text="Don't have an account? Sign up"
         android:layout_centerHorizontal="true"
