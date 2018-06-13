@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ImageView
@@ -15,8 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/whitelogo"
-        android:paddingLeft="80dp"
-        android:paddingRight="80dp"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="32dp" />
@@ -26,58 +28,59 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:fontFamily="@font/lato_regular"
         android:textColor="@color/white"
         android:textAlignment="center"
         android:layout_centerHorizontal="true"
-        android:text="Your car will be healthier, and driving will be safer." />
+        android:text="@string/pitstop_splash_description" />
 
-    <EditText
+    <android.support.v7.widget.AppCompatEditText
         android:id="@+id/email_field"
         android:layout_above="@id/password_field"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:inputType="textEmailAddress"
-        android:hint="Email"
+        android:hint="@string/email"
         android:textColorHint="@color/white"
+        app:backgroundTint="@color/edittext_onboarding_outline"
         android:textColor="@color/white"
-        android:backgroundTint="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <EditText
+    <android.support.v7.widget.AppCompatEditText
         android:id="@+id/password_field"
         android:layout_above="@id/password_confirm_field"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:inputType="textPassword"
-        android:hint="Enter a password (min 8 characters)"
+        android:hint="@string/create_password_hint"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
-        android:backgroundTint="@color/white"
+        app:backgroundTint="@color/edittext_onboarding_outline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <EditText
+    <android.support.v7.widget.AppCompatEditText
         android:id="@+id/password_confirm_field"
         android:layout_above="@id/signup_button"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:inputType="textPassword"
-        android:hint="Confirm Password"
+        android:hint="@string/confirm_password"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
-        android:backgroundTint="@color/white"
+        app:backgroundTint="@color/edittext_onboarding_outline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/signup_button"
-        android:text="Sign up"
+        android:text="@string/sign_up"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="30dp"
