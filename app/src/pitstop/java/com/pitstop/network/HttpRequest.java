@@ -19,7 +19,7 @@ import com.pitstop.application.GlobalApplication;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.Token;
-import com.pitstop.ui.LoginActivity;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.SecretUtils;

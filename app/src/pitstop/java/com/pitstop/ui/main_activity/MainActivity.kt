@@ -1,8 +1,6 @@
 package com.pitstop.ui.main_activity
 
-import android.app.NotificationManager
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -41,11 +39,11 @@ import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
-import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.Notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
+import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
@@ -55,7 +53,6 @@ import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
-import com.pitstop.utils.MigrationService
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
 import io.smooch.ui.ConversationActivity
@@ -161,8 +158,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (userSignedUp) {
             setGreetingsNotSent()
         }
-
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(MigrationService.notificationId)
 
         if(mDrawerLayout == null){
             mDrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout

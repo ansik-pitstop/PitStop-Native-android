@@ -59,7 +59,7 @@
     </style>
 
     <style name="SplashTheme" parent="AppNoActionBarTheme">
-        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
     <style name="AddCarButtonStyle">
         <item name="android:background">#FFEAEAEA</item>

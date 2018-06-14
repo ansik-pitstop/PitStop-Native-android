@@ -15,10 +15,10 @@ import android.util.Log;
 import com.parse.ParseAnalytics;
 import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.R;
-import com.pitstop.models.ParseNotification;
-import com.pitstop.database.LocalParseNotificationStorage;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.ui.LoginActivity;
+import com.pitstop.database.LocalParseNotificationStorage;
+import com.pitstop.models.ParseNotification;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 
 import org.json.JSONException;
