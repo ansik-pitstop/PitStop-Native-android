@@ -30,9 +30,13 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayError("Please provide all the fields.")
         }else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             view!!.displayError("Invalid email address.")
-        }else if (password.length < 8){
+        }else if (email.length > 50){
+            view!!.displayError("Email is too long, please use less than 50 characters")
+        } else if (password.length < 8){
             view!!.displayError("Password too short, please use at least 8 characters.")
-        }else{
+        } else if (password.length > 50){
+            view!!.displayError("Password too long, must be less than 50 characters.")
+        } else{
             view?.displayLoading()
             useCaseComponent.loginUseCase().execute(email,password, object: LoginUseCase.Callback{
                 override fun onSuccess() {

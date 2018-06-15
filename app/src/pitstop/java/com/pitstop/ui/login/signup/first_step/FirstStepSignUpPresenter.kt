@@ -32,8 +32,12 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayErrorDialog("Please provide all the fields.")
         }else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             view!!.displayErrorDialog("Invalid email address.")
-        }else if (password.length < 8){
-            view!!.displayErrorDialog("Password too short, please use at least 8 characters.")
+        } else if (email.length > 50){
+            view!!.displayErrorDialog("Email is too long, must be less than 50 characters.")
+        } else if (password.length > 50){
+            view!!.displayErrorDialog("Password is too long, must be less than 50 characters.")
+        } else if (password.length < 8){
+            view!!.displayErrorDialog("Password is too short, please use at least 8 characters.")
         } else if (password != confirmPassword){
             view!!.displayErrorDialog("Passwords do not match.")
         }else{

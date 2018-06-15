@@ -22,18 +22,24 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
         view = null
     }
 
-    fun onSignupPressed(){
-        Log.d(TAG,"onSignupPressed()")
+    fun onSignupPressed() {
+        Log.d(TAG, "onSignupPressed()")
 
         val firstName = view!!.getFirstName()
         val lastName = view!!.getLastName()
         val phoneNumber = view!!.getPhoneNumber()
 
-        if (firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty()){
+        if (firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty()) {
             view!!.displayErrorDialog("Please provide all the fields.")
-        }else if (!android.util.Patterns.PHONE.matcher(phoneNumber).matches()){
+        } else if (!android.util.Patterns.PHONE.matcher(phoneNumber).matches()) {
             view!!.displayErrorDialog("Invalid phone number.")
-        }else{
+        } else if (phoneNumber.length > 15){
+            view!!.displayErrorDialog("Phone number is too long.")
+        } else if (firstName.length > 30){
+            view!!.displayErrorDialog("First name is too long")
+        } else if (lastName.length > 30){
+            view!!.displayErrorDialog("Last name is too long")
+        } else{
             val user = User()
             user.firstName = firstName
             user.lastName = lastName
