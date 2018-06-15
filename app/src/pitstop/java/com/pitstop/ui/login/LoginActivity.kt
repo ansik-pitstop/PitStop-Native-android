@@ -47,7 +47,7 @@ class LoginActivity: AppCompatActivity() {
     }
 
     fun switchToSignupStepTwo(username: String, password: String){
-        Log.d(TAG,"switchToSignupStepTwo()")
+        Log.d(TAG,"switchToSignupStepTwo() u:$username")
         secondStepSignUpFragment.setUsernameAndPassword(username,password)
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, secondStepSignUpFragment)

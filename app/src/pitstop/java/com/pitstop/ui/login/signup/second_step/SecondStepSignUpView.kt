@@ -13,4 +13,6 @@ interface SecondStepSignUpView {
     fun displayLoading()
     fun hideLoading()
     fun setUsernameAndPassword(username: String, password: String)
+    fun getUsername(): String
+    fun getPassword(): String
 }

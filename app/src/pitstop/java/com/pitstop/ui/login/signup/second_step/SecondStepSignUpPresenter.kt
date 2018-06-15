@@ -12,10 +12,6 @@ import com.pitstop.network.RequestError
 class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
     private val TAG = SecondStepSignUpPresenter::class.java.simpleName
-
-    private var email: String? = null
-    private var password: String? = null
-
     private var view: SecondStepSignUpView? = null
 
     fun subscribe(view: SecondStepSignUpView){
@@ -24,12 +20,6 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
 
     fun unsubscribe(){
         view = null
-    }
-
-    fun setEmailAndPassword(email: String, password: String){
-        Log.d(TAG,"setEmailAndPassword")
-        this.email = email
-        this.password = password
     }
 
     fun onSignupPressed(){
@@ -48,9 +38,9 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
             user.firstName = firstName
             user.lastName = lastName
             user.phone = phoneNumber
-            user.password = password
-            user.email = email
-            user.userName = email
+            user.password = view?.getPassword()
+            user.email = view?.getUsername()
+            user.userName = view?.getUsername()
 
             view?.displayLoading()
 

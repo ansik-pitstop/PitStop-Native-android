@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.pitstop.R
+import com.pitstop.R.id.*
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
@@ -22,6 +23,8 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
     private val TAG = SecondStepSignUpFragment::class.java.simpleName
 
     private var presenter: SecondStepSignUpPresenter? = null
+    private var username: String? = null //Set by activity, data is input by previous fragment
+    private var password: String? = null //Set by activity, data is input by previous fragment
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.layout_signup_step_two,container,false)
@@ -94,10 +97,20 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
 
     override fun setUsernameAndPassword(username: String, password: String) {
         Log.d(TAG,"setUsernameAndPassword")
-        presenter?.setEmailAndPassword(username,password)
+        this.username = username
+        this.password = password
+    }
+
+    override fun getPassword(): String {
+        return username!!
+    }
+
+    override fun getUsername(): String {
+        return password!!
     }
 
     override fun displayLoading() {
+        load_view.bringToFront()
         load_view.visibility = View.VISIBLE
     }
 

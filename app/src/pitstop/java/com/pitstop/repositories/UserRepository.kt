@@ -53,6 +53,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         } catch (e: JSONException) {
             e.printStackTrace()
         }
+        Log.d(TAG,"insert user body: $json")
         return pitstopAuthApi.signUp(json)
                 .doOnNext({localUserStorage.updateUser(it)})
     }

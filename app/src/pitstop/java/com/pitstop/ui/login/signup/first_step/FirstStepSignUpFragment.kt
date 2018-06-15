@@ -85,7 +85,7 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
     }
 
     override fun switchToNextStep(username: String, password: String) {
-        Log.d(TAG,"switchToNextStep()")
+        Log.d(TAG,"switchToNextStep() u:$username")
         try{
             (activity as LoginActivity).switchToSignupStepTwo(username, password)
         }catch(e: Exception){
