@@ -1,11 +1,6 @@
 package com.pitstop.ui.login.login
 
 import android.util.Log
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.login.LoginManager
-import com.facebook.login.LoginResult
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
@@ -44,5 +39,23 @@ class LoginPresenter {
 
 
         view?.loginFacebook()
+    }
+
+    fun onFacebookLoginSuccess(){
+        Log.d(TAG,"onFacebookLoginSuccess()")
+        view?.switchToMainActivity()
+    }
+
+    fun onFacebookLoginCancel(){
+        Log.d(TAG,"onFacebookLoginCancel()")
+    }
+
+    fun onFacebookLoginError(){
+        Log.d(TAG,"onFacebookLoginError()")
+    }
+
+    fun onSignupPressed(){
+        Log.d(TAG,"onSignupPressed()")
+        view?.switchToSignUp()
     }
 }

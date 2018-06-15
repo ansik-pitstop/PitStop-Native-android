@@ -9,5 +9,6 @@ interface LoginView {
     fun displayToast(message: String)
     fun displayError(message: String)
     fun switchToMainActivity()
+    fun switchToSignUp()
     fun loginFacebook()
 }

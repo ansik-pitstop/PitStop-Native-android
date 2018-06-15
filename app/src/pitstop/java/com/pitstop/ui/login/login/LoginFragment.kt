@@ -38,14 +38,17 @@ class LoginFragment: Fragment(), LoginView {
 
             override fun onSuccess(result: LoginResult?) {
                 Log.d(TAG,"onSuccess() result: $result")
+                presenter?.onFacebookLoginSuccess()
             }
 
             override fun onCancel() {
                 Log.d(TAG,"onCancel()")
+                presenter?.onFacebookLoginCancel()
             }
 
             override fun onError(error: FacebookException?) {
                 Log.d(TAG,"onError() err: $error")
+                presenter?.onFacebookLoginError()
             }
 
         })
@@ -56,6 +59,8 @@ class LoginFragment: Fragment(), LoginView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         login_button.setOnClickListener { presenter?.onLoginPressed() }
+        facebook_signin_button.setOnClickListener { presenter?.onFacebookLoginPressed() }
+        signup_text.setOnClickListener { presenter?.onSignupPressed() }
     }
 
     override fun onStart() {
@@ -101,6 +106,15 @@ class LoginFragment: Fragment(), LoginView {
         Log.d(TAG,"switchToMainActivity()")
         try{
             (activity as LoginActivity).switchToMainActivity()
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    override fun switchToSignUp() {
+        Log.d(TAG,"switchToSignUp()")
+        try{
+            (activity as LoginActivity).switchToSignup()
         }catch(e: Exception){
             e.printStackTrace()
         }
