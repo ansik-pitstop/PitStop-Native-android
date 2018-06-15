@@ -47,7 +47,6 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
             presenter = SecondStepSignUpPresenter(useCaseComponent)
         }
         presenter?.subscribe(this)
-
     }
 
     override fun onDestroy() {
