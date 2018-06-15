@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <include android:id="@+id/load_view"
-        android:visibility="gone"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_centerInParent="true"
@@ -31,6 +30,7 @@
         android:layout_marginTop="32dp" />
 
     <Button
+        android:stateListAnimator="@null"
         android:id="@+id/facebook_signin_button"
         android:layout_above="@id/seperator"
         android:text="@string/sign_in_with_facebook"

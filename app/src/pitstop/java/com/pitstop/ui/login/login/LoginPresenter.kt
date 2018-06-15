@@ -47,7 +47,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
                 }
 
             })
-            view!!.switchToMainActivity()
         }
     }
 

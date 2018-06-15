@@ -138,8 +138,8 @@ class LoginFragment: Fragment(), LoginView {
 
     override fun displayLoading() {
         Log.d(TAG,"displayLoading()")
-        load_view.bringToFront()
         load_view.visibility = View.VISIBLE
+        load_view.bringToFront()
     }
 
     override fun hideLoading() {
