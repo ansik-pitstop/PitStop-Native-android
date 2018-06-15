@@ -84,10 +84,10 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
     }
 
-    override fun switchToNextStep() {
+    override fun switchToNextStep(username: String, password: String) {
         Log.d(TAG,"switchToNextStep()")
         try{
-            (activity as LoginActivity).switchToSignupStepTwo()
+            (activity as LoginActivity).switchToSignupStepTwo(username, password)
         }catch(e: Exception){
             e.printStackTrace()
         }
