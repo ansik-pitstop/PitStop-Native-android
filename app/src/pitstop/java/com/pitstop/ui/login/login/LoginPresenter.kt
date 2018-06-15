@@ -2,6 +2,8 @@ package com.pitstop.ui.login.login
 
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.other.LoginUseCase
+import com.pitstop.network.RequestError
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
@@ -31,6 +33,20 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
         }else if (password.length < 8){
             view!!.displayError("Password too short, please use at least 8 characters.")
         }else{
+            view?.displayLoading()
+            useCaseComponent.loginUseCase().execute(email,password, object: LoginUseCase.Callback{
+                override fun onSuccess() {
+                    Log.d(TAG,"LoginUseCase.onSuccess()")
+                    view?.switchToMainActivity()
+                    view?.hideLoading()
+                }
+
+                override fun onError(error: RequestError) {
+                    Log.d(TAG,"LoginUseCase.onError() err: $error")
+                    view?.displayError(error.message)
+                }
+
+            })
             view!!.switchToMainActivity()
         }
     }

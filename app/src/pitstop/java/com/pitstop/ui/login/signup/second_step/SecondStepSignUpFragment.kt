@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.pitstop.R
-import com.pitstop.R.id.*
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
@@ -102,11 +101,13 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
     }
 
     override fun getPassword(): String {
-        return username!!
+        Log.d(TAG,"getPassword()")
+        return password!!
     }
 
     override fun getUsername(): String {
-        return password!!
+        Log.d(TAG,"getUsername()")
+        return username!!
     }
 
     override fun displayLoading() {

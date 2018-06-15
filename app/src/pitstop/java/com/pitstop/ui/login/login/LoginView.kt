@@ -11,4 +11,6 @@ interface LoginView {
     fun switchToMainActivity()
     fun switchToSignUp()
     fun loginFacebook()
+    fun displayLoading()
+    fun hideLoading()
 }

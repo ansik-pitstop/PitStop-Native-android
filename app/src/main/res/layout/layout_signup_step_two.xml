@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <include android:id="@+id/load_view"
+        android:elevation="50dp"
         android:visibility="gone"
         android:layout_height="match_parent"
         android:layout_width="match_parent"

@@ -135,4 +135,15 @@ class LoginFragment: Fragment(), LoginView {
         Log.d(TAG,"loginFacebook()")
         LoginManager.getInstance().logInWithReadPermissions(this, arrayListOf("public_profile"))
     }
+
+    override fun displayLoading() {
+        Log.d(TAG,"displayLoading()")
+        load_view.bringToFront()
+        load_view.visibility = View.VISIBLE
+    }
+
+    override fun hideLoading() {
+        Log.d(TAG,"hideLoading()")
+        load_view.visibility = View.GONE
+    }
 }
