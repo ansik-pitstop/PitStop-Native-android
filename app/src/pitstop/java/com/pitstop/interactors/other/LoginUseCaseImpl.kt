@@ -26,6 +26,8 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
     private lateinit var compositeDisposable: CompositeDisposable
 
     override fun execute(username: String, password: String, callback: LoginUseCase.Callback) {
+        Logger.getInstance()!!.logI(TAG, "Use case execution started: username=$username"
+                , DebugMessage.TYPE_USE_CASE)
         this.username = username
         this.password = password
         this.callback = callback

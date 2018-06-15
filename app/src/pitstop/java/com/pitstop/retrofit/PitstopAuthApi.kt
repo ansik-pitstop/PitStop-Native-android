@@ -18,6 +18,9 @@ interface PitstopAuthApi {
     @POST("login")
     fun login(@Body login: JsonObject): Observable<LoginResponse>
 
+    @POST("login/social")
+    fun loginSocial(@Body login: JsonObject): Observable<LoginResponse>
+
     @POST("user")
     fun signUp(@Body user: JsonObject): Observable<User>
 

@@ -58,6 +58,23 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 .doOnNext({localUserStorage.updateUser(it)})
     }
 
+    fun loginFacebook(accessToken: String): Observable<LoginResponse>{
+        Log.d(TAG,"loginFacebook()")
+
+        val json = JsonObject()
+        try {
+            json.addProperty("accessToken", accessToken)
+            json.addProperty("provider", "facebook")
+            json.addProperty("installationId"
+                    , ParseInstallation.getCurrentInstallation().installationId)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        return pitstopAuthApi.loginSocial(json)
+                .doOnNext({localUserStorage.updateUser(it.user)})
+    }
+
     fun login(username: String, password: String): Observable<LoginResponse>{
         Log.d(TAG,"login()")
 
