@@ -62,7 +62,7 @@ class LoginSignupFragment: Fragment(), LoginSignupView {
     override fun switchToSignup() {
         Log.d(TAG,"switchToSignup()")
         try{
-            (activity as LoginActivity).switchToSignup()
+            (activity as LoginActivity).switchToSignupStepOne()
         }catch(e: Exception){
             e.printStackTrace()
         }

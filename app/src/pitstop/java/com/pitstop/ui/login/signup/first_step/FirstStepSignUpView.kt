@@ -1,14 +1,13 @@
-package com.pitstop.ui.login.signup
+package com.pitstop.ui.login.signup.first_step
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-interface SignupView {
+interface FirstStepSignUpView {
     fun getPassword(): String
     fun getConfirmPassword(): String
     fun getEmail(): String
-    fun goToMainActivity()
     fun displayErrorDialog(message: String)
     fun displayToast(message: String)
-    fun switchToMainActivity()
+    fun switchToNextStep(username: String, password: String)
 }

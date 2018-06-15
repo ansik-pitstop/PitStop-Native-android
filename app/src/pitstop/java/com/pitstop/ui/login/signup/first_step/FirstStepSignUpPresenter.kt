@@ -1,17 +1,18 @@
-package com.pitstop.ui.login.signup
+package com.pitstop.ui.login.signup.first_step
 
 import android.util.Log
+import com.pitstop.dependency.UseCaseComponent
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class SignupPresenter {
+class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
-    private val TAG = SignupPresenter::class.java.simpleName
+    private val TAG = FirstStepSignUpPresenter::class.java.simpleName
 
-    private var view: SignupView? = null
+    private var view: FirstStepSignUpView? = null
 
-    fun subscribe(view: SignupView){
+    fun subscribe(view: FirstStepSignUpView){
         this.view = view
     }
 
@@ -36,8 +37,7 @@ class SignupPresenter {
         } else if (password != confirmPassword){
             view!!.displayErrorDialog("Passwords do not match.")
         }else{
-            view!!.displayToast("Sign up success!")
-            view!!.switchToMainActivity()
+            view!!.switchToNextStep(email,password)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.pitstop.ui.login.signup
+package com.pitstop.ui.login.signup.first_step
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,20 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.pitstop.R
+import com.pitstop.dependency.ContextModule
+import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
-import kotlinx.android.synthetic.main.layout_signup.*
+import kotlinx.android.synthetic.main.layout_signup_step_one.*
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class SignupFragment: Fragment() ,SignupView {
+class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
 
-    private val TAG = SignupFragment::class.java.simpleName
+    private val TAG = FirstStepSignUpFragment::class.java.simpleName
 
-    private var presenter: SignupPresenter? = null
+    private var presenter: FirstStepSignUpPresenter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.layout_signup,container,false)
+        val view = inflater.inflate(R.layout.layout_signup_step_one,container,false)
         return view
     }
 
@@ -37,7 +39,10 @@ class SignupFragment: Fragment() ,SignupView {
     override fun onStart() {
         super.onStart()
         if (presenter == null){
-            presenter = SignupPresenter()
+            val useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(ContextModule(context))
+                    .build()
+            presenter = FirstStepSignUpPresenter(useCaseComponent)
         }
         presenter?.subscribe(this)
 
@@ -64,15 +69,6 @@ class SignupFragment: Fragment() ,SignupView {
         return email_field.text.toString()
     }
 
-    override fun goToMainActivity() {
-        Log.d(TAG,"goToMainActivity()")
-        try{
-            (activity as LoginActivity).switchToMainActivity()
-        }catch(e: Exception){
-            e.printStackTrace()
-        }
-    }
-
     override fun displayErrorDialog(message: String) {
         Log.d(TAG,"displayErrorDialog() message: $message")
         AlertDialog.Builder(context!!)
@@ -88,10 +84,10 @@ class SignupFragment: Fragment() ,SignupView {
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
     }
 
-    override fun switchToMainActivity() {
-        Log.d(TAG,"switchToMainActivity()")
+    override fun switchToNextStep() {
+        Log.d(TAG,"switchToNextStep()")
         try{
-            (activity as LoginActivity).switchToMainActivity()
+            (activity as LoginActivity).switchToSignupStepTwo()
         }catch(e: Exception){
             e.printStackTrace()
         }

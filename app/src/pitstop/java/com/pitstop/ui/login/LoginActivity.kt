@@ -7,7 +7,8 @@ import android.util.Log
 import com.pitstop.R
 import com.pitstop.ui.login.login.LoginFragment
 import com.pitstop.ui.login.login_signup.LoginSignupFragment
-import com.pitstop.ui.login.signup.SignupFragment
+import com.pitstop.ui.login.signup.first_step.FirstStepSignUpFragment
+import com.pitstop.ui.login.signup.first_step.SecondStepSignUpFragment
 import com.pitstop.ui.main_activity.MainActivity
 
 /**
@@ -20,7 +21,8 @@ class LoginActivity: AppCompatActivity() {
 
     private val TAG = LoginActivity::class.java.simpleName
 
-    private val signupFragment = SignupFragment()
+    private val stepOneSignUpFragment = FirstStepSignUpFragment()
+    private val secondStepSignUpFragment = SecondStepSignUpFragment()
     private val loginFragment = LoginFragment()
     private val signupLoginFragment = LoginSignupFragment()
 
@@ -36,10 +38,19 @@ class LoginActivity: AppCompatActivity() {
         super.onStart()
     }
 
-    fun switchToSignup(){
-        Log.d(TAG,"switchToSignup()")
+    fun switchToSignupStepOne(){
+        Log.d(TAG,"switchToSignupStepOne()")
         supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, signupFragment)
+                .replace(R.id.fragment_container, stepOneSignUpFragment)
+                .addToBackStack("signup")
+                .commit()
+    }
+
+    fun switchToSignupStepTwo(username: String, password: String){
+        Log.d(TAG,"switchToSignupStepTwo()")
+        secondStepSignUpFragment.setUsernameAndPassword(username,password)
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, secondStepSignUpFragment)
                 .addToBackStack("signup")
                 .commit()
     }

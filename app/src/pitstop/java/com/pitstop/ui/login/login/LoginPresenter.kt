@@ -1,11 +1,12 @@
 package com.pitstop.ui.login.login
 
 import android.util.Log
+import com.pitstop.dependency.UseCaseComponent
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class LoginPresenter {
+class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
 
     private val TAG = LoginPresenter::class.java.simpleName
 

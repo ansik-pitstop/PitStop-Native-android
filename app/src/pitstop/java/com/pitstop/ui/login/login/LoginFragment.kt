@@ -15,6 +15,8 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.pitstop.R
+import com.pitstop.dependency.ContextModule
+import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.layout_signin.*
 
@@ -66,7 +68,10 @@ class LoginFragment: Fragment(), LoginView {
     override fun onStart() {
         super.onStart()
         if (presenter == null){
-            presenter = LoginPresenter()
+            val useCaseComponent = DaggerUseCaseComponent.builder()
+                    .contextModule(ContextModule(context))
+                    .build()
+            presenter = LoginPresenter(useCaseComponent)
         }
         presenter?.subscribe(this)
 

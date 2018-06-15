@@ -637,4 +637,7 @@
     <string name="sign_up">Sign Up</string>
     <string name="create_password_hint">Enter a password (min 8 characters)</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
 </resources>
