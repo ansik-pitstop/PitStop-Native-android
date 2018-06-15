@@ -33,6 +33,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
                .subscribeOn(Schedulers.computation())
                .observeOn(Schedulers.io())
                .subscribe({next ->
+                   loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
                    LoginFacebookUseCaseImpl@onSuccess()
                }, {error ->
                    LoginFacebookUseCaseImpl@onError(RequestError(error))
