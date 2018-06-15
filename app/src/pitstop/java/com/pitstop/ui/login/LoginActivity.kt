@@ -30,12 +30,12 @@ class LoginActivity: AppCompatActivity() {
         Log.d(TAG,"onCreate()")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        switchToLoginSignup()
     }
 
     override fun onStart() {
         Log.d(TAG,"onStart()")
         super.onStart()
+        switchToLoginSignup()
     }
 
     fun switchToSignupStepOne(){
@@ -67,7 +67,6 @@ class LoginActivity: AppCompatActivity() {
         Log.d(TAG,"switchToLoginSignup()")
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, signupLoginFragment)
-                .addToBackStack("signup_login")
                 .commit()
     }
 
