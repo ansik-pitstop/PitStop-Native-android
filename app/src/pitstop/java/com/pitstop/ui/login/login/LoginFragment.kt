@@ -69,7 +69,7 @@ class LoginFragment: Fragment(), LoginView {
         super.onStart()
         if (presenter == null){
             val useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(context))
+                    .contextModule(ContextModule(activity?.applicationContext))
                     .build()
             presenter = LoginPresenter(useCaseComponent)
         }

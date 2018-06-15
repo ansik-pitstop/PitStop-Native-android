@@ -284,6 +284,6 @@ public class NetworkModule {
     @Provides
     @Singleton
     LoginManager loginManager(Context context){
-        return (LoginManager)context;
+        return ((GlobalApplication)context);
     }
 }

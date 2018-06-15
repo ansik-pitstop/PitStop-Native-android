@@ -48,6 +48,7 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
                 override fun onError(error: RequestError) {
                     Log.d(TAG,"LoginUseCase.onError() err: $error")
                     view?.displayError(error.message)
+                    view?.hideLoading()
                 }
 
             })
