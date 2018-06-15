@@ -46,7 +46,7 @@
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/first_name_field"
-        android:layout_above="@id/password_field"
+        android:layout_above="@id/last_name_field"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:inputType="textPersonName"
@@ -59,7 +59,7 @@
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/last_name_field"
-        android:layout_above="@id/password_confirm_field"
+        android:layout_above="@id/phone_number_field"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
