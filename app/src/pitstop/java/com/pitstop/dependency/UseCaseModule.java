@@ -107,6 +107,8 @@ import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
+import com.pitstop.interactors.other.LoginUseCase;
+import com.pitstop.interactors.other.LoginUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
 import com.pitstop.interactors.other.ProcessTripDataUseCase;
@@ -115,6 +117,8 @@ import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCaseImpl;
+import com.pitstop.interactors.other.SignUpUseCase;
+import com.pitstop.interactors.other.SignUpUseCaseImpl;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
@@ -735,6 +739,22 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler){
         return new ProcessTripDataUseCaseImpl(localLocationStorage,localActivityStorage
                 ,tripRepository,useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    LoginUseCase loginUseCase(UserRepository userRepository
+            , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new LoginUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    SignUpUseCase signUpUseCase(UserRepository userRepository
+            , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new SignUpUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+
     }
 }
 
