@@ -164,6 +164,7 @@ import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopSmoochApi;
+import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Named;
@@ -742,18 +743,18 @@ public class UseCaseModule {
     }
 
     @Provides
-    LoginUseCase loginUseCase(UserRepository userRepository
+    LoginUseCase loginUseCase(UserRepository userRepository, LoginManager loginManager
             , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new LoginUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+        return new LoginUseCaseImpl(userRepository, loginManager, useCaseHandler, mainHandler);
 
     }
 
     @Provides
-    SignUpUseCase signUpUseCase(UserRepository userRepository
+    SignUpUseCase signUpUseCase(UserRepository userRepository, LoginManager loginManager
             , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new SignUpUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+        return new SignUpUseCaseImpl(userRepository, loginManager, useCaseHandler, mainHandler);
 
     }
 }

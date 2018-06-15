@@ -21,6 +21,7 @@ import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.Token;
+import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.SecretUtils;
 
@@ -278,5 +279,11 @@ public class NetworkModule {
             }
         });
 
+    }
+
+    @Provides
+    @Singleton
+    LoginManager loginManager(Context context){
+        return (LoginManager)context;
     }
 }

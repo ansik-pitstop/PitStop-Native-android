@@ -7,6 +7,7 @@ import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
+import com.pitstop.utils.LoginManager
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -14,6 +15,7 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 6/15/2018.
  */
 class SignUpUseCaseImpl(private val userRepository: UserRepository
+                        , private val loginManager: LoginManager
                         , private val useCaseHandler: Handler
                         , private val mainHandler: Handler): SignUpUseCase {
 
@@ -39,7 +41,16 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
                     Log.d(TAG,"insert user response: $next")
-                    SignUpUseCaseImpl@onSuccess()
+                    userRepository.login(next.userName,next.password)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io()).subscribe({next->
+                                Log.d(TAG,"login user response: $next")
+                                loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
+                                SignUpUseCaseImpl@onSuccess()
+                            },{err ->
+                                Log.d(TAG,"login user error: $err")
+                                SignUpUseCaseImpl@onError(RequestError(err))
+                            })
                 }, {err ->
                     Log.d(TAG,"insert user error: $err")
                     SignUpUseCaseImpl@onError(RequestError(err))

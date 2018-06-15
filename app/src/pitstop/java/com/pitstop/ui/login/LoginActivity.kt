@@ -10,6 +10,7 @@ import com.pitstop.ui.login.login_signup.LoginSignupFragment
 import com.pitstop.ui.login.signup.first_step.FirstStepSignUpFragment
 import com.pitstop.ui.login.signup.first_step.SecondStepSignUpFragment
 import com.pitstop.ui.main_activity.MainActivity
+import com.pitstop.utils.LoginManager
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
@@ -29,7 +30,11 @@ class LoginActivity: AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"onCreate()")
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_login)
+        if ((application as LoginManager).isLoggedIn()){
+            switchToMainActivity()
+        }
     }
 
     override fun onStart() {

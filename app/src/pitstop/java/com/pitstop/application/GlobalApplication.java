@@ -57,6 +57,7 @@ import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
+import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -73,7 +74,7 @@ import io.smooch.core.Smooch;
 /**
  * Created by Ansik on 12/28/15.
  */
-public class GlobalApplication extends Application {
+public class GlobalApplication extends Application implements LoginManager {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 
@@ -368,7 +369,8 @@ public class GlobalApplication extends Application {
         }
     }
 
-    public void logInUser(String accessToken, String refreshToken, User currentUser) {
+    @Override
+    public void loginUser(String accessToken, String refreshToken, User currentUser) {
 
         Log.d(TAG, "logInUser() user: " + currentUser);
         cleanUpDatabase();
@@ -434,6 +436,7 @@ public class GlobalApplication extends Application {
         return carList.get(0);
     }
 
+    @Override
     public boolean isLoggedIn() {
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         return settings.getBoolean(PreferenceKeys.KEY_LOGGED_IN, false);

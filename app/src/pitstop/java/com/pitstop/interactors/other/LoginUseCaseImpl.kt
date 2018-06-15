@@ -6,6 +6,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
+import com.pitstop.utils.LoginManager
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -13,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 6/15/2018.
  */
 class LoginUseCaseImpl(private val userRepository: UserRepository
+                       , private val loginManager: LoginManager
                        , private val useCaseHandler: Handler
                        , private val mainHandler: Handler): LoginUseCase {
 
@@ -38,6 +40,7 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
                     Log.d(TAG,"login response: $next")
+                    loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
                     LoginUseCaseImpl@onSuccess()
                 }, {err ->
                     Log.d(TAG,"login error response: $err")
