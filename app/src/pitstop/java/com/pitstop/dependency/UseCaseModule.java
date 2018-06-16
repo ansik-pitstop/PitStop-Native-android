@@ -107,6 +107,8 @@ import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
+import com.pitstop.interactors.other.LoginFacebookUseCase;
+import com.pitstop.interactors.other.LoginFacebookUseCaseImpl;
 import com.pitstop.interactors.other.LoginUseCase;
 import com.pitstop.interactors.other.LoginUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
@@ -755,6 +757,14 @@ public class UseCaseModule {
             , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
         return new SignUpUseCaseImpl(userRepository, loginManager, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    LoginFacebookUseCase loginFacebookUseCase(UserRepository userRepository, LoginManager loginManager
+            , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new LoginFacebookUseCaseImpl(loginManager, userRepository ,useCaseHandler, mainHandler);
 
     }
 }

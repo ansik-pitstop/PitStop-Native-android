@@ -49,6 +49,7 @@ import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
+import com.pitstop.interactors.other.LoginFacebookUseCase;
 import com.pitstop.interactors.other.LoginUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.ProcessTripDataUseCase;
@@ -231,4 +232,6 @@ public interface UseCaseComponent {
     SignUpUseCase signUpUseCase();
 
     LoginUseCase loginUseCase();
+
+    LoginFacebookUseCase facebookLoginUseCase();
 }

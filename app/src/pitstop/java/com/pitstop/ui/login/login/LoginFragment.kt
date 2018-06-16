@@ -40,7 +40,7 @@ class LoginFragment: Fragment(), LoginView {
 
             override fun onSuccess(result: LoginResult?) {
                 Log.d(TAG,"onSuccess() result: $result")
-                presenter?.onFacebookLoginSuccess()
+                presenter?.onFacebookLoginSuccess(result)
             }
 
             override fun onCancel() {

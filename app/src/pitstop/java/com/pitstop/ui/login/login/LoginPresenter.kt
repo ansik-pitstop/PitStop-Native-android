@@ -1,7 +1,9 @@
 package com.pitstop.ui.login.login
 
 import android.util.Log
+import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.other.LoginFacebookUseCase
 import com.pitstop.interactors.other.LoginUseCase
 import com.pitstop.network.RequestError
 
@@ -62,8 +64,22 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
         view?.loginFacebook()
     }
 
-    fun onFacebookLoginSuccess(){
+    fun onFacebookLoginSuccess(result: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
+        useCaseComponent.facebookLoginUseCase().execute(result!!.accessToken.token
+                , object: LoginFacebookUseCase.Callback{
+
+            override fun onSuccess() {
+                Log.d(TAG,"FacebookLoginUseCase.onSuccess()")
+                view?.switchToMainActivity()
+            }
+
+            override fun onError(err: RequestError) {
+                Log.d(TAG,"FacebookLoginUseCase.onError() err: $err")
+                view?.displayError(err.message)
+            }
+
+        })
         view?.switchToMainActivity()
     }
 
