@@ -60,27 +60,28 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onFacebookLoginPressed(){
         Log.d(TAG,"onFacebookLoginPressed()")
 
-
         view?.loginFacebook()
     }
 
     fun onFacebookLoginSuccess(result: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
+        view?.displayLoading()
         useCaseComponent.facebookLoginUseCase().execute(result!!.accessToken.token
                 , object: LoginFacebookUseCase.Callback{
 
             override fun onSuccess() {
                 Log.d(TAG,"FacebookLoginUseCase.onSuccess()")
+                view?.hideLoading()
                 view?.switchToMainActivity()
             }
 
             override fun onError(err: RequestError) {
                 Log.d(TAG,"FacebookLoginUseCase.onError() err: $err")
+                view?.hideLoading()
                 view?.displayError(err.message)
             }
 
         })
-        view?.switchToMainActivity()
     }
 
     fun onFacebookLoginCancel(){

@@ -8,6 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -22,6 +27,7 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
     private val TAG = FirstStepSignUpFragment::class.java.simpleName
 
     private var presenter: FirstStepSignUpPresenter? = null
+    private var facebookCallbackManager: CallbackManager? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.layout_signup_step_one,container,false)
@@ -30,6 +36,27 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        facebookCallbackManager = CallbackManager.Factory.create()
+        LoginManager.getInstance().registerCallback(facebookCallbackManager
+                , object: FacebookCallback<LoginResult> {
+
+            override fun onSuccess(result: LoginResult?) {
+                Log.d(TAG,"onSuccess() result: $result")
+                presenter?.onFacebookLoginSuccess(result)
+            }
+
+            override fun onCancel() {
+                Log.d(TAG,"onCancel()")
+                presenter?.onFacebookLoginCancel()
+            }
+
+            override fun onError(error: FacebookException?) {
+                Log.d(TAG,"onError() err: $error")
+                presenter?.onFacebookLoginError()
+            }
+
+        })
 
         signup_button.setOnClickListener {
             presenter?.onSignupPressed()
@@ -91,5 +118,11 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         }catch(e: Exception){
             e.printStackTrace()
         }
+    }
+
+    override fun loginFacebook() {
+        Log.d(TAG,"loginFacebook()")
+        LoginManager.getInstance().logInWithReadPermissions(this
+                , arrayListOf("public_profile,email"))
     }
 }

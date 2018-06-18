@@ -641,4 +641,5 @@
     <string name="last_name">Last Name</string>
     <string name="phone_number">Phone Number</string>
     <string name="next_string">Next</string>
+    <string name="sign_up_with_facebook">Sign Up With Facebook</string>
 </resources>

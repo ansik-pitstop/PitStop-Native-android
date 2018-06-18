@@ -44,6 +44,31 @@
         android:layout_centerHorizontal="true"
         android:text="@string/pitstop_splash_description" />
 
+
+    <Button
+        android:stateListAnimator="@null"
+        android:id="@+id/facebook_signin_button"
+        android:layout_above="@id/seperator"
+        android:text="@string/sign_in_with_facebook"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/round_button_blue"
+        android:fontFamily="@font/lato_bold"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_above="@id/email_field"
+        android:id="@+id/seperator"
+        android:text="or"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/lato_bold"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/first_name_field"
         android:layout_above="@id/last_name_field"

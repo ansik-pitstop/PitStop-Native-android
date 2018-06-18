@@ -10,4 +10,5 @@ interface FirstStepSignUpView {
     fun displayErrorDialog(message: String)
     fun displayToast(message: String)
     fun switchToNextStep(username: String, password: String)
+    fun loginFacebook()
 }

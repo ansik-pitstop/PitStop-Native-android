@@ -1,6 +1,7 @@
 package com.pitstop.ui.login.signup.first_step
 
 import android.util.Log
+import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
 
 /**
@@ -43,5 +44,19 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
         }else{
             view!!.switchToNextStep(email,password)
         }
+    }
+
+    fun onFacebookLoginSuccess(loginResult: LoginResult?){
+        Log.d(TAG,"onFacebookLoginSuccess()")
+    }
+
+    fun onFacebookLoginCancel(){
+        Log.d(TAG,"onFacebookLoginCancel()")
+
+    }
+
+    fun onFacebookLoginError(){
+        Log.d(TAG,"onFacebookLoginError()")
+
     }
 }
