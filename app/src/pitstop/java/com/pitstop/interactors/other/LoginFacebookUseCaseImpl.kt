@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
@@ -36,6 +37,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
                    loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
                    LoginFacebookUseCaseImpl@onSuccess()
                }, {error ->
+                   Log.e(TAG,"loginFacebook err: $error")
                    LoginFacebookUseCaseImpl@onError(RequestError(error))
                })
     }

@@ -36,7 +36,7 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
 
     override fun run() {
 
-        val disposable = userRepository.insert(user)
+        val disposable = userRepository.insert(user,false)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe({next ->

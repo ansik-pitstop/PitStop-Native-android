@@ -134,7 +134,7 @@ class LoginFragment: Fragment(), LoginView {
     override fun loginFacebook() {
         Log.d(TAG,"loginFacebook()")
         LoginManager.getInstance().logInWithReadPermissions(this
-                , arrayListOf("public_profile,email"))
+                , mutableListOf("public_profile,email"))
     }
 
     override fun displayLoading() {

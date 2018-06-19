@@ -37,7 +37,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     private val END_POINT_SETTINGS = "settings/?userId="
     private val END_POINT_USER = "user/"
 
-    fun insert(user: User): Observable<User> {
+    fun insert(user: User, isSocial: Boolean): Observable<User> {
         Log.d(TAG, "insert() model: $model")
         val json = JsonObject()
         try {
@@ -47,7 +47,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             json.addProperty("username", user.email)
             json.addProperty("phone", user.phone)
             json.addProperty("password", user.password)
-            json.addProperty("isSocial", false)
+            json.addProperty("isSocial", isSocial)
             json.addProperty("installationId"
                     , ParseInstallation.getCurrentInstallation().installationId)
         } catch (e: JSONException) {

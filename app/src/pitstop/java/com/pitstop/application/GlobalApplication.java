@@ -484,6 +484,10 @@ public class GlobalApplication extends Application implements LoginManager {
 
         ParseUser.logOut();
 
+        if (AccessToken.getCurrentAccessToken() != null){
+            com.facebook.login.LoginManager.getInstance().logOut();
+        }
+
         AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login

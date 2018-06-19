@@ -1,8 +1,11 @@
 package com.pitstop.ui.login.signup.first_step
 
+import android.os.Bundle
 import android.util.Log
+import com.facebook.GraphRequest
 import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.models.User
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
@@ -48,6 +51,21 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
     fun onFacebookLoginSuccess(loginResult: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
+        val user = User()
+        val request = GraphRequest.newMeRequest(loginResult!!.accessToken) { responseObject, response ->
+            try {
+                // Application code
+                Log.d(TAG,"response: $response, responseObject: $responseObject")
+                val email = response?.jsonObject?.getString("email")
+                Log.d(TAG,"got facebook email: $email")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        val parameters = Bundle()
+        parameters.putString("fields","id,name,email,gender,birthday")
+        request.parameters = parameters
+        request.executeAsync()
     }
 
     fun onFacebookLoginCancel(){
@@ -58,5 +76,10 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onFacebookLoginError(){
         Log.d(TAG,"onFacebookLoginError()")
 
+    }
+
+    fun onFacebookSignUpPressed(){
+        Log.d(TAG,"onFacebookSignUpPressed()")
+        view?.loginFacebook()
     }
 }

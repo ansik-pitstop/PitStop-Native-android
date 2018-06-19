@@ -1,5 +1,6 @@
 package com.pitstop.ui.login.signup.first_step
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -38,6 +39,7 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         super.onViewCreated(view, savedInstanceState)
 
         facebookCallbackManager = CallbackManager.Factory.create()
+
         LoginManager.getInstance().registerCallback(facebookCallbackManager
                 , object: FacebookCallback<LoginResult> {
 
@@ -61,7 +63,18 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         signup_button.setOnClickListener {
             presenter?.onSignupPressed()
         }
+
+        facebook_signup_button.setOnClickListener {
+            presenter?.onFacebookSignUpPressed()
+        }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG,"onActivityResult()")
+        facebookCallbackManager?.onActivityResult(requestCode,resultCode,data)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -123,6 +136,6 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
     override fun loginFacebook() {
         Log.d(TAG,"loginFacebook()")
         LoginManager.getInstance().logInWithReadPermissions(this
-                , arrayListOf("public_profile,email"))
+                , mutableListOf("public_profile","email","user_birthday"))
     }
 }
