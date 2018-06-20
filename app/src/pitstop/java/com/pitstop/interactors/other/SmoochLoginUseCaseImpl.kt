@@ -11,6 +11,7 @@ import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PitstopSmoochApi
 import com.pitstop.utils.Logger
+import com.pitstop.utils.SmoochUtil
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.smooch.core.Smooch
@@ -43,8 +44,6 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
         userRepository.getCurrentUser(object: Repository.Callback<User>{
             override fun onSuccess(user: User) {
                 val userId = user.id
-                smoochUser.firstName = user.firstName
-                smoochUser.email = user.email
 
                 val disposable = carRepository.get(user.settings.carId)
                         .subscribeOn(Schedulers.computation())
@@ -52,14 +51,7 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                         .subscribe({next->
                             if (next.isLocal) return@subscribe
                             val car: Car = next.data!!
-                            val customProperties = HashMap<String,Any>()
-                            customProperties["VIN"] = car.vin
-                            customProperties["Car Make"] = car.make
-                            customProperties["Car Model"] = car.model
-                            customProperties["Car Year"] = car.year
-                            customProperties["Email"] = car.shop.email
-                            customProperties["Phone"] = user.phone
-                            smoochUser.addProperties(customProperties)
+                            SmoochUtil.setSmoochProperties(user,car)
                             Log.d(tag,"set smooch user proerties!")
                             SmoochLoginUseCaseImpl@onSmoochPropertiesSet()
                         }, {error ->
