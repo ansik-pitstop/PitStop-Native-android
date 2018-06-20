@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
@@ -15,6 +16,7 @@ import io.reactivex.schedulers.Schedulers
  */
 class LoginUseCaseImpl(private val userRepository: UserRepository
                        , private val loginManager: LoginManager
+                       , private val localDatabaseHelper: LocalDatabaseHelper
                        , private val useCaseHandler: Handler
                        , private val mainHandler: Handler): LoginUseCase {
 
@@ -36,7 +38,7 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
     }
 
     override fun run() {
-
+        localDatabaseHelper.deleteAllData()
         val disposable = userRepository.login(username,password)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
@@ -60,7 +62,7 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
     }
 
     private fun onError(err: RequestError){
-        Logger.getInstance()!!.logI(TAG, "Use case finished: logged in error=$err"
+        Logger.getInstance()!!.logE(TAG, "Use case finished: logged in error=$err"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
         mainHandler.post({callback.onError(err)})

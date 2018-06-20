@@ -65,7 +65,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME_RESULT_4);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_PENDING.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_ISSUES.TABLE_NAME);
@@ -76,8 +75,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SCANNER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.DEBUG_MESSAGES.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.TRIP_DEVICE.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_SPECS_DATA.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_ALARMS.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.TRIP.TABLE_NAME);
@@ -96,7 +93,6 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteAllData(){
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.PID.TABLE_NAME);
-        getWritableDatabase().execSQL("DELETE FROM " + TABLES.PID.TABLE_NAME_RESULT_4);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.CAR.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.CAR_PENDING.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.CAR_ISSUES.TABLE_NAME);
@@ -105,9 +101,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.SHOP.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.NOTIFICATION.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.USER.TABLE_NAME);
-        getWritableDatabase().execSQL("DELETE FROM " + TABLES.SCANNER.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.DEBUG_MESSAGES.TABLE_NAME);
-        getWritableDatabase().execSQL("DELETE FROM " + TABLES.TRIP_DEVICE.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCAL_SPECS_DATA.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCAL_ALARMS.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCAL_FUEL_CONSUMPTION.TABLE_NAME);

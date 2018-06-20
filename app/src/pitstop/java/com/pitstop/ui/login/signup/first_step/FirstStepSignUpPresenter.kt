@@ -56,7 +56,7 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
                 Log.d(TAG,"FacebookSignUpUseCase.onSuccess()")
                 if (view == null) return
                 view?.hideLoading()
-                view?.switchToMainActivity()
+                view?.switchToOnBoarding()
             }
 
             override fun onError(err: RequestError) {

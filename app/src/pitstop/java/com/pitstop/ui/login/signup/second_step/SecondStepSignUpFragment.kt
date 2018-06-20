@@ -42,7 +42,7 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
         super.onStart()
         if (presenter == null){
             val useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(context))
+                    .contextModule(ContextModule(activity?.applicationContext))
                     .build()
             presenter = SecondStepSignUpPresenter(useCaseComponent)
         }
@@ -84,8 +84,8 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
     }
 
-    override fun switchToMainActivity() {
-        Log.d(TAG,"switchToMainActivity()")
+    override fun switchToOnBoarding() {
+        Log.d(TAG,"switchToOnBoarding()")
         try{
             (activity as LoginActivity).switchToMainActivity(true)
         }catch(e: Exception){
@@ -100,12 +100,12 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
     }
 
     override fun getPassword(): String {
-        Log.d(TAG,"getPassword()")
+        Log.d(TAG,"getPassword() password: $password")
         return password!!
     }
 
     override fun getUsername(): String {
-        Log.d(TAG,"getUsername()")
+        Log.d(TAG,"getUsername() username: $username")
         return username!!
     }
 

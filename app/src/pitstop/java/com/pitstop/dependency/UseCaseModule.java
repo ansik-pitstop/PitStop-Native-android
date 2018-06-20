@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.database.LocalActivityStorage;
 import com.pitstop.database.LocalAlarmStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -749,33 +750,36 @@ public class UseCaseModule {
 
     @Provides
     LoginUseCase loginUseCase(UserRepository userRepository, LoginManager loginManager
-            , @Named("useCaseHandler") Handler useCaseHandler
+            , LocalDatabaseHelper localDatabaseHelper , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new LoginUseCaseImpl(userRepository, loginManager, useCaseHandler, mainHandler);
+        return new LoginUseCaseImpl(userRepository, loginManager
+                , localDatabaseHelper, useCaseHandler, mainHandler);
 
     }
 
     @Provides
     SignUpUseCase signUpUseCase(UserRepository userRepository, LoginManager loginManager
-            , @Named("useCaseHandler") Handler useCaseHandler
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new SignUpUseCaseImpl(userRepository, loginManager, useCaseHandler, mainHandler);
+        return new SignUpUseCaseImpl(userRepository, loginManager, localDatabaseHelper, useCaseHandler, mainHandler);
 
     }
 
     @Provides
     LoginFacebookUseCase loginFacebookUseCase(UserRepository userRepository, LoginManager loginManager
-            , @Named("useCaseHandler") Handler useCaseHandler
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new LoginFacebookUseCaseImpl(loginManager, userRepository ,useCaseHandler, mainHandler);
+        return new LoginFacebookUseCaseImpl(loginManager, userRepository , localDatabaseHelper
+                , useCaseHandler, mainHandler);
 
     }
 
     @Provides
     FacebookSignUpUseCase facebookSignUpUseCase(UserRepository userRepository, LoginManager loginManager
-            , @Named("useCaseHandler") Handler useCaseHandler
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new FacebookSignUpUseCaseImpl(userRepository, loginManager ,useCaseHandler, mainHandler);
+        return new FacebookSignUpUseCaseImpl(userRepository, loginManager , localDatabaseHelper
+                , useCaseHandler, mainHandler);
 
     }
 }

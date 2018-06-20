@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
@@ -14,6 +15,7 @@ import io.reactivex.schedulers.Schedulers
  */
 class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
                                , private val userRepository: UserRepository
+                               , private val localDatabaseHelper: LocalDatabaseHelper
                                , private val useCaseHandler: Handler
                                , private val mainHandler: Handler): LoginFacebookUseCase {
 
@@ -30,6 +32,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
     }
 
     override fun run() {
+        localDatabaseHelper.deleteAllData()
        userRepository.loginFacebook(facebookAuthToken)
                .subscribeOn(Schedulers.computation())
                .observeOn(Schedulers.io())
@@ -50,7 +53,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
     }
 
     private fun onError(err: RequestError){
-        Logger.getInstance()!!.logI(TAG, "Use case finished: logged in error=$err"
+        Logger.getInstance()!!.logE(TAG, "Use case finished: logged in error=$err"
                 , DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(err)})
     }

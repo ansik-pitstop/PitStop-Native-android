@@ -55,7 +55,7 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
                     Log.d(TAG,"SignUpUseCase() returned success!")
                     if (view == null) return
                     view!!.displayToast("Sign up success!")
-                    view!!.switchToMainActivity()
+                    view!!.switchToOnBoarding()
                     view?.hideLoading()
                 }
 

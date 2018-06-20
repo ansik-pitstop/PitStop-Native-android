@@ -166,8 +166,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             val recordedLocationList = mutableSetOf<LocationData>()
             it.forEachIndexed { i,carLocation ->
                 //Do not include points in the same location back to back
-                if ((it.lastIndex != i && it[i+1].latitude != carLocation.latitude
-                        || it[i+1].longitude != carLocation.longitude ) || it.lastIndex == i){
+                if ((it.lastIndex != i && (it[i+1].latitude != carLocation.latitude
+                        || it[i+1].longitude != carLocation.longitude ) ) || it.lastIndex == i){
                     recordedLocationList.add(LocationData(carLocation.time/1000, PendingLocation(carLocation.longitude
                             ,carLocation.latitude,carLocation.time/1000)))
                 }

@@ -133,10 +133,10 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         }
     }
 
-    override fun switchToMainActivity() {
-        Log.d(TAG,"switchToMainActivity()")
+    override fun switchToOnBoarding() {
+        Log.d(TAG,"switchToOnBoarding()")
         try{
-            (activity as LoginActivity).switchToMainActivity(true)
+            (activity as LoginActivity).switchToChatOnBoarding()
         }catch(e: Exception){
             e.printStackTrace()
         }

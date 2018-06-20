@@ -5,9 +5,12 @@ import android.os.Handler
 import android.util.Log
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
+import com.pitstop.database.LocalDatabaseHelper
+import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
+import com.pitstop.utils.Logger
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -15,6 +18,7 @@ import io.reactivex.schedulers.Schedulers
  */
 class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                                 , private val loginManager: com.pitstop.utils.LoginManager
+                                , private val localDatabaseHelper: LocalDatabaseHelper
                                 , private val useCaseHandler: Handler
                                 ,private val mainHandler: Handler): FacebookSignUpUseCase {
 
@@ -23,11 +27,15 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
     private lateinit var callback: FacebookSignUpUseCase.Callback
 
     override fun execute(callback: FacebookSignUpUseCase.Callback) {
+        Logger.getInstance()!!.logI(TAG, "Use case execution started"
+                , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         useCaseHandler.post(this)
     }
 
     override fun run() {
+        localDatabaseHelper.deleteAllData()
+
         if (AccessToken.getCurrentAccessToken() == null){
             onError(RequestError.getUnknownError())
             return
@@ -80,12 +88,14 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
     }
 
     private fun onSuccess(){
-
+        Logger.getInstance()!!.logI(TAG, "Use case finished: signed up successfully"
+                , DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onSuccess()})
     }
 
     private fun onError(error: RequestError){
-
+        Logger.getInstance()!!.logE(TAG, "Use case returned error: err=$error"
+                , DebugMessage.TYPE_USE_CASE)
         mainHandler.post({callback.onError(error)})
     }
 }

@@ -2,6 +2,7 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
+import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
@@ -16,6 +17,7 @@ import io.reactivex.schedulers.Schedulers
  */
 class SignUpUseCaseImpl(private val userRepository: UserRepository
                         , private val loginManager: LoginManager
+                        , private val localDatabaseHelper: LocalDatabaseHelper
                         , private val useCaseHandler: Handler
                         , private val mainHandler: Handler): SignUpUseCase {
 
@@ -36,12 +38,13 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
 
     override fun run() {
 
+        localDatabaseHelper.deleteAllData()
         val disposable = userRepository.insert(user,false)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
                     Log.d(TAG,"insert user response: $next")
-                    userRepository.login(next.userName,next.password)
+                    userRepository.login(user.email,user.password)
                             .subscribeOn(Schedulers.computation())
                             .observeOn(Schedulers.io()).subscribe({next->
                                 Log.d(TAG,"login user response: $next")
@@ -52,7 +55,7 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
                                 SignUpUseCaseImpl@onError(RequestError(err))
                             })
                 }, {err ->
-                    Log.d(TAG,"insert user error: $err")
+                    Log.d(TAG,"insert user error: ${err.printStackTrace()}")
                     SignUpUseCaseImpl@onError(RequestError(err))
                 })
         compositeDisposable.add(disposable)
@@ -67,7 +70,7 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
     }
 
     private fun onError(err: RequestError){
-        Logger.getInstance()!!.logI(TAG, "Use case returned error: err=$err"
+        Logger.getInstance()!!.logE(TAG, "Use case returned error: err=$err"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
         mainHandler.post { callback.onError(err) }

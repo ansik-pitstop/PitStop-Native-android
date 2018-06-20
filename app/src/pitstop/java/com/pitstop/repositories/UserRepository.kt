@@ -55,6 +55,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         Log.d(TAG,"insert user body: $json")
         return pitstopAuthApi.signUp(json)
                 .doOnNext({
+                    Log.d(TAG,"next: $it")
                     localUserStorage.deleteAllUsers()
                     it.settings.userId = it.id
                     localUserStorage.storeUserData(it)

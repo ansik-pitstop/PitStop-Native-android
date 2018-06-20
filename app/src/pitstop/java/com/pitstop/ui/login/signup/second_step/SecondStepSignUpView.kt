@@ -9,7 +9,7 @@ interface SecondStepSignUpView {
     fun getPhoneNumber(): String
     fun displayErrorDialog(message: String)
     fun displayToast(message: String)
-    fun switchToMainActivity()
+    fun switchToOnBoarding()
     fun displayLoading()
     fun hideLoading()
     fun setUsernameAndPassword(username: String, password: String)

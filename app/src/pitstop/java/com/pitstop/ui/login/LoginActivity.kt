@@ -7,6 +7,9 @@ import android.util.Log
 import com.pitstop.R
 import com.pitstop.ui.login.login.LoginFragment
 import com.pitstop.ui.login.login_signup.LoginSignupFragment
+import com.pitstop.ui.login.onboarding.chat.ChatOnBoardingFragment
+import com.pitstop.ui.login.onboarding.chat.PromotionsOnBoardingFragment
+import com.pitstop.ui.login.onboarding.reminders.RemindersOnBoardingFragment
 import com.pitstop.ui.login.signup.first_step.FirstStepSignUpFragment
 import com.pitstop.ui.login.signup.first_step.SecondStepSignUpFragment
 import com.pitstop.ui.main_activity.MainActivity
@@ -26,6 +29,9 @@ class LoginActivity: AppCompatActivity() {
     private val secondStepSignUpFragment = SecondStepSignUpFragment()
     private val loginFragment = LoginFragment()
     private val signupLoginFragment = LoginSignupFragment()
+    private val chatOnBoardingFragment = ChatOnBoardingFragment()
+    private val remindersOnBoardingFragment = RemindersOnBoardingFragment()
+    private val promotionsOnBoardingFragment = PromotionsOnBoardingFragment()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"onCreate()")
@@ -80,5 +86,31 @@ class LoginActivity: AppCompatActivity() {
         val intent = Intent(LoginActivity@this, MainActivity::class.java)
         intent.putExtra(USER_SIGNED_UP,signedUp)
         startActivity(intent)
+    }
+
+    fun switchToChatOnBoarding(){
+        Log.d(TAG,"switchToChatOnBoarding()")
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, chatOnBoardingFragment)
+                .addToBackStack("chat")
+                .commit()
+
+    }
+
+    fun switchToRemindersOnBoarding(){
+        Log.d(TAG,"switchToRemindersOnBoarding()")
+        supportFragmentManager.beginTransaction()
+                .addToBackStack("reminders")
+                .replace(R.id.fragment_container, remindersOnBoardingFragment)
+                .commit()
+
+    }
+
+    fun switchToPromotionsOnBoarding(){
+        Log.d(TAG,"switchToPromotionsOnBoarding()")
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, promotionsOnBoardingFragment)
+                .commit()
+
     }
 }
