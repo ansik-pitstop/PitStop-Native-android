@@ -22,6 +22,8 @@ import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.HashMap;
+
 /**
  * Created by Matt on 2017-07-27.
  */
@@ -92,6 +94,16 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         Logger.getInstance().logE(TAG,"Use case returned error: "+error
                 , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onError(error));
+    }
+
+    private void setSmoochCarProperties(Car car){
+        io.smooch.core.User user = io.smooch.core.User.getCurrentUser();
+        HashMap<String,Object> customProperties = new HashMap<>();
+        customProperties.put("VIN",car.getVin());
+        customProperties.put("Car Make",car.getMake());
+        customProperties.put("Car Model",car.getModel());
+        customProperties.put("Car Year",car.getYear());
+        user.addProperties(customProperties);
     }
 
     @Override
@@ -222,6 +234,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                             @Override
                             public void onSuccess(Object data) {
                                 Log.d(TAG,"setUsercar.onSuccess() response: "+data);
+
+                                setSmoochCarProperties(car);
 
                                 //Process succeeded, notify eventbus
                                 EventType eventType
