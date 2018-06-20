@@ -49,13 +49,7 @@ class LoginActivity: AppCompatActivity() {
         if ((application as LoginManager).isLoggedIn()
                 && !sharedPreferences!!.getBoolean(ONBOARDING,false)){
             switchToMainActivity(false)
-        }
-    }
-
-    override fun onStart() {
-        Log.d(TAG,"onStart()")
-        super.onStart()
-        if (sharedPreferences!!.getBoolean(ONBOARDING,false)){
+        }else if (sharedPreferences!!.getBoolean(ONBOARDING,false)){
             switchToChatOnBoarding()
         }else{
             switchToLoginSignup()
