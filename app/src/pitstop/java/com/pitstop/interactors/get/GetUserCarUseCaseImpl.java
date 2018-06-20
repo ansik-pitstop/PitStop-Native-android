@@ -18,6 +18,8 @@ import com.pitstop.utils.Logger;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -34,6 +36,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
             , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -56,18 +59,21 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: car="+car+", dealership="+dealership+", local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
 
     private void onNoCarSet(boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: no car set! local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> {
             if(error!=null)
                 callback.onError(error);
@@ -118,11 +124,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 /*User settings doesn't have mainCar stored, we cannot trust this because settings
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
-                carRepository.getCarsByUserId(userSettings.getUserId())
+                Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
-                        .doOnError(err -> GetUserCarUseCaseImpl.this.onError(new RequestError(err)))
-                        .doOnNext(carListResponse -> {
+                        .subscribe(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList == null){
                                 GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
@@ -157,11 +162,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                             }
                                         });
                             }
-                        }).onErrorReturn(err -> {
-                            Log.d(TAG,"getCarsByUserId() err: "+err);
-                            return new RepositoryResponse<List<Car>>(null,true);
-                        })
-                        .subscribe();
+                        },err->{
+                            GetUserCarUseCaseImpl.this.onError(new RequestError(err));
+                        });
+                compositeDisposable.add(disposable);
             }
 
             @Override

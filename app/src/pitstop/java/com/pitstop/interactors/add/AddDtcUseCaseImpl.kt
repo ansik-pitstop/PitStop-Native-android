@@ -54,7 +54,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                carRepository.get(settings.carId)
+                if (settings.hasMainCar()) carRepository.get(settings.carId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                     .subscribe({response ->

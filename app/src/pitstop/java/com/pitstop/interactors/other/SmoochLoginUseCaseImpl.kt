@@ -44,7 +44,7 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
         userRepository.getCurrentUser(object: Repository.Callback<User>{
             override fun onSuccess(user: User) {
                 val userId = user.id
-
+                if (!user.settings.hasMainCar()) return@onSuccess
                 val disposable = carRepository.get(user.settings.carId)
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.io())

@@ -57,7 +57,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                    this@AddAlarmUseCaseImpl.onAlarmsDisabled()
                } else {
 
-                   carRepository.get(settings.carId)
+                   if (settings.hasMainCar()) carRepository.get(settings.carId)
                            .subscribeOn(Schedulers.io())
                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                            .subscribe({response ->

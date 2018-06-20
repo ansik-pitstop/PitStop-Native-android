@@ -79,6 +79,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
             @Override
             public void onSuccess(User user) {
                 Log.d(TAG,"user: "+user);
+                if (!user.getSettings().hasMainCar()) return;
                 carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
