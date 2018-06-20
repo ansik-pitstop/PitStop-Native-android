@@ -1,7 +1,9 @@
 package com.pitstop.ui.login
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.pitstop.R
@@ -21,6 +23,7 @@ import com.pitstop.utils.LoginManager
 class LoginActivity: AppCompatActivity() {
     companion object {
         const val USER_SIGNED_UP = "user_signed_up"
+        const val ONBOARDING = "onboarding"
     }
 
     private val TAG = LoginActivity::class.java.simpleName
@@ -33,12 +36,18 @@ class LoginActivity: AppCompatActivity() {
     private val remindersOnBoardingFragment = RemindersOnBoardingFragment()
     private val promotionsOnBoardingFragment = PromotionsOnBoardingFragment()
 
+    private var sharedPreferences: SharedPreferences? = null
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"onCreate()")
         super.onCreate(savedInstanceState)
 
+        sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this)
+
         setContentView(R.layout.activity_login)
-        if ((application as LoginManager).isLoggedIn()){
+        if ((application as LoginManager).isLoggedIn()
+                && !sharedPreferences!!.getBoolean(ONBOARDING,false)){
             switchToMainActivity(false)
         }
     }
@@ -46,7 +55,11 @@ class LoginActivity: AppCompatActivity() {
     override fun onStart() {
         Log.d(TAG,"onStart()")
         super.onStart()
-        switchToLoginSignup()
+        if (sharedPreferences!!.getBoolean(ONBOARDING,false)){
+            switchToChatOnBoarding()
+        }else{
+            switchToLoginSignup()
+        }
     }
 
     fun switchToSignupStepOne(){
@@ -85,11 +98,17 @@ class LoginActivity: AppCompatActivity() {
         Log.d(TAG,"switchToMainActivity")
         val intent = Intent(LoginActivity@this, MainActivity::class.java)
         intent.putExtra(USER_SIGNED_UP,signedUp)
+        sharedPreferences?.edit()?.putBoolean(ONBOARDING,false)?.apply()
         startActivity(intent)
     }
 
     fun switchToChatOnBoarding(){
         Log.d(TAG,"switchToChatOnBoarding()")
+        val count = supportFragmentManager.backStackEntryCount
+        for (i in 1..count) {
+            supportFragmentManager.popBackStack()
+        }
+        sharedPreferences?.edit()?.putBoolean(ONBOARDING,true)?.apply()
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, chatOnBoardingFragment)
                 .commit()
