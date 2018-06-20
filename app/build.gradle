@@ -70,7 +70,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 27
         // Change versioning in productFlavors instead of here
-        versionCode 269
+        versionCode 270
         versionName "5.3.0"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
