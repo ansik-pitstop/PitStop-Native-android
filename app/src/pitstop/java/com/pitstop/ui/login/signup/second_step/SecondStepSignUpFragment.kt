@@ -87,7 +87,7 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
     override fun switchToOnBoarding() {
         Log.d(TAG,"switchToOnBoarding()")
         try{
-            (activity as LoginActivity).switchToMainActivity(true)
+            (activity as LoginActivity).switchToChatOnBoarding()
         }catch(e: Exception){
             e.printStackTrace()
         }

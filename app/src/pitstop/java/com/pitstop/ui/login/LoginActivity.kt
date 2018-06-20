@@ -92,7 +92,6 @@ class LoginActivity: AppCompatActivity() {
         Log.d(TAG,"switchToChatOnBoarding()")
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, chatOnBoardingFragment)
-                .addToBackStack("chat")
                 .commit()
 
     }
@@ -109,6 +108,7 @@ class LoginActivity: AppCompatActivity() {
     fun switchToPromotionsOnBoarding(){
         Log.d(TAG,"switchToPromotionsOnBoarding()")
         supportFragmentManager.beginTransaction()
+                .addToBackStack("promotions")
                 .replace(R.id.fragment_container, promotionsOnBoardingFragment)
                 .commit()
 
