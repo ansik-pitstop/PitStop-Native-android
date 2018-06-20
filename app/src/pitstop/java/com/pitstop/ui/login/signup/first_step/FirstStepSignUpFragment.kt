@@ -80,7 +80,7 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         super.onStart()
         if (presenter == null){
             val useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(context))
+                    .contextModule(ContextModule(activity?.applicationContext))
                     .build()
             presenter = FirstStepSignUpPresenter(useCaseComponent)
         }
@@ -128,6 +128,15 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         Log.d(TAG,"switchToNextStep() u:$username")
         try{
             (activity as LoginActivity).switchToSignupStepTwo(username, password)
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    override fun switchToMainActivity() {
+        Log.d(TAG,"switchToMainActivity()")
+        try{
+            (activity as LoginActivity).switchToMainActivity()
         }catch(e: Exception){
             e.printStackTrace()
         }

@@ -77,7 +77,7 @@ class LoginActivity: AppCompatActivity() {
 
     fun switchToMainActivity(){
         Log.d(TAG,"switchToMainActivity")
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(LoginActivity@this, MainActivity::class.java)
         startActivity(intent)
     }
 }

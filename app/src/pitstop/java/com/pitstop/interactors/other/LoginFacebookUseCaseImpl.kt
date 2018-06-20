@@ -22,7 +22,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
     private lateinit var callback: LoginFacebookUseCase.Callback
 
     override fun execute(facebookAuthToken: String, callback: LoginFacebookUseCase.Callback) {
-        Logger.getInstance()!!.logI(TAG, "Use case execution started"
+        Logger.getInstance()!!.logI(TAG, "Use case execution started, facebookAuthToken: $facebookAuthToken"
                 , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.facebookAuthToken = facebookAuthToken
@@ -34,6 +34,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
                .subscribeOn(Schedulers.computation())
                .observeOn(Schedulers.io())
                .subscribe({next ->
+                   Log.d(TAG,"next: $next")
                    loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
                    LoginFacebookUseCaseImpl@onSuccess()
                }, {error ->

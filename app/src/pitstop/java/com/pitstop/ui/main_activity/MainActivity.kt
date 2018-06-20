@@ -125,6 +125,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG,"onCreate! current user: ${application?.currentUser}")
 
         userSignedUp = intent.getBooleanExtra(LoginActivity.USER_SIGNED_UP, false)
 
@@ -227,6 +228,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")
                     it.printStackTrace()
                 })
+        Log.d(TAG,"end of onCreate!")
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {

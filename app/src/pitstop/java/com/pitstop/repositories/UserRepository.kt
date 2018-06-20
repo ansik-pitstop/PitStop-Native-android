@@ -55,7 +55,11 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         }
         Log.d(TAG,"insert user body: $json")
         return pitstopAuthApi.signUp(json)
-                .doOnNext({localUserStorage.updateUser(it)})
+                .doOnNext({
+                    localUserStorage.deleteAllUsers()
+                    it.settings.userId = it.id
+                    localUserStorage.storeUserData(it)
+                })
     }
 
     fun loginFacebook(accessToken: String): Observable<LoginResponse>{
@@ -72,7 +76,11 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         }
 
         return pitstopAuthApi.loginSocial(json)
-                .doOnNext({localUserStorage.updateUser(it.user)})
+                .doOnNext({
+                    localUserStorage.deleteAllUsers()
+                    it.user.settings.userId = it.user.id
+                    localUserStorage.storeUserData(it.user)
+                })
     }
 
     fun login(username: String, password: String): Observable<LoginResponse>{
@@ -89,6 +97,11 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         }
 
         return pitstopAuthApi.login(json)
+                .doOnNext({
+                    localUserStorage.deleteAllUsers()
+                    it.user.settings.userId = it.user.id
+                    localUserStorage.storeUserData(it.user)
+                })
     }
 
     fun update(model: User, callback: Repository.Callback<Any>) {
@@ -120,7 +133,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     }
 
     fun getCurrentUser(callback: Repository.Callback<User>) {
-        Log.d(TAG, "getCurrentUser()")
+        Log.d(TAG, "getCurrentUser() user: ${localUserStorage.user}")
         if (localUserStorage.user == null) {
             callback.onError(RequestError.getUnknownError())
             return

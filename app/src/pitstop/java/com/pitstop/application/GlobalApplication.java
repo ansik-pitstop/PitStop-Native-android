@@ -125,6 +125,7 @@ public class GlobalApplication extends Application implements LoginManager {
 
         Log.d(TAG, "onCreate");
 
+        FacebookSdk.sdkInitialize(this);
         Stetho.initializeWithDefaults(this);
 
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
@@ -146,7 +147,32 @@ public class GlobalApplication extends Application implements LoginManager {
 
         NotificationsHelper.createNotificationChannels(this);
 
-        initiateDatabase();
+        mLocalUserStorage = new LocalUserStorage(this);
+        mLocalCarStorage = new LocalCarStorage(this);
+        mLocalAppointmentStorage = new LocalAppointmentStorage(this);
+        mLocalCarIssueStorage = new LocalCarIssueStorage(this);
+        mLocalPidStorage = new LocalPidStorage(this);
+        mLocalShopStorage = new LocalShopStorage(this);
+        mLocalSpecsStorage  = new LocalSpecsStorage(this);
+        mLocalAlarmStorage = new LocalAlarmStorage(this);
+        mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
+        mLocalTripStorage = new LocalTripStorage(this);
+        mLocalPendingTripStorage = new LocalPendingTripStorage(this);
+        mLocalSensorDataStorage = new LocalSensorDataStorage(this);
+        mLocalActivityStorage = new LocalActivityStorage(this);
+        mLocalLocationStorage = new LocalLocationStorage(this);
+
+        User user = mLocalUserStorage.getUser();
+        if(user != null) {
+            Log.d(TAG, "Setting up mixpanel");
+            mixpanelAPI.identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().set("$phone", user.getPhone());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
+            mixpanelAPI.getPeople().set("$email", user.getEmail());
+        } else {
+            Log.d(TAG, "Can't set up mixpanel; current user is null");
+        }
 
         // Smooch
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
@@ -173,7 +199,6 @@ public class GlobalApplication extends Application implements LoginManager {
         // Parse
         ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
-        FacebookSdk.sdkInitialize(this);
         if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
@@ -196,7 +221,7 @@ public class GlobalApplication extends Application implements LoginManager {
             }
         });
 
-        // MixPanel
+//         MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
         Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
@@ -294,22 +319,6 @@ public class GlobalApplication extends Application implements LoginManager {
         });
     }
 
-
-
-    public void setUpMixPanel(){
-        User user = mLocalUserStorage.getUser();
-        if(user != null) {
-            Log.d(TAG, "Setting up mixpanel");
-            mixpanelAPI.identify(String.valueOf(user.getId()));
-            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
-            mixpanelAPI.getPeople().set("$phone", user.getPhone());
-            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
-            mixpanelAPI.getPeople().set("$email", user.getEmail());
-        } else {
-            Log.d(TAG, "Can't set up mixpanel; current user is null");
-        }
-    }
-
     public Observable<Service> getServices(){
         return serviceObservable;
     }
@@ -381,6 +390,7 @@ public class GlobalApplication extends Application implements LoginManager {
         editor.putString(PreferenceKeys.KEY_ACCESS_TOKEN, accessToken);
         editor.putString(PreferenceKeys.KEY_REFRESH_TOKEN, refreshToken);
         editor.putBoolean(PreferenceKeys.KEY_LOGGED_IN, true);
+        editor.putInt(PreferenceKeys.KEY_USER_ID, currentUser.getId());
         editor.apply();
 
         ParseUser.logOut();
@@ -404,8 +414,6 @@ public class GlobalApplication extends Application implements LoginManager {
                 });
             });
         }
-
-        setCurrentUser(currentUser);
     }
 
     public int getCurrentUserId() {
@@ -442,16 +450,6 @@ public class GlobalApplication extends Application implements LoginManager {
         return settings.getBoolean(PreferenceKeys.KEY_LOGGED_IN, false);
     }
 
-    public void setCurrentUser(User user) {
-        Log.i(TAG, "UserId:"+user.getId());
-        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
-        editor.apply();
-
-        mLocalUserStorage.storeUserData(user);
-    }
-
     public void setTokens(String accessToken, String refreshToken) {
         SharedPreferences.Editor prefEditor = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE).edit();
 
@@ -486,9 +484,9 @@ public class GlobalApplication extends Application implements LoginManager {
 
         if (AccessToken.getCurrentAccessToken() != null){
             com.facebook.login.LoginManager.getInstance().logOut();
+            AccessToken.setCurrentAccessToken(null);
         }
 
-        AccessToken.setCurrentAccessToken(null);
 
         // Logout from Smooch for the next login
         Smooch.logout(response -> {
@@ -500,26 +498,6 @@ public class GlobalApplication extends Application implements LoginManager {
 
     public void modifyMixpanelSettings(String field, Object value){
         getMixpanelAPI().getPeople().set(field, value);
-    }
-
-    /**
-     * Initiate database open helper when the app start
-     */
-    private void initiateDatabase() {
-        mLocalUserStorage = new LocalUserStorage(this);
-        mLocalCarStorage = new LocalCarStorage(this);
-        mLocalAppointmentStorage = new LocalAppointmentStorage(this);
-        mLocalCarIssueStorage = new LocalCarIssueStorage(this);
-        mLocalPidStorage = new LocalPidStorage(this);
-        mLocalShopStorage = new LocalShopStorage(this);
-        mLocalSpecsStorage  = new LocalSpecsStorage(this);
-        mLocalAlarmStorage = new LocalAlarmStorage(this);
-        mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
-        mLocalTripStorage = new LocalTripStorage(this);
-        mLocalPendingTripStorage = new LocalPendingTripStorage(this);
-        mLocalSensorDataStorage = new LocalSensorDataStorage(this);
-        mLocalActivityStorage = new LocalActivityStorage(this);
-        mLocalLocationStorage = new LocalLocationStorage(this);
     }
 
     /**

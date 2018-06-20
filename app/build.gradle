@@ -174,7 +174,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho-urlconnection:1.5.0'
     implementation 'io.smooch:core:5.12.1'
     implementation 'io.smooch:ui:5.12.1'
-    implementation 'com.mixpanel.android:mixpanel-android:5.4.0'
+    implementation 'com.mixpanel.android:mixpanel-android:5.4.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     implementation 'com.mikhaellopez:circularimageview:3.0.2'
     implementation 'com.google.zxing:core:3.3.0'

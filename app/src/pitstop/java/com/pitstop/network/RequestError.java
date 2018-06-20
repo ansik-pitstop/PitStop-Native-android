@@ -23,7 +23,7 @@ public class RequestError {
             message = "Please check your internet connection";
         }else{
             error = ERR_UNKNOWN;
-            message = t.getMessage();
+            message = t.getCause().getMessage();
         }
     }
 

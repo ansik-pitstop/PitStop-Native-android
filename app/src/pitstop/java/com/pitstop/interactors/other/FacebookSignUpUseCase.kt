@@ -1,7 +1,6 @@
 package com.pitstop.interactors.other
 
 import com.pitstop.interactors.Interactor
-import com.pitstop.models.User
 import com.pitstop.network.RequestError
 
 /**
@@ -14,5 +13,5 @@ interface FacebookSignUpUseCase: Interactor {
         fun onError(err: RequestError)
     }
 
-    fun execute(facebookAuthToken: String, callback: Callback)
+    fun execute(callback: Callback)
 }

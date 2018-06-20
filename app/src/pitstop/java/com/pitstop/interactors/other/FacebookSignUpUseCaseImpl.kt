@@ -15,21 +15,16 @@ import io.reactivex.schedulers.Schedulers
  */
 class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                                 , private val loginManager: com.pitstop.utils.LoginManager
-                                , private val userCaseHandler: Handler
+                                , private val useCaseHandler: Handler
                                 ,private val mainHandler: Handler): FacebookSignUpUseCase {
 
     private val TAG = FacebookSignUpUseCase::class.java.simpleName
 
-    private lateinit var user: User
     private lateinit var callback: FacebookSignUpUseCase.Callback
-    private lateinit var facebookAuthToken: String
 
-    override fun execute(facebookAuthToken: String, callback: FacebookSignUpUseCase.Callback) {
-        this.user = user
-        this.facebookAuthToken = facebookAuthToken
+    override fun execute(callback: FacebookSignUpUseCase.Callback) {
         this.callback = callback
-        userCaseHandler.post(this)
-
+        useCaseHandler.post(this)
     }
 
     override fun run() {

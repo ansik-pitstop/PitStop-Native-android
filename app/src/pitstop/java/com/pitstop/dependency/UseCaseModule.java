@@ -105,6 +105,8 @@ import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
+import com.pitstop.interactors.other.FacebookSignUpUseCase;
+import com.pitstop.interactors.other.FacebookSignUpUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.interactors.other.LoginFacebookUseCase;
@@ -765,6 +767,14 @@ public class UseCaseModule {
             , @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
         return new LoginFacebookUseCaseImpl(loginManager, userRepository ,useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    FacebookSignUpUseCase facebookSignUpUseCase(UserRepository userRepository, LoginManager loginManager
+            , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new FacebookSignUpUseCaseImpl(userRepository, loginManager ,useCaseHandler, mainHandler);
 
     }
 }
