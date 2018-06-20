@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -24,8 +23,8 @@ public class LocalParseNotificationStorage {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalParseNotificationStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalParseNotificationStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeNotification(ParseNotification parseNotification) {

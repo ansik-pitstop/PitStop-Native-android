@@ -12,4 +12,6 @@ interface FirstStepSignUpView {
     fun switchToNextStep(username: String, password: String)
     fun switchToMainActivity()
     fun loginFacebook()
+    fun displayLoading()
+    fun hideLoading()
 }

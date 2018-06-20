@@ -33,7 +33,7 @@ class LoginActivity: AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
         if ((application as LoginManager).isLoggedIn()){
-            switchToMainActivity()
+            switchToMainActivity(false)
         }
     }
 
@@ -75,9 +75,10 @@ class LoginActivity: AppCompatActivity() {
                 .commit()
     }
 
-    fun switchToMainActivity(){
+    fun switchToMainActivity(signedUp: Boolean){
         Log.d(TAG,"switchToMainActivity")
         val intent = Intent(LoginActivity@this, MainActivity::class.java)
+        intent.putExtra(USER_SIGNED_UP,signedUp)
         startActivity(intent)
     }
 }

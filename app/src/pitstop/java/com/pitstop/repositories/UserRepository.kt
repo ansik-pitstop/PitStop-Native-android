@@ -1,11 +1,9 @@
 package com.pitstop.repositories
 
 import android.util.Log
-
 import com.google.gson.JsonIOException
 import com.google.gson.JsonObject
 import com.parse.ParseInstallation
-import com.pitstop.R.id.model
 import com.pitstop.database.LocalUserStorage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
@@ -17,7 +15,6 @@ import com.pitstop.retrofit.PitstopAuthApi
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
-
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -38,15 +35,17 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     private val END_POINT_USER = "user/"
 
     fun insert(user: User, isSocial: Boolean): Observable<User> {
-        Log.d(TAG, "insert() model: $model")
+        Log.d(TAG, "insert() model: $user")
         val json = JsonObject()
         try {
             json.addProperty("firstName", user.firstName)
             json.addProperty("lastName", user.lastName)
             json.addProperty("email", user.email)
             json.addProperty("username", user.email)
-            json.addProperty("phone", user.phone)
-            json.addProperty("password", user.password)
+            if (!isSocial){
+                json.addProperty("password", user.password)
+                json.addProperty("phone", user.phone)
+            }
             json.addProperty("isSocial", isSocial)
             json.addProperty("installationId"
                     , ParseInstallation.getCurrentInstallation().installationId)
@@ -63,7 +62,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     }
 
     fun loginFacebook(accessToken: String): Observable<LoginResponse>{
-        Log.d(TAG,"loginFacebook()")
+        Log.d(TAG,"loginFacebook() token: $accessToken")
 
         val json = JsonObject()
         try {
@@ -98,6 +97,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
 
         return pitstopAuthApi.login(json)
                 .doOnNext({
+                    Log.d(TAG,"LoginResponse: $it")
                     localUserStorage.deleteAllUsers()
                     it.user.settings.userId = it.user.id
                     localUserStorage.storeUserData(it.user)

@@ -1,17 +1,15 @@
 package com.pitstop.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.util.Log
 import com.pitstop.models.trip.CarLocation
 
 /**
  * Created by Karol Zdebel on 6/4/2018.
  */
-class LocalLocationStorage(val context: Context) {
+class LocalLocationStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     private val TAG = javaClass.simpleName
-    private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
     companion object {
         val CREATE_LOCATION_DATA_TABLE = ("CREATE TABLE IF NOT EXISTS "

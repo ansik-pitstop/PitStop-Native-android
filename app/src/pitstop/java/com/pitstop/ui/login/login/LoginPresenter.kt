@@ -43,12 +43,14 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             useCaseComponent.loginUseCase().execute(email,password, object: LoginUseCase.Callback{
                 override fun onSuccess() {
                     Log.d(TAG,"LoginUseCase.onSuccess()")
+                    if (view == null) return
                     view?.switchToMainActivity()
                     view?.hideLoading()
                 }
 
                 override fun onError(error: RequestError) {
                     Log.d(TAG,"LoginUseCase.onError() err: $error")
+                    if (view == null) return
                     view?.displayError(error.message)
                     view?.hideLoading()
                 }
@@ -71,12 +73,14 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
 
             override fun onSuccess() {
                 Log.d(TAG,"FacebookLoginUseCase.onSuccess()")
+                if (view == null) return
                 view?.hideLoading()
                 view?.switchToMainActivity()
             }
 
             override fun onError(err: RequestError) {
                 Log.d(TAG,"FacebookLoginUseCase.onError() err: $err")
+                if (view == null) return
                 view?.hideLoading()
                 view?.displayError(err.message)
             }

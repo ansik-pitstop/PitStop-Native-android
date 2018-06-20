@@ -53,6 +53,7 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
             useCaseComponent.signUpUseCase().execute(user, object: SignUpUseCase.Callback{
                 override fun onSuccess() {
                     Log.d(TAG,"SignUpUseCase() returned success!")
+                    if (view == null) return
                     view!!.displayToast("Sign up success!")
                     view!!.switchToMainActivity()
                     view?.hideLoading()
@@ -60,6 +61,7 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
 
                 override fun onError(err: RequestError) {
                     Log.d(TAG,"SignUpUseCase() returned error! err=$err")
+                    if (view == null) return
                     view?.hideLoading()
                     view!!.displayErrorDialog(err.message)
                 }

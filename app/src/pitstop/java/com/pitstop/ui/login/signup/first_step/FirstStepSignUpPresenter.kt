@@ -50,14 +50,19 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
     fun onFacebookLoginSuccess(loginResult: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
+        view?.displayLoading()
         useCaseComponent.facebookSignUpUseCase().execute(object: FacebookSignUpUseCase.Callback{
             override fun onSuccess() {
                 Log.d(TAG,"FacebookSignUpUseCase.onSuccess()")
+                if (view == null) return
+                view?.hideLoading()
                 view?.switchToMainActivity()
             }
 
             override fun onError(err: RequestError) {
                 Log.d(TAG,"FacebookSignUpUseCase.onError() err:$err")
+                if (view == null) return
+                view?.hideLoading()
                 view?.displayErrorDialog(err.message)
             }
 

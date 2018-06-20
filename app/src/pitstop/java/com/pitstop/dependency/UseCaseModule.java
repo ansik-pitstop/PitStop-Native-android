@@ -704,9 +704,10 @@ public class UseCaseModule {
 
     @Provides
     SmoochLoginUseCase getSmoochLoginUseCase(PitstopSmoochApi pitstopSmoochApi
+            , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new SmoochLoginUseCaseImpl(pitstopSmoochApi, useCaseHandler, mainHandler);
+        return new SmoochLoginUseCaseImpl(pitstopSmoochApi, userRepository, carRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

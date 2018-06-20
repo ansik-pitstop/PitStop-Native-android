@@ -5,6 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include android:id="@+id/load_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:elevation="2dp"
+        layout="@layout/layout_load"/>
+
     <ImageView
         android:id="@+id/bg"
         android:layout_width="match_parent"

@@ -43,10 +43,9 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
 
                 val user = User()
                 user.email = email
+                user.userName = email
                 user.firstName = firstName
                 user.lastName = lastName
-                user.phone = ""
-                user.password = ""
 
                 userRepository.insert(user,true)
                         .subscribeOn(Schedulers.computation())
@@ -64,7 +63,8 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                                         SignUpUseCaseImpl@onError(RequestError(err))
                                     })
                         },{err ->
-                            Log.d(TAG,"err: $err")
+                            if (err is com.jakewharton.retrofit2.adapter.rxjava2.HttpException)
+                            else Log.d(TAG,"err: ${err.message}")
                             FacebookSignUpUseCaseImpl@onError(RequestError(err))
                         })
 

@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -76,7 +77,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-        localStore = new LocalShopStorage(this);
+        localStore = new LocalShopStorage(LocalDatabaseHelper.getInstance(getApplicationContext()));
         setup();
     }
 

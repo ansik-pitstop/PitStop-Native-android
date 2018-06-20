@@ -1,12 +1,10 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.models.Car;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 
@@ -22,8 +20,9 @@ public class LocalSpecsStorage {
             +TABLES.LOCAL_SPECS_DATA.LICENSE_PLATE + " TEXT" +")";
 
     private LocalDatabaseHelper databaseHelper;
-    public LocalSpecsStorage(Context context){
-        this.databaseHelper = LocalDatabaseHelper.getInstance(context);
+
+    public LocalSpecsStorage(LocalDatabaseHelper databaseHelper){
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeLicensePlate(int carID, String licensePlate, Repository.Callback<String> callback){

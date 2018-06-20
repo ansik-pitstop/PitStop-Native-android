@@ -16,6 +16,7 @@ import com.parse.ParseAnalytics;
 import com.parse.ParsePushBroadcastReceiver;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalParseNotificationStorage;
 import com.pitstop.models.ParseNotification;
 import com.pitstop.ui.login.LoginActivity;
@@ -52,7 +53,8 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             return;
         }
 
-        LocalParseNotificationStorage localStore = new LocalParseNotificationStorage(context);
+        LocalParseNotificationStorage localStore
+                = new LocalParseNotificationStorage(LocalDatabaseHelper.getInstance(context));
         ParseNotification parseNotification = new ParseNotification();
 
         ApplicationInfo appInfo = context.getApplicationInfo();
@@ -137,7 +139,8 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         boolean openedActivity = false;
         // Send a Parse Analytics "push opened" event
         ParseAnalytics.trackAppOpenedInBackground(intent);
-        LocalParseNotificationStorage localNotificationStore = new LocalParseNotificationStorage(context);
+        LocalParseNotificationStorage localNotificationStore
+                = new LocalParseNotificationStorage(LocalDatabaseHelper.getInstance(context));
         localNotificationStore.deleteAllNotifications();
 
         try {
@@ -165,7 +168,8 @@ public class PitstopPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
     @Override
     protected void onPushDismiss(Context context, Intent intent) {
-        LocalParseNotificationStorage localNotificationStore = new LocalParseNotificationStorage(context);
+        LocalParseNotificationStorage localNotificationStore
+                = new LocalParseNotificationStorage(LocalDatabaseHelper.getInstance(context));
         localNotificationStore.deleteAllNotifications();
         super.onPushDismiss(context, intent);
     }

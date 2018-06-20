@@ -7,6 +7,7 @@ import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalCarIssueStorage;
 import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalPendingTripStorage;
@@ -31,81 +32,91 @@ public class LocalStorageModule {
 
     @Singleton
     @Provides
-    public LocalShopStorage localShopAdapter(Context context) {
-        return new LocalShopStorage(context);
+    public LocalShopStorage localShopStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalShopStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    public LocalCarStorage localCarAdapter(Context context) {
-        return new LocalCarStorage(context);
+    public LocalCarStorage localCarStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalCarStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    public LocalCarIssueStorage localCarIssueAdapter(Context context) {
-        return new LocalCarIssueStorage(context);
+    public LocalCarIssueStorage localCarIssueStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalCarIssueStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    public LocalUserStorage userAdapter(Context context) {
-        return new LocalUserStorage(context);
+    public LocalUserStorage userStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalUserStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalPidStorage localPidStorage(Context context) {
-        return new LocalPidStorage(context);
+    LocalPidStorage localPidStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalPidStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalSpecsStorage localSpecsStorage(Context context) {
-        return new LocalSpecsStorage(context);
+    LocalSpecsStorage localSpecsStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalSpecsStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalAlarmStorage localAlarmStorage(Context context) {
-        return new LocalAlarmStorage(context);
+    LocalAlarmStorage localAlarmStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalAlarmStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalFuelConsumptionStorage localFuelConsumptionStorage(Context context) {
-        return new LocalFuelConsumptionStorage(context);
+    LocalFuelConsumptionStorage localFuelConsumptionStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalFuelConsumptionStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalAppointmentStorage localAppointmentStorage(Context context) {
-        return new LocalAppointmentStorage(context);
+    LocalAppointmentStorage localAppointmentStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalAppointmentStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    LocalTripStorage localTripStorage(Context context){return  new LocalTripStorage(context);}
-
-    @Singleton
-    @Provides
-    LocalPendingTripStorage localPendingTripStorage(Context context){return  new LocalPendingTripStorage(context);}
-
-    @Singleton
-    @Provides
-    public LocalSensorDataStorage localSensorDataStorage(Context context) {
-        return new LocalSensorDataStorage(context);
+    LocalTripStorage localTripStorage(LocalDatabaseHelper localDatabaseHelper){
+        return  new LocalTripStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    public LocalLocationStorage localLocationStorage(Context context){
-        return new LocalLocationStorage(context);
+    LocalPendingTripStorage localPendingTripStorage(LocalDatabaseHelper localDatabaseHelper){
+        return  new LocalPendingTripStorage(localDatabaseHelper);
     }
 
     @Singleton
     @Provides
-    public LocalActivityStorage localActivityStorage(Context context){
-        return new LocalActivityStorage(context);
+    public LocalSensorDataStorage localSensorDataStorage(LocalDatabaseHelper localDatabaseHelper) {
+        return new LocalSensorDataStorage(localDatabaseHelper);
+    }
+
+    @Singleton
+    @Provides
+    public LocalLocationStorage localLocationStorage(LocalDatabaseHelper localDatabaseHelper){
+        return new LocalLocationStorage(localDatabaseHelper);
+    }
+
+    @Singleton
+    @Provides
+    public LocalActivityStorage localActivityStorage(LocalDatabaseHelper localDatabaseHelper){
+        return new LocalActivityStorage(localDatabaseHelper);
+    }
+
+    @Singleton
+    @Provides
+    public LocalDatabaseHelper localDatabaseHelper(Context context){
+        return LocalDatabaseHelper.getInstance(context);
     }
 }

@@ -1,6 +1,9 @@
 package com.pitstop.network;
 
 import com.castel.obd.util.JsonUtil;
+import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -23,7 +26,15 @@ public class RequestError {
             message = "Please check your internet connection";
         }else{
             error = ERR_UNKNOWN;
-            message = t.getCause().getMessage();
+            if (t instanceof HttpException){
+                try{
+                    message = new JSONObject(((HttpException)t).response().errorBody().string()).get("message").toString();
+                }catch(Exception e){
+                    message = "Unknown Error";
+                }
+            }else{
+                message = "Unknown Error";
+            }
         }
     }
 

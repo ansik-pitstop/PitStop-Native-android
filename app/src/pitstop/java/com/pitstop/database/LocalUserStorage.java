@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -30,8 +29,8 @@ public class LocalUserStorage {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalUserStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalUserStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeUserData(User user) {
@@ -101,6 +100,7 @@ public class LocalUserStorage {
     }
 
     public void deleteAllUsers() {
+        Log.d(TAG,"deleteAllUsers()");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.USER.TABLE_NAME, null, null);

@@ -24,8 +24,6 @@ import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.bluetooth.BluetoothWriter
-import com.pitstop.database.LocalCarStorage
-import com.pitstop.database.LocalShopStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -104,10 +102,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var tripsFragment: TripsFragment
 
-    // Database accesses
-    private var carLocalStore: LocalCarStorage? = null
-    private var shopLocalStore: LocalShopStorage? = null
-
     // Views
     private var rootView: View? = null
     private var toolbar: Toolbar? = null
@@ -125,7 +119,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG,"onCreate! current user: ${application?.currentUser}")
 
         userSignedUp = intent.getBooleanExtra(LoginActivity.USER_SIGNED_UP, false)
 
@@ -200,8 +193,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         progressDialog!!.setCancelable(false)
         progressDialog!!.setCanceledOnTouchOutside(false)
         // Local db adapters
-        carLocalStore = LocalCarStorage(application!!)
-        shopLocalStore = LocalShopStorage(application)
 
         logAuthInfo()
 
@@ -719,22 +710,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 && !ignoreMissingDeviceName && allowDeviceOverwrite) {
             displayGetScannerIdDialog()
         }
-    }
-
-    override fun isUserNull(): Boolean {
-        return ((this.applicationContext as GlobalApplication).currentUser == null)
-    }
-
-    override fun getUserPhone(): String {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.phone
-    }
-
-    override fun getUserFirstName(): String {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.firstName
-    }
-
-    override fun getUserEmail(): String? {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.email
     }
 
     override fun onSearchingForDevice() {

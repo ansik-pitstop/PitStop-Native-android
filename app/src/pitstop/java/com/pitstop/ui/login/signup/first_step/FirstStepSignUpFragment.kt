@@ -136,7 +136,7 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
     override fun switchToMainActivity() {
         Log.d(TAG,"switchToMainActivity()")
         try{
-            (activity as LoginActivity).switchToMainActivity()
+            (activity as LoginActivity).switchToMainActivity(true)
         }catch(e: Exception){
             e.printStackTrace()
         }
@@ -146,5 +146,14 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
         Log.d(TAG,"loginFacebook()")
         LoginManager.getInstance().logInWithReadPermissions(this
                 , mutableListOf("public_profile","email","user_birthday"))
+    }
+
+    override fun displayLoading() {
+        load_view?.bringToFront()
+        load_view?.visibility = View.VISIBLE
+    }
+
+    override fun hideLoading() {
+        load_view?.visibility = View.GONE
     }
 }

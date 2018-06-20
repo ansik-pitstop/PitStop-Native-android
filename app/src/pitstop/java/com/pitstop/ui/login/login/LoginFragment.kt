@@ -110,7 +110,7 @@ class LoginFragment: Fragment(), LoginView {
     override fun switchToMainActivity() {
         Log.d(TAG,"switchToMainActivity()")
         try{
-            (activity as LoginActivity).switchToMainActivity()
+            (activity as LoginActivity).switchToMainActivity(false)
         }catch(e: Exception){
             e.printStackTrace()
         }
@@ -139,12 +139,12 @@ class LoginFragment: Fragment(), LoginView {
 
     override fun displayLoading() {
         Log.d(TAG,"displayLoading()")
-        load_view.visibility = View.VISIBLE
-        load_view.bringToFront()
+        load_view?.visibility = View.VISIBLE
+        load_view?.bringToFront()
     }
 
     override fun hideLoading() {
         Log.d(TAG,"hideLoading()")
-        load_view.visibility = View.GONE
+        load_view?.visibility = View.GONE
     }
 }
