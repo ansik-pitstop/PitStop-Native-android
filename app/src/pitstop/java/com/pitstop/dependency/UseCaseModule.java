@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.pitstop.database.LocalActivityStorage;
 import com.pitstop.database.LocalAlarmStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalSpecsStorage;
@@ -105,8 +106,14 @@ import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCaseImpl;
+import com.pitstop.interactors.other.FacebookSignUpUseCase;
+import com.pitstop.interactors.other.FacebookSignUpUseCaseImpl;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
+import com.pitstop.interactors.other.LoginFacebookUseCase;
+import com.pitstop.interactors.other.LoginFacebookUseCaseImpl;
+import com.pitstop.interactors.other.LoginUseCase;
+import com.pitstop.interactors.other.LoginUseCaseImpl;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCaseImpl;
 import com.pitstop.interactors.other.ProcessTripDataUseCase;
@@ -115,6 +122,8 @@ import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCaseImpl;
+import com.pitstop.interactors.other.SignUpUseCase;
+import com.pitstop.interactors.other.SignUpUseCaseImpl;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCaseImpl;
 import com.pitstop.interactors.other.SortReportsUseCase;
@@ -160,6 +169,7 @@ import com.pitstop.repositories.SnapToRoadRepository;
 import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.PitstopSmoochApi;
+import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Named;
@@ -695,9 +705,10 @@ public class UseCaseModule {
 
     @Provides
     SmoochLoginUseCase getSmoochLoginUseCase(PitstopSmoochApi pitstopSmoochApi
+            , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
-        return new SmoochLoginUseCaseImpl(pitstopSmoochApi, useCaseHandler, mainHandler);
+        return new SmoochLoginUseCaseImpl(pitstopSmoochApi, userRepository, carRepository, useCaseHandler, mainHandler);
     }
 
     @Provides
@@ -735,6 +746,41 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler){
         return new ProcessTripDataUseCaseImpl(localLocationStorage,localActivityStorage
                 ,tripRepository,useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    LoginUseCase loginUseCase(UserRepository userRepository, LoginManager loginManager
+            , LocalDatabaseHelper localDatabaseHelper , @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new LoginUseCaseImpl(userRepository, loginManager
+                , localDatabaseHelper, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    SignUpUseCase signUpUseCase(UserRepository userRepository, LoginManager loginManager
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new SignUpUseCaseImpl(userRepository, loginManager, localDatabaseHelper, useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    LoginFacebookUseCase loginFacebookUseCase(UserRepository userRepository, LoginManager loginManager
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new LoginFacebookUseCaseImpl(loginManager, userRepository , localDatabaseHelper
+                , useCaseHandler, mainHandler);
+
+    }
+
+    @Provides
+    FacebookSignUpUseCase facebookSignUpUseCase(UserRepository userRepository, LoginManager loginManager
+            , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
+            , @Named("mainHandler") Handler mainHandler){
+        return new FacebookSignUpUseCaseImpl(userRepository, loginManager , localDatabaseHelper
+                , useCaseHandler, mainHandler);
+
     }
 }
 

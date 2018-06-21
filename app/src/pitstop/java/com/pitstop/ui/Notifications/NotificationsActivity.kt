@@ -45,7 +45,7 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
         super.onStart()
         try{
             supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, notificationFragment)
+                    .replace(R.id.fragment_container, notificationFragment)
                     .commit()
         }catch(e: RuntimeException){
             //Already added

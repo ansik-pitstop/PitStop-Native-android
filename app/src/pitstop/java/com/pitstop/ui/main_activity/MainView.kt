@@ -16,10 +16,6 @@ interface MainView  {
     fun noCarsView()
     fun showCars(carList: MutableList<Car>)
     fun openAddCarActivity()
-    fun isUserNull(): Boolean
-    fun getUserPhone(): Any?
-    fun getUserFirstName(): String?
-    fun getUserEmail(): String?
     fun openSmooch()
     fun callDealership(dealership: Dealership?)
     fun openDealershipDirections(dealership: Dealership?)

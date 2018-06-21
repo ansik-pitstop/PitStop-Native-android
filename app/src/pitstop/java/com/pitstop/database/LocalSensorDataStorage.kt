@@ -9,10 +9,9 @@ import com.pitstop.models.sensor_data.SensorData
 /**
  * Created by Karol Zdebel on 4/19/2018.
  */
-class LocalSensorDataStorage(context: Context) {
+class LocalSensorDataStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     private val TAG = LocalSensorDataStorage::class.java.simpleName
-    private val databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
     // TRIP table create statement
     companion object {

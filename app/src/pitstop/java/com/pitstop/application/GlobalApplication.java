@@ -31,32 +31,20 @@ import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothAutoConnectService;
-import com.pitstop.database.LocalActivityStorage;
-import com.pitstop.database.LocalAlarmStorage;
-import com.pitstop.database.LocalAppointmentStorage;
-import com.pitstop.database.LocalCarIssueStorage;
-import com.pitstop.database.LocalCarStorage;
-import com.pitstop.database.LocalDebugMessageStorage;
-import com.pitstop.database.LocalLocationStorage;
-import com.pitstop.database.LocalPendingTripStorage;
-import com.pitstop.database.LocalPidStorage;
-import com.pitstop.database.LocalSensorDataStorage;
-import com.pitstop.database.LocalShopStorage;
-import com.pitstop.database.LocalSpecsStorage;
-import com.pitstop.database.LocalTripStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
-import com.pitstop.models.Car;
 import com.pitstop.models.Notification;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
+import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.PreferenceKeys;
 import com.pitstop.utils.SecretUtils;
@@ -73,7 +61,7 @@ import io.smooch.core.Smooch;
 /**
  * Created by Ansik on 12/28/15.
  */
-public class GlobalApplication extends Application {
+public class GlobalApplication extends Application implements LoginManager {
 
     private static String TAG = GlobalApplication.class.getSimpleName();
 
@@ -82,24 +70,6 @@ public class GlobalApplication extends Application {
     private MixpanelAPI mixpanelAPI;
 
     private ActivityLifecycleObserver activityLifecycleObserver;
-
-    /**
-     * Database open helper
-     */
-    private LocalUserStorage mLocalUserStorage;
-    private LocalCarStorage mLocalCarStorage;
-    private LocalCarIssueStorage mLocalCarIssueStorage;
-    private LocalAppointmentStorage mLocalAppointmentStorage;
-    private LocalPidStorage mLocalPidStorage;
-    private LocalShopStorage mLocalShopStorage;
-    private LocalSpecsStorage mLocalSpecsStorage;
-    private LocalAlarmStorage mLocalAlarmStorage;
-    private LocalDebugMessageStorage mLocalDebugMessageStorage;
-    private LocalTripStorage mLocalTripStorage;
-    private LocalPendingTripStorage mLocalPendingTripStorage;
-    private LocalSensorDataStorage mLocalSensorDataStorage;
-    private LocalLocationStorage mLocalLocationStorage;
-    private LocalActivityStorage mLocalActivityStorage;
 
     private UseCaseComponent useCaseComponent;
     private Observable<Service> serviceObservable;
@@ -124,6 +94,7 @@ public class GlobalApplication extends Application {
 
         Log.d(TAG, "onCreate");
 
+        FacebookSdk.sdkInitialize(this);
         Stetho.initializeWithDefaults(this);
 
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
@@ -145,7 +116,7 @@ public class GlobalApplication extends Application {
 
         NotificationsHelper.createNotificationChannels(this);
 
-        initiateDatabase();
+        LocalUserStorage localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(this));
 
         // Smooch
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
@@ -156,23 +127,22 @@ public class GlobalApplication extends Application {
                 .contextModule(new ContextModule(this)).build();
         Smooch.init(this, settings, response -> {
             Log.d(TAG,"Smooch: init response: "+response.getError());
-            if (getCurrentUser() != null)
-                useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(getCurrentUser().getId()), new SmoochLoginUseCase.Callback() {
-                    @Override
-                    public void onError(@NotNull String err) {
-                        Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
-                    }
-                    @Override
-                    public void onLogin() {
-                        Log.d(TAG,"Smooch: Logged into smooch successfully");
-                    }
-                });
+            useCaseComponent.getSmoochLoginUseCase().execute(io.smooch.core.User.getCurrentUser()
+                    , new SmoochLoginUseCase.Callback() {
+                @Override
+                public void onError(RequestError err) {
+                    Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
+                }
+                @Override
+                public void onLogin() {
+                    Log.d(TAG,"Smooch: Logged into smooch successfully");
+                }
+            });
         });
 
         // Parse
         ParseObject.registerSubclass(Notification.class);
         Parse.enableLocalDatastore(this);
-        FacebookSdk.sdkInitialize(this);
         if(BuildConfig.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         } else {
@@ -195,9 +165,20 @@ public class GlobalApplication extends Application {
             }
         });
 
-        // MixPanel
+//         MixPanel
         mixpanelAPI = getMixpanelAPI();
         mixpanelAPI.getPeople().initPushHandling(SecretUtils.getGoogleSenderId());
+        User user = localUserStorage.getUser();
+        if(user != null) {
+            Log.d(TAG, "Setting up mixpanel");
+            mixpanelAPI.identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
+            mixpanelAPI.getPeople().set("$phone", user.getPhone());
+            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
+            mixpanelAPI.getPeople().set("$email", user.getEmail());
+        } else {
+            Log.d(TAG, "Can't set up mixpanel; current user is null");
+        }
         Log.d(TAG,"google sender id: "+SecretUtils.getGoogleSenderId());
 
         activityLifecycleObserver = new ActivityLifecycleObserver(this);
@@ -293,22 +274,6 @@ public class GlobalApplication extends Application {
         });
     }
 
-
-
-    public void setUpMixPanel(){
-        User user = mLocalUserStorage.getUser();
-        if(user != null) {
-            Log.d(TAG, "Setting up mixpanel");
-            mixpanelAPI.identify(String.valueOf(user.getId()));
-            mixpanelAPI.getPeople().identify(String.valueOf(user.getId()));
-            mixpanelAPI.getPeople().set("$phone", user.getPhone());
-            mixpanelAPI.getPeople().set("$name", user.getFirstName() + (user.getLastName() == null ? "" : " " + user.getLastName()));
-            mixpanelAPI.getPeople().set("$email", user.getEmail());
-        } else {
-            Log.d(TAG, "Can't set up mixpanel; current user is null");
-        }
-    }
-
     public Observable<Service> getServices(){
         return serviceObservable;
     }
@@ -368,10 +333,10 @@ public class GlobalApplication extends Application {
         }
     }
 
-    public void logInUser(String accessToken, String refreshToken, User currentUser) {
+    @Override
+    public void loginUser(String accessToken, String refreshToken, User currentUser) {
 
         Log.d(TAG, "logInUser() user: " + currentUser);
-        cleanUpDatabase();
 
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -379,31 +344,28 @@ public class GlobalApplication extends Application {
         editor.putString(PreferenceKeys.KEY_ACCESS_TOKEN, accessToken);
         editor.putString(PreferenceKeys.KEY_REFRESH_TOKEN, refreshToken);
         editor.putBoolean(PreferenceKeys.KEY_LOGGED_IN, true);
+        editor.putInt(PreferenceKeys.KEY_USER_ID, currentUser.getId());
         editor.apply();
 
         ParseUser.logOut();
 
         //Login to smooch with userId
-        int userId = currentUser.getId();
-        if (userId != -1){
-            Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
-            smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-            Smooch.init(this, smoochSettings, response -> {
-                Log.d(TAG,"Smooch: init response: "+response.getError());
-                useCaseComponent.getSmoochLoginUseCase().execute(String.valueOf(userId), new SmoochLoginUseCase.Callback() {
-                    @Override
-                    public void onError(@NotNull String err) {
-                        Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
-                    }
-                    @Override
-                    public void onLogin() {
-                        Log.d(TAG,"Smooch: Logged into smooch successfully");
-                    }
-                });
+        Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
+        smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+        Smooch.init(this, smoochSettings, response -> {
+            Log.d(TAG,"Smooch: init response: "+response.getError());
+            useCaseComponent.getSmoochLoginUseCase().execute(io.smooch.core.User.getCurrentUser()
+                    , new SmoochLoginUseCase.Callback() {
+                @Override
+                public void onError(RequestError err) {
+                    Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
+                }
+                @Override
+                public void onLogin() {
+                    Log.d(TAG,"Smooch: Logged into smooch successfully");
+                }
             });
-        }
-
-        setCurrentUser(currentUser);
+        });
     }
 
     public int getCurrentUserId() {
@@ -413,40 +375,10 @@ public class GlobalApplication extends Application {
         return settings.getInt(PreferenceKeys.KEY_USER_ID, -1);
     }
 
-    public User getCurrentUser() {
-        return mLocalUserStorage.getUser();
-    }
-
-    public Car getCurrentCar(){
-
-        //Get most recent version of car list
-        List<Car> carList = mLocalCarStorage.getAllCars();
-
-        //Set car list to what it was initially
-        if (carList.size() == 0)
-            return null;
-
-        for (Car c: carList){
-            if (c.isCurrentCar())
-                return c;
-        }
-
-        return carList.get(0);
-    }
-
+    @Override
     public boolean isLoggedIn() {
         SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
         return settings.getBoolean(PreferenceKeys.KEY_LOGGED_IN, false);
-    }
-
-    public void setCurrentUser(User user) {
-        Log.i(TAG, "UserId:"+user.getId());
-        SharedPreferences settings = getSharedPreferences(PreferenceKeys.NAME_CREDENTIALS, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(PreferenceKeys.KEY_USER_ID, user.getId());
-        editor.apply();
-
-        mLocalUserStorage.storeUserData(user);
     }
 
     public void setTokens(String accessToken, String refreshToken) {
@@ -481,58 +413,20 @@ public class GlobalApplication extends Application {
 
         ParseUser.logOut();
 
-        AccessToken.setCurrentAccessToken(null);
+        if (AccessToken.getCurrentAccessToken() != null){
+            com.facebook.login.LoginManager.getInstance().logOut();
+            AccessToken.setCurrentAccessToken(null);
+        }
+
 
         // Logout from Smooch for the next login
         Smooch.logout(response -> {
             Log.d(TAG,"smooch logout response: "+response.getError());
         });
 
-        cleanUpDatabase();
     }
 
     public void modifyMixpanelSettings(String field, Object value){
         getMixpanelAPI().getPeople().set(field, value);
     }
-
-    /**
-     * Initiate database open helper when the app start
-     */
-    private void initiateDatabase() {
-        mLocalUserStorage = new LocalUserStorage(this);
-        mLocalCarStorage = new LocalCarStorage(this);
-        mLocalAppointmentStorage = new LocalAppointmentStorage(this);
-        mLocalCarIssueStorage = new LocalCarIssueStorage(this);
-        mLocalPidStorage = new LocalPidStorage(this);
-        mLocalShopStorage = new LocalShopStorage(this);
-        mLocalSpecsStorage  = new LocalSpecsStorage(this);
-        mLocalAlarmStorage = new LocalAlarmStorage(this);
-        mLocalDebugMessageStorage = new LocalDebugMessageStorage(this);
-        mLocalTripStorage = new LocalTripStorage(this);
-        mLocalPendingTripStorage = new LocalPendingTripStorage(this);
-        mLocalSensorDataStorage = new LocalSensorDataStorage(this);
-        mLocalActivityStorage = new LocalActivityStorage(this);
-        mLocalLocationStorage = new LocalLocationStorage(this);
-    }
-
-    /**
-     * Delete all rows in database
-     */
-    private void cleanUpDatabase() {
-        mLocalUserStorage.deleteAllUsers();
-        mLocalPidStorage.deleteAllRows();
-        mLocalCarStorage.deleteAllRows();
-        mLocalAppointmentStorage.deleteAllRows();
-        mLocalCarIssueStorage.deleteAllRows();
-        mLocalShopStorage.removeAllDealerships();
-        mLocalSpecsStorage.deleteAllRows();
-        mLocalAlarmStorage.deleteAllRows();
-        mLocalDebugMessageStorage.deleteAllRows();
-        mLocalTripStorage.deleteAllTrips();
-        mLocalPendingTripStorage.deleteAll();
-        mLocalSensorDataStorage.deleteAll();
-        mLocalLocationStorage.removeAll();
-        mLocalActivityStorage.removeAll();
-    }
-
 }

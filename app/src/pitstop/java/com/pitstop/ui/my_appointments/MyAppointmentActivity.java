@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.database.LocalAppointmentStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -71,7 +72,7 @@ public class MyAppointmentActivity extends AppCompatActivity {
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
         networkHelper = tempNetworkComponent.networkHelper();
-        localAppointmentStorage = new LocalAppointmentStorage(application);
+        localAppointmentStorage = new LocalAppointmentStorage(LocalDatabaseHelper.getInstance(application));
         dashboardCar = getIntent().getParcelableExtra(MainActivity.CAR_EXTRA);
         mLoadingSpinner = (ProgressBar)findViewById(R.id.progress_spinner1);
         mAppts = new ArrayList<Appointment>();

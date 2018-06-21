@@ -19,7 +19,7 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
-import com.pitstop.ui.LoginActivity;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 
 import butterknife.BindView;

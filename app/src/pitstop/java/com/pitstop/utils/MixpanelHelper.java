@@ -3,6 +3,9 @@ package com.pitstop.utils;
 import android.bluetooth.BluetoothDevice;
 
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.Car;
 import com.pitstop.models.User;
 
@@ -308,8 +311,12 @@ public class MixpanelHelper {
     public static final String BT_DEVICE_BROKEN = "Device Recognized as Broken";
 
     private GlobalApplication application;
+    private LocalUserStorage localUserStorage;
+    private LocalCarStorage localCarStorage;
 
     public MixpanelHelper(GlobalApplication context) {
+        localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(context));
+        localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
         application = context;
     }
 
@@ -326,20 +333,21 @@ public class MixpanelHelper {
     }
 
     private void insertUsername(JSONObject json)  {
-        User user = application.getCurrentUser();
-        if (application.getCurrentUser() != null) {
+        User user = localUserStorage.getUser();
+        if (user != null) {
             try {
                 json.put("Username", user.getEmail());
             } catch (JSONException e) {
-                e.
-                        printStackTrace();
+                e.printStackTrace();
             }
         }
     }
 
     //Insert car data into json object if available
     private void insertCar(JSONObject json)  {
-        Car car = application.getCurrentCar();
+        User user = localUserStorage.getUser();
+        if (user == null || user.getSettings() == null) return;
+        Car car = localCarStorage.getCar(localUserStorage.getUser().getSettings().getCarId());
 
         if (car != null) {
             try {

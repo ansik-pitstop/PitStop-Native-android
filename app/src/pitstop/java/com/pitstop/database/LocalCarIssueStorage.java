@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -33,8 +32,8 @@ public class LocalCarIssueStorage {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalCarIssueStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalCarIssueStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeCarIssue(CarIssue carIssue) {

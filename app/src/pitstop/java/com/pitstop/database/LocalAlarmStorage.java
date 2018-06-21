@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -29,11 +28,10 @@ public class LocalAlarmStorage {
             + TABLES.LOCAL_ALARMS.RTC_TIME + " INTEGER" +")";
 
     private LocalDatabaseHelper databaseHelper;
-    public LocalAlarmStorage(Context context){
-        this.databaseHelper = LocalDatabaseHelper.getInstance(context);
+
+    public LocalAlarmStorage(LocalDatabaseHelper databaseHelper){
+        this.databaseHelper = databaseHelper;
     }
-
-
 
     public void storeAlarm(Alarm alarm,  Repository.Callback<Alarm> callback){
         Log.d(TAG, "storeAlarm " + Integer.toString(alarm.getCarID()) + " " + Integer.toString(alarm.getEvent()) +

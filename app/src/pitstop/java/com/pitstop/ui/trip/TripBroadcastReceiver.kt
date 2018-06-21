@@ -6,10 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.LocationResult
-import com.pitstop.database.LocalActivityStorage
-import com.pitstop.database.LocalCarStorage
-import com.pitstop.database.LocalLocationStorage
-import com.pitstop.database.LocalUserStorage
+import com.pitstop.database.*
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
@@ -35,15 +32,15 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
             Logger.getInstance().logD(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
 
-            val localUserStorage = LocalUserStorage(context)
+            val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
             if (localUserStorage.user == null || localUserStorage.user.id == -1){
                 Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
                 return
             }
             val carId = localUserStorage.user.settings.carId
-            val localCarStorage = LocalCarStorage(context)
+            val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
             val vin = localCarStorage.getCar(carId)?.vin
-            val localActivityStorage = LocalActivityStorage(context)
+            val localActivityStorage = LocalActivityStorage(LocalDatabaseHelper.getInstance(context))
             val carActivity = arrayListOf<CarActivity>()
 
             if (vin == null){
@@ -69,15 +66,15 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
             Log.d(tag,"received locations: ${locationResult.locations}")
 
-            val localUserStorage = LocalUserStorage(context)
+            val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
             if (localUserStorage.user == null || localUserStorage.user.id == -1){
                 Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
                 return
             }
             val carId = localUserStorage.user.settings.carId
-            val localCarStorage = LocalCarStorage(context)
+            val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
             val vin = localCarStorage.getCar(carId)?.vin
-            val localLocationStorage = LocalLocationStorage(context)
+            val localLocationStorage = LocalLocationStorage(LocalDatabaseHelper.getInstance(context))
             val locations = arrayListOf<CarLocation>()
 
             if (vin == null){

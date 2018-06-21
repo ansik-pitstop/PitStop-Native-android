@@ -315,27 +315,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onMessageClicked() {
         Log.d(TAG, "onMessageClicked()")
         if (view == null) return
-        if (customProperties == null){
-            customProperties = HashMap()
-            if (mCar != null) {
-                customProperties?.put("VIN", mCar!!.getVin())
-                customProperties?.put("Car Make", mCar!!.getMake())
-                customProperties?.put("Car Model", mCar!!.getModel())
-                customProperties?.put("Car Year", mCar!!.getYear())
-                if (mDealership != null)
-                    customProperties?.put("Email", mDealership!!.email)
-            }
-            if (!(view?.isUserNull())!!) {
-                customProperties?.put("Phone", view?.getUserPhone()?: "" )
-                User.getCurrentUser().firstName = view?.getUserFirstName()
-                User.getCurrentUser().email = view?.getUserEmail()
-            }
-            User.getCurrentUser().addProperties(customProperties)
-            view?.openSmooch()
-        }
-        else {
-            view?.openSmooch()
-        }
+
+        view?.openSmooch()
     }
 
     fun onCallClicked() {

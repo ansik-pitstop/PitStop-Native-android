@@ -1,11 +1,14 @@
 package com.pitstop.retrofit
 
 import com.pitstop.models.Car
+import com.pitstop.models.User
 import java.util.*
 
 /**
  * Created by Karol Zdebel on 10/26/2017.
  */
+
+data class LoginResponse(val accessToken: String, val refreshToken: String, val user: User)
 
 data class PitstopResponse<T>(val response: T)
 

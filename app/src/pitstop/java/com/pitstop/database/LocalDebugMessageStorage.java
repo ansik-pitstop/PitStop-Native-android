@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.models.DebugMessage;
@@ -24,8 +23,8 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
     private LocalDatabaseHelper mDatabaseHelper;
     private final String TAG = getClass().getSimpleName();
 
-    public LocalDebugMessageStorage(Context context) {
-        mDatabaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalDebugMessageStorage(LocalDatabaseHelper databaseHelper) {
+        this.mDatabaseHelper = databaseHelper;
     }
 
     public void addMessage(DebugMessage message) {
