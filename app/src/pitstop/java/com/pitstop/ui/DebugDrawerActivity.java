@@ -21,6 +21,7 @@ import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.database.LocalAlarmStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -116,7 +117,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
         mNetworkHelper = tempNetworkComponent.networkHelper();
 
-        localAlarmStorage = new LocalAlarmStorage(this);
+        localAlarmStorage = new LocalAlarmStorage(LocalDatabaseHelper.getInstance(getApplicationContext()));
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_debug_drawer, null);
         super.setContentView(mDrawerLayout);
 
@@ -365,7 +366,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
 
     public void setupLogging() {
 
-        mDebugMessageAdapter = new LocalDebugMessageStorage(this);
+        mDebugMessageAdapter = new LocalDebugMessageStorage(LocalDatabaseHelper.getInstance(getApplicationContext()));
 
         // bluetooth
         View testBluetoothLogButton = findViewById(R.id.logBluetooth);

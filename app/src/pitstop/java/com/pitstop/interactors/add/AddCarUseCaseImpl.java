@@ -19,6 +19,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
+import com.pitstop.utils.SmoochUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -222,6 +223,8 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                             @Override
                             public void onSuccess(Object data) {
                                 Log.d(TAG,"setUsercar.onSuccess() response: "+data);
+
+                                SmoochUtil.Companion.setSmoochProperties(car);
 
                                 //Process succeeded, notify eventbus
                                 EventType eventType

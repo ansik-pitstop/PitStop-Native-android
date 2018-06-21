@@ -1,17 +1,15 @@
 package com.pitstop.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.util.Log
 import com.pitstop.models.trip.CarActivity
 
 /**
  * Created by Karol Zdebel on 6/4/2018.
  */
-class LocalActivityStorage(context: Context) {
+class LocalActivityStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     private val TAG = javaClass.simpleName
-    private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
     companion object {
         val CREATE_ACTIVITY_DATA_TABLE = ("CREATE TABLE IF NOT EXISTS "

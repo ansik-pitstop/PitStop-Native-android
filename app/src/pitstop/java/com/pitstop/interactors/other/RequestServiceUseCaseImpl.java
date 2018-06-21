@@ -73,7 +73,9 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                     @Override
                     public void onSuccess(Settings data) {
                         Log.d(TAG,"got user settings: "+data);
-                        carRepository.get(data.getCarId())
+                        if (!data.hasMainCar()){
+                          RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError());
+                        } else if (data.hasMainCar()) carRepository.get(data.getCarId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .subscribe(response -> {

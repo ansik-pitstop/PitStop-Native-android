@@ -47,7 +47,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                 override fun onSuccess(data: Settings?) {
                     if (data == null) return
                     var usedLocalCar = false
-                    carRepository.get(data.carId)
+                    if (data.hasMainCar()) carRepository.get(data.carId)
                             .observeOn(Schedulers.io())
                             .subscribeOn(Schedulers.computation())
                             .subscribe({car ->
@@ -59,6 +59,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                             },{err ->
                                 AddPidUseCaseImpl@onError(RequestError(err))
                             })
+                    else AddPidUseCaseImpl@onError(RequestError.getUnknownError())
                 }
 
                 override fun onError(error: RequestError?) {

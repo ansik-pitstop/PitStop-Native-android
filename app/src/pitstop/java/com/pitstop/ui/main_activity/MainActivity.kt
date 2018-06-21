@@ -1,8 +1,6 @@
 package com.pitstop.ui.main_activity
 
-import android.app.NotificationManager
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -26,8 +24,6 @@ import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothAutoConnectService
 import com.pitstop.bluetooth.BluetoothWriter
-import com.pitstop.database.LocalCarStorage
-import com.pitstop.database.LocalShopStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -41,11 +37,11 @@ import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
-import com.pitstop.ui.LoginActivity
 import com.pitstop.ui.Notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
+import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
@@ -55,7 +51,6 @@ import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
-import com.pitstop.utils.MigrationService
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
 import io.smooch.ui.ConversationActivity
@@ -106,10 +101,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var tripsFragment: TripsFragment
-
-    // Database accesses
-    private var carLocalStore: LocalCarStorage? = null
-    private var shopLocalStore: LocalShopStorage? = null
 
     // Views
     private var rootView: View? = null
@@ -162,8 +153,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             setGreetingsNotSent()
         }
 
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(MigrationService.notificationId)
-
         if(mDrawerLayout == null){
             mDrawerLayout = layoutInflater.inflate(R.layout.activity_debug_drawer, null) as DrawerLayout
             setContentView(mDrawerLayout)
@@ -204,8 +193,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         progressDialog!!.setCancelable(false)
         progressDialog!!.setCanceledOnTouchOutside(false)
         // Local db adapters
-        carLocalStore = LocalCarStorage(application!!)
-        shopLocalStore = LocalShopStorage(application)
 
         logAuthInfo()
 
@@ -232,6 +219,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")
                     it.printStackTrace()
                 })
+        Log.d(TAG,"end of onCreate!")
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -722,22 +710,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                 && !ignoreMissingDeviceName && allowDeviceOverwrite) {
             displayGetScannerIdDialog()
         }
-    }
-
-    override fun isUserNull(): Boolean {
-        return ((this.applicationContext as GlobalApplication).currentUser == null)
-    }
-
-    override fun getUserPhone(): String {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.phone
-    }
-
-    override fun getUserFirstName(): String {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.firstName
-    }
-
-    override fun getUserEmail(): String? {
-        return (this.getApplicationContext() as GlobalApplication).currentUser.email
     }
 
     override fun onSearchingForDevice() {

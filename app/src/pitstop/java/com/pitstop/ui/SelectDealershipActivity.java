@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalShopStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerTempNetworkComponent;
@@ -26,6 +27,7 @@ import com.pitstop.dependency.TempNetworkComponent;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestCallback;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NetworkHelper;
@@ -75,7 +77,7 @@ public class SelectDealershipActivity extends AppCompatActivity {
 
         application = (GlobalApplication) getApplicationContext();
         mixpanelHelper = new MixpanelHelper(application);
-        localStore = new LocalShopStorage(this);
+        localStore = new LocalShopStorage(LocalDatabaseHelper.getInstance(getApplicationContext()));
         setup();
     }
 

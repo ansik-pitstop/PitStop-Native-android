@@ -92,8 +92,11 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
             @Override
             public void onSuccess(Settings data) {
 
+                if (!data.hasMainCar()){
+                    RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                }
                 // GET the VIN from the car to be deleted BEFORE it
-                carRepository.get(carToDeleteId)
+                else if (data.hasMainCar()) carRepository.get(carToDeleteId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .subscribe(carRepositoryResponse -> {

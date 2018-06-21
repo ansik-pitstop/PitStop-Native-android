@@ -628,4 +628,18 @@
     <string name="no_trips_message">You have not recorded any trips yet, our application will record them automatically for you</string>
     <string name="add_car_trips_message">In order to begin tracking your trips you first need to add a car. Click the button below to do so</string>
     <string name="request_search_failed_add_car_message">Unable to start add car process with a device, please make sure your locations permissions are enabled.</string>
+    <string name="sign_in_with_facebook">Sign In With Facebook</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign up</string>
+    <string name="pitstop_splash_description">Your car will be healthier, and driving will be safer.</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_password_hint">Enter a password (min 8 characters)</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="next_string">Next</string>
+    <string name="sign_up_with_facebook">Sign Up With Facebook</string>
 </resources>

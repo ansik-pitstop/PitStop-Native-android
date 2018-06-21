@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -30,8 +29,8 @@ public class LocalUserStorage {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalUserStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalUserStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeUserData(User user) {
@@ -78,7 +77,7 @@ public class LocalUserStorage {
         user.setEmail(c.getString(c.getColumnIndex(TABLES.USER.KEY_EMAIL)));
         user.setPhone(c.getString(c.getColumnIndex(TABLES.USER.KEY_PHONE)));
         int carId = c.getInt(c.getColumnIndex(TABLES.USER.KEY_CAR));
-        boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1;
+        boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1 || carId > 0;
         boolean alarmsEnabled = c.getInt(c.getColumnIndex(TABLES.USER.KEY_ALARMS_ENABLED)) == 1;
         user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
         return user;
@@ -101,6 +100,7 @@ public class LocalUserStorage {
     }
 
     public void deleteAllUsers() {
+        Log.d(TAG,"deleteAllUsers()");
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
         db.delete(TABLES.USER.TABLE_NAME, null, null);

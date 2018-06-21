@@ -54,7 +54,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                carRepository.get(settings.carId)
+                if (settings.hasMainCar()) carRepository.get(settings.carId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                     .subscribe({response ->
@@ -84,6 +84,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                             })
                         }
                     }, {err -> this@AddDtcUseCaseImpl.onError(RequestError(err)) })
+                else this@AddDtcUseCaseImpl.onError(RequestError.getUnknownError())
             }
             override fun onError(error: RequestError){
                 Log.d(tag,"Error retrieving user err: "+error.message)

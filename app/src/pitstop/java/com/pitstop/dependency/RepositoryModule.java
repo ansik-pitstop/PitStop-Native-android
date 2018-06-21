@@ -24,6 +24,7 @@ import com.pitstop.repositories.TripRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopAppointmentApi;
+import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopTripApi;
@@ -52,8 +53,8 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public UserRepository getUserRepository(LocalUserStorage localUserStorage
-            , NetworkHelper networkHelper){
-        return new UserRepository(localUserStorage,networkHelper);
+            , PitstopAuthApi pitstopAuthApi, NetworkHelper networkHelper){
+        return new UserRepository(localUserStorage,pitstopAuthApi,networkHelper);
     }
 
     @Provides

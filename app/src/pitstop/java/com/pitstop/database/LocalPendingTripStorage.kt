@@ -1,7 +1,6 @@
 package com.pitstop.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import com.pitstop.models.sensor_data.trip.LocationData
@@ -13,9 +12,8 @@ import com.pitstop.models.sensor_data.trip.TripData
  * Created by Karol Zdebel on 3/19/2018.
  */
 
-class LocalPendingTripStorage(context: Context) {
+class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
     private val TAG = javaClass.simpleName
-    private var databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
 
     companion object {
         val CREATE_PENDING_TRIP_TABLE = ("CREATE TABLE IF NOT EXISTS "

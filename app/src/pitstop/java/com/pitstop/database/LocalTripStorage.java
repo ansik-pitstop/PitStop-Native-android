@@ -78,8 +78,8 @@ public class LocalTripStorage {
     private LocalDatabaseHelper databaseHelper;
     private final String TAG = getClass().getSimpleName();
 
-    public LocalTripStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalTripStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public boolean storeTrip(Trip trip) {

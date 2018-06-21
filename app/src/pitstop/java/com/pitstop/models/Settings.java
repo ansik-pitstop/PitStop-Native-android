@@ -1,5 +1,8 @@
 package com.pitstop.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Not complete, doesn't include everything stored inside settings
  *
@@ -9,8 +12,14 @@ package com.pitstop.models;
 public class Settings {
 
     private int userId;
+    @SerializedName("mainCar")
+    @Expose
     private int carId = -1;  //User settings car id
+    @SerializedName("isFirstCarAdded")
+    @Expose
     private boolean firstCarAdded;  //Whether user ever added a car
+    @SerializedName("alarmsEnabled")
+    @Expose
     private boolean alarmsEnabled;
 
     public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms) {

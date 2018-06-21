@@ -11,6 +11,7 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalDebugMessageStorage;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.models.DebugMessage;
@@ -83,7 +84,7 @@ public class Logger {
     }
 
     public Logger(Context context){
-        this.localUserStorage = new LocalUserStorage(context);
+        this.localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(context));
         this.context = context;
         connectivityManager =
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -124,7 +125,7 @@ public class Logger {
             gelfTransport = new GelfTcpTransport(gelfConfiguration); //Create here first, recreated in broadcast receiver
         });
 
-        localDebugMessageStorage = new LocalDebugMessageStorage(context);
+        localDebugMessageStorage = new LocalDebugMessageStorage(LocalDatabaseHelper.getInstance(context));
         localDebugMessageStorage.getUnsentQueryObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -267,7 +268,7 @@ public class Logger {
     public void logV(String tag, String message, int type) {
         if(BuildConfig.DEBUG) {
             Log.v(tag, message);
-            new LocalDebugMessageStorage(context).addMessage(
+            new LocalDebugMessageStorage(LocalDatabaseHelper.getInstance(context)).addMessage(
                     new DebugMessage(System.currentTimeMillis(), message, tag, type, DebugMessage.LEVEL_V));
         }
     }

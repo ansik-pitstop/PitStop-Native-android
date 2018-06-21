@@ -1,12 +1,10 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.pitstop.network.RequestError;
 import com.pitstop.repositories.Repository;
 
 /**
@@ -22,9 +20,9 @@ public class LocalFuelConsumptionStorage {
             + TABLES.LOCAL_FUEL_CONSUMPTION.FUEL_CONSUMED + " REAL" +")";
 
     private LocalDatabaseHelper databaseHelper;
-    public LocalFuelConsumptionStorage(Context context){
-        this.databaseHelper = LocalDatabaseHelper.getInstance(context);
 
+    public LocalFuelConsumptionStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public void storeFuelConsumed(String scannerID, double fuelConsumed, Repository.Callback<Double> callback){

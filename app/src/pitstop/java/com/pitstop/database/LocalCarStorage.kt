@@ -1,7 +1,6 @@
 package com.pitstop.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import com.pitstop.models.Car
@@ -11,9 +10,8 @@ import java.util.*
 /**
  * Created by Paul Soladoye on 3/31/2016.
  */
-class LocalCarStorage(context: Context) {
+class LocalCarStorage(private val databaseHelper: LocalDatabaseHelper) {
 
-    private val databaseHelper: LocalDatabaseHelper = LocalDatabaseHelper.getInstance(context)
     private val TAG = javaClass.simpleName
 
     companion object {

@@ -48,11 +48,15 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
+import com.pitstop.interactors.other.FacebookSignUpUseCase;
 import com.pitstop.interactors.other.HandleVinOnConnectUseCase;
+import com.pitstop.interactors.other.LoginFacebookUseCase;
+import com.pitstop.interactors.other.LoginUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.ProcessTripDataUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
+import com.pitstop.interactors.other.SignUpUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.interactors.other.SortReportsUseCase;
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase;
@@ -225,4 +229,12 @@ public interface UseCaseComponent {
     SendPendingUpdatesUseCase sendPendingUpdatesUseCase();
 
     ProcessTripDataUseCase processTripDataUseCase();
+
+    SignUpUseCase signUpUseCase();
+
+    LoginUseCase loginUseCase();
+
+    LoginFacebookUseCase facebookLoginUseCase();
+
+    FacebookSignUpUseCase facebookSignUpUseCase();
 }

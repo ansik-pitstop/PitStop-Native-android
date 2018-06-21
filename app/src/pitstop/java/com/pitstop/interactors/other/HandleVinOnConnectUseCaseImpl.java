@@ -109,7 +109,6 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
 
                 //Get user car
-
                 carRepository.get(data.getCarId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))

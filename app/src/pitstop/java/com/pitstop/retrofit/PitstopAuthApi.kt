@@ -1,6 +1,8 @@
 package com.pitstop.retrofit
 
 import com.google.gson.JsonObject
+import com.pitstop.models.User
+import io.reactivex.Observable
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -14,6 +16,12 @@ interface PitstopAuthApi {
     fun refreshAccessToken(@Body refreshToken: JsonObject): Call<Token>
 
     @POST("login")
-    fun login(@Body login: JsonObject): Call<JsonObject>
+    fun login(@Body login: JsonObject): Observable<LoginResponse>
+
+    @POST("login/social")
+    fun loginSocial(@Body login: JsonObject): Observable<LoginResponse>
+
+    @POST("user")
+    fun signUp(@Body user: JsonObject): Observable<User>
 
 }

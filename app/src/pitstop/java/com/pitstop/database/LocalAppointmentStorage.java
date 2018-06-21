@@ -1,7 +1,6 @@
 package com.pitstop.database;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -36,8 +35,8 @@ public class LocalAppointmentStorage {
 
     private LocalDatabaseHelper databaseHelper;
 
-    public LocalAppointmentStorage(Context context) {
-        databaseHelper = LocalDatabaseHelper.getInstance(context);
+    public LocalAppointmentStorage(LocalDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     /**
