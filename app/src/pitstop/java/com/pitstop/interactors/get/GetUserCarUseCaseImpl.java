@@ -59,14 +59,18 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: car="+car+", dealership="+dealership+", local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
-        compositeDisposable.clear();
+        if (!isLocal){
+            compositeDisposable.clear();
+        }
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
     }
 
     private void onNoCarSet(boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: no car set! local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
-        compositeDisposable.clear();
+        if (!isLocal){
+            compositeDisposable.clear();
+        }
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
     }
 
@@ -126,16 +130,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
                 Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId())
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                        .observeOn(Schedulers.computation(),true)
                         .subscribe(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
-                            if (carList == null){
-                                GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                            }
-                            else if (carList.isEmpty()){
+                            if (carList.isEmpty()){
                                 GetUserCarUseCaseImpl.this.onNoCarSet(carListResponse.isLocal());
-                            }
-                            else{
+                            } else{
                                 shopRepository.get(carList.get(0).getShopId(), new Repository.Callback<Dealership>() {
                                     @Override
                                     public void onSuccess(Dealership dealership) {

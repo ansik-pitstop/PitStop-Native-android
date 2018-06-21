@@ -44,21 +44,24 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
         userRepository.getCurrentUser(object: Repository.Callback<User>{
             override fun onSuccess(user: User) {
                 val userId = user.id
-                if (!user.settings.hasMainCar()) return@onSuccess
-                val disposable = carRepository.get(user.settings.carId)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io())
-                        .subscribe({next->
-                            if (next.isLocal) return@subscribe
-                            val car: Car = next.data!!
-                            SmoochUtil.setSmoochProperties(user,car)
-                            Log.d(tag,"set smooch user proerties!")
-                            SmoochLoginUseCaseImpl@onSmoochPropertiesSet()
-                        }, {error ->
-                            Log.e(tag,"error storing custom properties! err: $error")
-                            SmoochLoginUseCaseImpl@errorSettingSmoochProperties()
-                        })
-                compositeDisposable.add(disposable)
+                if (user.settings.hasMainCar()){
+                    val disposable = carRepository.get(user.settings.carId)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io())
+                            .subscribe({next->
+                                if (next.isLocal) return@subscribe
+                                val car: Car = next.data!!
+                                SmoochUtil.setSmoochProperties(user,car)
+                                Log.d(tag,"set smooch user proerties!")
+                                SmoochLoginUseCaseImpl@onSmoochPropertiesSet()
+                            }, {error ->
+                                Log.e(tag,"error storing custom properties! err: $error")
+                                SmoochLoginUseCaseImpl@errorSettingSmoochProperties()
+                            })
+                    compositeDisposable.add(disposable)
+                }else{
+                    SmoochLoginUseCaseImpl@errorSettingSmoochProperties()
+                }
 
                 try {
                     val call = smoochApi.getSmoochToken(userId).execute()

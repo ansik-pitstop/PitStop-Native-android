@@ -79,6 +79,7 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
                                        })
 
                            },{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err)) })
+                   else AddAlarmUseCaseImpl@onError(RequestError.getUnknownError())
                }
            }
            override fun onError(error: RequestError) {

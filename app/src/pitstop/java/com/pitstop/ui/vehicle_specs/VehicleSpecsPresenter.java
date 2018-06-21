@@ -221,6 +221,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
             @Override
             public void onNoCarSet(boolean isLocal) {
+                Log.d(TAG,"onNoCarEt() isLocal: "+isLocal);
                 if (getView() != null && !isLocal) {
                     updating = false;
                     getView().showNoCarView();

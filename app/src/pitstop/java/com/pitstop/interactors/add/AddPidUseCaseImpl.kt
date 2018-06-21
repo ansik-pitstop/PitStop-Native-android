@@ -59,6 +59,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                             },{err ->
                                 AddPidUseCaseImpl@onError(RequestError(err))
                             })
+                    else AddPidUseCaseImpl@onError(RequestError.getUnknownError())
                 }
 
                 override fun onError(error: RequestError?) {
