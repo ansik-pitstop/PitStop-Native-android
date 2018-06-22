@@ -92,7 +92,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
-                    carRepository.get(userSettings.getCarId())
+                    Disposable disposable = carRepository.get(userSettings.getCarId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .doOnNext(response -> {
@@ -123,6 +123,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                         return new RepositoryResponse<>(null,false);
                     })
                     .subscribe();
+                    compositeDisposable.add(disposable);
                     return;
                 }
 

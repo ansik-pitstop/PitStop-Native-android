@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -34,7 +36,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     private UserRepository userRepository;
 
     private GetCarsByUserIdUseCase.Callback callback;
-
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetCarsByUserIdUseCaseImpl(UserRepository userRepository,CarRepository carRepository
             , Handler useCaseHandler, Handler mainHandler) {
@@ -55,12 +57,14 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     private void onCarsRetrieved(List<Car> cars){
         Logger.getInstance().logI(TAG,"Use case execution finished: cars="+cars
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onCarsRetrieved(cars));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -78,7 +82,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                 userRepository.getCurrentUser(new Repository.Callback<User>(){
                     @Override
                     public void onSuccess(User user) {
-                        carRepository.getCarsByUserId(user.getId())
+                        Disposable disposable = carRepository.getCarsByUserId(user.getId())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                 .doOnNext(carListResponse -> {
@@ -92,6 +96,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                                     Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
                                     return new RepositoryResponse<List<Car>>(null,false);
                                 }).subscribe();
+                        compositeDisposable.add(disposable);
                     }
 
                     @Override

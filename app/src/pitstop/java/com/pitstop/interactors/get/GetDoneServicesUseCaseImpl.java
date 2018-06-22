@@ -16,6 +16,8 @@ import com.pitstop.utils.Logger;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -32,6 +34,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetDoneServicesUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository, CarRepository carRepository
@@ -54,18 +57,21 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
     private void onGotDoneServices(List<CarIssue> doneServices){
         Logger.getInstance().logI(TAG, "Use case finished: doneServices="+doneServices
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onGotDoneServices(doneServices));
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: no car added!"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -79,7 +85,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                 if (!data.hasMainCar()) {
                     //Double check car repo in case settings is out of sync
-                    carRepository.getCarsByUserId(data.getUserId())
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                             .subscribe(next -> {
@@ -109,6 +115,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
                                 GetDoneServicesUseCaseImpl.this
                                         .onError(new RequestError(error));
                             });
+                    compositeDisposable.add(disposable);
                 } else getDoneCarIssues(data.getCarId());
             }
 

@@ -11,6 +11,7 @@ import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -23,6 +24,7 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
 
     private val tag = javaClass.simpleName
     private var callback: GetAllAppointmentsUseCase.Callback? = null
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(callback: GetAllAppointmentsUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
@@ -31,6 +33,7 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
     }
 
     private fun onError(err: RequestError?){
+        compositeDisposable.clear()
         if (err != null){
             Logger.getInstance()!!.logE(tag, "Use case returned error: err=" + err, DebugMessage.TYPE_USE_CASE)
             mainHandler.post({callback!!.onError(err)})
@@ -43,6 +46,7 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
 
     private fun onGotAllAppointments(app: List<Appointment>){
         Logger.getInstance()!!.logI(tag, "Use case finished result: appointments=$app", DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onGotAppointments(app)})
     }
 
@@ -55,7 +59,7 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
                     this@GetAllAppointmentsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
                     return
                 }
-                appointmentRepository.getAllAppointments(data.carId)
+                val disposable = appointmentRepository.getAllAppointments(data.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .subscribe(
@@ -68,6 +72,7 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
                             this@GetAllAppointmentsUseCaseImpl.onError(RequestError(error))
                         }
                 )
+                compositeDisposable.add(disposable)
             }
 
             override fun onError(error: RequestError?) {
