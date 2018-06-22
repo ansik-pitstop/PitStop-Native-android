@@ -31,7 +31,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>, local: Boolean){
         Logger.getInstance()!!.logI(tag, "Use case finished: map="+data+", local="+local
                 , DebugMessage.TYPE_USE_CASE)
-        compositeDisposable.clear()
+        if (!local) compositeDisposable.clear()
         mainHandler.post({ callback!!.onGotCarsWithDealerships(data,local) })
     }
 
