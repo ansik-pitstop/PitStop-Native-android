@@ -30,8 +30,6 @@ import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
@@ -592,13 +590,6 @@ public class UseCaseModule {
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
 
         return new SetAlarmsEnabledUseCaseImpl(userRepository,useCaseHandler, mainHandler);
-    }
-
-    @Provides
-    CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase(UserRepository userRepository
-            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
-
-        return new CheckAlarmsEnabledUseCaseImpl(userRepository,useCaseHandler, mainHandler);
     }
 
     @Provides

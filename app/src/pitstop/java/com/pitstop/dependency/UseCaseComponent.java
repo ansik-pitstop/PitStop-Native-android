@@ -10,7 +10,6 @@ import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -193,8 +192,6 @@ public interface UseCaseComponent {
     GetAlarmsUseCase getAlarmsUseCase();
 
     SetAlarmsEnabledUseCase getSetAlarmsEnableduseCase();
-
-    CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase();
 
     GetAlarmCountUseCase getGetAlarmCountUseCase();
 

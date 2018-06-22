@@ -54,7 +54,9 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
     }
 
     private fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean) {
-        compositeDisposable.clear()
+        if (!isLocal){
+            compositeDisposable.clear()
+        }
         Logger.getInstance()!!.logI(tag, "Use case finished result: trips=$tripList", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({ callback!!.onTripsRetrieved(tripList, isLocal) })
 
