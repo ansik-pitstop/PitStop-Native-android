@@ -11,6 +11,7 @@ import com.pitstop.repositories.ScannerRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -27,6 +28,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
     private var deviceId: String = ""
     private var vin: String = ""
     private var callback: DeviceClockSyncUseCase.Callback? = null
+    private val compositeDisposable = CompositeDisposable()
 
     override fun execute(rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
@@ -47,7 +49,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                 override fun onSuccess(data: Settings?) {
                     if (data?.hasMainCar() == true){
-                        carRepository.get(data.carId)
+                        val disposable = carRepository.get(data.carId)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.from(useCaseHandler.looper),true)
                                 .subscribe({next ->
@@ -74,6 +76,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                                 },{err ->
                                     onErrorSyncingClock(RequestError(err))
                                 })
+                        compositeDisposable.add(disposable)
 
                     }else{
                         Log.e(tag,"No main car found")
@@ -98,12 +101,14 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
     private fun onClockSynced(){
         Logger.getInstance().logI(tag, "Use case finished: success"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onClockSynced()})
     }
 
     private fun onErrorSyncingClock(error: RequestError){
         Logger.getInstance().logE(tag, "Use case returned error: error=$error"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onError(error)})
     }
 

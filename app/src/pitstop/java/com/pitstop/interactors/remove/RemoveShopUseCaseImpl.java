@@ -19,6 +19,8 @@ import com.pitstop.utils.NetworkHelper;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -37,6 +39,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     private Dealership dealership;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public RemoveShopUseCaseImpl(ShopRepository shopRepository, CarRepository carRepository
             , UserRepository userRepository, NetworkHelper networkHelper
@@ -53,18 +56,21 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
     private void onShopRemoved(){
         Logger.getInstance().logI(TAG,"Use case finished: shop removed"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onShopRemoved());
     }
 
     private void onCantRemoveShop(){
         Logger.getInstance().logI(TAG,"Use case finished: cant remove shop"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onCantRemoveShop());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -73,7 +79,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                carRepository.getCarsByUserId(user.getId())
+                Disposable disposable = carRepository.getCarsByUserId(user.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> RemoveShopUseCaseImpl.this.onError(new RequestError(err)))
@@ -107,6 +113,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
                             return new RepositoryResponse<List<Car>>(null,false);
                         })
                         .subscribe();
+                compositeDisposable.add(disposable);
             }
             @Override
             public void onError(RequestError error) {

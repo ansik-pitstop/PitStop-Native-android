@@ -6,6 +6,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.TripRepository
 import com.pitstop.utils.Logger
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -19,6 +20,7 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
     private var tripId: String = ""
     private var vin: String = ""
     private var callback: RemoveTripUseCase.Callback? = null
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(tripId: String, vin: String, callback: RemoveTripUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
@@ -29,10 +31,8 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
     }
 
     override fun run() {
-
         Log.d(tag, "run()")
-
-        tripRepository.deleteTrip(tripId, vin)
+        val disposable = tripRepository.deleteTrip(tripId, vin)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe({ next ->
@@ -42,17 +42,18 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
                     Log.d(tag, "tripRepository.onError() error: " + error)
                     this@RemoveTripUseCaseImpl.onError(com.pitstop.network.RequestError(error))
                 })
+        compositeDisposable.add(disposable)
 
     }
 
     private fun onTripRemoved() {
-
         Logger.getInstance()!!.logI(tag, "Use case finished: trip removed", DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post { callback!!.onTripRemoved() }
-
     }
 
     private fun onError(err: RequestError?) {
+        compositeDisposable.clear()
         if (err != null) {
             Logger.getInstance()!!.logE(tag, "Use case returned error: err=" + err, DebugMessage.TYPE_USE_CASE)
             mainHandler.post({ callback!!.onError(err) })

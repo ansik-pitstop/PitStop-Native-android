@@ -11,6 +11,7 @@ import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -25,6 +26,7 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
     private val TAG = FacebookSignUpUseCase::class.java.simpleName
 
     private lateinit var callback: FacebookSignUpUseCase.Callback
+    private val compositeDisposable = CompositeDisposable()
 
     override fun execute(callback: FacebookSignUpUseCase.Callback) {
         Logger.getInstance()!!.logI(TAG, "Use case execution started"
@@ -55,12 +57,12 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                 user.firstName = firstName
                 user.lastName = lastName
 
-                userRepository.insert(user,true)
+                val disposable = userRepository.insert(user,true)
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.io())
                         .subscribe({next ->
                             Log.d(TAG,"next: $next")
-                            userRepository.loginFacebook(AccessToken.getCurrentAccessToken().token)
+                            val disposable = userRepository.loginFacebook(AccessToken.getCurrentAccessToken().token)
                                     .subscribeOn(Schedulers.computation())
                                     .observeOn(Schedulers.io()).subscribe({user->
                                         Log.d(TAG,"login user response: $user")
@@ -70,11 +72,13 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                                         Log.d(TAG,"login user error: $err")
                                         SignUpUseCaseImpl@onError(RequestError(err))
                                     })
+                            compositeDisposable.add(disposable)
                         },{err ->
                             if (err is com.jakewharton.retrofit2.adapter.rxjava2.HttpException)
                             else Log.d(TAG,"err: ${err.message}")
                             FacebookSignUpUseCaseImpl@onError(RequestError(err))
                         })
+                compositeDisposable.add(disposable)
 
                 Log.d(TAG,"got facebook email: $email")
             } catch (e: Exception) {
@@ -90,12 +94,14 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
     private fun onSuccess(){
         Logger.getInstance()!!.logI(TAG, "Use case finished: signed up successfully"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback.onSuccess()})
     }
 
     private fun onError(error: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case returned error: err=$error"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback.onError(error)})
     }
 }
