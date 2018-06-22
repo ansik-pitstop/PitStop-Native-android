@@ -18,7 +18,6 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 6/19/2018.
  */
 class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
-                                , private val loginManager: com.pitstop.utils.LoginManager
                                 , private val localDatabaseHelper: LocalDatabaseHelper
                                 , private val useCaseHandler: Handler
                                 ,private val mainHandler: Handler): FacebookSignUpUseCase {

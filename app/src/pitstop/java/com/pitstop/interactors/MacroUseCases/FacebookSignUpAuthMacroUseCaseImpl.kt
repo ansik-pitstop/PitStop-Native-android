@@ -1,7 +1,10 @@
 package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
-import com.pitstop.interactors.other.*
+import com.pitstop.interactors.other.FacebookSignUpUseCase
+import com.pitstop.interactors.other.FacebookSignUpUseCaseImpl
+import com.pitstop.interactors.other.LoginFacebookUseCase
+import com.pitstop.interactors.other.SmoochLoginUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
@@ -10,9 +13,9 @@ import io.smooch.core.User
 /**
  * Created by Karol Zdebel on 6/22/2018.
  */
-class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: FacebookSignUpUseCaseImpl
-                                         , private val loginFacebookUseCase: LoginFacebookUseCaseImpl
-                                         , private val smoochLoginUseCase: SmoochLoginUseCaseImpl
+class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: FacebookSignUpUseCase
+                                         , private val loginFacebookUseCase: LoginFacebookUseCase
+                                         , private val smoochLoginUseCase: SmoochLoginUseCase
                                          , private val mainHandler: Handler)
     : FacebookSignUpAuthMacroUseCase {
 

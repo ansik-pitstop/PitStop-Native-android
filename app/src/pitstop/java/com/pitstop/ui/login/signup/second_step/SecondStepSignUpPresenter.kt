@@ -51,7 +51,7 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
             view?.displayLoading()
 
             useCaseComponent.signUpUseCase().execute(user, object: SignUpUseCase.Callback{
-                override fun onSuccess() {
+                override fun onSignedUp() {
                     Log.d(TAG,"SignUpUseCase() returned success!")
                     if (view == null) return
                     view!!.switchToOnBoarding()

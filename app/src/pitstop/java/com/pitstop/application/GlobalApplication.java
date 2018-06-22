@@ -37,7 +37,6 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
-import com.pitstop.interactors.other.SmoochLoginUseCase;
 import com.pitstop.models.Notification;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.models.User;
@@ -127,17 +126,6 @@ public class GlobalApplication extends Application implements LoginManager {
                 .contextModule(new ContextModule(this)).build();
         Smooch.init(this, settings, response -> {
             Log.d(TAG,"Smooch: init response: "+response.getError());
-            useCaseComponent.getSmoochLoginUseCase().execute(io.smooch.core.User.getCurrentUser()
-                    , new SmoochLoginUseCase.Callback() {
-                @Override
-                public void onError(RequestError err) {
-                    Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
-                }
-                @Override
-                public void onLogin() {
-                    Log.d(TAG,"Smooch: Logged into smooch successfully");
-                }
-            });
         });
 
         // Parse
@@ -354,17 +342,6 @@ public class GlobalApplication extends Application implements LoginManager {
         smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
         Smooch.init(this, smoochSettings, response -> {
             Log.d(TAG,"Smooch: init response: "+response.getError());
-            useCaseComponent.getSmoochLoginUseCase().execute(io.smooch.core.User.getCurrentUser()
-                    , new SmoochLoginUseCase.Callback() {
-                @Override
-                public void onError(RequestError err) {
-                    Log.d(TAG, "Smooch: Error logging into smooch err: " + err);
-                }
-                @Override
-                public void onLogin() {
-                    Log.d(TAG,"Smooch: Logged into smooch successfully");
-                }
-            });
         });
     }
 

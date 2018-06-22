@@ -1,5 +1,9 @@
 package com.pitstop.dependency;
 
+import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCase;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
@@ -234,4 +238,12 @@ public interface UseCaseComponent {
     LoginFacebookUseCase facebookLoginUseCase();
 
     FacebookSignUpUseCase facebookSignUpUseCase();
+
+    FacebookSignUpAuthMacroUseCase facebookSignUpAuthMacroUseCase();
+
+    FacebookLoginAuthMacroUseCase facebookLoginAuthMacroUseCase();
+
+    LoginAuthMacroUseCase loginAuthMacroUseCase();
+
+    SignUpAuthMacroUseCase signUpAuthMacroUseCase();
 }
