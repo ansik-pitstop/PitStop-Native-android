@@ -16,7 +16,6 @@ import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.ui.Presenter
 import com.pitstop.utils.MixpanelHelper
-import io.smooch.core.Smooch
 import io.smooch.core.User
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -121,7 +120,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     override fun onFirstCarAddedChecked(added: Boolean) {
                         Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
                         if (!added){
-                            sendSignedUpSmoochMessage()
                             if (view != null && withDealer)
                                 view!!.showTentativeAppointmentShowcase()
 
@@ -185,25 +183,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
             override fun onError(error: RequestError) {
                 Log.d(TAG,"onError() err: "+error)
-            }
-
-        })
-    }
-
-    private fun sendSignedUpSmoochMessage() {
-        Log.d(TAG,"sendSignedUpSmoochMessage() ");
-        useCaseCompnent.getCurrentUserUseCase.execute(object: GetCurrentUserUseCase.Callback{
-            override fun onUserRetrieved(user: com.pitstop.models.User) {
-                Log.d(TAG,"retrieved current user: "+user)
-                if (Smooch.getConversation() != null)
-                    Smooch.getConversation()!!.sendMessage(io.smooch.core.Message(user.firstName +
-                            (if (user.lastName == null || user.lastName == "null")
-                                ""
-                            else
-                                " " + user.lastName) + " has signed up for Pitstop!"))
-            }
-
-            override fun onError(error: RequestError?) {
             }
 
         })

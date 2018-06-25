@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -33,6 +35,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetCurrentServicesUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository
@@ -57,18 +60,21 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues){
         Logger.getInstance().logI(TAG, "Use case finished: currentServices="+currentServices+", customIssues="+customIssues
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onGotCurrentServices(currentServices,customIssues));
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: no car added!"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -82,7 +88,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
 
                 if (!data.hasMainCar()){
                     //Check user car list
-                    carRepository.getCarsByUserId(data.getUserId())
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                             .subscribe(next -> {
@@ -111,6 +117,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
                             },error -> {
                                 GetCurrentServicesUseCaseImpl.this.onError(new RequestError(error));
                             });
+                    compositeDisposable.add(disposable);
                 } else getCurrentCarIssues(data.getCarId());
             }
 

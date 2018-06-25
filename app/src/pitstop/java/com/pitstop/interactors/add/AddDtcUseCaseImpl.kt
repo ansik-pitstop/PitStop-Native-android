@@ -12,6 +12,7 @@ import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -23,6 +24,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
     private val tag = javaClass.simpleName
     private var dtcPackage: DtcPackage? = null
     private var callback: AddDtcUseCase.Callback? = null
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(dtcPackage: DtcPackage, callback: AddDtcUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started input: dtcPackage=" + dtcPackage
@@ -35,12 +37,14 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
     private fun onError(error: RequestError){
         Logger.getInstance()!!.logE(tag, "Use case returned error: err=" + error
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback?.onError(error)})
     }
 
     private fun onDtcPackageAdded(dtcPackage: DtcPackage){
         Logger.getInstance()!!.logI(tag, "Use case execution finished: dtc package=" + dtcPackage
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback?.onDtcPackageAdded(dtcPackage)})
     }
 
@@ -54,36 +58,39 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                     return
                 }
 
-                if (settings.hasMainCar()) carRepository.get(settings.carId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                    .subscribe({response ->
-                        if (response.isLocal) return@subscribe
-                        if (response.data == null){
-                            callback?.onError(RequestError.getUnknownError())
-                            return@subscribe
-                        }
-                        for ((dtc, isPending) in dtcPackage!!.dtcs){
-                            Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
-                            carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
-                                    , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
-
-                                override fun onSuccess(dtcCode: String){
-                                    Log.d(tag,"successfully added dtc code: "+dtcCode)
-                                    if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
-                                        this@AddDtcUseCaseImpl.onDtcPackageAdded(dtcPackage as DtcPackage)
-                                    }
-
+                if (settings.hasMainCar()){
+                    val disposable = carRepository.get(settings.carId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                            .subscribe({response ->
+                                if (response.isLocal) return@subscribe
+                                if (response.data == null){
+                                    callback?.onError(RequestError.getUnknownError())
+                                    return@subscribe
                                 }
-                                override fun onError(error: RequestError){
-                                    Log.d(tag,"Error adding dtc err: "+error.message)
-                                    Log.d(tag,"dtcPackage: "+dtcPackage)
-                                    this@AddDtcUseCaseImpl.onError(error)
-                                }
+                                for ((dtc, isPending) in dtcPackage!!.dtcs){
+                                    Log.d(tag,String.format("(dtc, isPending): (%s,%b)",dtc,isPending))
+                                    carIssueRepository.insertDtc(settings.carId, response.data.totalMileage
+                                            , dtcPackage?.rtcTime!!.toLong(), dtc, isPending, object : Repository.Callback<String> {
 
-                            })
-                        }
-                    }, {err -> this@AddDtcUseCaseImpl.onError(RequestError(err)) })
+                                        override fun onSuccess(dtcCode: String){
+                                            Log.d(tag,"successfully added dtc code: "+dtcCode)
+                                            if (dtcPackage!!.dtcs.keys.indexOf(dtcCode) == dtcPackage!!.dtcs.keys.size-1){
+                                                this@AddDtcUseCaseImpl.onDtcPackageAdded(dtcPackage as DtcPackage)
+                                            }
+
+                                        }
+                                        override fun onError(error: RequestError){
+                                            Log.d(tag,"Error adding dtc err: "+error.message)
+                                            Log.d(tag,"dtcPackage: "+dtcPackage)
+                                            this@AddDtcUseCaseImpl.onError(error)
+                                        }
+
+                                    })
+                                }
+                            }, {err -> this@AddDtcUseCaseImpl.onError(RequestError(err)) })
+                    compositeDisposable.add(disposable)
+                }
                 else this@AddDtcUseCaseImpl.onError(RequestError.getUnknownError())
             }
             override fun onError(error: RequestError){

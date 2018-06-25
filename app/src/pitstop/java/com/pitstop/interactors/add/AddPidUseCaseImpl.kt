@@ -13,6 +13,7 @@ import com.pitstop.repositories.SensorDataRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
 import com.pitstop.utils.SensorDataUtils
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -29,6 +30,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
     private lateinit var callback: AddPidUseCase.Callback
     private lateinit var pidPackage: PidPackage
     private lateinit var vin: String
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(pidPackage: PidPackage, vin: String, callback: AddPidUseCase.Callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: pidPackage=$pidPackage"
@@ -47,18 +49,21 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                 override fun onSuccess(data: Settings?) {
                     if (data == null) return
                     var usedLocalCar = false
-                    if (data.hasMainCar()) carRepository.get(data.carId)
-                            .observeOn(Schedulers.io())
-                            .subscribeOn(Schedulers.computation())
-                            .subscribe({car ->
-                                if (car.data == null || usedLocalCar) return@subscribe
-                                if (car.isLocal) usedLocalCar = true
+                    if (data.hasMainCar()){
+                        val disposable = carRepository.get(data.carId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.computation())
+                                .subscribe({car ->
+                                    if (car.data == null || usedLocalCar) return@subscribe
+                                    if (car.isLocal) usedLocalCar = true
 
-                                sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
+                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
 
-                            },{err ->
-                                AddPidUseCaseImpl@onError(RequestError(err))
-                            })
+                                },{err ->
+                                    AddPidUseCaseImpl@onError(RequestError(err))
+                                })
+                        compositeDisposable.add(disposable)
+                    }
                     else AddPidUseCaseImpl@onError(RequestError.getUnknownError())
                 }
 
@@ -78,18 +83,21 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
     private fun onAdded(size: Int){
         Logger.getInstance()!!.logI(TAG, "Use case finished: pids sent to server successfully"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHanler.post({callback.onAdded(size)})
     }
 
     private fun onStoredLocally(size: Int){
         Logger.getInstance()!!.logI(TAG, "Use case finished: pids stored locally"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHanler.post({callback.onStoredLocally(size)})
     }
 
     private fun onError(err: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case finished: error = $err"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHanler.post({callback.onError(err)})
     }
 
@@ -100,7 +108,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
         if (sensorDataRepository.getSensorDataCount()
                 >= sensorDataRepository.getChunkSize()){
 
-            sensorDataRepository.dumpData()
+            val disposable = sensorDataRepository.dumpData()
                     .observeOn(Schedulers.io(), true)
                     .subscribeOn(Schedulers.computation())
                     .subscribe({next ->
@@ -109,6 +117,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                         err.printStackTrace()
                         AddPidUseCaseImpl@onError(RequestError(err))
                     })
+            compositeDisposable.add(disposable)
         }else{
             onStoredLocally(locallyStoredCount)
         }

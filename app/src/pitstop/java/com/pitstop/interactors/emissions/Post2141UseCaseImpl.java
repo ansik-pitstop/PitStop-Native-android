@@ -2,7 +2,9 @@ package com.pitstop.interactors.emissions;
 
 import android.os.Handler;
 
+import com.pitstop.models.DebugMessage;
 import com.pitstop.network.RequestError;
+import com.pitstop.utils.Logger;
 import com.pitstop.utils.NetworkHelper;
 
 import org.json.JSONException;
@@ -13,6 +15,8 @@ import org.json.JSONObject;
  */
 
 public class Post2141UseCaseImpl implements Post2141UseCase {
+
+    private String TAG = getClass().getSimpleName();
 
     private Callback callback;
     private Handler useCaseHandler;
@@ -27,15 +31,20 @@ public class Post2141UseCaseImpl implements Post2141UseCase {
     }
 
     private void onPIDPosted(JSONObject response){
+        Logger.getInstance().logI(TAG, "Use case finished: result="+response
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post(() -> callback.onPIDPosted(response));
     }
 
     private void onError(RequestError error){
+        Logger.getInstance().logE(TAG, "Use case returned error: err="+error
+                , DebugMessage.TYPE_USE_CASE);
         mainHandler.post( () -> callback.onError(error));
     }
 
     @Override
     public void execute(String pid,String deviceId, Callback callback) {
+        Logger.getInstance().logI(TAG, "Use case execution started", DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.pid = pid;
         useCaseHandler.post(this);

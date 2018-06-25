@@ -18,6 +18,8 @@ import com.pitstop.utils.Logger;
 import java.util.Date;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -38,6 +40,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private Date date;
     private String comments;
     private Callback callback;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository
             , UserRepository userRepository, CarRepository carRepository
@@ -53,12 +56,14 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private void onServicesRequested(){
         Logger.getInstance().logI(TAG,"Use case finished: service requested"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onServicesRequested());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG,"Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -75,42 +80,45 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                         Log.d(TAG,"got user settings: "+data);
                         if (!data.hasMainCar()){
                           RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError());
-                        } else if (data.hasMainCar()) carRepository.get(data.getCarId())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                            .subscribe(response -> {
-                                Log.d(TAG, "got car: " + response);
-                                if (response.isLocal()) {
-                                    Log.d(TAG, "local data, returning");
-                                    return;
-                                }
-                                Log.d(TAG, "remote data, proceeding");
-                                if (response.getData() == null) {
-                                    Log.d(TAG, "data null, returning");
-                                    callback.onError(RequestError.getUnknownError());
-                                    return;
-                                }
-                                Log.d(TAG, "data is fine, proceeding");
-                                Car car = response.getData();
+                        } else if (data.hasMainCar()){
+                            Disposable disposable = carRepository.get(data.getCarId())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                    .subscribe(response -> {
+                                                Log.d(TAG, "got car: " + response);
+                                                if (response.isLocal()) {
+                                                    Log.d(TAG, "local data, returning");
+                                                    return;
+                                                }
+                                                Log.d(TAG, "remote data, proceeding");
+                                                if (response.getData() == null) {
+                                                    Log.d(TAG, "data null, returning");
+                                                    callback.onError(RequestError.getUnknownError());
+                                                    return;
+                                                }
+                                                Log.d(TAG, "data is fine, proceeding");
+                                                Car car = response.getData();
 
-                                Appointment appointment = new Appointment(car.getShopId()
-                                        , state, date, comments);
-                                Log.d(TAG, "requestingService");
-                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
-                                        , new Repository.Callback<Object>() {
+                                                Appointment appointment = new Appointment(car.getShopId()
+                                                        , state, date, comments);
+                                                Log.d(TAG, "requestingService");
+                                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
+                                                        , new Repository.Callback<Object>() {
 
-                                            @Override
-                                            public void onSuccess(Object object) {
-                                                RequestServiceUseCaseImpl.this.onServicesRequested();
-                                            }
+                                                            @Override
+                                                            public void onSuccess(Object object) {
+                                                                RequestServiceUseCaseImpl.this.onServicesRequested();
+                                                            }
 
-                                            @Override
-                                            public void onError(RequestError error) {
-                                                RequestServiceUseCaseImpl.this.onError(error);
-                                            }
-                                        });
-                            }, err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err))
-                        );
+                                                            @Override
+                                                            public void onError(RequestError error) {
+                                                                RequestServiceUseCaseImpl.this.onError(error);
+                                                            }
+                                                        });
+                                            }, err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err))
+                                    );
+                            compositeDisposable.add(disposable);
+                        }
                     }
 
                     @Override

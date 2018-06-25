@@ -16,6 +16,8 @@ import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -34,6 +36,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     private Callback callback;
     private String vin;
     private String deviceId;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public HandleVinOnConnectUseCaseImpl(ScannerRepository scannerRepository
             ,CarRepository carRepository, UserRepository userRepository, Handler useCaseHandler
@@ -59,36 +62,42 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
     private void onSuccess(){
         Logger.getInstance().logI(TAG,"Use case finished: success"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onSuccess());
     }
 
     private void onDeviceBrokenAndCarMissingScanner(){
         Logger.getInstance().logI(TAG,"Use case finished: device broken and car missing scanner"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onDeviceBrokenAndCarMissingScanner());
     }
 
     private void onDeviceBrokenAndCarHasScanner(String scannerId){
         Logger.getInstance().logI(TAG,"Use case finished: device broken and car has scanner"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onDeviceBrokenAndCarHasScanner(scannerId));
     }
 
     private void onDeviceInvalid(){
         Logger.getInstance().logI(TAG,"Use case finished: device invalid"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onDeviceInvalid());
     }
 
     private void onDeviceAlreadyActive(){
         Logger.getInstance().logI(TAG,"Use case finished: device already active"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onDeviceAlreadyActive());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -109,7 +118,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 }
 
                 //Get user car
-                carRepository.get(data.getCarId())
+                Disposable disposable = carRepository.get(data.getCarId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))
@@ -248,6 +257,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                     }).onErrorReturn(err -> new RepositoryResponse<>(null,false))
                     .subscribe();
+                compositeDisposable.add(disposable);
             }
 
             @Override

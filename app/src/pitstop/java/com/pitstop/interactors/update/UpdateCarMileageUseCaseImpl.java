@@ -13,6 +13,8 @@ import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -27,6 +29,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     private UserRepository userRepository;
     private Handler usecaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private Callback callback;
     private double mileage;
@@ -51,18 +54,21 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
     private void onMileageUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: mileage updated"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onMileageUpdated());
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: no car added"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logI(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -78,7 +84,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return;
                 }
 
-                carRepository.get(settings.getCarId())
+                Disposable disposable = carRepository.get(settings.getCarId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
                         .doOnError(err -> UpdateCarMileageUseCaseImpl.this.onError(new RequestError(err)))
@@ -108,6 +114,7 @@ public class UpdateCarMileageUseCaseImpl implements UpdateCarMileageUseCase {
                     return new RepositoryResponse<>(null,false);
                     //Todo: error handling
                 }).subscribe();
+                compositeDisposable.add(disposable);
             }
 
             @Override

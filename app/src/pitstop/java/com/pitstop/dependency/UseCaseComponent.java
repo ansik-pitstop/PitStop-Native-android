@@ -1,5 +1,9 @@
 package com.pitstop.dependency;
 
+import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCase;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
@@ -10,7 +14,6 @@ import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.add.AddServicesUseCase;
 import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCase;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
 import com.pitstop.interactors.emissions.Post2141UseCase;
@@ -194,8 +197,6 @@ public interface UseCaseComponent {
 
     SetAlarmsEnabledUseCase getSetAlarmsEnableduseCase();
 
-    CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase();
-
     GetAlarmCountUseCase getGetAlarmCountUseCase();
 
     StoreFuelConsumedUseCase getStoreFuelConsumedUseCase();
@@ -237,4 +238,12 @@ public interface UseCaseComponent {
     LoginFacebookUseCase facebookLoginUseCase();
 
     FacebookSignUpUseCase facebookSignUpUseCase();
+
+    FacebookSignUpAuthMacroUseCase facebookSignUpAuthMacroUseCase();
+
+    FacebookLoginAuthMacroUseCase facebookLoginAuthMacroUseCase();
+
+    LoginAuthMacroUseCase loginAuthMacroUseCase();
+
+    SignUpAuthMacroUseCase signUpAuthMacroUseCase();
 }

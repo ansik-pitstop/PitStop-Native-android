@@ -14,6 +14,7 @@ import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -29,6 +30,7 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
 
     private val tag = javaClass.simpleName
     private var callback: GetAppointmentStateUseCase.Callback? = null
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(callback: GetAppointmentStateUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case started execution"
@@ -47,7 +49,7 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                     return
                 }
 
-                appointmentRepository.getAllAppointments(data.carId)
+                val disposable = appointmentRepository.getAllAppointments(data.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                         .subscribe({response ->
@@ -73,7 +75,7 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                                 })
                             }else{
                                 //Get predicted service
-                                appointmentRepository.getPredictedService(data.carId)
+                                val disposable = appointmentRepository.getPredictedService(data.carId)
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
                                         .subscribe({response ->
@@ -90,15 +92,18 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                                                 this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
                                             }
                                         })
+                                compositeDisposable.add(disposable)
                             }
                         }, {error ->
                             Log.d(tag,"error: "+error)
                             this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
                         })
+                compositeDisposable.add(disposable)
             }
 
             override fun onError(error: RequestError?) {
                 Log.d(tag,"error getting settings, err: "+error)
+                this@GetAppointmentStateUseCaseImpl.onError(error!!)
             }
 
         })
@@ -122,18 +127,21 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
     private fun onMileageUpdateNeededState(){
         Logger.getInstance()!!.logI(tag, "Use case finished: onMileageUdateNeededState"
                 , DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onMileageUpdateNeededState()})
     }
 
     private fun onAppointmentBookedState(appointment: Appointment, dealership: Dealership){
         Logger.getInstance()!!.logI(tag, "Use case finished: onAppointmentBookedState: "
                 +appointment+", dealership: "+dealership, DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onAppointmentBookedState(appointment, dealership)})
     }
 
     private fun onPredictedServiceState(predictedService: PredictedService){
         Logger.getInstance()!!.logI(tag, "Use case finished: onPredictedServiceState: "
                 +predictedService, DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onPredictedServiceState(predictedService)})
     }
 
@@ -141,6 +149,7 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
         val error: RequestError = if (requestError != null) requestError else RequestError.getUnknownError()
         Logger.getInstance()!!.logE(tag, "Use case returned error: err="
                 + error, DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onError(error)})
     }
 }

@@ -2,6 +2,7 @@ package com.pitstop.utils
 
 import com.pitstop.models.Car
 import com.pitstop.models.User
+import io.smooch.core.Smooch
 import java.util.*
 
 /**
@@ -19,18 +20,25 @@ class SmoochUtil {
             user.addProperties(customProperties)
         }
 
-        fun setSmoochProperties(user: User, car: Car){
+        fun setSmoochProperties(user: User){
             val smoochUser = io.smooch.core.User.getCurrentUser()
             smoochUser.firstName = user.firstName
             smoochUser.email = user.email
-            val customProperties = HashMap<String,Any>()
-            customProperties["VIN"] = car.vin
-            customProperties["Car Make"] = car.make
-            customProperties["Car Model"] = car.model
-            customProperties["Car Year"] = car.year
-            customProperties["Email"] = car.shop.email
-            customProperties["Phone"] = user.phone
-            smoochUser.addProperties(customProperties)
+        }
+
+        fun setSmoochProperties(user: User, car: Car){
+            setSmoochProperties(car)
+            setSmoochProperties(user)
+        }
+
+        fun sendSignedUpSmoochMessage(firstName: String, lastName: String){
+            Smooch.getConversation()!!
+                    .sendMessage(io.smooch.core.Message("$firstName $lastName has signed up for Pitstop!"))
+        }
+
+        fun sendUserAddedCarSmoochMessage(user:User, car: Car){
+            Smooch.getConversation()!!
+                    .sendMessage(io.smooch.core.Message("${user.firstName} ${user.lastName} has added a ${car.make} ${car.model} ${car.year}"))
         }
 
     }

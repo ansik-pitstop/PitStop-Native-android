@@ -9,7 +9,7 @@ import com.pitstop.network.RequestError
  */
 interface SignUpUseCase: Interactor {
     interface Callback{
-        fun onSuccess()
+        fun onSignedUp()
         fun onError(err: RequestError)
     }
 
