@@ -3,8 +3,8 @@ package com.pitstop.ui.login.login
 import android.util.Log
 import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.LoginFacebookUseCase
-import com.pitstop.interactors.other.LoginUseCase
+import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase
+import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCase
 import com.pitstop.network.RequestError
 
 /**
@@ -40,7 +40,8 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayError("Password too long, must be less than 50 characters.")
         } else{
             view?.displayLoading()
-            useCaseComponent.loginUseCase().execute(email,password, object: LoginUseCase.Callback{
+            useCaseComponent.loginAuthMacroUseCase().execute(email,password
+                    , io.smooch.core.User.getCurrentUser(), object: LoginAuthMacroUseCase.Callback{
                 override fun onSuccess() {
                     Log.d(TAG,"LoginUseCase.onSuccess()")
                     if (view == null) return
@@ -68,8 +69,10 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onFacebookLoginSuccess(result: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
         view?.displayLoading()
-        useCaseComponent.facebookLoginUseCase().execute(result!!.accessToken.token
-                , object: LoginFacebookUseCase.Callback{
+        useCaseComponent.facebookLoginAuthMacroUseCase().execute(
+                result!!.accessToken.token
+                , io.smooch.core.User.getCurrentUser()
+                , object: FacebookLoginAuthMacroUseCase.Callback{
 
             override fun onSuccess() {
                 Log.d(TAG,"FacebookLoginUseCase.onSuccess()")

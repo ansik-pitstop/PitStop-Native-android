@@ -3,7 +3,6 @@ package com.pitstop.interactors.add;
 import android.os.Handler;
 import android.util.Log;
 
-import com.pitstop.interactors.other.HandleVinOnConnectUseCaseImpl;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.ObdScanner;
 import com.pitstop.network.RequestError;
@@ -27,7 +26,6 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
     private ScannerRepository scannerRepository;
     private boolean carHasScanner;
     private String oldScannerId;
-
 
     public AddScannerUseCaseImpl(Handler useCaseHandler, Handler mainHandler, ScannerRepository scannerRepository) {
         this.useCaseHandler = useCaseHandler;

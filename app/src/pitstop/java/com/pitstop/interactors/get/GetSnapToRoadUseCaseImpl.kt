@@ -10,6 +10,7 @@ import com.pitstop.network.RequestError
 import com.pitstop.repositories.SnapToRoadRepository
 import com.pitstop.utils.Logger
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -22,6 +23,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
     private val tag = javaClass.simpleName
     private lateinit var callback: GetSnapToRoadUseCase.Callback
     private lateinit var polylineList: List<RecordedLocation>
+    private val compositeDisposable = CompositeDisposable()
 
     override fun execute(polylineList: List<RecordedLocation>, callback: GetSnapToRoadUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started: polyline.size = ${polylineList.size}", DebugMessage.TYPE_USE_CASE)
@@ -78,7 +80,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 
         }
 
-        Observable.combineLatest(observableList,{
+        val disposable = Observable.combineLatest(observableList,{
                     val snappedPoints = arrayListOf<SnappedPoint>()
                     it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
                    // it.forEach { (it as Collection<SnappedPoint>).forEach { Log.d(tag,"returned original index ${it.originalIndex}, coordinates: ${it.location}") } }
@@ -97,17 +99,20 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                     this@GetSnapToRoadUseCaseImpl.onError(RequestError(error))
 
                 })
+        compositeDisposable.add(disposable)
 
     }
 
     private fun onSnapToRoadRetrieved(snappedPointList: List<SnappedPoint>) {
 
         Logger.getInstance()!!.logI(tag, "Use case finished result: trips=$snappedPointList", DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({ callback.onSnapToRoadRetrieved(snappedPointList) })
 
     }
 
     private fun onError(error: RequestError?) {
+        compositeDisposable.clear()
         if (error != null) {
             Logger.getInstance()!!.logE(tag, "Use case returned error: err=" + error, DebugMessage.TYPE_USE_CASE)
             mainHandler.post({ callback.onError(error) })

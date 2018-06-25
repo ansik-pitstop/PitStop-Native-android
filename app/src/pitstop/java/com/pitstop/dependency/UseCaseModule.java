@@ -8,6 +8,14 @@ import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalFuelConsumptionStorage;
 import com.pitstop.database.LocalLocationStorage;
 import com.pitstop.database.LocalSpecsStorage;
+import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCaseImpl;
+import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCaseImpl;
+import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCaseImpl;
+import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCase;
+import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCaseImpl;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.interactors.add.AddAlarmUseCaseImpl;
 import com.pitstop.interactors.add.AddCarUseCase;
@@ -30,8 +38,6 @@ import com.pitstop.interactors.add.AddShopUseCase;
 import com.pitstop.interactors.add.AddShopUseCaseImpl;
 import com.pitstop.interactors.add.GenerateReportUseCase;
 import com.pitstop.interactors.add.GenerateReportUseCaseImpl;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUse;
-import com.pitstop.interactors.check.CheckAlarmsEnabledUseCaseImpl;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase;
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCaseImpl;
 import com.pitstop.interactors.check.CheckNetworkConnectionUseCase;
@@ -595,13 +601,6 @@ public class UseCaseModule {
     }
 
     @Provides
-    CheckAlarmsEnabledUse getCheckAlarmsEnabledUseCase(UserRepository userRepository
-            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
-
-        return new CheckAlarmsEnabledUseCaseImpl(userRepository,useCaseHandler, mainHandler);
-    }
-
-    @Provides
     DeviceClockSyncUseCase getDeviceClockSyncUseCase(ScannerRepository scannerRepository
             , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler")Handler mainHandler){
@@ -758,10 +757,10 @@ public class UseCaseModule {
     }
 
     @Provides
-    SignUpUseCase signUpUseCase(UserRepository userRepository, LoginManager loginManager
+    SignUpUseCase signUpUseCase(UserRepository userRepository
             , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new SignUpUseCaseImpl(userRepository, loginManager, localDatabaseHelper, useCaseHandler, mainHandler);
+        return new SignUpUseCaseImpl(userRepository, localDatabaseHelper, useCaseHandler, mainHandler);
 
     }
 
@@ -775,12 +774,40 @@ public class UseCaseModule {
     }
 
     @Provides
-    FacebookSignUpUseCase facebookSignUpUseCase(UserRepository userRepository, LoginManager loginManager
+    FacebookSignUpUseCase facebookSignUpUseCase(UserRepository userRepository
             , LocalDatabaseHelper localDatabaseHelper, @Named("useCaseHandler") Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
-        return new FacebookSignUpUseCaseImpl(userRepository, loginManager , localDatabaseHelper
+        return new FacebookSignUpUseCaseImpl(userRepository , localDatabaseHelper
                 , useCaseHandler, mainHandler);
 
+    }
+
+    @Provides
+    FacebookLoginAuthMacroUseCase facebookLoginAuthMacroUseCase(LoginFacebookUseCase loginFacebookUseCase
+            , SmoochLoginUseCase smoochLoginUseCase
+            , @Named("mainHandler") Handler mainHandler){
+        return new FacebookLoginAuthMacroUseCaseImpl(loginFacebookUseCase, smoochLoginUseCase, mainHandler);
+    }
+
+    @Provides
+    FacebookSignUpAuthMacroUseCase facebookSignUpAuthMacroUseCase(FacebookSignUpUseCase facebookSignUpUseCase
+            , LoginFacebookUseCase loginFacebookUseCase, SmoochLoginUseCase smoochLoginUseCase
+            , @Named("mainHandler") Handler mainHandler){
+        return new FacebookSignUpAuthMacroUseCaseImpl(facebookSignUpUseCase, loginFacebookUseCase, smoochLoginUseCase, mainHandler);
+    }
+
+    @Provides
+    SignUpAuthMacroUseCase signUpAuthMacroUseCase(SignUpUseCase signUpUseCase
+            , LoginUseCase loginUseCase, SmoochLoginUseCase smoochLoginUseCase
+            , @Named("mainHandler") Handler mainHandler){
+        return new SignUpAuthMacroUseCaseImpl(signUpUseCase, loginUseCase, smoochLoginUseCase, mainHandler);
+    }
+
+    @Provides
+    LoginAuthMacroUseCase loginAuthMacroUseCase(LoginUseCase loginUseCase
+            , SmoochLoginUseCase smoochLoginUseCase
+            , @Named("mainHandler") Handler mainHandler){
+        return new LoginAuthMacroUseCaseImpl(loginUseCase, smoochLoginUseCase, mainHandler);
     }
 }
 

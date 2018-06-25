@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -39,6 +41,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetUpcomingServicesMapUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository, CarRepository carRepository
@@ -54,6 +57,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     public void execute(Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         this.callback = callback;
         useCaseHandler.post(this);
     }
@@ -61,18 +65,21 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
         Logger.getInstance().logI(TAG, "Use case finished: serviceMap="+serviceMap
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap));
     }
 
     private void onNoCarAdded(){
         Logger.getInstance().logI(TAG, "Use case finished: car not added!"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onNoCarAdded());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -86,7 +93,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
                 if (!data.hasMainCar()){
                     //Check user car list
-                    carRepository.getCarsByUserId(data.getUserId())
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                             .subscribe(next -> {
@@ -116,6 +123,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                                 GetUpcomingServicesMapUseCaseImpl.this
                                         .onError(new RequestError(error));
                             });
+                    compositeDisposable.add(disposable);
                 } else getUpcomingCarIssues(data.getCarId());
             }
 

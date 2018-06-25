@@ -15,6 +15,8 @@ import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -32,6 +34,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private int carId;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public GetCarByCarIdUseCaseImpl(CarRepository carRepository, UserRepository userRepository
             , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -54,12 +57,14 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
     private void onCarGot(Car car, Dealership dealership){
         Logger.getInstance().logI(TAG,"Use case finished result: car="+car+", dealership="+dealership
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onCarGot(car, dealership));
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG,"Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     };
 
@@ -69,7 +74,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
             @Override
             public void onSuccess(User user) {
-                carRepository.get(carId)
+                Disposable disposable = carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .subscribe(response -> {
@@ -98,6 +103,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
                         }
                     });
                 }, err -> GetCarByCarIdUseCaseImpl.this.onError(new RequestError(err)));
+                compositeDisposable.add(disposable);
             }
             @Override
             public void onError(RequestError error) {

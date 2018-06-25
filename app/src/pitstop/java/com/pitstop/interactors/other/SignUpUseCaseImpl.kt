@@ -8,7 +8,6 @@ import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
-import com.pitstop.utils.LoginManager
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -16,7 +15,6 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 6/15/2018.
  */
 class SignUpUseCaseImpl(private val userRepository: UserRepository
-                        , private val loginManager: LoginManager
                         , private val localDatabaseHelper: LocalDatabaseHelper
                         , private val useCaseHandler: Handler
                         , private val mainHandler: Handler): SignUpUseCase {
@@ -43,30 +41,20 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
-                    Log.d(TAG,"insert user response: $next")
-                    userRepository.login(user.email,user.password)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io()).subscribe({next->
-                                Log.d(TAG,"login user response: $next")
-                                loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
-                                SignUpUseCaseImpl@onSuccess()
-                            },{err ->
-                                Log.d(TAG,"login user error: $err")
-                                SignUpUseCaseImpl@onError(RequestError(err))
-                            })
+                    this@SignUpUseCaseImpl.onSignedUp()
                 }, {err ->
                     Log.d(TAG,"insert user error: ${err.printStackTrace()}")
-                    SignUpUseCaseImpl@onError(RequestError(err))
+                    this@SignUpUseCaseImpl.onError(RequestError(err))
                 })
         compositeDisposable.add(disposable)
 
     }
 
-    private fun onSuccess(){
+    private fun onSignedUp(){
         Logger.getInstance()!!.logI(TAG, "Use case finished: signed up successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post { callback.onSuccess() }
+        mainHandler.post { callback.onSignedUp() }
     }
 
     private fun onError(err: RequestError){

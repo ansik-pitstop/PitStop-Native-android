@@ -11,6 +11,7 @@ import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -23,8 +24,10 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
 
     private val tag = javaClass.simpleName
     private var callback: GetPredictedServiceUseCase.Callback? = null
+    private val compositeDisposable = CompositeDisposable()
 
     private fun onError(error: RequestError?){
+        compositeDisposable.clear()
         if (error != null){
             Logger.getInstance()!!.logE(tag, "Use case returned error: err="
                     + error, DebugMessage.TYPE_USE_CASE)
@@ -39,6 +42,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
     private fun onGotPredictedService(predictedService: PredictedService){
         Logger.getInstance()!!.logI(tag, "Use case finished: predictedService="
                 + predictedService, DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onGotPredictedService(predictedService)})
     }
 
@@ -55,7 +59,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
                 Log.d(tag,"Got settings: "+data);
                 if (data == null) this@GetPredictedServiceUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
 
-                appointmentRepository.getPredictedService(data!!.carId)
+                val disposable = appointmentRepository.getPredictedService(data!!.carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
                         .subscribe({response ->
@@ -64,6 +68,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
                             Log.e(tag,"Error: "+error);
                             this@GetPredictedServiceUseCaseImpl.onError(RequestError(error))
                         })
+                compositeDisposable.add(disposable)
             }
 
             override fun onError(error: RequestError?) {

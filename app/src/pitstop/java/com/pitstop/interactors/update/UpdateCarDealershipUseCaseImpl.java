@@ -21,6 +21,8 @@ import com.pitstop.utils.Logger;
 import org.greenrobot.eventbus.EventBus;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -40,6 +42,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
 
     private int carId;
     private Dealership dealership;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public UpdateCarDealershipUseCaseImpl(CarRepository carRepository
             , UserRepository userRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -52,12 +55,14 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
     private void onCarDealerUpdated(){
         Logger.getInstance().logI(TAG, "Use case finished: car dealer updated"
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onCarDealerUpdated());
     }
 
     private void onError(RequestError error){
         Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                 , DebugMessage.TYPE_USE_CASE);
+        compositeDisposable.clear();
         mainHandler.post(() -> callback.onError(error));
     }
 
@@ -83,7 +88,7 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                     UpdateCarDealershipUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
-                carRepository.get(carId)
+                Disposable disposable = carRepository.get(carId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> UpdateCarDealershipUseCaseImpl.this.onError(new RequestError(err)))
@@ -113,6 +118,8 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                     return new RepositoryResponse<>(null,false);
                 })
                 .subscribe();
+
+                compositeDisposable.add(disposable);
             }
 
             @Override

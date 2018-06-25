@@ -148,7 +148,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                                 public void onSuccess(Object response){
                                                     Log.d(TAG,"updateScanner().onSuccess() response:"
                                                             +response);
-                                                    addCar(vin,baseMileage,user.getId(),scannerId
+                                                    addCar(vin,baseMileage,user,scannerId
                                                             ,callback);
                                                 }
 
@@ -163,7 +163,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                                         //Not active, add
                                         else{
                                             Log.d(TAG,"scanner not active, adding car");
-                                            addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                                            addCar(vin,baseMileage,user,scannerId,callback);
                                         }
                                     }
 
@@ -179,13 +179,13 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
 
                             else if (carExists && !hasUser && !hasScanner){
                                 Log.d(TAG,"carExists && !hasUser && !hasScanner, adding car");
-                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                                addCar(vin,baseMileage,user,scannerId,callback);
                             }
 
                             //If car does not exist then add
                             else if (!carExists){
                                 Log.d(TAG,"!carExists, adding car");
-                                addCar(vin,baseMileage,user.getId(),scannerId,callback);
+                                addCar(vin,baseMileage,user,scannerId,callback);
                             }
 
                             //Unknown case that is never reached
@@ -210,9 +210,10 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         });
     }
 
-    private void addCar(String vin, double baseMileage, int userId, String scannerId
+    private void addCar(String vin, double baseMileage, User user, String scannerId
             , Callback callback){
         Log.d(TAG,"addCar()");
+        int userId = user.getId();
         carRepository.insert(vin, baseMileage, userId, scannerId
                 , new Repository.Callback<Car>() {
                     @Override
@@ -224,6 +225,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                             public void onSuccess(Object data) {
                                 Log.d(TAG,"setUsercar.onSuccess() response: "+data);
 
+                                SmoochUtil.Companion.sendUserAddedCarSmoochMessage(user,car);
                                 SmoochUtil.Companion.setSmoochProperties(car);
 
                                 //Process succeeded, notify eventbus

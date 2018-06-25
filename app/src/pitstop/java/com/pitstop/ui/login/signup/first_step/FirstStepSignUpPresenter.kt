@@ -3,7 +3,7 @@ package com.pitstop.ui.login.signup.first_step
 import android.util.Log
 import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.FacebookSignUpUseCase
+import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase
 import com.pitstop.network.RequestError
 
 /**
@@ -51,7 +51,10 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onFacebookLoginSuccess(loginResult: LoginResult?){
         Log.d(TAG,"onFacebookLoginSuccess()")
         view?.displayLoading()
-        useCaseComponent.facebookSignUpUseCase().execute(object: FacebookSignUpUseCase.Callback{
+        useCaseComponent.facebookSignUpAuthMacroUseCase().execute(
+                loginResult!!.accessToken.token
+                ,io.smooch.core.User.getCurrentUser()
+                ,object: FacebookSignUpAuthMacroUseCase.Callback{
             override fun onSuccess() {
                 Log.d(TAG,"FacebookSignUpUseCase.onSuccess()")
                 if (view == null) return

@@ -7,6 +7,7 @@ import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
 import com.pitstop.utils.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -17,8 +18,9 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                                         , val useCaseHandler: Handler, val mainHandler: Handler)
     : GetCarsWithDealershipsUseCase {
 
-    val tag: String? = javaClass.simpleName
-    var callback: GetCarsWithDealershipsUseCase.Callback? = null
+    private val tag: String? = javaClass.simpleName
+    private var callback: GetCarsWithDealershipsUseCase.Callback? = null
+    private var compositeDisposable = CompositeDisposable()
 
     override fun execute(callback: GetCarsWithDealershipsUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
@@ -29,11 +31,13 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     fun onGotCarsWithDealerships(data: LinkedHashMap<Car,Dealership>, local: Boolean){
         Logger.getInstance()!!.logI(tag, "Use case finished: map="+data+", local="+local
                 , DebugMessage.TYPE_USE_CASE)
+        if (!local) compositeDisposable.clear()
         mainHandler.post({ callback!!.onGotCarsWithDealerships(data,local) })
     }
 
     fun onError(error: RequestError){
         Logger.getInstance()!!.logE(tag, "Use case returned error: err="+error, DebugMessage.TYPE_USE_CASE)
+        compositeDisposable.clear()
         mainHandler.post({callback!!.onError(error)})
     }
 
@@ -42,7 +46,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
             override fun onSuccess(user: User) {
                 Log.d(tag,"Got user")
-                carRepository.getCarsByUserId(user.id)
+                val disposable = carRepository.getCarsByUserId(user.id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError({err ->
@@ -97,6 +101,7 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                             RepositoryResponse<List<Car>>(null, false)
                         }.doOnError({err -> this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))})
                         .subscribe()
+                compositeDisposable.add(disposable)
             }
 
             override fun onError(error: RequestError) {
