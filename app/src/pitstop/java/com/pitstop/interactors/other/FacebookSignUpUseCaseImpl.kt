@@ -84,7 +84,7 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
         Logger.getInstance()!!.logI(TAG, "Use case finished: signed up successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess(next)})
+        mainHandler.post({callback.onSuccess(user)})
     }
 
     private fun onError(error: RequestError){

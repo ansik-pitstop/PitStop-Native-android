@@ -38,6 +38,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {
                                 Log.d(TAG,"Smooch login use case returned error.")
+                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                                 this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
                             }
 
