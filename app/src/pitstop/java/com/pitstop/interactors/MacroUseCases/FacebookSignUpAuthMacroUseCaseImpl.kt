@@ -9,6 +9,7 @@ import com.pitstop.interactors.other.SmoochLoginUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.SmoochUtil
 import io.smooch.core.User
 
 /**
@@ -28,7 +29,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
         this.callback = callback
         Logger.getInstance()!!.logI(TAG, "Macro use case execution started", DebugMessage.TYPE_USE_CASE)
         signupFacebookUseCase.execute(object: FacebookSignUpUseCase.Callback{
-            override fun onSuccess() {
+            override fun onSuccess(user: com.pitstop.models.User) {
                 Log.d(TAG,"Facebook signup use case returned success.")
                 loginFacebookUseCase.execute(facebookAuthToken
                         , object: LoginFacebookUseCase.Callback{
@@ -42,6 +43,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
 
                             override fun onLogin() {
                                 Log.d(TAG,"Smooch login use case returned success.")
+                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                                 this@FacebookSignUpAuthMacroUseCaseImpl.onSuccess()
                             }
 

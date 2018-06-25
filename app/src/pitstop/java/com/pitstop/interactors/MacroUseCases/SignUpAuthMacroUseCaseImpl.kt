@@ -9,6 +9,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import com.pitstop.utils.SmoochUtil
 
 /**
  * Created by Karol Zdebel on 6/22/2018.
@@ -44,6 +45,7 @@ class SignUpAuthMacroUseCaseImpl(private val signUpUseCase: SignUpUseCase
 
                             override fun onLogin() {
                                 Log.d(TAG,"Smooch login use case returned success.")
+                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                                 this@SignUpAuthMacroUseCaseImpl.onSuccess()
                             }
                         })

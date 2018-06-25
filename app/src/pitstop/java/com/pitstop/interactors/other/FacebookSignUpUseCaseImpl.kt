@@ -61,7 +61,7 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
                         .observeOn(Schedulers.io())
                         .subscribe({next ->
                             Log.d(TAG,"next: $next")
-                            this@FacebookSignUpUseCaseImpl.onSuccess()
+                            this@FacebookSignUpUseCaseImpl.onSuccess(next)
                         },{err ->
                             if (err is com.jakewharton.retrofit2.adapter.rxjava2.HttpException)
                             else Log.d(TAG,"err: ${err.message}")
@@ -80,11 +80,11 @@ class FacebookSignUpUseCaseImpl(private val userRepository: UserRepository
         request.executeAsync()
     }
 
-    private fun onSuccess(){
+    private fun onSuccess(user: User){
         Logger.getInstance()!!.logI(TAG, "Use case finished: signed up successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess()})
+        mainHandler.post({callback.onSuccess(next)})
     }
 
     private fun onError(error: RequestError){

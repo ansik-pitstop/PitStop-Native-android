@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import com.pitstop.interactors.Interactor
+import com.pitstop.models.User
 import com.pitstop.network.RequestError
 
 /**
@@ -9,7 +10,7 @@ import com.pitstop.network.RequestError
 interface FacebookSignUpUseCase: Interactor {
 
     interface Callback{
-        fun onSuccess()
+        fun onSuccess(user: User)
         fun onError(err: RequestError)
     }
 
