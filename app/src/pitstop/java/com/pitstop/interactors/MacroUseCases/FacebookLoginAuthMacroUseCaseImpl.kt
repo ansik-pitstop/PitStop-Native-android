@@ -1,6 +1,7 @@
 package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.interactors.other.LoginFacebookUseCase
 import com.pitstop.interactors.other.SmoochLoginUseCase
 import com.pitstop.models.DebugMessage
@@ -24,12 +25,15 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
 
         loginFacebookUseCase.execute(facebookAuthToken, object: LoginFacebookUseCase.Callback{
             override fun onSuccess() {
+                Log.d(TAG,"Facebook login use case returned success.")
                 smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                     override fun onError(err: RequestError) {
+                        Log.d(TAG,"Smooch login use case returned error.")
                         this@FacebookLoginAuthMacroUseCaseImpl.onError(err)
                     }
 
                     override fun onLogin() {
+                        Log.d(TAG,"Smooch use case returned success.")
                         this@FacebookLoginAuthMacroUseCaseImpl.onSuccess()
                     }
 
@@ -37,6 +41,7 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
             }
 
             override fun onError(err: RequestError) {
+                Log.d(TAG,"Facebook login use case returned error.")
                 this@FacebookLoginAuthMacroUseCaseImpl.onError(err)
             }
 

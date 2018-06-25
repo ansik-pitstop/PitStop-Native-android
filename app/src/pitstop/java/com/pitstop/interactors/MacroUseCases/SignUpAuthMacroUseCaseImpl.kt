@@ -1,6 +1,7 @@
 package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.interactors.other.LoginUseCase
 import com.pitstop.interactors.other.SignUpUseCase
 import com.pitstop.interactors.other.SmoochLoginUseCase
@@ -31,26 +32,32 @@ class SignUpAuthMacroUseCaseImpl(private val signUpUseCase: SignUpUseCase
 
         signUpUseCase.execute(user, object: SignUpUseCase.Callback{
             override fun onSignedUp() {
+                Log.d(TAG,"Sign up use case returned success.")
                 loginUseCase.execute(user.email, user.password, object: LoginUseCase.Callback{
                     override fun onSuccess() {
+                        Log.d(TAG,"Login use case returned success.")
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {
+                                Log.d(TAG,"Smooch login use case returned error.")
                                 this@SignUpAuthMacroUseCaseImpl.onError(err)
                             }
 
                             override fun onLogin() {
+                                Log.d(TAG,"Smooch login use case returned success.")
                                 this@SignUpAuthMacroUseCaseImpl.onSuccess()
                             }
                         })
                     }
 
                     override fun onError(error: RequestError) {
+                        Log.d(TAG,"Login use case returned error.")
                         this@SignUpAuthMacroUseCaseImpl.onError(error)
                     }
                 })
             }
 
             override fun onError(err: RequestError) {
+                Log.d(TAG,"Sign up use case returned success.")
                 this@SignUpAuthMacroUseCaseImpl.onError(err)
             }
 

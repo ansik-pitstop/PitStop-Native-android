@@ -2,7 +2,7 @@ package com.pitstop.ui.login.signup.first_step
 
 import android.util.Log
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.SignUpUseCase
+import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCase
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
 
@@ -50,8 +50,9 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
 
             view?.displayLoading()
 
-            useCaseComponent.signUpUseCase().execute(user, object: SignUpUseCase.Callback{
-                override fun onSignedUp() {
+            useCaseComponent.signUpAuthMacroUseCase().execute(user, io.smooch.core.User.getCurrentUser()
+                    , object: SignUpAuthMacroUseCase.Callback{
+                override fun onSuccess() {
                     Log.d(TAG,"SignUpUseCase() returned success!")
                     if (view == null) return
                     view!!.switchToOnBoarding()

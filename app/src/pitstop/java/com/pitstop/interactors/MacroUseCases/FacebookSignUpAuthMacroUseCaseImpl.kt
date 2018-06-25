@@ -1,6 +1,7 @@
 package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.interactors.other.FacebookSignUpUseCase
 import com.pitstop.interactors.other.FacebookSignUpUseCaseImpl
 import com.pitstop.interactors.other.LoginFacebookUseCase
@@ -28,15 +29,19 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
         Logger.getInstance()!!.logI(TAG, "Macro use case execution started", DebugMessage.TYPE_USE_CASE)
         signupFacebookUseCase.execute(object: FacebookSignUpUseCase.Callback{
             override fun onSuccess() {
+                Log.d(TAG,"Facebook signup use case returned success.")
                 loginFacebookUseCase.execute(facebookAuthToken
                         , object: LoginFacebookUseCase.Callback{
                     override fun onSuccess() {
+                        Log.d(TAG,"Facebook login use case returned success.")
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {
+                                Log.d(TAG,"Smooch login use case returned error.")
                                 this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
                             }
 
                             override fun onLogin() {
+                                Log.d(TAG,"Smooch login use case returned success.")
                                 this@FacebookSignUpAuthMacroUseCaseImpl.onSuccess()
                             }
 
@@ -44,12 +49,14 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                     }
 
                     override fun onError(err: RequestError) {
+                        Log.d(TAG,"Facebook login use case returned error.")
                         this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
                     }
                 })
             }
 
             override fun onError(err: RequestError) {
+                Log.d(TAG,"Sign up facebook use case returned error.")
                 this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
             }
 
