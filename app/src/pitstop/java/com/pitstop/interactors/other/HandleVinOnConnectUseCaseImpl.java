@@ -128,11 +128,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         if (usedLocal[0] && !response.isLocal()){
                             //Don't process remote data because local has been used
                             return;
+                        }else if (!response.isLocal()){
+                            Log.d(TAG,"using remote response");
                         }
 
                         if (response.isLocal() && response.getData() != null){
                             //Set used local flag so the remote response isn't processed
                             usedLocal[0] = true;
+                            Log.d(TAG,"using local response scanner: "+response.getData().getScannerId());
                         }else if (response.isLocal() && response.getData() == null){
                             //Invalid local data so return
                             return;
@@ -155,6 +158,13 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 && !car.getScannerId().isEmpty();
                         boolean deviceIdValid = deviceId != null
                                 && !deviceId.isEmpty();
+
+                        //Check if VINs match
+                        if (vin.equals(car.getVin())){
+                            Log.d(TAG,"Vins match");
+                            HandleVinOnConnectUseCaseImpl.this.onSuccess();
+                            return;
+                        }
 
                         //Car has a valid scanner so nothing needs to be done
                         if (carScannerValid){

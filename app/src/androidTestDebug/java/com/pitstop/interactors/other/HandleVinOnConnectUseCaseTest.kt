@@ -39,7 +39,7 @@ class HandleVinOnConnectUseCaseTest {
 
     @Test
     fun handleVinOnConnectUseCaseTest() {
-        val deviceId = ""
+        val deviceId = "ABCD123"
         val vin = "1GCEC14H6CS190284"
 
         val completableFuture = CompletableFuture<Boolean>()

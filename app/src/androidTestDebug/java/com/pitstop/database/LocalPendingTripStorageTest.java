@@ -38,7 +38,7 @@ public class LocalPendingTripStorageTest {
     @Before
     public void setup(){
         Context context = InstrumentationRegistry.getTargetContext();
-        localPendingTripStorage = new LocalPendingTripStorage(context);
+        localPendingTripStorage = new LocalPendingTripStorage(LocalDatabaseHelper.getInstance(context));
         localPendingTripStorage.deleteAll();
         gson = new Gson();
     }

@@ -7,6 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -44,7 +45,7 @@ public class SendPendingUpdatesUseCaseTest {
         Context context = InstrumentationRegistry.getTargetContext();
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context)).build();
-        localCarStorage = new LocalCarStorage(context);
+        localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
     }
 
     @Test
