@@ -55,7 +55,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         activities.forEach loop@{
 
             //See how long we've been still for, if at all
-            if (softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
+            if ( (hardStart != -1L || softStart != -1L) && softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
                 Logger.getInstance().logD(tag,"soft end end time=${it.time}"
                         ,DebugMessage.TYPE_USE_CASE)
                 hardEnd = it.time
@@ -76,13 +76,13 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                     Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
                             "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
-
-                    //Reset variables in case another trip is present
-                    softStart = -1L
-                    softEnd = -1L
-                    hardStart = -1L
-                    hardEnd = -1L
                 }
+
+                //Reset variables regardless of softStart or hardStart
+                softStart = -1L
+                softEnd = -1L
+                hardStart = -1L
+                hardEnd = -1L
             }
 
             when(it.type){

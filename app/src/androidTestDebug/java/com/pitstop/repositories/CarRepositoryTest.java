@@ -8,6 +8,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.utils.NetworkHelper;
@@ -36,7 +37,7 @@ public class CarRepositoryTest {
     @Before
     public void setup(){
         Context context = InstrumentationRegistry.getTargetContext();
-        localCarStorage = new LocalCarStorage(context);
+        localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
         PitstopAuthApi pitstopAuthApi = RetrofitTestUtil.Companion.getAuthApi();
         NetworkHelper networkHelper = new NetworkHelper(context,pitstopAuthApi, PreferenceManager.getDefaultSharedPreferences(context));
         carRepository = new CarRepository(localCarStorage,networkHelper

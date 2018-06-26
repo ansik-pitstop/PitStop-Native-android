@@ -26,7 +26,7 @@ class LocalLocationStorageTest {
     @Before
     fun setup() {
         val context = InstrumentationRegistry.getTargetContext()
-        localLocationStorage = LocalLocationStorage(context)
+        localLocationStorage = LocalLocationStorage(LocalDatabaseHelper.getInstance(context))
     }
 
     @Test

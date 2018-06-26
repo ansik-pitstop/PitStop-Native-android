@@ -11,11 +11,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pitstop.TripTestUtil;
 import com.pitstop.application.Constants;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalPendingTripStorage;
 import com.pitstop.database.LocalTripStorage;
 import com.pitstop.models.Car;
-import com.pitstop.models.trip.Trip;
 import com.pitstop.models.sensor_data.trip.TripData;
+import com.pitstop.models.trip.Trip;
 import com.pitstop.network.RequestError;
 import com.pitstop.retrofit.GoogleSnapToRoadApi;
 import com.pitstop.retrofit.PitstopTripApi;
@@ -60,9 +61,9 @@ public class TripRepositoryTest {
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopTripApi pitstopTripApi = RetrofitTestUtil.Companion.getTripApi();
         GoogleSnapToRoadApi googleSnapToRoadApi = RetrofitTestUtil.Companion.getGoogleSnapToRoadApi();
-        LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(context);
+        LocalPendingTripStorage localPendingTripStorage = new LocalPendingTripStorage(LocalDatabaseHelper.getInstance(context));
 
-        localTripStorage = new LocalTripStorage(context);
+        localTripStorage = new LocalTripStorage(LocalDatabaseHelper.getInstance(context));
         tripRepository = new TripRepository(pitstopTripApi,localPendingTripStorage,localTripStorage
                 , googleSnapToRoadApi, new Geocoder(context),Observable.just(true));
     }

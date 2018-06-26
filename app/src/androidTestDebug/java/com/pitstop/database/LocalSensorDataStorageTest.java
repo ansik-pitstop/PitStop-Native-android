@@ -35,7 +35,7 @@ public class LocalSensorDataStorageTest {
     @Before
     public void setup() {
         Context context = InstrumentationRegistry.getTargetContext();
-        localSensorDataStorage = new LocalSensorDataStorage(context);
+        localSensorDataStorage = new LocalSensorDataStorage(LocalDatabaseHelper.getInstance(context));
         localSensorDataStorage.deleteAll();
         gson = new Gson();
     }

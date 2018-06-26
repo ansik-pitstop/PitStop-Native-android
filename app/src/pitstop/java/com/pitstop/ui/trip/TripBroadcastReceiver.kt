@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
+import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.pitstop.database.*
 import com.pitstop.models.DebugMessage
@@ -28,6 +29,9 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(tag,"onReceive()")
+
+        val currentTime = System.currentTimeMillis()
+
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
             Logger.getInstance().logD(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
@@ -47,10 +51,25 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 Logger.getInstance().logE(tag,"Vin is null! ",DebugMessage.TYPE_TRIP)
             }
 
+            var onFootActivity = 0
+            var stillActivity = 0
+            var vehicleActivity = 0
 
             activityResult.probableActivities.forEach({
-                carActivity.add(CarActivity(vin ?: "",System.currentTimeMillis(),it.type,it.confidence))
+
+                if (it.type == DetectedActivity.ON_FOOT){
+                    onFootActivity = it.confidence
+                }else if (it.type == DetectedActivity.STILL){
+                    stillActivity = it.confidence
+                }else if (it.type == DetectedActivity.IN_VEHICLE){
+                    vehicleActivity = it.confidence
+                }
+                carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
+
+            Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
+                    ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
+
 
             val rows = localActivityStorage.store(carActivity)
             Logger.getInstance().logD(tag,"Stored activities locally, response: $rows"
@@ -82,7 +101,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             }
 
             locationResult.locations.filter { it.accuracy < MIN_LOC_ACCURACY }.forEach({
-                locations.add(CarLocation(vin ?: "",System.currentTimeMillis(),it.longitude,it.latitude))
+                locations.add(CarLocation(vin ?: "",currentTime,it.longitude,it.latitude))
             })
 
             val rows = localLocationStorage.store(locations)

@@ -2,8 +2,8 @@ package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
 import android.util.Log
+import com.facebook.login.LoginManager
 import com.pitstop.interactors.other.FacebookSignUpUseCase
-import com.pitstop.interactors.other.FacebookSignUpUseCaseImpl
 import com.pitstop.interactors.other.LoginFacebookUseCase
 import com.pitstop.interactors.other.SmoochLoginUseCase
 import com.pitstop.models.DebugMessage
@@ -21,7 +21,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                                          , private val mainHandler: Handler)
     : FacebookSignUpAuthMacroUseCase {
 
-    private val TAG = FacebookSignUpUseCaseImpl::class.java.simpleName
+    private val TAG = FacebookSignUpAuthMacroUseCaseImpl::class.java.simpleName
     private lateinit var callback: FacebookSignUpAuthMacroUseCase.Callback
 
     override fun execute(facebookAuthToken: String, smoochUser: User
@@ -38,6 +38,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {
                                 Log.d(TAG,"Smooch login use case returned error.")
+                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                                 this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
                             }
 
@@ -74,6 +75,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
     private fun onError(requestError: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case error: err = ${requestError.message}"
                 , DebugMessage.TYPE_USE_CASE)
+        LoginManager.getInstance().logOut()
         mainHandler.post{callback.onError(requestError)}
     }
 }

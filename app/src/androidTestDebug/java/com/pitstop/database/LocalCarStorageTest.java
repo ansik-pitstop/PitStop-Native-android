@@ -29,7 +29,7 @@ public class LocalCarStorageTest {
     @Before
     public void setup(){
         Context context = InstrumentationRegistry.getTargetContext();
-        localCarStorage = new LocalCarStorage(context);
+        localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
     }
 
     @Test

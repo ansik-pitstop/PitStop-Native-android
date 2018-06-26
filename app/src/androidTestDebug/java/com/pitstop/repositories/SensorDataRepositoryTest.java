@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
 import com.pitstop.SensorDataTestUtil;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.models.sensor_data.SensorData;
 import com.pitstop.retrofit.PitstopSensorDataApi;
@@ -42,7 +43,7 @@ public class SensorDataRepositoryTest {
         Log.i(TAG, "running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopSensorDataApi pitstopSensorDataApi = RetrofitTestUtil.Companion.getSensorDataApi();
-        localSensorDataStorage = new LocalSensorDataStorage(context);
+        localSensorDataStorage = new LocalSensorDataStorage(LocalDatabaseHelper.getInstance(context));
         sensorDataRepository = new SensorDataRepository(localSensorDataStorage
                 ,pitstopSensorDataApi, Observable.just(false));
         localSensorDataStorage.deleteAll();
