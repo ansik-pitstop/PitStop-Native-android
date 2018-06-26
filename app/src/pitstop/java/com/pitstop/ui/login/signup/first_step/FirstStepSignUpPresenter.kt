@@ -49,7 +49,7 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
     }
 
     fun onFacebookLoginSuccess(loginResult: LoginResult?){
-        Log.d(TAG,"onFacebookLoginSuccess()")
+        Log.d(TAG,"onFacebookLoginSuccess() token: ${loginResult!!.accessToken.token}")
         view?.displayLoading()
         useCaseComponent.facebookSignUpAuthMacroUseCase().execute(
                 loginResult!!.accessToken.token

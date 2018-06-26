@@ -29,6 +29,9 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(tag,"onReceive()")
+
+        val currentTime = System.currentTimeMillis()
+
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
             Logger.getInstance().logD(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
@@ -61,7 +64,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 }else if (it.type == DetectedActivity.IN_VEHICLE){
                     vehicleActivity = it.confidence
                 }
-                carActivity.add(CarActivity(vin ?: "",System.currentTimeMillis(),it.type,it.confidence))
+                carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
 
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
@@ -98,7 +101,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             }
 
             locationResult.locations.filter { it.accuracy < MIN_LOC_ACCURACY }.forEach({
-                locations.add(CarLocation(vin ?: "",System.currentTimeMillis(),it.longitude,it.latitude))
+                locations.add(CarLocation(vin ?: "",currentTime,it.longitude,it.latitude))
             })
 
             val rows = localLocationStorage.store(locations)
