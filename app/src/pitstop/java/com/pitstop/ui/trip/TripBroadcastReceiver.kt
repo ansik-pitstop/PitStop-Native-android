@@ -7,6 +7,7 @@ import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.maps.model.LatLng
 import com.pitstop.database.*
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
@@ -83,7 +84,9 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             Logger.getInstance().logD(tag,"Received activity location intent, loc.size = " +
                     "${locationResult.locations.size}", DebugMessage.TYPE_TRIP)
 
-            Log.d(tag,"received locations: ${locationResult.locations}")
+            val coords = locationResult.locations.map { LatLng(it.latitude,it.longitude) }
+            Logger.getInstance().logD(tag,"received locations: $coords"
+                    ,DebugMessage.TYPE_TRIP)
 
             val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
             if (localUserStorage.user == null || localUserStorage.user.id == -1){
