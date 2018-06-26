@@ -26,7 +26,7 @@ class LocalActivityStorageTest {
     @Before
     fun setup() {
         val context = InstrumentationRegistry.getTargetContext()
-        localActivityStorage = LocalActivityStorage(context)
+        localActivityStorage = LocalActivityStorage(LocalDatabaseHelper.getInstance(context))
     }
 
     @Test

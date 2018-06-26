@@ -84,7 +84,7 @@ class RetrofitTestUtil {
             jsonObject.addProperty("username",username)
             jsonObject.addProperty("password",password)
             jsonObject.addProperty("installationId",installationId)
-            val response = authApi.login(jsonObject).execute()
+            val response = authApi.loginSync(jsonObject).execute()
             if (response.isSuccessful) return response.body()!!["accessToken"].asString
             else{
                 throw Exception()
