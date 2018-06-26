@@ -75,6 +75,8 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             e.printStackTrace()
         }
 
+        Log.d(TAG,"body: $json")
+
         return pitstopAuthApi.loginSocial(json)
                 .doOnNext({
                     localUserStorage.deleteAllUsers()

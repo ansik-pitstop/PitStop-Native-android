@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.pitstop.SensorDataTestUtil;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalSensorDataStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -46,7 +47,7 @@ public class AddPidUseCaseTest {
     public void setup(){
         Log.i(TAG,"running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
-        localSensorDataStorage = new LocalSensorDataStorage(context);
+        localSensorDataStorage = new LocalSensorDataStorage(LocalDatabaseHelper.getInstance(context));
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(context))
                 .build();

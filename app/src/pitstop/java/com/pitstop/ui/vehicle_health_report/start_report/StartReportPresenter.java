@@ -158,6 +158,20 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             return;
         }
 
+        //Check bluetooth connection
+        if (!getView().getBluetoothConnectionObservable().getDeviceState()
+                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
+
+            //Ask for search
+            if (!getView().getBluetoothConnectionObservable().getDeviceState()
+                    .equals(BluetoothConnectionObservable.State.SEARCHING)) {
+                getView().promptBluetoothSearch();
+            } else {
+                getView().displaySearchInProgress();
+            }
+            return;
+        }
+
         //Check network connection
         useCaseComponent.getCheckNetworkConnectionUseCase().execute(status -> {
             if (getView() == null) return;
@@ -166,19 +180,6 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             //No car added
             else if (!carAdded) getView().promptAddCar();
 
-            //No bluetooth connection
-            else if (!getView().getBluetoothConnectionObservable().getDeviceState()
-                    .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-
-                //Ask for search
-                if (!getView().getBluetoothConnectionObservable().getDeviceState()
-                        .equals(BluetoothConnectionObservable.State.SEARCHING)){
-                    getView().promptBluetoothSearch();
-                }else{
-                    getView().displaySearchInProgress();
-                }
-
-            }
             else if (emissions){
                 getView().startEmissionsProgressActivity();
             }else{

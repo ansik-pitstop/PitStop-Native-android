@@ -7,6 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.pitstop.database.LocalAppointmentStorage;
+import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.models.Appointment;
 import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PredictedService;
@@ -39,7 +40,7 @@ public class AppointmentRepositoryTest {
         Log.i(TAG,"running setup()");
         Context context = InstrumentationRegistry.getTargetContext();
         PitstopAppointmentApi api = RetrofitTestUtil.Companion.getAppointmentApi();
-        LocalAppointmentStorage local = new LocalAppointmentStorage(context);
+        LocalAppointmentStorage local = new LocalAppointmentStorage(LocalDatabaseHelper.getInstance(context));
         appointmentRepository = new AppointmentRepository(local,api);
     }
 

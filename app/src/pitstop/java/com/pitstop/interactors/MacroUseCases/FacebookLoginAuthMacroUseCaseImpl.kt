@@ -2,6 +2,7 @@ package com.pitstop.interactors.MacroUseCases
 
 import android.os.Handler
 import android.util.Log
+import com.facebook.login.LoginManager
 import com.pitstop.interactors.other.LoginFacebookUseCase
 import com.pitstop.interactors.other.SmoochLoginUseCase
 import com.pitstop.models.DebugMessage
@@ -16,7 +17,7 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
                                         , private val smoochLoginUseCase: SmoochLoginUseCase
                                         , private val mainHandler: Handler): FacebookLoginAuthMacroUseCase {
 
-    private val TAG = FacebookLoginAuthMacroUseCase::class.java.simpleName
+    private val TAG = FacebookLoginAuthMacroUseCaseImpl::class.java.simpleName
 
     private lateinit var callback: FacebookLoginAuthMacroUseCase.Callback
 
@@ -57,6 +58,7 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
     private fun onError(requestError: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case error: err = ${requestError.message}"
                 , DebugMessage.TYPE_USE_CASE)
+        LoginManager.getInstance().logOut()
         mainHandler.post{callback.onError(requestError)}
     }
 }

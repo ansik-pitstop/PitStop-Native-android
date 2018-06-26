@@ -7,6 +7,7 @@ import android.util.Log
 import com.google.android.gms.location.DetectedActivity
 import com.pitstop.TripTestUtil
 import com.pitstop.database.LocalActivityStorage
+import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.database.LocalLocationStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -45,9 +46,9 @@ class ProcessTripDataUseCaseTest {
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(ContextModule(context))
                 .build()
-        localLocationStorage = LocalLocationStorage(context)
+        localLocationStorage = LocalLocationStorage(LocalDatabaseHelper.getInstance(context))
         localLocationStorage.removeAll()
-        localActivityStorage = LocalActivityStorage(context)
+        localActivityStorage = LocalActivityStorage(LocalDatabaseHelper.getInstance(context))
         localActivityStorage.removeAll()
     }
 
