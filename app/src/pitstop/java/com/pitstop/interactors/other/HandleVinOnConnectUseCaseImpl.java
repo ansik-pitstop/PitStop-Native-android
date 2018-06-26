@@ -15,7 +15,6 @@ import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -116,14 +115,31 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
-
+                boolean[] usedLocal = new boolean[1];
+                usedLocal[0] = false;
                 //Get user car
                 Disposable disposable = carRepository.get(data.getCarId())
                     .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                    .observeOn(Schedulers.computation(),true)
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))
                     .doOnNext(response -> {
-                        if (response.isLocal()) return;
+
+                        //Use local data if present
+                        if (usedLocal[0] && !response.isLocal()){
+                            //Don't process remote data because local has been used
+                            return;
+                        }
+
+                        if (response.isLocal() && response.getData() != null){
+                            //Set used local flag so the remote response isn't processed
+                            usedLocal[0] = true;
+                        }else if (response.isLocal() && response.getData() == null){
+                            //Invalid local data so return
+                            return;
+                        }
+
+
+                        //Remote data is invalid
                         if (response.getData() == null){
                             Log.d(TAG,"Received empty car response.");
                             HandleVinOnConnectUseCaseImpl.this.onError(RequestError.getUnknownError());
