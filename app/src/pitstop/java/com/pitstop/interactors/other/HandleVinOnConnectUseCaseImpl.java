@@ -160,7 +160,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 && !deviceId.isEmpty();
 
                         //Check if VINs match
-                        if (vin.equals(car.getVin())){
+                        if (deviceVinValid && vin.equals(car.getVin())){
                             Log.d(TAG,"Vins match");
                             HandleVinOnConnectUseCaseImpl.this.onSuccess();
                             return;
