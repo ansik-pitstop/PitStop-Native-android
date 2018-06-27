@@ -172,6 +172,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }
 
         return carApi.updateMileage(carId, TotalMileage(mileage))
+                .doOnNext({localCarStorage.updateCarMileage(carId, mileage)})
                 .map { true }
                 .doOnError({
                     localCarStorage.storePendingUpdate(
@@ -304,11 +305,10 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         pendingUpdates.forEach {
             when(it.type){
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
-                    observables.add(carApi.updateMileage(it.id,TotalMileage(it.value.toDouble()))
+                    observables.add(updateMileage(it.id, it.value.toDouble())
                             .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
                             .doOnError({ _ -> localCarStorage.removePendingUpdate(it)}) //Remove it because it is stored again in the mileage update anyway
-                            .map { _ -> it }
-                    )
+                            .map { _ -> it })
                 }
             }
         }
