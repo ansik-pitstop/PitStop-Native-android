@@ -93,6 +93,8 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onError(RequestError.getUnknownError())
                 }
 
+            }else{
+                callback.onError(requestError)
             }
         }
     }
