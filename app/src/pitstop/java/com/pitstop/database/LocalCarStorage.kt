@@ -189,6 +189,16 @@ class LocalCarStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     }
 
+    fun updateCarMileage(carId: Int, mileage: Double): Int{
+        val db = databaseHelper.writableDatabase
+
+        val contentValues = ContentValues()
+        contentValues.put(TABLES.CAR.KEY_MILEAGE, mileage)
+
+        return db.update(TABLES.CAR.TABLE_NAME, contentValues, TABLES.COMMON.KEY_OBJECT_ID + "=?",
+                arrayOf(carId.toString()))
+    }
+
     fun updateCar(car: Car): Int {
 
         val db = databaseHelper.writableDatabase

@@ -642,4 +642,5 @@
     <string name="phone_number">Phone Number</string>
     <string name="next_string">Next</string>
     <string name="sign_up_with_facebook">Sign Up With Facebook</string>
+    <string name="mileage_dialog_string">%d km</string>
 </resources>

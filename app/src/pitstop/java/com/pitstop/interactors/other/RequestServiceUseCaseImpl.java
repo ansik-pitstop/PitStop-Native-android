@@ -81,15 +81,11 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                         if (!data.hasMainCar()){
                           RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError());
                         } else if (data.hasMainCar()){
-                            Disposable disposable = carRepository.get(data.getCarId())
+                            Disposable disposable = carRepository.get(data.getCarId(),Repository.DATABASE_TYPE.REMOTE)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                     .subscribe(response -> {
                                                 Log.d(TAG, "got car: " + response);
-                                                if (response.isLocal()) {
-                                                    Log.d(TAG, "local data, returning");
-                                                    return;
-                                                }
                                                 Log.d(TAG, "remote data, proceeding");
                                                 if (response.getData() == null) {
                                                     Log.d(TAG, "data null, returning");

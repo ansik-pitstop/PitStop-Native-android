@@ -50,7 +50,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                     if (data == null) return
                     var usedLocalCar = false
                     if (data.hasMainCar()){
-                        val disposable = carRepository.get(data.carId)
+                        val disposable = carRepository.get(data.carId, Repository.DATABASE_TYPE.BOTH)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.computation())
                                 .subscribe({car ->

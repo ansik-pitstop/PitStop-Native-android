@@ -38,10 +38,6 @@ public class WriteCommand {
         BluetoothGattService mainObdGattService =
                 gatt.getService(serviceUuid);
 
-        if(mainObdGattService == null) {
-            return;
-        }
-
         if(type == WRITE_TYPE.DATA) {
 
             BluetoothGattCharacteristic obdWriteCharacteristic =

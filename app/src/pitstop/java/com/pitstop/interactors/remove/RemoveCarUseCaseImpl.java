@@ -102,11 +102,11 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                 }
                 // GET the VIN from the car to be deleted BEFORE it
                 else if (data.hasMainCar()){
-                    Disposable disposable = carRepository.get(carToDeleteId)
+                    Disposable disposable = carRepository.get(carToDeleteId,Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .subscribe(carRepositoryResponse -> {
-                                if (carRepositoryResponse.isLocal() || carRepositoryResponse.getData() == null) return;
+                                if (carRepositoryResponse.getData() == null) return;
                                 else carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
 
                                     @Override

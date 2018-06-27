@@ -70,7 +70,7 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                 Log.d(tag, "got settings with carId: ${data!!.carId}")
                 if (!data.hasMainCar()) onNoCar()
                 else{
-                    val disposable = carRepository.get(data.carId)
+                    val disposable = carRepository.get(data.carId, Repository.DATABASE_TYPE.BOTH)
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.computation(), true)
                             .subscribe({ car ->

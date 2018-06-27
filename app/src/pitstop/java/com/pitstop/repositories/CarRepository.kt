@@ -36,6 +36,15 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     private val tag = javaClass.simpleName
 
     fun getCarByVin(vin: String, callback: Repository.Callback<Car>) {
+
+        if (vin.isEmpty()) {
+            val err = RequestError()
+            err.error = "Empty VIN"
+            err.message = "VIN cannot be empty."
+            callback.onError(err)
+            return
+        }
+
         networkHelper.get("car/?vin=" + vin) { response, requestError ->
             if (requestError == null) {
 
@@ -84,6 +93,8 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onError(RequestError.getUnknownError())
                 }
 
+            }else{
+                callback.onError(requestError)
             }
         }
     }
@@ -163,6 +174,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }
 
         return carApi.updateMileage(carId, TotalMileage(mileage))
+                .doOnNext({localCarStorage.updateCarMileage(carId, mileage)})
                 .map { true }
                 .doOnError({
                     localCarStorage.storePendingUpdate(
@@ -221,14 +233,16 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         return Observable.concatDelayError(list)
     }
 
-    fun get(id: Int): Observable<RepositoryResponse<Car>> {
-        Log.d(tag,"get() id: $id")
-        val local = Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
+    private fun getLocal(id: Int): Observable<RepositoryResponse<Car>>{
+        Log.d(tag,"getLocal() id: $id")
+        return Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
+    }
+
+    private fun getRemote(id: Int): Observable<RepositoryResponse<Car>>{
+        Log.d(tag,"getRemote() id: $id")
         val remote = carApi.getCar(id)
 
-        remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io(), true)
+        return remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
                 .doOnNext({next ->
                     if (next.data == null ) return@doOnNext
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
@@ -241,28 +255,33 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 }).onErrorReturn { err ->
                     Log.d(tag,"getCarsByUserId() remote error: $err")
                     RepositoryResponse(null,false)
-                }
-                .subscribe()
+                }.map({pitstopResponse ->
+                    val carList = pitstopResponse.data
+                    if (carList != null){
 
-        val retRemote = remote.cache().map({pitstopResponse ->
-            val carList = pitstopResponse
-            if (carList != null){
+                        //Fix shopId if it's 0
+                        if (carList.shopId == 0)
+                            if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
+                                carList.shopId = 1
+                            else carList.shopId = 19
 
-                //Fix shopId if it's 0
-                if (carList.shopId == 0)
-                    if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                        carList.shopId = 1
-                    else carList.shopId = 19
+                    }
+                    RepositoryResponse(carList, false)
+                })
+    }
 
+    fun get(id: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<Car>> {
+        Log.d(tag,"get() id: $id")
+        return when (type) {
+            Repository.DATABASE_TYPE.LOCAL -> getLocal(id)
+            Repository.DATABASE_TYPE.REMOTE -> getRemote(id)
+            Repository.DATABASE_TYPE.BOTH -> {
+                val list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
+                list.add(getLocal(id))
+                list.add(getRemote(id))
+                Observable.concatDelayError(list)
             }
-            RepositoryResponse(carList, false)
-        })
-
-        val list: MutableList<Observable<RepositoryResponse<Car>>> = mutableListOf()
-        list.add(local)
-        list.add(retRemote)
-
-        return Observable.concatDelayError(list)
+        }
     }
 
     fun delete(carId: Int, callback: Repository.Callback<Any>) {
@@ -288,14 +307,14 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         pendingUpdates.forEach {
             when(it.type){
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
-                    observables.add(carApi.updateMileage(it.id,TotalMileage(it.value.toDouble()))
+                    observables.add(updateMileage(it.id, it.value.toDouble())
                             .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
                             .doOnError({ _ -> localCarStorage.removePendingUpdate(it)}) //Remove it because it is stored again in the mileage update anyway
-                            .map { _ -> it }
-                    )
+                            .map { _ -> it })
                 }
             }
         }
-        return Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
+        return if (observables.isEmpty()) Observable.just(arrayListOf())
+        else Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
     }
 }

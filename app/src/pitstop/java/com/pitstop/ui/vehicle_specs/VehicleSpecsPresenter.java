@@ -27,6 +27,7 @@ import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
+import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -194,7 +195,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             }
         });
 
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 mCar = car;

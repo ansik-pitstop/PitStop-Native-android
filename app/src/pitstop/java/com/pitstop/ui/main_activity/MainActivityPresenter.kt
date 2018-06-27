@@ -3,12 +3,9 @@ package com.pitstop.ui.main_activity
 import android.util.Log
 import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
-import com.pitstop.R.array.car
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
-import com.pitstop.interactors.get.GetCurrentUserUseCase
-import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
@@ -16,7 +13,6 @@ import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
 import com.pitstop.ui.Presenter
 import com.pitstop.utils.MixpanelHelper
-import io.smooch.core.User
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -112,7 +108,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
-        updateSmoochUser()
         view?.closeDrawer()
         useCaseCompnent.checkFirstCarAddedUseCase()!!
                 .execute(object: CheckFirstCarAddedUseCase.Callback{
@@ -137,55 +132,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     override fun onError(error: RequestError?) {
                         //error logic here
                     }})
-    }
-
-    private fun updateSmoochUser() {
-        Log.d(TAG,"updateSmoochUser()");
-        useCaseCompnent.getCurrentUserUseCase.execute(object: GetCurrentUserUseCase.Callback{
-            override fun onUserRetrieved(user: com.pitstop.models.User) {
-                Log.d(TAG,"onUserRetrieved() user: "+user)
-
-                val customProperties: HashMap<String, Any?> = HashMap()
-                customProperties.put("Phone", user.phone)
-                User.getCurrentUser().firstName = user.firstName
-                User.getCurrentUser().email = user.email
-                User.getCurrentUser().addProperties(customProperties)
-
-                useCaseCompnent.userCarUseCase.execute(object: GetUserCarUseCase.Callback{
-                    override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
-                        if (isLocal) return
-                        Log.d(TAG,"onCarRetrieved() car: "+car)
-
-                        customProperties.put("VIN", car.vin)
-                        Log.d(TAG, car.vin)
-                        customProperties.put("Car Make", car.make)
-                        Log.d(TAG, car.make)
-                        customProperties.put("Car Model", car.model)
-                        Log.d(TAG, car.model)
-                        customProperties.put("Car Year", car.year)
-                        Log.d(TAG, car.year.toString())
-                        customProperties.put("Email", dealership.email)
-                        Log.d(TAG, dealership.email)
-                    }
-
-                    override fun onNoCarSet(isLocal: Boolean) {
-                        Log.d(TAG,"onNoCarSet() car: "+car)
-                        if (!isLocal)
-                            view?.noCarsView()
-                    }
-
-                    override fun onError(error: RequestError) {
-                        Log.d(TAG,"onError() err: "+error)
-                    }
-
-                })
-            }
-
-            override fun onError(error: RequestError) {
-                Log.d(TAG,"onError() err: "+error)
-            }
-
-        })
     }
 
     private fun loadCars() {

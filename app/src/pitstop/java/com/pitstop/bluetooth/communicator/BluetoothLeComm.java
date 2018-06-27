@@ -310,7 +310,11 @@ public class BluetoothLeComm implements BluetoothCommunicator {
             mCommandLock.acquireUninterruptibly();
             //Tell the command to start itself.
             //Log.d(TAG, "WriteCommand: " + Utils.bytesToHexString(mCommand.bytes));
-            mCommand.execute(mGatt);
+            try{
+                mCommand.execute(mGatt);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

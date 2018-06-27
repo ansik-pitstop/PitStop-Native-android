@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.dialog_milage.*
 /**
  * Created by Karol Zdebel on 5/24/2018.
  */
-class MileageDialog(): DialogFragment(),MileageDialogView {
+class MileageDialog: DialogFragment(),MileageDialogView {
 
     private var presenter: MileageDialogPresenter? = null
 
@@ -35,6 +35,15 @@ class MileageDialog(): DialogFragment(),MileageDialogView {
         super.onViewCreated(view, savedInstanceState)
         button_negative.setOnClickListener({presenter?.onNegativeButtonCliced()})
         button_positive.setOnClickListener({presenter?.onPositiveButtonClicked()})
+        presenter?.loadView()
+    }
+
+    override fun showMileage(mileage: Int) {
+        mileage_text_view?.text = String.format(resources.getText(R.string.mileage_dialog_string).toString(),mileage)
+    }
+
+    override fun setEditText(text: String) {
+        editText?.setText(text)
     }
 
     override fun onStart() {
@@ -58,5 +67,9 @@ class MileageDialog(): DialogFragment(),MileageDialogView {
     override fun onDismiss(dialog: DialogInterface?) {
         presenter?.unsubscribe()
         super.onDismiss(dialog)
+    }
+
+    override fun showError(err: Int) {
+        error_text?.text = resources.getText(err)
     }
 }

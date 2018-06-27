@@ -56,6 +56,7 @@ import com.pitstop.observer.DeviceVerificationObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.observer.Observer;
+import com.pitstop.repositories.Repository;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.NotificationsHelper;
@@ -1196,7 +1197,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     private void sendConnectedNotification(){
 
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL
+                , new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 String carName = "Click here to find out more" +

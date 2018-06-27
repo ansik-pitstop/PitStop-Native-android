@@ -88,12 +88,11 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                     UpdateCarDealershipUseCaseImpl.this.onError(RequestError.getUnknownError());
                     return;
                 }
-                Disposable disposable = carRepository.get(carId)
+                Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.REMOTE)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> UpdateCarDealershipUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(response -> {
-                    if (response.isLocal()) return;
 
                     Log.d(TAG,"carRepository.get() response: "+response.getData());
                     response.getData().setShopId(dealership.getId());
