@@ -1,6 +1,7 @@
 package com.pitstop.ui.dialog
 
 import android.util.Log
+import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.update.UpdateCarMileageUseCase
@@ -33,7 +34,7 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         usecaseComponent.userCarUseCase.execute(Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback{
             override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
                 if (car != null){
-                    view?.showMileage(car.totalMileage.toString())
+                    view?.showMileage(car.totalMileage.toInt())
                 }
             }
 
@@ -64,10 +65,11 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
                 }
 
             })
+            view!!.closeDialog()
         }catch(e: NumberFormatException){
             e.printStackTrace()
+            view?.showError(R.string.invalid_mileage_alert_message)
         }
-        view!!.closeDialog()
     }
 
     fun onNegativeButtonCliced(){

@@ -312,6 +312,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 }
             }
         }
-        return Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
+        return if (observables.isEmpty()) Observable.just(arrayListOf())
+        else Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
     }
 }

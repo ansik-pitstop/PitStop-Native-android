@@ -43,6 +43,7 @@ import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.dialog.MileageDialog;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -393,6 +394,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onScannerViewClicked() {
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
+    }
+
+    @OnClick(R.id.update_mileage)
+    public void onUpdateMileageClicked(){
+        Log.d(TAG,"onUpdateMileagClicked");
+        MileageDialog mileageDialog = new MileageDialog();
+        if (getFragmentManager() != null)
+            mileageDialog.show(getFragmentManager(), "dialog");
     }
 
     @OnClick(R.id.delete_car)
