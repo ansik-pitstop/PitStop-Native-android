@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.pitstop.R;
 import com.pitstop.models.Notification;
-import com.pitstop.ui.Notifications.NotificationView;
+import com.pitstop.ui.notifications.NotificationView;
 
 import java.util.List;
 

@@ -15,6 +15,7 @@ import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -217,24 +218,20 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     }
 
     private void loadView(){
-        useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG,"onCarRetrieved() car: "+car);
-                if (!isLocal){
-                    carAdded = true;
-                    if (bluetoothConnectionObservable != null)
-                        displayBluetoothState(bluetoothConnectionObservable);
-                }
+                carAdded = true;
+                if (bluetoothConnectionObservable != null)
+                    displayBluetoothState(bluetoothConnectionObservable);
             }
 
             @Override
             public void onNoCarSet(boolean isLocal) {
-                if (!isLocal){
-                    Log.d(TAG,"onNoCarSet()");
-                    carAdded = false;
-                    if (getView() != null) getView().changeTitle(R.string.scan_title_add_car,false);
-                }
+                Log.d(TAG,"onNoCarSet()");
+                carAdded = false;
+                if (getView() != null) getView().changeTitle(R.string.scan_title_add_car,false);
             }
 
             @Override

@@ -31,13 +31,6 @@
                 android:id="@+id/unknown_error_view"
                 layout="@layout/layout_unknown_error"
                 android:visibility="gone" />
-
-            <include
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:id="@+id/loading_view_main"
-                android:visibility="gone"
-                layout="@layout/layout_load" />
         </RelativeLayout>
 
         <android.support.v4.widget.NestedScrollView
@@ -726,6 +719,16 @@
                     </RelativeLayout>
 
                     <include layout="@layout/divider" />
+
+                    <Button
+                        android:layout_gravity="center"
+                        android:layout_marginTop="4dp"
+                        android:id="@+id/update_mileage"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/facebook_blue"
+                        android:text="@string/update_mileage" />
 
                     <Button
                         android:layout_gravity="center"

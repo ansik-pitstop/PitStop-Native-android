@@ -118,7 +118,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 boolean[] usedLocal = new boolean[1];
                 usedLocal[0] = false;
                 //Get user car
-                Disposable disposable = carRepository.get(data.getCarId())
+                Disposable disposable = carRepository.get(data.getCarId(), Repository.DATABASE_TYPE.BOTH)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.computation(),true)
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))

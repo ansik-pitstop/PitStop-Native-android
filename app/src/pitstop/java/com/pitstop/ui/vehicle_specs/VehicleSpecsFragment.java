@@ -43,6 +43,7 @@ import com.pitstop.observer.AutoConnectServiceBindingObserver;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
+import com.pitstop.ui.dialog.MileageDialog;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
@@ -91,9 +92,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @BindView(R.id.main_view)
     protected View mainLayout;
-
-    @BindView(R.id.loading_view_main)
-    protected View loadingView;
 
     @BindView(R.id.vin_icon)
     protected ImageView vinIcon;
@@ -245,11 +243,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void showNoCarView() {
         Log.d(TAG, "showNoCarView()");
         mainLayout.setVisibility(View.GONE);
-        loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         noCarView.setVisibility(View.VISIBLE);
-        loadingView.bringToFront();
         swipeRefreshLayout.setEnabled(true);
 
     }
@@ -257,7 +253,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void showOfflineErrorView() {
         Log.d(TAG, "showOfflineErrorView()");
         mainLayout.setVisibility(View.GONE);
-        loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.VISIBLE);
@@ -267,7 +262,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void showUnknownErrorView() {
         Log.d(TAG, "showUnknownErrorView()");
         mainLayout.setVisibility(View.GONE);
-        loadingView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         offlineView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.VISIBLE);
@@ -276,23 +270,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showLoading() {
-        if (!swipeRefreshLayout.isRefreshing()) {
-            Log.d(TAG, "showLoading()");
-            loadingView.setVisibility(View.VISIBLE);
-            loadingView.bringToFront();
-            swipeRefreshLayout.setEnabled(false);
-        }
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     @Override
     public void hideLoading() {
         Log.d(TAG, "hideLoading()");
-        if (!swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setEnabled(true);
-            loadingView.setVisibility(View.GONE);
-        } else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -300,7 +284,6 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "setView()");
         //Set other views to GONE and main to VISIBLE
         offlineView.setVisibility(View.GONE);
-        loadingView.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
         noCarView.setVisibility(View.GONE);
         mainLayout.setVisibility(View.VISIBLE);
@@ -393,6 +376,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onScannerViewClicked() {
         Log.d(TAG, "onScannerViewClicked()");
         presenter.onScannerViewClicked();
+    }
+
+    @OnClick(R.id.update_mileage)
+    public void onUpdateMileageClicked(){
+        Log.d(TAG,"onUpdateMileagClicked");
+        MileageDialog mileageDialog = new MileageDialog();
+        mileageDialog.show(getFragmentManager(), "");
     }
 
     @OnClick(R.id.delete_car)

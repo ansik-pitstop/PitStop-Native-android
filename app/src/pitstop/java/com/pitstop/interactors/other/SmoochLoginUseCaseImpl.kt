@@ -45,11 +45,10 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
             override fun onSuccess(user: User) {
                 val userId = user.id
                 if (user.settings.hasMainCar()){
-                    val disposable = carRepository.get(user.settings.carId)
+                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.computation())
                             .observeOn(Schedulers.io())
                             .subscribe({next->
-                                if (next.isLocal) return@subscribe
                                 val car: Car = next.data!!
                                 SmoochUtil.setSmoochProperties(user,car)
                                 Log.d(tag,"set smooch user proerties!")

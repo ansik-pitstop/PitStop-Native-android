@@ -1,4 +1,4 @@
-package com.pitstop.ui.Notifications;
+package com.pitstop.ui.notifications;
 
 import android.util.Log;
 

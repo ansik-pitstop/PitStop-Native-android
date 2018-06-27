@@ -1,9 +1,14 @@
 package com.pitstop.ui.dialog
 
 import android.util.Log
+import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.update.UpdateCarMileageUseCase
+import com.pitstop.models.Car
+import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
+import com.pitstop.repositories.Repository
 
 /**
  * Created by Karol Zdebel on 5/27/2018.
@@ -24,6 +29,25 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         this.view = null
     }
 
+    fun loadView(){
+        Log.d(tag,"loadView()")
+        usecaseComponent.userCarUseCase.execute(Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback{
+            override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
+                if (car != null){
+                    view?.showMileage(car.totalMileage.toInt())
+                    view?.setEditText(car.totalMileage.toInt().toString())
+                }
+            }
+
+            override fun onNoCarSet(isLocal: Boolean) {
+            }
+
+            override fun onError(error: RequestError?) {
+            }
+
+        })
+    }
+
     fun onPositiveButtonClicked(){
         Log.d(tag,"onPositiveButtonClicked()")
         try{
@@ -42,10 +66,11 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
                 }
 
             })
+            view!!.closeDialog()
         }catch(e: NumberFormatException){
             e.printStackTrace()
+            view?.showError(R.string.invalid_mileage_alert_message)
         }
-        view!!.closeDialog()
     }
 
     fun onNegativeButtonCliced(){

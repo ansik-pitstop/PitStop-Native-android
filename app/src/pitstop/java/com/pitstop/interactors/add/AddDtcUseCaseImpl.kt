@@ -59,11 +59,10 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 }
 
                 if (settings.hasMainCar()){
-                    val disposable = carRepository.get(settings.carId)
+                    val disposable = carRepository.get(settings.carId, Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                             .subscribe({response ->
-                                if (response.isLocal) return@subscribe
                                 if (response.data == null){
                                     callback?.onError(RequestError.getUnknownError())
                                     return@subscribe
