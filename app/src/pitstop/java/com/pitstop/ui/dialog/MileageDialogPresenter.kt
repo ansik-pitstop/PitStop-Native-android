@@ -35,6 +35,7 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
             override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
                 if (car != null){
                     view?.showMileage(car.totalMileage.toInt())
+                    view?.setEditText(car.totalMileage.toString())
                 }
             }
 

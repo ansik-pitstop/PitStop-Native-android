@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView1"
         android:fontFamily="@font/lato_bold"
-        android:text="20,000 KM"
+        android:text="N/A"
         android:textAlignment="center"
         android:textColor="@color/persian_blue" />
 

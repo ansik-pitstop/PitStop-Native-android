@@ -42,6 +42,10 @@ class MileageDialog: DialogFragment(),MileageDialogView {
         mileage_text_view?.text = String.format(resources.getText(R.string.mileage_dialog_string).toString(),mileage)
     }
 
+    override fun setEditText(text: String) {
+        editText?.setText(text)
+    }
+
     override fun onStart() {
         presenter?.subscribe(this)
         super.onStart()

@@ -8,4 +8,5 @@ interface MileageDialogView {
     fun closeDialog()
     fun showMileage(mileage: Int)
     fun showError(err: Int)
+    fun setEditText(text: String)
 }
