@@ -93,9 +93,8 @@ public class CarRepositoryTest {
                     carRepository.sendPendingUpdates()
                             .subscribe(next -> {
                                 Log.d(TAG,"sendPendingUpdates() response: "+next);
-                                carRepository.get(carId)
+                                carRepository.get(carId, Repository.DATABASE_TYPE.REMOTE)
                                         .subscribe(car -> {
-                                            if (car.isLocal()) return;
                                             if (car.getData() == null){
                                                 Log.d(TAG,"car data is null");
                                                 completableFuture.complete(false);
