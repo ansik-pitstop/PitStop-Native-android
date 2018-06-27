@@ -16,7 +16,6 @@ import com.pitstop.utils.Logger;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -62,7 +61,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 , DebugMessage.TYPE_USE_CASE);
         if (!isLocal && ( requestType == Repository.DATABASE_TYPE.BOTH || requestType == Repository.DATABASE_TYPE.REMOTE)){
             compositeDisposable.clear();
-        }else{
+        }else if (isLocal && requestType == Repository.DATABASE_TYPE.LOCAL){
             compositeDisposable.clear();
         }
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
@@ -73,7 +72,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 , DebugMessage.TYPE_USE_CASE);
         if (!isLocal && ( requestType == Repository.DATABASE_TYPE.BOTH || requestType == Repository.DATABASE_TYPE.REMOTE)){
             compositeDisposable.clear();
-        }else{
+        }else if (isLocal && requestType == Repository.DATABASE_TYPE.LOCAL){
             compositeDisposable.clear();
         }
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
@@ -99,9 +98,9 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 if (userSettings.hasMainCar()){
                     Disposable disposable = carRepository.get(userSettings.getCarId(),requestType)
                             .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                            .observeOn(Schedulers.computation(), true)
                             .subscribe(response -> {
-                                Log.d(TAG,"carRepository.get() car: "+response.getData());
+                                Log.d(TAG,"carRepository.get() isLocal?"+response.isLocal()+", car: "+response.getData());
                                 if (response.getData() == null){
                                     GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
                                     return;

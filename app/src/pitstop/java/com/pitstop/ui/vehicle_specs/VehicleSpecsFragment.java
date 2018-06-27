@@ -400,8 +400,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void onUpdateMileageClicked(){
         Log.d(TAG,"onUpdateMileagClicked");
         MileageDialog mileageDialog = new MileageDialog();
-        if (getFragmentManager() != null)
-            mileageDialog.show(getFragmentManager(), "dialog");
+        mileageDialog.show(getFragmentManager(), "");
     }
 
     @OnClick(R.id.delete_car)
