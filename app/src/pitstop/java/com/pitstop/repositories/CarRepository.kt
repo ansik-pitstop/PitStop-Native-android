@@ -36,6 +36,15 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     private val tag = javaClass.simpleName
 
     fun getCarByVin(vin: String, callback: Repository.Callback<Car>) {
+
+        if (vin.isEmpty()) {
+            val err = RequestError()
+            err.error = "Empty VIN"
+            err.message = "VIN cannot be empty."
+            callback.onError(err)
+            return
+        }
+
         networkHelper.get("car/?vin=" + vin) { response, requestError ->
             if (requestError == null) {
 

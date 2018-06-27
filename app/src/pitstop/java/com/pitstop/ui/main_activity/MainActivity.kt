@@ -37,7 +37,7 @@ import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
 import com.pitstop.ui.IBluetoothServiceActivity
-import com.pitstop.ui.Notifications.NotificationsActivity
+import com.pitstop.ui.notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
