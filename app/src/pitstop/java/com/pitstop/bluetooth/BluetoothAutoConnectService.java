@@ -16,7 +16,6 @@ import android.util.Log;
 
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
-import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
@@ -59,7 +58,6 @@ import com.pitstop.observer.FuelObserver;
 import com.pitstop.observer.Observer;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.Logger;
-import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.NotificationsHelper;
 import com.pitstop.utils.TimeoutTimer;
 
@@ -137,7 +135,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private final BluetoothServiceBroadcastReceiver connectionReceiver
             = new BluetoothServiceBroadcastReceiver(this);
 
-    private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
     private ReadyDevice readyDevice;
     private BluetoothDeviceManager deviceManager;
@@ -292,9 +289,8 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
         useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(getApplication()))
+                .contextModule(new ContextModule(getBaseContext()))
                 .build();
-        mixpanelHelper = new MixpanelHelper((GlobalApplication)getApplication());
 
         if (BluetoothAdapter.getDefaultAdapter() != null) {
             if(deviceManager != null) {
@@ -309,10 +305,10 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(connectionReceiver, intentFilter);
 
-        this.pidDataHandler = new PidDataHandler(this,getApplication());
+        this.pidDataHandler = new PidDataHandler(this,getBaseContext());
         this.dtcDataHandler = new DtcDataHandler(this,useCaseComponent);
         this.vinDataHandler = new VinDataHandler(this,this,this);
-        this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getApplication());
+        this.freezeFrameDataHandler = new FreezeFrameDataHandler(this,getBaseContext());
         this.alarmHandler = new AlarmHandler(this, useCaseComponent);
         this.fuelHandler = new FuelHandler(this, useCaseComponent);
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
@@ -399,7 +395,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     setConnectionState(State.DISCONNECTED);
                     notifyDeviceDisconnected();
                     resetConnectionVars();
-                    NotificationsHelper.cancelConnectedNotification(getApplication());
+                    NotificationsHelper.cancelConnectedNotification(getBaseContext());
                 }
 
                 break;
@@ -1205,13 +1201,13 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 String carName = "Click here to find out more" +
                         car.getYear() + " " + car.getMake() + " " + car.getModel();
-                NotificationsHelper.sendNotification(getApplication()
+                NotificationsHelper.sendNotification(getBaseContext()
                         ,carName, "Car is Connected");
             }
 
             @Override
             public void onNoCarSet(boolean isLocal) {
-                NotificationsHelper.sendNotification(getApplication()
+                NotificationsHelper.sendNotification(getBaseContext()
                         ,"Click here to find out more", "Car is Connected");
             }
 
@@ -1342,7 +1338,6 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
                     }
 
                 }
-                mixpanelHelper.trackCustom(MixpanelHelper.BT_PID_GOT,properties);
             }catch(JSONException e){
                 e.printStackTrace();
             }

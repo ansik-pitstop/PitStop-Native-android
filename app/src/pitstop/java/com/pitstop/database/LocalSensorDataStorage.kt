@@ -1,7 +1,6 @@
 package com.pitstop.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.util.Log
 import com.pitstop.models.sensor_data.DataPoint
 import com.pitstop.models.sensor_data.SensorData
@@ -151,7 +150,9 @@ class LocalSensorDataStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     fun getCount(): Int{
         Log.d(TAG,"getCount()")
-        return databaseHelper.readableDatabase.query(TABLES.SENSOR_DATA.TABLE_NAME,null
-                ,null,null,null,null,null).count
+        val c = databaseHelper.readableDatabase.query(TABLES.SENSOR_DATA.TABLE_NAME,null
+                ,null,null,null,null,null)
+        c.close()
+        return c.count
     }
 }
