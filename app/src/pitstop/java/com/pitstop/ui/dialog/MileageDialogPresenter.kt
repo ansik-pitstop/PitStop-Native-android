@@ -24,6 +24,10 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         this.view = null
     }
 
+    fun loadView(){
+        Log.d(tag,"loadView()")
+    }
+
     fun onPositiveButtonClicked(){
         Log.d(tag,"onPositiveButtonClicked()")
         try{

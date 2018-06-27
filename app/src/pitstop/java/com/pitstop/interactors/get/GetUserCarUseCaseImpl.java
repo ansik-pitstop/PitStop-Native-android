@@ -37,6 +37,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private RequestType requestType = RequestType.CAR_BOTH;
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
             , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -49,10 +50,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     }
 
     @Override
-    public void execute(Callback callback) {
+    public void execute(RequestType requestType, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
+        this.requestType = requestType;
         useCaseHandler.post(this);
     }
 

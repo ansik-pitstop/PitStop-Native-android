@@ -14,6 +14,13 @@ import com.pitstop.network.RequestError;
  */
 
 public interface GetUserCarUseCase extends Interactor {
+
+    enum RequestType{
+        CAR_LOCAL ,
+        CAR_REMOTE,
+        CAR_BOTH
+    }
+
     interface Callback{
         void onCarRetrieved(Car car, Dealership dealership, boolean isLocal);
         void onNoCarSet(boolean isLocal);
@@ -21,5 +28,5 @@ public interface GetUserCarUseCase extends Interactor {
     }
 
     //Execute the use case
-    void execute(Callback callback);
+    void execute(RequestType type, Callback callback);
 }
