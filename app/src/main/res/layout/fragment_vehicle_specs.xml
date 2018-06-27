@@ -31,13 +31,6 @@
                 android:id="@+id/unknown_error_view"
                 layout="@layout/layout_unknown_error"
                 android:visibility="gone" />
-
-            <include
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:id="@+id/loading_view_main"
-                android:visibility="gone"
-                layout="@layout/layout_load" />
         </RelativeLayout>
 
         <android.support.v4.widget.NestedScrollView
