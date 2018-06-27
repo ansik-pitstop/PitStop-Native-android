@@ -18,6 +18,7 @@ data class DataPoint(val id: String, val data: String){
         const val ID_START_CITY_LOCATION = "startCityLocation"
         const val ID_END_CITY_LOCATION = "endCityLocation"
         const val ID_MILEAGE_TRIP = "mileage_trip"
+        const val ID_MILEAGE_OBD215B = "device_mileage"
         const val ID_START_TIMESTAMP = "start_timestamp"
         const val ID_END_TIMESTAMP = "end_timestamp"
         const val ID_START_LATITUDE = "start_latitude"

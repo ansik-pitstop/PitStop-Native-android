@@ -20,20 +20,35 @@ class SensorDataUtils {
             val rtcTime: Long
             if (pid is OBD215PidPackage){
                 deviceName = Device215B.NAME
-                rtcTime = pid.rtcTime.toLong()
+                rtcTime = try{
+                    pid.rtcTime.toLong()
+                }catch(e: Exception){
+                    0L
+                }
 
             }else if (pid is ELM327PidPackage){
                 deviceName = ELM327Device.NAME
                 rtcTime = 0
             }else if (pid is OBD212PidPackage){
                 deviceName = Device212B.NAME
-                rtcTime = pid.rtcTime.toLong()
+                rtcTime = try{
+                    pid.rtcTime.toLong()
+                }catch(e: Exception){
+                    0L
+                }
             }else{
                 throw IllegalArgumentException()
             }
 
-            return SensorData(pid.deviceId,vin,rtcTime,deviceName,pid.timestamp
-                    , pid.pids.map { DataPoint(it.key,it.value) }.toSet())
+            //First add pids
+            val dataSet = pid.pids.map { DataPoint(it.key,it.value) }.toMutableSet()
+
+            //Add mileage if its a 215B device
+            if (pid is OBD215PidPackage){
+                dataSet.add(DataPoint(DataPoint.ID_MILEAGE_OBD215B,pid.mileage))
+            }
+
+            return SensorData(pid.deviceId,vin,rtcTime,deviceName,pid.timestamp, dataSet)
         }
 
         fun pidCollectionToSensorDataCollection(pids: Collection<PidPackage>, vin: String): Collection<SensorData>{
