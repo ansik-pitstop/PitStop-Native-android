@@ -13,6 +13,7 @@ import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 import com.pitstop.models.report.VehicleHealthReport;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Repository;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     private void getDashboardCar(){
         Log.d(TAG,"getDashboardCar()");
-        component.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+        component.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 dashCar = car;

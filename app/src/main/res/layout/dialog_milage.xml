@@ -28,7 +28,7 @@
         android:textColor="@color/persian_blue" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/mileage_text_view"
         android:layout_marginTop="2dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -44,7 +44,7 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView2"
+        android:layout_below="@+id/mileage_text_view"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/lato_bold"
         android:paddingLeft="10dp"

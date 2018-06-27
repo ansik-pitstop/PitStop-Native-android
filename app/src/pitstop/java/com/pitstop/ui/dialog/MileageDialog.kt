@@ -37,6 +37,10 @@ class MileageDialog(): DialogFragment(),MileageDialogView {
         button_positive.setOnClickListener({presenter?.onPositiveButtonClicked()})
     }
 
+    override fun showMileage(mileage: String) {
+        mileage_text_view?.text = mileage
+    }
+
     override fun onStart() {
         presenter?.subscribe(this)
         super.onStart()

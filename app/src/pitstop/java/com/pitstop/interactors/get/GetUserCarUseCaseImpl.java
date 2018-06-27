@@ -10,7 +10,6 @@ import com.pitstop.models.Settings;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
-import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
@@ -37,7 +36,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private RequestType requestType = RequestType.CAR_BOTH;
+    private Repository.DATABASE_TYPE requestType = Repository.DATABASE_TYPE.BOTH;
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
             , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -50,7 +49,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     }
 
     @Override
-    public void execute(RequestType requestType, Callback callback) {
+    public void execute(Repository.DATABASE_TYPE requestType, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
@@ -61,7 +60,9 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private void onCarRetrieved(Car car, Dealership dealership, boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: car="+car+", dealership="+dealership+", local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
-        if (!isLocal){
+        if (!isLocal && ( requestType == Repository.DATABASE_TYPE.BOTH || requestType == Repository.DATABASE_TYPE.REMOTE)){
+            compositeDisposable.clear();
+        }else{
             compositeDisposable.clear();
         }
         mainHandler.post(() -> callback.onCarRetrieved(car, dealership, isLocal));
@@ -70,7 +71,9 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private void onNoCarSet(boolean isLocal){
         Logger.getInstance().logI(TAG, "Use case finished: no car set! local="+isLocal
                 , DebugMessage.TYPE_USE_CASE);
-        if (!isLocal){
+        if (!isLocal && ( requestType == Repository.DATABASE_TYPE.BOTH || requestType == Repository.DATABASE_TYPE.REMOTE)){
+            compositeDisposable.clear();
+        }else{
             compositeDisposable.clear();
         }
         mainHandler.post(() -> callback.onNoCarSet(isLocal));
@@ -94,37 +97,31 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
-                    Disposable disposable = carRepository.get(userSettings.getCarId())
+                    Disposable disposable = carRepository.get(userSettings.getCarId(),requestType)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
-                            .doOnNext(response -> {
-                        Log.d(TAG,"carRepository.get() car: "+response.getData());
-                        if (response.getData() == null){
-                            GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                            return;
-                        }
-                        response.getData().setCurrentCar(true);
-                        shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
+                            .subscribe(response -> {
+                                Log.d(TAG,"carRepository.get() car: "+response.getData());
+                                if (response.getData() == null){
+                                    GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                    return;
+                                }
+                                response.getData().setCurrentCar(true);
+                                shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
 
-                            @Override
-                            public void onSuccess(Dealership dealership) {
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
-                            }
+                                    @Override
+                                    public void onSuccess(Dealership dealership) {
+                                        GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
+                                    }
 
-                            @Override
-                            public void onError(RequestError error) {
-                                GetUserCarUseCaseImpl.this.onError(error);
-                            }
-                        });
-                    }).doOnError(err -> {
-                        Log.d(TAG,"doOnError() err: "+err);
-                        GetUserCarUseCaseImpl.this.onError(new RequestError(err));
-                    })
-                    .onErrorReturn(err -> {
-                        Log.d(TAG,"onErrorReturn() err: "+err);
-                        return new RepositoryResponse<>(null,false);
-                    })
-                    .subscribe();
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        GetUserCarUseCaseImpl.this.onError(error);
+                                    }
+                                });
+                            }, err ->{
+                                GetUserCarUseCaseImpl.this.onError(new RequestError(err));
+                            });
                     compositeDisposable.add(disposable);
                     return;
                 }

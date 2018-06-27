@@ -36,13 +36,14 @@ import com.pitstop.models.ReadyDevice
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
 import com.pitstop.observer.*
+import com.pitstop.repositories.Repository
 import com.pitstop.ui.IBluetoothServiceActivity
-import com.pitstop.ui.notifications.NotificationsActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
+import com.pitstop.ui.notifications.NotificationsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
@@ -626,9 +627,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         mixpanelHelper!!.trackButtonTapped("My Appointments", "Dashboard")
         val thisInstance = this
         showLoading("Loading...")
-        useCaseComponent!!.userCarUseCase.execute(object : GetUserCarUseCase.Callback {
+        useCaseComponent!!.userCarUseCase.execute(Repository.DATABASE_TYPE.REMOTE
+                , object : GetUserCarUseCase.Callback {
             override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
-                if (isLocal) return
                 if (dealership == null) {
                     Toast.makeText(thisInstance, "Select a dealership first", Toast.LENGTH_LONG).show();
                     return
@@ -661,7 +662,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         intent.putParcelableArrayListExtra(CAR_ISSUE_KEY, carIssueArrayList)
         intent.putExtra(CAR_ISSUE_POSITION, position)
         intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE)
-        useCaseComponent?.getUserCarUseCase()!!.execute(object : GetUserCarUseCase.Callback {
+        useCaseComponent?.getUserCarUseCase()!!.execute(Repository.DATABASE_TYPE.REMOTE, object : GetUserCarUseCase.Callback {
             override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
                 if (isLocal) return
                 intent.putExtra(CAR_KEY, car)

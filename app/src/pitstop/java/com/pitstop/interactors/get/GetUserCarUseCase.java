@@ -4,6 +4,7 @@ import com.pitstop.interactors.Interactor;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.Repository;
 
 /**
  * Created by Karol Zdebel on 5/30/2017.
@@ -15,12 +16,6 @@ import com.pitstop.network.RequestError;
 
 public interface GetUserCarUseCase extends Interactor {
 
-    enum RequestType{
-        CAR_LOCAL ,
-        CAR_REMOTE,
-        CAR_BOTH
-    }
-
     interface Callback{
         void onCarRetrieved(Car car, Dealership dealership, boolean isLocal);
         void onNoCarSet(boolean isLocal);
@@ -28,5 +23,5 @@ public interface GetUserCarUseCase extends Interactor {
     }
 
     //Execute the use case
-    void execute(RequestType type, Callback callback);
+    void execute(Repository.DATABASE_TYPE type, Callback callback);
 }

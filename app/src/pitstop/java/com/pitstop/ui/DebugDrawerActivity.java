@@ -37,6 +37,7 @@ import com.pitstop.models.ReadyDevice;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.observer.BluetoothConnectionObserver;
+import com.pitstop.repositories.Repository;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.DateTimeFormatUtil;
 import com.pitstop.utils.Logger;
@@ -170,7 +171,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         Button getMileage = findViewById(R.id.getMileage);
         getMileage.setOnClickListener(v -> {
             Log.d(TAG,"getMileage()");
-            useCaseComponent.getUserCarUseCase().execute(new GetUserCarUseCase.Callback() {
+            useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
                 @Override
                 public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                     editText.setText("mileage: "+car.getTotalMileage());

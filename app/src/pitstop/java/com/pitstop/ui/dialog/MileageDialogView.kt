@@ -6,4 +6,5 @@ package com.pitstop.ui.dialog
 interface MileageDialogView {
     fun getMileageInput(): String
     fun closeDialog()
+    fun showMileage(mileage: String)
 }
