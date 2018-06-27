@@ -152,7 +152,8 @@ class LocalSensorDataStorage(private val databaseHelper: LocalDatabaseHelper) {
         Log.d(TAG,"getCount()")
         val c = databaseHelper.readableDatabase.query(TABLES.SENSOR_DATA.TABLE_NAME,null
                 ,null,null,null,null,null)
+        val count = c.count
         c.close()
-        return c.count
+        return count
     }
 }
