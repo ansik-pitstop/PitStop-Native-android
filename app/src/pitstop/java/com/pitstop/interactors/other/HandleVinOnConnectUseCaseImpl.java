@@ -124,19 +124,23 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))
                     .doOnNext(response -> {
 
-                        //Use local data if present
-                        if (usedLocal[0] && !response.isLocal()){
+                        //Use local data if present and scanner id is present
+                        if (usedLocal[0] && !response.isLocal() ){
                             //Don't process remote data because local has been used
                             return;
                         }else if (!response.isLocal()){
                             Log.d(TAG,"using remote response");
                         }
 
-                        if (response.isLocal() && response.getData() != null){
+                        if (response.isLocal() && response.getData() != null
+                                && response.getData().getScannerId() != null
+                                && !response.getData().getScannerId().isEmpty()){
                             //Set used local flag so the remote response isn't processed
                             usedLocal[0] = true;
                             Log.d(TAG,"using local response scanner: "+response.getData().getScannerId());
-                        }else if (response.isLocal() && response.getData() == null){
+                        }else if (response.isLocal() && response.getData() == null
+                                || response.getData().getScannerId() == null
+                                || response.getData().getScannerId().isEmpty()){
                             //Invalid local data so return
                             return;
                         }
@@ -208,7 +212,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         //Anything below is case 1
 
                         boolean DeviceIdValidDeviceVinNotValidCarHasNoScanner[] = new boolean[1];
-                        //1.1 Check if VINs match
+                        //1.1 Check if VINs match, scanner still not present on car so add it
+                        // in logic below, but don't produce another return
                         if (deviceVinValid && vin.equals(car.getVin())){
                             DeviceIdValidDeviceVinNotValidCarHasNoScanner[0] = false;
                             Log.d(TAG,"Vin matches");
@@ -217,6 +222,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                         //Device id is valid and device vin is not valid and car has no scanner, so we go to server to add it to the car
                         // and based on the return we either allow for connection or if offline error or other error we don't connect
                         else{
+                            Log.d(TAG,"Device id valid, device vin not valid, car has no scanner");
                             DeviceIdValidDeviceVinNotValidCarHasNoScanner[0] = true;
                         }
 
