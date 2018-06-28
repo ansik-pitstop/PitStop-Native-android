@@ -27,7 +27,7 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notification)
-        notificationFragment = NotificationFragment()
+        notificationFragment = com.pitstop.ui.notifications.NotificationFragment()
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 

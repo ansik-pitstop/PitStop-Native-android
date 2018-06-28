@@ -62,7 +62,7 @@ public class BluetoothDeviceManager{
     }
 
     public void onGotVin(String VIN, String deviceID) {
-        Log.d(TAG, VIN);
+        Log.d(TAG, "onGotVin: "+VIN);
         dataListener.handleVinData(VIN, deviceID);
     }
 
@@ -382,7 +382,7 @@ public class BluetoothDeviceManager{
         }
     };
     public void getVin() {
-        Log.d(TAG,"getVin()");
+        Log.d(TAG,"getVin() btConnectionState: "+btConnectionState);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             return;
         }
