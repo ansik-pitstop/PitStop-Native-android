@@ -246,7 +246,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                         public void onDeviceAlreadyActive() {
                                             //Another user has this scanner
                                             Log.d(TAG,"Adding scanner that is already active, onDeviceAlreadyActive()");
-                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                                 HandleVinOnConnectUseCaseImpl.this.onDeviceAlreadyActive();
                                             }
                                         }
@@ -254,14 +254,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                         @Override
                                         public void onScannerCreated() {
                                             Log.d(TAG,"Overwrote scanner id, onSuccess()");
-                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                                 HandleVinOnConnectUseCaseImpl.this.onSuccess();
                                             }
                                         }
 
                                         @Override
                                         public void onError(RequestError error) {
-                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                            if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                                 HandleVinOnConnectUseCaseImpl.this.onError(error);
                                             }}
                                     });
@@ -269,7 +269,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                         HandleVinOnConnectUseCaseImpl.this.onError(error);
                                     }
                                 }
@@ -283,7 +283,7 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 @Override
                                 public void onDeviceAlreadyActive() {
                                     //Another user has this scanner
-                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                         HandleVinOnConnectUseCaseImpl.this.onDeviceAlreadyActive();
                                     }
                                 }
@@ -292,14 +292,14 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 public void onScannerCreated() {
                                     Log.d(TAG,"Created new scanner, onSuccess()");
                                     //Scanner created
-                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                         HandleVinOnConnectUseCaseImpl.this.onSuccess();
                                     }
                                 }
 
                                 @Override
                                 public void onError(RequestError error) {
-                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[1]){
+                                    if (DeviceIdValidDeviceVinNotValidCarHasNoScanner[0]){
                                         HandleVinOnConnectUseCaseImpl.this.onError(error);
                                     }
                                 }
