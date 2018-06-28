@@ -286,7 +286,7 @@ public class BluetoothDeviceManager{
                 strongestRssi = device.getValue();
             }
         }
-
+        Log.d(TAG,"strongest rssi: "+strongestRssi);
         if (strongestRssiDevice == null || strongestRssi < minRssiThreshold) {
             Log.d(TAG,"No device was found as candidate for a potential connection.");
             foundDevices.clear();
@@ -347,7 +347,7 @@ public class BluetoothDeviceManager{
                     Log.d(TAG,"foundDevices.put() device name: "+device.getName());
                 }
                 else{
-                    Log.d(TAG,"Device did not meet criteria for foundDevice list");
+                    Log.d(TAG,"Device did not meet criteria for foundDevice list name="+device.getName());
                 }
             }
             //Finished scanning
@@ -387,7 +387,8 @@ public class BluetoothDeviceManager{
             return;
         }
         Log.d(TAG, "deviceInterface.getVin()");
-        deviceInterface.getVin();
+        boolean ret = deviceInterface.getVin();
+        Log.d(TAG,"get vin returned "+ret);
     }
 
     public void getRtc() {
