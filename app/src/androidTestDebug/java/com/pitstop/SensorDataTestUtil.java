@@ -32,7 +32,7 @@ public class SensorDataTestUtil {
         for (int i=0;i<len;i++){
             OBD215PidPackage obd215PidPackage = new OBD215PidPackage(deviceID
                     , String.valueOf(getCurrentTimeAhead(i+timeIndex))
-                    ,"0",getCurrentTimeAhead(i+timeIndex));
+                    ,"1500",getCurrentTimeAhead(i+timeIndex));
             Log.d("TAG","created 215B package with rtc time: "+obd215PidPackage.getRtcTime());
             obd215PidPackage.setPids(getPidMap());
             obd215PidPackageList.add(obd215PidPackage);
