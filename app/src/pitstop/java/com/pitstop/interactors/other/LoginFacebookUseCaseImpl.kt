@@ -4,6 +4,7 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
@@ -41,7 +42,7 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
                .subscribe({next ->
                    Log.d(TAG,"next: $next")
                    loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
-                   LoginFacebookUseCaseImpl@onSuccess()
+                   LoginFacebookUseCaseImpl@onSuccess(next.user)
                }, {error ->
                    Log.e(TAG,"loginFacebook err: $error")
                    LoginFacebookUseCaseImpl@onError(RequestError(error))
@@ -50,11 +51,11 @@ class LoginFacebookUseCaseImpl(private val loginManager: LoginManager
 
     }
 
-    private fun onSuccess(){
+    private fun onSuccess(user: User){
         Logger.getInstance()!!.logI(TAG, "Use case finished: logged in successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess()})
+        mainHandler.post({callback.onSuccess(user)})
     }
 
     private fun onError(err: RequestError){

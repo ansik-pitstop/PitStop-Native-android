@@ -28,33 +28,24 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                          , callback: FacebookSignUpAuthMacroUseCase.Callback) {
         this.callback = callback
         Logger.getInstance()!!.logI(TAG, "Macro use case execution started", DebugMessage.TYPE_USE_CASE)
-        signupFacebookUseCase.execute(object: FacebookSignUpUseCase.Callback{
-            override fun onSuccess(user: com.pitstop.models.User) {
                 Log.d(TAG,"Facebook signup use case returned success.")
-                loginFacebookUseCase.execute(facebookAuthToken
-                        , object: LoginFacebookUseCase.Callback{
-                    override fun onSuccess() {
-                        Log.d(TAG,"Facebook login use case returned success.")
-                        smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
-                            override fun onError(err: RequestError) {
-                                Log.d(TAG,"Smooch login use case returned error.")
-                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
-                                this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
-                            }
-
-                            override fun onLogin() {
-                                Log.d(TAG,"Smooch login use case returned success.")
-                                SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
-                                this@FacebookSignUpAuthMacroUseCaseImpl.onSuccess()
-                            }
-
-                        })
-                    }
-
+        loginFacebookUseCase.execute(facebookAuthToken
+                , object: LoginFacebookUseCase.Callback{
+            override fun onSuccess(user: com.pitstop.models.User) {
+                Log.d(TAG,"Facebook login use case returned success.")
+                smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                     override fun onError(err: RequestError) {
-                        Log.d(TAG,"Facebook login use case returned error.")
+                        Log.d(TAG,"Smooch login use case returned error.")
+                        SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                         this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
                     }
+
+                    override fun onLogin() {
+                        Log.d(TAG,"Smooch login use case returned success. user: "+user)
+                        SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
+                        this@FacebookSignUpAuthMacroUseCaseImpl.onSuccess()
+                    }
+
                 })
             }
 
