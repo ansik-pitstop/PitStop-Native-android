@@ -110,7 +110,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     fun update(model: User, callback: Repository.Callback<Any>) {
         Log.d(TAG, "update() user: $model")
         localUserStorage.updateUser(model)
-        updateUser(model.id, model.firstName, model.lastName, model.phone, getUserUpdateRequestCallback(callback, model))
+        updateUser(model.id, model.firstName, model.lastName, model.phone ?: "", getUserUpdateRequestCallback(callback, model))
     }
 
     private fun getUserUpdateRequestCallback(callback: Repository.Callback<Any>, user: User): RequestCallback {
