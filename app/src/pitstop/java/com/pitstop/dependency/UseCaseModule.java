@@ -814,8 +814,8 @@ public class UseCaseModule {
 
     @Provides
     ChangePasswordUseCase changePasswordUseCase(UserRepository userRepository
-            , @Named("useCaseHandler") Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
-        return new ChangePasswordUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+            , @Named("mainHandler") Handler mainHandler, @Named("useCaseHandler") Handler useCaseHandler){
+        return new ChangePasswordUseCaseImpl(userRepository, mainHandler, useCaseHandler);
     }
 }
 
