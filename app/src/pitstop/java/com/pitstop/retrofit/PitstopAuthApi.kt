@@ -27,4 +27,7 @@ interface PitstopAuthApi {
     @POST("user")
     fun signUp(@Body user: JsonObject): Observable<User>
 
+    @POST("login/resetPassword")
+    fun resetPassword(@Body email: JsonObject): Observable<ChangePasswordResponse>
+
 }

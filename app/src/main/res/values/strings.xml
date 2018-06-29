@@ -655,4 +655,7 @@
     <string name="provide_all_fields">Please provide all the fields.</string>
     <string name="unknown_error_contact_support">Unknown error, please contact support@pitstopconnect.com</string>
     <string name="please_update_your_password">Please update your password</string>
+    <string name="reset_password_instructions">An email with instructions on how to reset your password has been sent. Please check your email.</string>
+    <string name="please_provide_your_email">Please provide your email</string>
+    <string name="reset_password">Reset Password</string>
 </resources>

@@ -1,5 +1,6 @@
-package com.pitstop.ui.login.change_password
+package com.pitstop.ui.login.reset_password
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -11,25 +12,19 @@ import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
-import kotlinx.android.synthetic.main.layout_update_password.*
+import kotlinx.android.synthetic.main.layout_reset_password.*
 
 /**
  * Created by Karol Zdebel on 6/29/2018.
  */
-class ChangePasswordFragment: Fragment(), ChangePasswordView {
+class ResetPasswordFragment: Fragment(), ResetPasswordView {
 
-    private val TAG = ChangePasswordFragment::class.java.simpleName
+    private val TAG = ResetPasswordFragment::class.java.simpleName
 
-    private var oldPassword: String? = null
-    private var presenter: ChangePasswordPresenter? = null
+    private var presenter: ResetPasswordPresenter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.layout_update_password, container, false)
-    }
-
-    fun setOldPassword(oldPassword: String){
-        Log.d(TAG,"setOldPassword: $oldPassword")
-        this.oldPassword = oldPassword
+        return inflater.inflate(R.layout.layout_reset_password, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,10 +33,11 @@ class ChangePasswordFragment: Fragment(), ChangePasswordView {
             val useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(ContextModule(context))
                     .build()
-            presenter = ChangePasswordPresenter(useCaseComponent)
+            presenter = ResetPasswordPresenter(useCaseComponent)
         }
         presenter?.subscribe(this)
-        change_password_button?.setOnClickListener { presenter?.onChangePasswordPressed() }
+
+        reset_password_button.setOnClickListener { presenter?.onResetPasswordPressed() }
     }
 
     override fun onDestroyView() {
@@ -49,52 +45,52 @@ class ChangePasswordFragment: Fragment(), ChangePasswordView {
         presenter?.unsubscribe()
     }
 
-    override fun getNewPassword(): String {
-        return new_password.text.toString()
+    override fun getEmail(): String {
+        return email.text.toString()
     }
 
-    override fun getNewPasswordConfirmation(): String {
-        return new_password_confirm_password.text.toString()
-    }
-
-    override fun getOldPassword(): String? {
-        return oldPassword
-    }
-
-    override fun showErrorDialog(err: Int) {
+    override fun displayErrorDialog(message: Int) {
         AlertDialog.Builder(context!!)
                 .setTitle("Error")
-                .setMessage(resources.getString(err))
+                .setMessage(resources.getString(message))
                 .setNeutralButton("Okay",null)
                 .create()
                 .show()
     }
 
-    override fun showErrorDialog(err: String) {
+    override fun displayErrorDialog(message: String) {
         AlertDialog.Builder(context!!)
                 .setTitle("Error")
-                .setMessage(err)
+                .setMessage(message)
                 .setNeutralButton("Okay",null)
                 .create()
                 .show()
     }
 
-    override fun switchToOnboarding() {
-        Log.d(TAG,"switchToOnboarding()")
+    override fun displaySuccessDialog(message: Int) {
+        AlertDialog.Builder(context!!)
+                .setTitle("Check Email")
+                .setMessage(resources.getString(message))
+                .setNeutralButton("Okay",{ dialogInterface: DialogInterface, i: Int -> presenter?.onPromptClosed()})
+                .create()
+                .show()
+    }
+
+    override fun switchToLogin() {
+        Log.d(TAG,"switchToLogin()")
         try{
-            (activity as LoginActivity).switchToChatOnBoarding()
+            (activity as LoginActivity).switchToLogin()
         }catch(e: Exception){
             e.printStackTrace()
         }
     }
 
-    override fun showLoading() {
+    override fun displayLoading() {
         load_view.visibility = View.VISIBLE
-        load_view?.bringToFront()
+        load_view.bringToFront()
     }
 
     override fun hideLoading() {
-        load_view?.visibility = View.GONE
+        load_view.visibility = View.GONE
     }
-
 }

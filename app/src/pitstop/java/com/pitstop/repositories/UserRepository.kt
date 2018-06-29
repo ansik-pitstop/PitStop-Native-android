@@ -104,6 +104,13 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         return pitstopUserApi.changePassword(userId,jsonObject)
     }
 
+    fun resetPassword(email: String): Observable<ChangePasswordResponse>{
+        Log.d(TAG,"resetPassword() email: $email")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("email",email)
+        return pitstopAuthApi.resetPassword(jsonObject)
+    }
+
     fun login(username: String, password: String): Observable<LoginResponse>{
         Log.d(TAG,"login()")
 
