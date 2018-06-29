@@ -69,9 +69,9 @@
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/password_field"
-        android:layout_above="@id/login_button"
+        android:layout_above="@id/forgot_password_text"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:hint="@string/password"
@@ -83,7 +83,21 @@
         app:backgroundTint="@color/edittext_onboarding_outline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    
+
+    <TextView
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/forgot_password_text"
+        android:layout_above="@id/login_button"
+        android:fontFamily="@font/lato_bold"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/forgot_password_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <Button
         android:layout_above="@id/signup_text"
         android:id="@+id/login_button"
@@ -106,7 +120,7 @@
         android:layout_alignParentBottom="true"
         android:text="@string/don_t_have_an_account_sign_up"
         android:layout_centerHorizontal="true"
-        android:fontFamily="@font/lato_regular"
+        android:fontFamily="@font/lato_bold"
         android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

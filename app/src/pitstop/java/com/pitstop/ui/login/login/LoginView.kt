@@ -10,6 +10,7 @@ interface LoginView {
     fun displayError(message: String)
     fun switchToMainActivity()
     fun switchToChangePassword(oldPassword: String)
+    fun switchToResetPassword()
     fun switchToSignUp()
     fun loginFacebook()
     fun displayLoading()

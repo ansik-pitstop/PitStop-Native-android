@@ -64,6 +64,11 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
         }
     }
 
+    fun onForgotPasswordPressed(){
+        Log.d(TAG,"onForgotPasswordPressed()")
+        view?.switchToResetPassword()
+    }
+
     fun onFacebookLoginPressed(){
         Log.d(TAG,"onFacebookLoginPressed()")
 
