@@ -7,6 +7,7 @@ import com.pitstop.network.RequestError
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
+import com.pitstop.utils.SmoochUtil
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -54,6 +55,7 @@ class ChangePasswordUseCaseImpl(private val userRepository: UserRepository
                         .observeOn(Schedulers.io())
                         .subscribe({next ->
                             if (!activateUser){
+                                SmoochUtil.sendSignedUpSmoochMessage(data!!.firstName ?: "", data!!.lastName ?: "")
                                 userRepository.setUserActive(data!!.id)
                                         .subscribeOn(Schedulers.computation())
                                         .observeOn(Schedulers.io())
