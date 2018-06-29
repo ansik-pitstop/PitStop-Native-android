@@ -8,5 +8,6 @@ interface ChangePasswordView {
     fun getNewPasswordConfirmation(): String
     fun getOldPassword(): String?
     fun showErrorDialog(err: Int)
+    fun showErrorDialog(err: String)
     fun switchToOnboarding()
 }

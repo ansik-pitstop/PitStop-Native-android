@@ -10,10 +10,7 @@ import com.pitstop.models.Settings
 import com.pitstop.models.User
 import com.pitstop.network.RequestCallback
 import com.pitstop.network.RequestError
-import com.pitstop.retrofit.LoginResponse
-import com.pitstop.retrofit.PitstopAuthApi
-import com.pitstop.retrofit.PitstopUserApi
-import com.pitstop.retrofit.UserActivationResponse
+import com.pitstop.retrofit.*
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -97,6 +94,14 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         return pitstopUserApi.putUser(jsonObject).map{
             UserActivationResponse(it.get("userId").asInt,it.get("activated").asBoolean)
         }
+    }
+
+    fun changeUserPassword(userId: Int, oldPassword: String, newPassword: String): Observable<ChangePasswordResponse>{
+        Log.d(TAG,"changeUserPassword()")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("oldPass",oldPassword)
+        jsonObject.addProperty("newPass",newPassword)
+        return pitstopAuthApi.changePassword(userId,jsonObject)
     }
 
     fun login(username: String, password: String): Observable<LoginResponse>{

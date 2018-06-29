@@ -49,6 +49,7 @@ import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
+import com.pitstop.interactors.other.ChangePasswordUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
 import com.pitstop.interactors.other.FacebookSignUpUseCase;
@@ -246,4 +247,6 @@ public interface UseCaseComponent {
     LoginAuthMacroUseCase loginAuthMacroUseCase();
 
     SignUpAuthMacroUseCase signUpAuthMacroUseCase();
+
+    ChangePasswordUseCase changePasswordUseCase();
 }

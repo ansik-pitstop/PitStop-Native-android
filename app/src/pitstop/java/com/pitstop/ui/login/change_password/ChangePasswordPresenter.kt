@@ -3,6 +3,8 @@ package com.pitstop.ui.login.change_password
 import android.util.Log
 import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.other.ChangePasswordUseCase
+import com.pitstop.network.RequestError
 
 /**
  * Created by Karol Zdebel on 6/29/2018.
@@ -33,8 +35,6 @@ class ChangePasswordPresenter(private val useCaseComponent: UseCaseComponent) {
 
         if (newPassword.isEmpty() || newPasswordConfirmation.isEmpty()){
             view!!.showErrorDialog(R.string.provide_all_fields)
-        } else if (newPassword == newPasswordConfirmation){
-            view?.showErrorDialog(R.string.passwords_do_not_match)
         } else if (newPassword.length > 50){
             view!!.showErrorDialog(R.string.password_too_long)
         } else if (newPassword.length < 8){
@@ -46,6 +46,19 @@ class ChangePasswordPresenter(private val useCaseComponent: UseCaseComponent) {
         }
         else{
             //Launch use case
+            useCaseComponent.changePasswordUseCase().execute(oldPassword
+                    , newPassword, true, object: ChangePasswordUseCase.Callback{
+                override fun onSuccess() {
+                    Log.d(TAG,"change password use case returned success")
+                    view?.switchToOnboarding()
+                }
+
+                override fun onError(err: RequestError) {
+                    Log.d(TAG,"change password use case returned error = $err")
+                    view?.showErrorDialog(err.message)
+                }
+
+            })
 
         }
 

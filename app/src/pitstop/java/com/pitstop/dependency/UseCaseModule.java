@@ -108,6 +108,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
+import com.pitstop.interactors.other.ChangePasswordUseCase;
+import com.pitstop.interactors.other.ChangePasswordUseCaseImpl;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
@@ -808,6 +810,12 @@ public class UseCaseModule {
             , SmoochLoginUseCase smoochLoginUseCase
             , @Named("mainHandler") Handler mainHandler){
         return new LoginAuthMacroUseCaseImpl(loginUseCase, smoochLoginUseCase, mainHandler);
+    }
+
+    @Provides
+    ChangePasswordUseCase changePasswordUseCase(UserRepository userRepository
+            , @Named("useCaseHandler") Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+        return new ChangePasswordUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 }
 

@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.pitstop.R
-import com.pitstop.R.id.old_password
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
@@ -61,6 +60,15 @@ class ChangePasswordFragment: Fragment(), ChangePasswordView {
         AlertDialog.Builder(context!!)
                 .setTitle("Error")
                 .setMessage(resources.getString(err))
+                .setNeutralButton("Okay",null)
+                .create()
+                .show()
+    }
+
+    override fun showErrorDialog(err: String) {
+        AlertDialog.Builder(context!!)
+                .setTitle("Error")
+                .setMessage(err)
                 .setNeutralButton("Okay",null)
                 .create()
                 .show()
