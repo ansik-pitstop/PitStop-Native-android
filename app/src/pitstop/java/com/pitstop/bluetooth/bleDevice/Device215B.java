@@ -484,6 +484,7 @@ public class Device215B implements AbstractDevice {
             String temp = new JSONObject(payload).getString("instruction");
             payload = temp;
         } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);
@@ -715,6 +716,8 @@ public class Device215B implements AbstractDevice {
                     } else {
                         parameterPackage.success = false;
                     }
+
+                    Log.d(TAG,"sending through parameterPackage: "+parameterPackage);
 
                     dataListener.parameterData(parameterPackage);
                 }
