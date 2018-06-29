@@ -10,8 +10,7 @@ import com.pitstop.models.Settings
 import com.pitstop.models.User
 import com.pitstop.network.RequestCallback
 import com.pitstop.network.RequestError
-import com.pitstop.retrofit.LoginResponse
-import com.pitstop.retrofit.PitstopAuthApi
+import com.pitstop.retrofit.*
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -26,6 +25,7 @@ import org.json.JSONObject
  */
 
 class UserRepository(private val localUserStorage: LocalUserStorage
+                     , private val pitstopUserApi: PitstopUserApi
                      , private val pitstopAuthApi: PitstopAuthApi
                      , private val networkHelper: NetworkHelper) : Repository {
 
@@ -42,6 +42,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             json.addProperty("lastName", user.lastName)
             json.addProperty("email", user.email)
             json.addProperty("username", user.email)
+            json.addProperty("activated", false)
             if (!isSocial){
                 json.addProperty("password", user.password)
                 json.addProperty("phone", user.phone)
@@ -85,6 +86,31 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 })
     }
 
+    fun setUserActive(userId: Int): Observable<UserActivationResponse>{
+        Log.d(TAG,"setUserActive()")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("userId",userId)
+        jsonObject.addProperty("activated",true)
+        return pitstopUserApi.putUser(jsonObject).map{
+            UserActivationResponse(it.get("userId").asInt,it.get("activated").asBoolean)
+        }
+    }
+
+    fun changeUserPassword(userId: Int, oldPassword: String, newPassword: String): Observable<ChangePasswordResponse>{
+        Log.d(TAG,"changeUserPassword()")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("oldPass",oldPassword)
+        jsonObject.addProperty("newPass",newPassword)
+        return pitstopUserApi.changePassword(userId,jsonObject)
+    }
+
+    fun resetPassword(email: String): Observable<ChangePasswordResponse>{
+        Log.d(TAG,"resetPassword() email: $email")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("email",email)
+        return pitstopAuthApi.resetPassword(jsonObject)
+    }
+
     fun login(username: String, password: String): Observable<LoginResponse>{
         Log.d(TAG,"login()")
 
@@ -110,7 +136,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     fun update(model: User, callback: Repository.Callback<Any>) {
         Log.d(TAG, "update() user: $model")
         localUserStorage.updateUser(model)
-        updateUser(model.id, model.firstName, model.lastName, model.phone, getUserUpdateRequestCallback(callback, model))
+        updateUser(model.id, model.firstName, model.lastName, model.phone ?: "", getUserUpdateRequestCallback(callback, model))
     }
 
     private fun getUserUpdateRequestCallback(callback: Repository.Callback<Any>, user: User): RequestCallback {

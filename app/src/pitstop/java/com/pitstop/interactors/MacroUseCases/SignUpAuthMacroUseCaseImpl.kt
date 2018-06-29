@@ -35,7 +35,7 @@ class SignUpAuthMacroUseCaseImpl(private val signUpUseCase: SignUpUseCase
             override fun onSignedUp() {
                 Log.d(TAG,"Sign up use case returned success.")
                 loginUseCase.execute(user.email, user.password, object: LoginUseCase.Callback{
-                    override fun onSuccess() {
+                    override fun onSuccess(user: User, activated: Boolean) {
                         Log.d(TAG,"Login use case returned success.")
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {

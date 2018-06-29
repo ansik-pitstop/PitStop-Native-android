@@ -108,6 +108,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
+import com.pitstop.interactors.other.ChangePasswordUseCase;
+import com.pitstop.interactors.other.ChangePasswordUseCaseImpl;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
@@ -126,6 +128,8 @@ import com.pitstop.interactors.other.ProcessTripDataUseCase;
 import com.pitstop.interactors.other.ProcessTripDataUseCaseImpl;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
+import com.pitstop.interactors.other.ResetPasswordUseCase;
+import com.pitstop.interactors.other.ResetPasswordUseCaseImpl;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCaseImpl;
 import com.pitstop.interactors.other.SignUpUseCase;
@@ -808,6 +812,18 @@ public class UseCaseModule {
             , SmoochLoginUseCase smoochLoginUseCase
             , @Named("mainHandler") Handler mainHandler){
         return new LoginAuthMacroUseCaseImpl(loginUseCase, smoochLoginUseCase, mainHandler);
+    }
+
+    @Provides
+    ChangePasswordUseCase changePasswordUseCase(UserRepository userRepository
+            , @Named("mainHandler") Handler mainHandler, @Named("useCaseHandler") Handler useCaseHandler){
+        return new ChangePasswordUseCaseImpl(userRepository, mainHandler, useCaseHandler);
+    }
+
+    @Provides
+    ResetPasswordUseCase resetPasswordUseCase(UserRepository userRepository
+            , @Named("mainHandler") Handler mainHandler, @Named("useCaseHandler") Handler useCaseHandler){
+        return new ResetPasswordUseCaseImpl(userRepository, mainHandler, useCaseHandler);
     }
 }
 

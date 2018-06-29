@@ -7,11 +7,13 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.pitstop.R
+import com.pitstop.ui.login.change_password.ChangePasswordFragment
 import com.pitstop.ui.login.login.LoginFragment
 import com.pitstop.ui.login.login_signup.LoginSignupFragment
 import com.pitstop.ui.login.onboarding.chat.ChatOnBoardingFragment
 import com.pitstop.ui.login.onboarding.chat.PromotionsOnBoardingFragment
 import com.pitstop.ui.login.onboarding.reminders.RemindersOnBoardingFragment
+import com.pitstop.ui.login.reset_password.ResetPasswordFragment
 import com.pitstop.ui.login.signup.first_step.FirstStepSignUpFragment
 import com.pitstop.ui.login.signup.first_step.SecondStepSignUpFragment
 import com.pitstop.ui.main_activity.MainActivity
@@ -35,6 +37,8 @@ class LoginActivity: AppCompatActivity() {
     private val chatOnBoardingFragment = ChatOnBoardingFragment()
     private val remindersOnBoardingFragment = RemindersOnBoardingFragment()
     private val promotionsOnBoardingFragment = PromotionsOnBoardingFragment()
+    private val changePasswordFragment = ChangePasswordFragment()
+    private val resetPasswordFragment = ResetPasswordFragment()
 
     private var sharedPreferences: SharedPreferences? = null
 
@@ -123,6 +127,25 @@ class LoginActivity: AppCompatActivity() {
         supportFragmentManager.beginTransaction()
                 .addToBackStack("promotions")
                 .replace(R.id.fragment_container, promotionsOnBoardingFragment)
+                .commit()
+
+    }
+
+    fun switchToChangePassword(oldPassword: String){
+        Log.d(TAG,"switchToChangePassword()")
+        changePasswordFragment.setOldPassword(oldPassword)
+        supportFragmentManager.beginTransaction()
+                .addToBackStack("change_password")
+                .replace(R.id.fragment_container, changePasswordFragment)
+                .commit()
+
+    }
+
+    fun switchToResetPassword(){
+        Log.d(TAG,"switchToResetPassword()")
+        supportFragmentManager.beginTransaction()
+                .addToBackStack("reset_password")
+                .replace(R.id.fragment_container, resetPasswordFragment)
                 .commit()
 
     }

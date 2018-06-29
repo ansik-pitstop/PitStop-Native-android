@@ -42,10 +42,14 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view?.displayLoading()
             useCaseComponent.loginAuthMacroUseCase().execute(email,password
                     , io.smooch.core.User.getCurrentUser(), object: LoginAuthMacroUseCase.Callback{
-                override fun onSuccess() {
-                    Log.d(TAG,"LoginUseCase.onSuccess()")
+                override fun onSuccess(activated: Boolean) {
+                    Log.d(TAG,"LoginUseCase.onSuccess() activated: $activated")
                     if (view == null) return
-                    view?.switchToMainActivity()
+                    if (activated){
+                        view?.switchToMainActivity()
+                    }else{
+                        view?.switchToChangePassword(password)
+                    }
                     view?.hideLoading()
                 }
 
@@ -58,6 +62,11 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
 
             })
         }
+    }
+
+    fun onForgotPasswordPressed(){
+        Log.d(TAG,"onForgotPasswordPressed()")
+        view?.switchToResetPassword()
     }
 
     fun onFacebookLoginPressed(){
