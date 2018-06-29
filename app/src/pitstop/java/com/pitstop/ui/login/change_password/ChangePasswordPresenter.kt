@@ -46,15 +46,18 @@ class ChangePasswordPresenter(private val useCaseComponent: UseCaseComponent) {
         }
         else{
             //Launch use case
+            view?.showLoading()
             useCaseComponent.changePasswordUseCase().execute(oldPassword
                     , newPassword, true, object: ChangePasswordUseCase.Callback{
                 override fun onSuccess() {
                     Log.d(TAG,"change password use case returned success")
+                    view?.hideLoading()
                     view?.switchToOnboarding()
                 }
 
                 override fun onError(err: RequestError) {
                     Log.d(TAG,"change password use case returned error = $err")
+                    view?.hideLoading()
                     view?.showErrorDialog(err.message)
                 }
 

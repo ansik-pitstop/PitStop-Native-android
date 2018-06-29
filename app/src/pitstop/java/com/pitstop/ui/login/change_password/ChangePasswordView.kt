@@ -10,4 +10,6 @@ interface ChangePasswordView {
     fun showErrorDialog(err: Int)
     fun showErrorDialog(err: String)
     fun switchToOnboarding()
+    fun showLoading()
+    fun hideLoading()
 }

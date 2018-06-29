@@ -83,4 +83,13 @@ class ChangePasswordFragment: Fragment(), ChangePasswordView {
         }
     }
 
+    override fun showLoading() {
+        load_view.visibility = View.VISIBLE
+        load_view.bringToFront()
+    }
+
+    override fun hideLoading() {
+        load_view.visibility = View.GONE
+    }
+
 }
