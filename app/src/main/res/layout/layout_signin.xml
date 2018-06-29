@@ -92,7 +92,6 @@
         android:layout_above="@id/login_button"
         android:fontFamily="@font/lato_bold"
         android:textColor="@color/white"
-        android:textSize="12sp"
         android:layout_centerHorizontal="true"
         android:text="@string/forgot_password_button"
         android:layout_width="wrap_content"
