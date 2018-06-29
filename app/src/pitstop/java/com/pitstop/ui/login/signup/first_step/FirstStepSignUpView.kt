@@ -8,6 +8,7 @@ interface FirstStepSignUpView {
     fun getConfirmPassword(): String
     fun getEmail(): String
     fun displayErrorDialog(message: String)
+    fun displayErrorDialog(error: Int)
     fun displayToast(message: String)
     fun switchToNextStep(username: String, password: String)
     fun switchToOnBoarding()

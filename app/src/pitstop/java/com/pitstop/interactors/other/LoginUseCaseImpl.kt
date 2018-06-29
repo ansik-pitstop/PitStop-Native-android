@@ -44,12 +44,9 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
-                    Log.d(TAG,"login response: $next")
-                    if (!next.user.isActivated){
-
-                    }
+                    Log.d(TAG,"login response: $next, activated: ${next.user.isActivated}")
                     loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
-                    LoginUseCaseImpl@onSuccess(next.user)
+                    LoginUseCaseImpl@onSuccess(next.user, next.user.isActivated)
                 }, {err ->
                     Log.d(TAG,"login error response: $err")
                     LoginUseCaseImpl@onError(RequestError(err))
@@ -58,11 +55,11 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
         compositeDisposable.add(disposable)
     }
 
-    private fun onSuccess(user: User){
+    private fun onSuccess(user: User, activated: Boolean){
         Logger.getInstance()!!.logI(TAG, "Use case finished: logged in successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess(user)})
+        mainHandler.post({callback.onSuccess(user,activated)})
     }
 
     private fun onError(err: RequestError){

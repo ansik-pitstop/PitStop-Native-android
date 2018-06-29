@@ -647,4 +647,11 @@
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
+    <string name="passwords_do_not_match">Passwords do not match.</string>
+    <string name="password_too_short">Password is too short, please use at least 8 characters.</string>
+    <string name="password_too_long">Password is too long, must be less than 50 characters.</string>
+    <string name="email_too_long">Email is too long, must be less than 50 characters.</string>
+    <string name="email_invalid">Invalid email address</string>
+    <string name="provide_all_fields">Please provide all the fields.</string>
+    <string name="unknown_error_contact_support">Unknown error, please contact support@pitstopconnect.com</string>
 </resources>

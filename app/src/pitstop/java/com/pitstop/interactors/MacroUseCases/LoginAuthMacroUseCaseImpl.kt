@@ -29,7 +29,7 @@ class LoginAuthMacroUseCaseImpl(private val loginUseCase: LoginUseCase
                     }
 
                     override fun onLogin() {
-                        this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
+                        this@LoginAuthMacroUseCaseImpl.onSuccess(false)
                     }
 
                 })

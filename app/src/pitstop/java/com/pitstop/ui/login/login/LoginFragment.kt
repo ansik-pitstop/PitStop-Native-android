@@ -125,6 +125,15 @@ class LoginFragment: Fragment(), LoginView {
         }
     }
 
+    override fun switchToChangePassword(oldPassword: String) {
+        Log.d(TAG,"switchToChangePassword()")
+        try{
+            (activity as LoginActivity).switchToChangePassword(oldPassword)
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG,"onActivityResult()")
         facebookCallbackManager?.onActivityResult(requestCode,resultCode,data)

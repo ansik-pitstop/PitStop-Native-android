@@ -45,7 +45,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             json.addProperty("lastName", user.lastName)
             json.addProperty("email", user.email)
             json.addProperty("username", user.email)
-            json.addProperty("activated",true)
+            json.addProperty("activated", false)
             if (!isSocial){
                 json.addProperty("password", user.password)
                 json.addProperty("phone", user.phone)

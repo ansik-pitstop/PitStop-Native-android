@@ -2,6 +2,7 @@ package com.pitstop.ui.login.signup.first_step
 
 import android.util.Log
 import com.facebook.login.LoginResult
+import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase
 import com.pitstop.network.RequestError
@@ -32,17 +33,17 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
         val confirmPassword = view!!.getConfirmPassword()
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()){
-            view!!.displayErrorDialog("Please provide all the fields.")
+            view!!.displayErrorDialog(R.string.provide_all_fields)
         }else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            view!!.displayErrorDialog("Invalid email address.")
+            view!!.displayErrorDialog(R.string.email_invalid)
         } else if (email.length > 50){
-            view!!.displayErrorDialog("Email is too long, must be less than 50 characters.")
+            view!!.displayErrorDialog(R.string.email_too_long)
         } else if (password.length > 50){
-            view!!.displayErrorDialog("Password is too long, must be less than 50 characters.")
+            view!!.displayErrorDialog(R.string.password_too_long)
         } else if (password.length < 8){
-            view!!.displayErrorDialog("Password is too short, please use at least 8 characters.")
+            view!!.displayErrorDialog(R.string.password_too_short)
         } else if (password != confirmPassword){
-            view!!.displayErrorDialog("Passwords do not match.")
+            view!!.displayErrorDialog(R.string.passwords_do_not_match)
         }else{
             view!!.switchToNextStep(email,password)
         }
