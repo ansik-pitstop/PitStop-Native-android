@@ -12,6 +12,8 @@ import com.pitstop.network.RequestCallback
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.LoginResponse
 import com.pitstop.retrofit.PitstopAuthApi
+import com.pitstop.retrofit.PitstopUserApi
+import com.pitstop.retrofit.UserActivationResponse
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
 import io.reactivex.Observable
@@ -26,6 +28,7 @@ import org.json.JSONObject
  */
 
 class UserRepository(private val localUserStorage: LocalUserStorage
+                     , private val pitstopUserApi: PitstopUserApi
                      , private val pitstopAuthApi: PitstopAuthApi
                      , private val networkHelper: NetworkHelper) : Repository {
 
@@ -42,6 +45,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             json.addProperty("lastName", user.lastName)
             json.addProperty("email", user.email)
             json.addProperty("username", user.email)
+            json.addProperty("activated",true)
             if (!isSocial){
                 json.addProperty("password", user.password)
                 json.addProperty("phone", user.phone)
@@ -83,6 +87,16 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                     it.user.settings.userId = it.user.id
                     localUserStorage.storeUserData(it.user)
                 })
+    }
+
+    fun setUserActive(userId: Int): Observable<UserActivationResponse>{
+        Log.d(TAG,"setUserActive()")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("userId",userId)
+        jsonObject.addProperty("activated",true)
+        return pitstopUserApi.putUser(jsonObject).map{
+            UserActivationResponse(it.get("userId").asInt,it.get("activated").asBoolean)
+        }
     }
 
     fun login(username: String, password: String): Observable<LoginResponse>{

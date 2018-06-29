@@ -4,6 +4,7 @@ import android.os.Handler
 import android.util.Log
 import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.User
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
@@ -44,8 +45,11 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
                 .observeOn(Schedulers.io())
                 .subscribe({next ->
                     Log.d(TAG,"login response: $next")
+                    if (!next.user.isActivated){
+
+                    }
                     loginManager.loginUser(next.accessToken,next.refreshToken,next.user)
-                    LoginUseCaseImpl@onSuccess()
+                    LoginUseCaseImpl@onSuccess(next.user)
                 }, {err ->
                     Log.d(TAG,"login error response: $err")
                     LoginUseCaseImpl@onError(RequestError(err))
@@ -54,11 +58,11 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
         compositeDisposable.add(disposable)
     }
 
-    private fun onSuccess(){
+    private fun onSuccess(user: User){
         Logger.getInstance()!!.logI(TAG, "Use case finished: logged in successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess()})
+        mainHandler.post({callback.onSuccess(user)})
     }
 
     private fun onError(err: RequestError){

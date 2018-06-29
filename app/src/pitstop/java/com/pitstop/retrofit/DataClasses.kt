@@ -8,6 +8,8 @@ import java.util.*
  * Created by Karol Zdebel on 10/26/2017.
  */
 
+data class UserActivationResponse(val userId: Int, val activated: Boolean)
+
 data class LoginResponse(val accessToken: String, val refreshToken: String, val user: User)
 
 data class PitstopResponse<T>(val response: T)

@@ -42,7 +42,7 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view?.displayLoading()
             useCaseComponent.loginAuthMacroUseCase().execute(email,password
                     , io.smooch.core.User.getCurrentUser(), object: LoginAuthMacroUseCase.Callback{
-                override fun onSuccess() {
+                override fun onSuccess(activated: Boolean) {
                     Log.d(TAG,"LoginUseCase.onSuccess()")
                     if (view == null) return
                     view?.switchToMainActivity()

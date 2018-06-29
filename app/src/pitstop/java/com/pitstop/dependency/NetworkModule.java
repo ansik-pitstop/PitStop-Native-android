@@ -20,6 +20,7 @@ import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.retrofit.PitstopTripApi;
+import com.pitstop.retrofit.PitstopUserApi;
 import com.pitstop.retrofit.Token;
 import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NetworkHelper;
@@ -231,6 +232,19 @@ public class NetworkModule {
                 .client(getHttpClient(context))
                 .build()
                 .create(PitstopSensorDataApi.class);
+    }
+
+    @Provides
+    @Singleton
+    PitstopUserApi pitstopUserApi(Context context) {
+
+        return new Retrofit.Builder()
+                .baseUrl(SecretUtils.getEndpointUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getHttpClient(context))
+                .build()
+                .create(PitstopUserApi.class);
     }
 
     @Provides

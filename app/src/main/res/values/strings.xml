@@ -643,4 +643,8 @@
     <string name="next_string">Next</string>
     <string name="sign_up_with_facebook">Sign Up With Facebook</string>
     <string name="mileage_dialog_string">%d km</string>
+    <string name="change_password">Change Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
 </resources>
