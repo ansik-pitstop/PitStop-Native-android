@@ -119,6 +119,16 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
                 .show()
     }
 
+    override fun displayErrorDialog(error: Int) {
+        Log.d(TAG,"displayErrorDialog() message: ${resources.getString(error)}")
+        AlertDialog.Builder(context!!)
+                .setTitle("Error")
+                .setMessage(resources.getString(error))
+                .setNeutralButton("Okay",null)
+                .create()
+                .show()
+    }
+
     override fun displayToast(message: String) {
         Log.d(TAG,"displayToast() message: $message")
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show()

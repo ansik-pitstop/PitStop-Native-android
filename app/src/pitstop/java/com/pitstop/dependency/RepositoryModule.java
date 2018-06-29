@@ -28,6 +28,7 @@ import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSensorDataApi;
 import com.pitstop.retrofit.PitstopTripApi;
+import com.pitstop.retrofit.PitstopUserApi;
 import com.pitstop.utils.NetworkHelper;
 
 import javax.inject.Singleton;
@@ -53,8 +54,10 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public UserRepository getUserRepository(LocalUserStorage localUserStorage
-            , PitstopAuthApi pitstopAuthApi, NetworkHelper networkHelper){
-        return new UserRepository(localUserStorage,pitstopAuthApi,networkHelper);
+            , PitstopAuthApi pitstopAuthApi, PitstopUserApi pitstopUserApi
+            , NetworkHelper networkHelper){
+        return new UserRepository(localUserStorage,pitstopUserApi
+                ,pitstopAuthApi,networkHelper);
     }
 
     @Provides

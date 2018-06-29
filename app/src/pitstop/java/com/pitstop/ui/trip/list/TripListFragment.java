@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,9 @@ public class TripListFragment extends Fragment implements TripListView {
 
     @BindView(R.id.spinner_sort_by)
     protected Spinner sortSpinner;
+
+    @BindView(R.id.add_car_button)
+    protected Button addCarButton;
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
@@ -118,6 +122,8 @@ public class TripListFragment extends Fragment implements TripListView {
 
         });
 
+        addCarButton.setOnClickListener(view1 -> presenter.onBottomListButtonClicked());
+
         return view;
     }
 
@@ -127,7 +133,6 @@ public class TripListFragment extends Fragment implements TripListView {
         presenter.subscribe(this);
 
         presenter.onUpdateNeeded(sortSpinner.getSelectedItemPosition());
-
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -204,6 +209,7 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG, "displayTripList() notifList: " + listTrip);
 
         tripsRecyclerView.setVisibility(View.VISIBLE);
+        addCarButton.setVisibility(View.GONE);
         noTripsText.setVisibility(View.GONE);
         if (listTrip != null && listTrip.size() > 0) {
 
@@ -220,12 +226,14 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG,"displayNoTrips()");
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
+        addCarButton.setVisibility(View.GONE);
         noTripsText.setText(R.string.no_trips_message);
     }
 
     @Override
     public void displayNoCar(){
         Log.d(TAG,"displayNoCar()");
+        addCarButton.setVisibility(View.VISIBLE);
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
         noTripsText.setText(R.string.add_car_trips_message);

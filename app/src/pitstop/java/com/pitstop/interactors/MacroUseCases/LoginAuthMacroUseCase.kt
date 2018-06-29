@@ -7,7 +7,7 @@ import com.pitstop.network.RequestError
  */
 interface LoginAuthMacroUseCase {
     interface Callback{
-        fun onSuccess()
+        fun onSuccess(activated: Boolean)
         fun onError(err: RequestError)
     }
 

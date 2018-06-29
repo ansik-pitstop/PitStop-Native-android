@@ -38,7 +38,7 @@ class SmoochUtil {
 
         fun sendUserAddedCarSmoochMessage(user:User, car: Car){
             Smooch.getConversation()!!
-                    .sendMessage(io.smooch.core.Message("${user.firstName} ${user.lastName} has added a ${car.make} ${car.model} ${car.year}"))
+                    .sendMessage(io.smooch.core.Message("${user.firstName ?: ""} ${user.lastName ?: ""} has added a ${car.make} ${car.model} ${car.year}"))
         }
 
     }

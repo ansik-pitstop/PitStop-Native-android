@@ -25,7 +25,7 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
         this.callback = callback
 
         loginFacebookUseCase.execute(facebookAuthToken, object: LoginFacebookUseCase.Callback{
-            override fun onSuccess() {
+            override fun onSuccess(user: com.pitstop.models.User) {
                 Log.d(TAG,"Facebook login use case returned success.")
                 smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                     override fun onError(err: RequestError) {

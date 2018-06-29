@@ -63,6 +63,7 @@ class LoginFragment: Fragment(), LoginView {
         login_button.setOnClickListener { presenter?.onLoginPressed() }
         facebook_signin_button.setOnClickListener { presenter?.onFacebookLoginPressed() }
         signup_text.setOnClickListener { presenter?.onSignupPressed() }
+        forgot_password_text.setOnClickListener { presenter?.onForgotPasswordPressed() }
     }
 
     override fun onStart() {
@@ -120,6 +121,24 @@ class LoginFragment: Fragment(), LoginView {
         Log.d(TAG,"switchToSignUp()")
         try{
             (activity as LoginActivity).switchToSignupStepOne()
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    override fun switchToChangePassword(oldPassword: String) {
+        Log.d(TAG,"switchToChangePassword()")
+        try{
+            (activity as LoginActivity).switchToChangePassword(oldPassword)
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    override fun switchToResetPassword() {
+        Log.d(TAG,"switchToResetPassword()")
+        try{
+            (activity as LoginActivity).switchToResetPassword()
         }catch(e: Exception){
             e.printStackTrace()
         }
