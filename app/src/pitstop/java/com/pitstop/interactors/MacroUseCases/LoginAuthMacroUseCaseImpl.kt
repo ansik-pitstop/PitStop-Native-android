@@ -25,7 +25,7 @@ class LoginAuthMacroUseCaseImpl(private val loginUseCase: LoginUseCase
             override fun onSuccess(user: User, activated: Boolean) {
                 smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                     override fun onError(err: RequestError) {
-                        this@LoginAuthMacroUseCaseImpl.onError(err)
+                        this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
                     }
 
                     override fun onLogin() {

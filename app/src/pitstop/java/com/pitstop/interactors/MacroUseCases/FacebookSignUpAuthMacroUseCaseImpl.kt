@@ -37,7 +37,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
                     override fun onError(err: RequestError) {
                         Log.d(TAG,"Smooch login use case returned error.")
                         SmoochUtil.sendSignedUpSmoochMessage(user.firstName ?: "",user.lastName ?: "")
-                        this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
+                        this@FacebookSignUpAuthMacroUseCaseImpl.onSuccess()
                     }
 
                     override fun onLogin() {
@@ -51,6 +51,7 @@ class FacebookSignUpAuthMacroUseCaseImpl(private val signupFacebookUseCase: Face
 
             override fun onError(err: RequestError) {
                 Log.d(TAG,"Sign up facebook use case returned error.")
+                err.message = "Your account has been created but login failed, please login at a later time."
                 this@FacebookSignUpAuthMacroUseCaseImpl.onError(err)
             }
 

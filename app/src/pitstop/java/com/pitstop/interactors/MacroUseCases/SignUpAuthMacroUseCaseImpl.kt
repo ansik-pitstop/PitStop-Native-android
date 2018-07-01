@@ -40,11 +40,11 @@ class SignUpAuthMacroUseCaseImpl(private val signUpUseCase: SignUpUseCase
                         smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                             override fun onError(err: RequestError) {
                                 Log.d(TAG,"Smooch login use case returned error.")
-                                this@SignUpAuthMacroUseCaseImpl.onError(err)
+                                this@SignUpAuthMacroUseCaseImpl.onSuccess()
                             }
 
                             override fun onLogin() {
-                                Log.d(TAG,"Smooch login use case returned success.")
+                                Log.d(TAG,"Smooch login use case returned success. ")
                                 SmoochUtil.sendSignedUpSmoochMessage(user.firstName,user.lastName)
                                 this@SignUpAuthMacroUseCaseImpl.onSuccess()
                             }
@@ -53,6 +53,7 @@ class SignUpAuthMacroUseCaseImpl(private val signUpUseCase: SignUpUseCase
 
                     override fun onError(error: RequestError) {
                         Log.d(TAG,"Login use case returned error.")
+                        error.message = "Your account has been created but login failed, please try to login later."
                         this@SignUpAuthMacroUseCaseImpl.onError(error)
                     }
                 })

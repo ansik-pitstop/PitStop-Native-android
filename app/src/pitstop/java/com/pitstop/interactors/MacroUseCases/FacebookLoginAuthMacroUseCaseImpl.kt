@@ -30,7 +30,7 @@ class FacebookLoginAuthMacroUseCaseImpl(private val loginFacebookUseCase: LoginF
                 smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
                     override fun onError(err: RequestError) {
                         Log.d(TAG,"Smooch login use case returned error.")
-                        this@FacebookLoginAuthMacroUseCaseImpl.onError(err)
+                        this@FacebookLoginAuthMacroUseCaseImpl.onSuccess()
                     }
 
                     override fun onLogin() {
