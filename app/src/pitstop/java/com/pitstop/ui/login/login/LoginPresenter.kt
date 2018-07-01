@@ -34,8 +34,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayError("Invalid email address.")
         }else if (email.length > 50){
             view!!.displayError("Email is too long, please use less than 50 characters")
-        } else if (password.length < 8){
-            view!!.displayError("Password too short, please use at least 8 characters.")
         } else if (password.length > 50){
             view!!.displayError("Password too long, must be less than 50 characters.")
         } else{

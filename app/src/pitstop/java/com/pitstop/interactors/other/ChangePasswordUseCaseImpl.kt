@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
@@ -54,7 +55,8 @@ class ChangePasswordUseCaseImpl(private val userRepository: UserRepository
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.io())
                         .subscribe({next ->
-                            if (!activateUser){
+                            Log.d(tag,"after changing password user: ${data.isActivated}")
+                            if (activateUser){
                                 SmoochUtil.sendSignedUpSmoochMessage(data!!.firstName ?: "", data!!.lastName ?: "")
                                 userRepository.setUserActive(data!!.id)
                                         .subscribeOn(Schedulers.computation())
