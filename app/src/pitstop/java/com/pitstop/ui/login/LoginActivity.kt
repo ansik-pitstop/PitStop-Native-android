@@ -133,9 +133,12 @@ class LoginActivity: AppCompatActivity() {
 
     fun switchToChangePassword(oldPassword: String){
         Log.d(TAG,"switchToChangePassword()")
+        val count = supportFragmentManager.backStackEntryCount
+        for (i in 1..count) {
+            supportFragmentManager.popBackStack()
+        }
         changePasswordFragment.setOldPassword(oldPassword)
         supportFragmentManager.beginTransaction()
-                .addToBackStack("change_password")
                 .replace(R.id.fragment_container, changePasswordFragment)
                 .commit()
 

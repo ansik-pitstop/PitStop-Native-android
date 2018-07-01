@@ -43,23 +43,24 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
         Log.d(tag,"run()")
         userRepository.getCurrentUser(object: Repository.Callback<User>{
             override fun onSuccess(user: User) {
+                Log.d(tag,"got current user: "+user)
                 val userId = user.id
+
+                //Set user so that when this use case finishes the user is set and ready for messaging
+                SmoochUtil.setSmoochProperties(user)
                 if (user.settings.hasMainCar()){
-                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.REMOTE)
+                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
                             .subscribeOn(Schedulers.computation())
                             .observeOn(Schedulers.io())
                             .subscribe({next->
                                 val car: Car = next.data!!
-                                SmoochUtil.setSmoochProperties(user,car)
-                                Log.d(tag,"set smooch user proerties!")
-                                SmoochLoginUseCaseImpl@onSmoochPropertiesSet()
+                                //Set car
+                                SmoochUtil.setSmoochProperties(car)
+                                Log.d(tag,"set smooch user proerties! user: $user")
                             }, {error ->
                                 Log.e(tag,"error storing custom properties! err: $error")
-                                SmoochLoginUseCaseImpl@errorSettingSmoochProperties()
                             })
                     compositeDisposable.add(disposable)
-                }else{
-                    SmoochLoginUseCaseImpl@errorSettingSmoochProperties()
                 }
 
                 try {
@@ -113,15 +114,4 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
         mainHandler.post({callback.onLogin()})
     }
 
-    private fun onSmoochPropertiesSet(){
-        Logger.getInstance()!!.logI(tag, "Smooch properties successfully set!"
-                , DebugMessage.TYPE_USE_CASE)
-        compositeDisposable.clear()
-    }
-
-    private fun errorSettingSmoochProperties(){
-        Logger.getInstance()!!.logE(tag, "Error storing smooch properties!"
-                , DebugMessage.TYPE_USE_CASE)
-        compositeDisposable.clear()
-    }
 }
