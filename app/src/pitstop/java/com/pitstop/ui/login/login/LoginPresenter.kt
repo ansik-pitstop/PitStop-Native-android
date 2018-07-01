@@ -1,6 +1,7 @@
 package com.pitstop.ui.login.login
 
 import android.util.Log
+import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase
@@ -102,8 +103,9 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
         Log.d(TAG,"onFacebookLoginCancel()")
     }
 
-    fun onFacebookLoginError(){
+    fun onFacebookLoginError(err: FacebookException){
         Log.d(TAG,"onFacebookLoginError()")
+        view?.displayToast("Please connect to the internet")
     }
 
     fun onSignupPressed(){
