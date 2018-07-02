@@ -109,10 +109,21 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 }
                                 response.getData().setCurrentCar(true);
 
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
-                                        , response.getData().getShop()
-                                        , response.isLocal());
+                                //This has to stay here in case we need to pull the empty shop from back-end
+                                if (response.getData().getShop() == null) shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
 
+                                    @Override
+                                    public void onSuccess(Dealership dealership) {
+                                        GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
+                                    }
+
+                                    @Override
+                                    public void onError(RequestError error) {
+                                        GetUserCarUseCaseImpl.this.onError(error);
+                                    }
+                                });
+                                else GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
+                                        , response.getData().getShop(), response.isLocal());
                             }, err ->{
                                 GetUserCarUseCaseImpl.this.onError(new RequestError(err));
                             });

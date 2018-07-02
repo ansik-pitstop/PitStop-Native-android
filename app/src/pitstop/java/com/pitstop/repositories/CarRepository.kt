@@ -274,9 +274,11 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
                         it.shopId = 1
                     else it.shopId = 19
+                }else if (it.shop != null){
+                    localShopStorage.removeById(it.shopId)
+                    localShopStorage.storeDealership(it.shop)
                 }
-                localShopStorage.removeById(it.shopId)
-                localShopStorage.storeDealership(it.shop)
+
             }
             localCarStorage.deleteAndStoreCars(it.data ?: arrayListOf())
         })
@@ -308,8 +310,10 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                         else next.data.shopId = 19
 
                     //Store shop
-                    next.data.shopId = next.data.shopId
-                    localShopStorage.storeDealership(next.data.shop)
+                    if (next.data.shop != null){
+                        localShopStorage.removeById(next.data.shopId)
+                        localShopStorage.storeDealership(next.data.shop)
+                    }
 
                     localCarStorage.deleteAndStoreCar(next.data)
                 })
