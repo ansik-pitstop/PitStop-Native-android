@@ -60,15 +60,15 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                     sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
 
                                 },{err ->
-                                    AddPidUseCaseImpl@onError(RequestError(err))
+                                    this@AddPidUseCaseImpl.onError(RequestError(err))
                                 })
                         compositeDisposable.add(disposable)
                     }
-                    else AddPidUseCaseImpl@onError(RequestError.getUnknownError())
+                    else this@AddPidUseCaseImpl.onError(RequestError.getUnknownError())
                 }
 
-                override fun onError(error: RequestError?) {
-                    AddPidUseCaseImpl@onError(error)
+                override fun onError(error: RequestError) {
+                    this@AddPidUseCaseImpl.onError(error)
                 }
 
             })
@@ -115,7 +115,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                         onAdded(next)
                     },{err ->
                         err.printStackTrace()
-                        AddPidUseCaseImpl@onError(RequestError(err))
+                        this@AddPidUseCaseImpl.onError(RequestError(err))
                     })
             compositeDisposable.add(disposable)
         }else{
