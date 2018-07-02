@@ -6,7 +6,6 @@ import com.pitstop.models.*
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.*
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -46,9 +45,9 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
 
             override fun onSuccess(user: User) {
                 Log.d(tag,"Got user")
-                val disposable = carRepository.getCarsByUserId(user.id)
+                val disposable = carRepository.getCarsByUserId(user.id,Repository.DATABASE_TYPE.BOTH)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .observeOn(Schedulers.computation(),true)
                         .doOnError({err ->
                             Log.d(tag,"err: "+err)
                             this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))
@@ -56,14 +55,16 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
                         .doOnNext { carListResponse ->
                             val carList = carListResponse.data
                             Log.d(tag,"got car list: "+carList)
-                            if (carList == null) {
+                            if (carList == null && carListResponse.isLocal) {
+                                return@doOnNext
+                            }else if (carList == null && carListResponse.data == null){
                                 this@GetCarsWithDealershipsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
                                 return@doOnNext
                             }
                             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
                                 override fun onSuccess(settings: Settings) {
                                     Log.d(tag,"Got current settings: "+settings)
-                                    if (carList.isEmpty()) {
+                                    if (carList!!.isEmpty()) {
                                         this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()
                                                 ,carListResponse.isLocal)
                                         return@onSuccess

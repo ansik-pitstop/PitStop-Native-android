@@ -131,9 +131,9 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
                                                 @Override
                                                 public void onSuccess(User user) {
-                                                    Disposable disposable = carRepository.getCarsByUserId(user.getId())
+                                                    Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
                                                             .subscribeOn(Schedulers.io())
-                                                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                                            .observeOn(Schedulers.computation())
                                                             .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
                                                             .doOnNext(carListResponse -> {
                                                                 if (carListResponse.isLocal()) return;

@@ -109,21 +109,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 }
                                 response.getData().setCurrentCar(true);
 
-                                //This has to stay here in case we need to pull the empty shop from back-end
-                                if (response.getData().getShop() == null) shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
+                                        , response.getData().getShop()
+                                        , response.isLocal());
 
-                                    @Override
-                                    public void onSuccess(Dealership dealership) {
-                                        GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
-                                    }
-
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        GetUserCarUseCaseImpl.this.onError(error);
-                                    }
-                                });
-                                else GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
-                                        , response.getData().getShop(), response.isLocal());
                             }, err ->{
                                 GetUserCarUseCaseImpl.this.onError(new RequestError(err));
                             });
@@ -133,7 +122,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
                 /*User settings doesn't have mainCar stored, we cannot trust this because settings
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
-                Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId())
+                Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId(),Repository.DATABASE_TYPE.BOTH)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation(),true)
                         .subscribe(carListResponse -> {

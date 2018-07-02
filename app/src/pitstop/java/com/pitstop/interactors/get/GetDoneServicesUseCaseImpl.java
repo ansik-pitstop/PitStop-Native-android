@@ -85,7 +85,7 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
 
                 if (!data.hasMainCar()) {
                     //Double check car repo in case settings is out of sync
-                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                             .subscribe(next -> {

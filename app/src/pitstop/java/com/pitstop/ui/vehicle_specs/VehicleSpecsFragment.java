@@ -300,6 +300,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         tankSize.setText(car.getTankSize());
         if (!(presenter.getDealership() == null)) {
             dealership.setText(presenter.getDealership().getName());
+        }else{
+            dealership.setText("No Shop");
         }
         presenter.getLicensePlate(car.getId());
     }
@@ -666,8 +668,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
         Log.d(TAG, "displayDefaultDealershipVisual()");
-        dealershipName.setText(dealership.getName());
-        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+        String name = "";
+        if (dealership == null){
+            name = "No Shop";
+        }else{
+            name = dealership.getName();
+        }
+        dealershipName.setText(name);
+        mDealerBanner.setImageResource(getDealerSpecificBanner(name));
         /*drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);*/
         mCarLogoImage.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);

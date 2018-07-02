@@ -79,7 +79,7 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
         userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
             public void onSuccess(User user) {
-                Disposable disposable = carRepository.getCarsByUserId(user.getId())
+                Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                         .doOnError(err -> RemoveShopUseCaseImpl.this.onError(new RequestError(err)))

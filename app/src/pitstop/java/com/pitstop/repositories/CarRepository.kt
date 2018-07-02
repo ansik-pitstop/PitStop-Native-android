@@ -183,12 +183,18 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     )})
     }
 
-    fun getCarsByUserId(userId: Int): Observable<RepositoryResponse<List<Car>>> {
+    fun getCarsByUserId(userId: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
-        val list: MutableList<Observable<RepositoryResponse<List<Car>>>> = mutableListOf()
-        list.add(getAllLocal())
-        list.add(getAllRemote(userId))
-        return Observable.concatDelayError(list)
+        return when (type) {
+            Repository.DATABASE_TYPE.LOCAL -> getAllLocal()
+            Repository.DATABASE_TYPE.REMOTE -> getAllRemote(userId)
+            Repository.DATABASE_TYPE.BOTH -> {
+                val list: MutableList<Observable<RepositoryResponse<List<Car>>>> = mutableListOf()
+                list.add(getAllLocal())
+                list.add(getAllRemote(userId))
+                Observable.concatDelayError(list)
+            }
+        }
     }
 
     fun get(id: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<Car>> {
@@ -244,12 +250,6 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             Log.d(tag,"remote.replay() next: $next")
             next.data.orEmpty()
                     .forEach {
-                        if (it.shopId == 0){
-                            if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                                it.shopId = 1
-                            else it.shopId = 19
-                        }
-
                         //Set dealership for local responses
                         val dealership = localShopStorage.getDealership(it.shopId)
                         it.shop = dealership
@@ -270,11 +270,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             }}.doOnNext({
 
             it.data?.forEach {
-                if (it.shopId == 0 ){
-                    if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                        it.shopId = 1
-                    else it.shopId = 19
-                }else if (it.shop != null){
+                if (it.shop != null){
                     localShopStorage.removeById(it.shopId)
                     localShopStorage.storeDealership(it.shop)
                 }
@@ -304,11 +300,6 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     if (next.data == null ) return@doOnNext
 
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
-                    if (next.data.shopId == 0)
-                        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA))
-                            next.data.shopId = 1
-                        else next.data.shopId = 19
-
                     //Store shop
                     if (next.data.shop != null){
                         localShopStorage.removeById(next.data.shopId)

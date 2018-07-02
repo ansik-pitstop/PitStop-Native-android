@@ -42,13 +42,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
     fun getTripsByCarVin(vin: String, whatToReturn: String): Observable<RepositoryResponse<List<Trip>>> {
 
         Log.d(tag, "getTripsByCarVin() vin: $vin")
-
-//        if (isLocal) {
-//            return getLocalTripsByCarVin(vin)
-//        } else {
-//            return getRemoteTripsByCarVin(vin)
-//        }
-
         when (whatToReturn) {
 
             Constants.TRIP_REQUEST_LOCAL -> return getLocalTripsByCarVin(vin)

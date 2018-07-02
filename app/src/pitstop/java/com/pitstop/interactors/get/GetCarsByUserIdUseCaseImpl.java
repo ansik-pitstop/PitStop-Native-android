@@ -82,7 +82,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                 userRepository.getCurrentUser(new Repository.Callback<User>(){
                     @Override
                     public void onSuccess(User user) {
-                        Disposable disposable = carRepository.getCarsByUserId(user.getId())
+                        Disposable disposable = carRepository.getCarsByUserId(user.getId(), Repository.DATABASE_TYPE.REMOTE)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
                                 .doOnNext(carListResponse -> {

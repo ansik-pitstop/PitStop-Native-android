@@ -88,7 +88,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
 
                 if (!data.hasMainCar()){
                     //Check user car list
-                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
                             .subscribe(next -> {
