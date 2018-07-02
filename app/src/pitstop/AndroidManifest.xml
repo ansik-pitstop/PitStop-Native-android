@@ -106,7 +106,7 @@
             android:theme="@style/AppNoActionBarTheme" />
 
         <activity
-            android:name=".ui.Notifications.NotificationsActivity"
+            android:name=".ui.notifications.NotificationsActivity"
             android:label="@string/notifications" />
 
 

@@ -1,4 +1,4 @@
-package com.pitstop.ui.Notifications;
+package com.pitstop.ui.notifications;
 
 import com.pitstop.models.Notification;
 import com.pitstop.ui.ErrorHandlingView;
