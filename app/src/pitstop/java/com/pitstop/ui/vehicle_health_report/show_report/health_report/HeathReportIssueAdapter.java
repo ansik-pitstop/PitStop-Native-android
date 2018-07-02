@@ -30,15 +30,17 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
     private final List<CarHealthItem> carHealthItemList;
 
     private String emptyText;
+    private String emptyDescription;
 
     private Context context;
 
     private HealthReportPresenterCallback callback;
 
     public HeathReportIssueAdapter(@NonNull List<CarHealthItem> carHealthItems
-            , String emptyText, HealthReportPresenterCallback callback, Context context) {
+            , String emptyText, String emptyDescription, HealthReportPresenterCallback callback, Context context) {
         this.carHealthItemList = carHealthItems;
         this.emptyText = emptyText;
+        this.emptyDescription = emptyDescription;
         this.callback = callback;
         this.context = context;
     }
@@ -54,7 +56,7 @@ public class HeathReportIssueAdapter extends RecyclerView.Adapter<HeathReportIss
         int viewType = getItemViewType(position);
         if (viewType == VIEW_TYPE_EMPTY) {
             holder.action.setText(emptyText);
-            holder.description.setText("");
+            holder.description.setText(emptyDescription);
             holder.image.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_check_circle_green_400_36dp));
         } else {
             final CarHealthItem carHealthItem = carHealthItemList.get(position);
