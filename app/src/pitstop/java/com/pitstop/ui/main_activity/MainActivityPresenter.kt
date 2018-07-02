@@ -4,13 +4,13 @@ import android.util.Log
 import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
-import com.pitstop.interactors.set.SetFirstCarAddedUseCase
+import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
 import com.pitstop.network.RequestError
+import com.pitstop.repositories.Repository
 import com.pitstop.ui.Presenter
 import com.pitstop.utils.MixpanelHelper
 import org.greenrobot.eventbus.EventBus
@@ -109,29 +109,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
         view?.closeDrawer()
-        useCaseCompnent.checkFirstCarAddedUseCase()!!
-                .execute(object: CheckFirstCarAddedUseCase.Callback{
-
-                    override fun onFirstCarAddedChecked(added: Boolean) {
-                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
-                        if (!added){
-                            if (view != null && withDealer)
-                                view!!.showTentativeAppointmentShowcase()
-
-                            useCaseCompnent.setFirstCarAddedUseCase()!!
-                                    .execute(true, object : SetFirstCarAddedUseCase.Callback {
-                                        override fun onFirstCarAddedSet() {
-                                            //Variable has been set
-                                        }
-                                        override fun onError(error: RequestError) {
-                                            //Networking error logic here
-                                        }
-                                    })
-                        }
-                    }
-                    override fun onError(error: RequestError?) {
-                        //error logic here
-                    }})
     }
 
     private fun loadCars() {
@@ -185,6 +162,30 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
             view?.hideCarsLoading()
             // do nothing
         }
+    }
+
+    fun onUserWasInactiveOnCreate(){
+        Log.d(TAG,"onUserWasInactiveOnCreate()")
+        var usedLocal = false
+        useCaseCompnent.userCarUseCase.execute(Repository.DATABASE_TYPE.BOTH, object: GetUserCarUseCase.Callback{
+            override fun onCarRetrieved(car: Car, dealership: Dealership?, isLocal: Boolean) {
+                if (isLocal && dealership != null){
+                    Log.d(TAG,"Using local response to show tentative appointment")
+                    usedLocal = true
+                    view?.showTentativeAppointmentShowcase()
+                }else if (!isLocal && !usedLocal && dealership != null){
+                    Log.d(TAG,"Using remote response to show tentative appointment")
+                    view?.showTentativeAppointmentShowcase()
+                }
+            }
+
+            override fun onNoCarSet(isLocal: Boolean) {
+            }
+
+            override fun onError(error: RequestError?) {
+            }
+
+        })
     }
 
     fun onNotificationsClicked(){
