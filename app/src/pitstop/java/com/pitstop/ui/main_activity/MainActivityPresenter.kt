@@ -4,8 +4,10 @@ import android.util.Log
 import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
+import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
@@ -109,6 +111,29 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
         view?.closeDrawer()
+        useCaseCompnent.checkFirstCarAddedUseCase()!!
+                .execute(object: CheckFirstCarAddedUseCase.Callback{
+
+                    override fun onFirstCarAddedChecked(added: Boolean) {
+                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
+                        if (!added){
+                            if (view != null && withDealer)
+                                view!!.showTentativeAppointmentShowcase()
+
+                            useCaseCompnent.setFirstCarAddedUseCase()!!
+                                    .execute(true, object : SetFirstCarAddedUseCase.Callback {
+                                        override fun onFirstCarAddedSet() {
+                                            //Variable has been set
+                                        }
+                                        override fun onError(error: RequestError) {
+                                            //Networking error logic here
+                                        }
+                                    })
+                        }
+                    }
+                    override fun onError(error: RequestError?) {
+                        //error logic here
+                    }})
     }
 
     private fun loadCars() {

@@ -511,7 +511,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void startAddCarActivity() {
         Log.d(TAG, "startAddCarActivity()");
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override
