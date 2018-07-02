@@ -220,6 +220,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")
                     it.printStackTrace()
                 })
+
+        val userWasInactive = intent.getBooleanExtra(LoginActivity.USER_WAS_INACTIVE,false)
+        if (userWasInactive) presenter?.onUserWasInactiveOnCreate()
         Log.d(TAG,"end of onCreate!")
     }
 

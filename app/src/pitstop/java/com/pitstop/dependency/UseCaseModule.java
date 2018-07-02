@@ -108,8 +108,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
-import com.pitstop.interactors.other.ChangePasswordUseCase;
-import com.pitstop.interactors.other.ChangePasswordUseCaseImpl;
+import com.pitstop.interactors.other.ChangePasswordActivateUserUseCase;
+import com.pitstop.interactors.other.ChangePasswordActivateUserUseCaseImpl;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
@@ -815,9 +815,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    ChangePasswordUseCase changePasswordUseCase(UserRepository userRepository
+    ChangePasswordActivateUserUseCase changePasswordActivateUserUseCase(UserRepository userRepository
             , @Named("mainHandler") Handler mainHandler, @Named("useCaseHandler") Handler useCaseHandler){
-        return new ChangePasswordUseCaseImpl(userRepository, mainHandler, useCaseHandler);
+        return new ChangePasswordActivateUserUseCaseImpl(userRepository, mainHandler, useCaseHandler);
     }
 
     @Provides

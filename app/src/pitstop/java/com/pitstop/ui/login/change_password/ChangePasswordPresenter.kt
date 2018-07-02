@@ -3,7 +3,7 @@ package com.pitstop.ui.login.change_password
 import android.util.Log
 import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.ChangePasswordUseCase
+import com.pitstop.interactors.other.ChangePasswordActivateUserUseCase
 import com.pitstop.network.RequestError
 
 /**
@@ -47,11 +47,12 @@ class ChangePasswordPresenter(private val useCaseComponent: UseCaseComponent) {
         else{
             //Launch use case
             view?.showLoading()
-            useCaseComponent.changePasswordUseCase().execute(oldPassword
-                    , newPassword, true, object: ChangePasswordUseCase.Callback{
+            useCaseComponent.changePasswordActivateUserUseCase().execute(oldPassword
+                    , newPassword, true, object: ChangePasswordActivateUserUseCase.Callback{
                 override fun onSuccess() {
                     Log.d(TAG,"change password use case returned success")
                     view?.hideLoading()
+                    view?.setUserWasInactiveFlag()
                     view?.switchToOnboarding()
                 }
 

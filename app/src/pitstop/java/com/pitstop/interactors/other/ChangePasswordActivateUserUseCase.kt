@@ -6,7 +6,7 @@ import com.pitstop.network.RequestError
 /**
  * Created by Karol Zdebel on 6/29/2018.
  */
-interface ChangePasswordUseCase: Interactor {
+interface ChangePasswordActivateUserUseCase: Interactor {
 
     interface Callback{
         fun onSuccess()
