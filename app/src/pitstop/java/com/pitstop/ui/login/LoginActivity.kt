@@ -26,6 +26,7 @@ class LoginActivity: AppCompatActivity() {
     companion object {
         const val USER_SIGNED_UP = "user_signed_up"
         const val ONBOARDING = "onboarding"
+        const val USER_WAS_INACTIVE = "user_was_inactive" //Whether the user was inactive after logging in (created through dashboard)
     }
 
     private val TAG = LoginActivity::class.java.simpleName
@@ -60,8 +61,14 @@ class LoginActivity: AppCompatActivity() {
         }
     }
 
+    fun setUserWasInactive(userWasInactive: Boolean){
+        Log.d(TAG,"setUserWasInactive() userWasInactive: $userWasInactive")
+        sharedPreferences?.edit()?.putBoolean(USER_WAS_INACTIVE,userWasInactive)?.apply()
+    }
+
     fun switchToSignupStepOne(){
         Log.d(TAG,"switchToSignupStepOne()")
+        sharedPreferences?.edit()?.putBoolean(USER_WAS_INACTIVE,false)?.apply()
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, stepOneSignUpFragment)
                 .addToBackStack("signup")
@@ -79,6 +86,7 @@ class LoginActivity: AppCompatActivity() {
 
     fun switchToLogin(){
         Log.d(TAG,"switchToLogin()")
+        sharedPreferences?.edit()?.putBoolean(USER_WAS_INACTIVE,false)?.apply()
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, loginFragment)
                 .addToBackStack("login")
@@ -96,6 +104,8 @@ class LoginActivity: AppCompatActivity() {
         Log.d(TAG,"switchToMainActivity")
         val intent = Intent(LoginActivity@this, MainActivity::class.java)
         intent.putExtra(USER_SIGNED_UP,signedUp)
+        intent.putExtra(USER_WAS_INACTIVE
+                ,sharedPreferences?.getBoolean(USER_WAS_INACTIVE,false) ?: false)
         sharedPreferences?.edit()?.putBoolean(ONBOARDING,false)?.apply()
         startActivity(intent)
     }
@@ -133,9 +143,12 @@ class LoginActivity: AppCompatActivity() {
 
     fun switchToChangePassword(oldPassword: String){
         Log.d(TAG,"switchToChangePassword()")
+        val count = supportFragmentManager.backStackEntryCount
+        for (i in 1..count) {
+            supportFragmentManager.popBackStack()
+        }
         changePasswordFragment.setOldPassword(oldPassword)
         supportFragmentManager.beginTransaction()
-                .addToBackStack("change_password")
                 .replace(R.id.fragment_container, changePasswordFragment)
                 .commit()
 

@@ -1,6 +1,7 @@
 package com.pitstop.ui.login.login
 
 import android.util.Log
+import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase
@@ -34,8 +35,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayError("Invalid email address.")
         }else if (email.length > 50){
             view!!.displayError("Email is too long, please use less than 50 characters")
-        } else if (password.length < 8){
-            view!!.displayError("Password too short, please use at least 8 characters.")
         } else if (password.length > 50){
             view!!.displayError("Password too long, must be less than 50 characters.")
         } else{
@@ -104,8 +103,9 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
         Log.d(TAG,"onFacebookLoginCancel()")
     }
 
-    fun onFacebookLoginError(){
+    fun onFacebookLoginError(err: FacebookException){
         Log.d(TAG,"onFacebookLoginError()")
+        view?.displayToast("Please connect to the internet")
     }
 
     fun onSignupPressed(){

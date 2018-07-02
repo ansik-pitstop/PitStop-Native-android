@@ -1,6 +1,7 @@
 package com.pitstop.interactors.other
 
 import android.os.Handler
+import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
@@ -13,19 +14,19 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Karol Zdebel on 6/29/2018.
  */
-class ChangePasswordUseCaseImpl(private val userRepository: UserRepository
-                                , private val mainHandler: Handler
-                                , private val useCaseHandler: Handler): ChangePasswordUseCase {
+class ChangePasswordActivateUserUseCaseImpl(private val userRepository: UserRepository
+                                            , private val mainHandler: Handler
+                                            , private val useCaseHandler: Handler): ChangePasswordActivateUserUseCase {
 
-    private val tag = ChangePasswordUseCaseImpl::class.java.simpleName
+    private val tag = ChangePasswordActivateUserUseCaseImpl::class.java.simpleName
 
     private lateinit var oldPassword: String
     private lateinit var newPassword: String
     private var activateUser: Boolean = false
-    private lateinit var callback: ChangePasswordUseCase.Callback
+    private lateinit var callback: ChangePasswordActivateUserUseCase.Callback
 
     override fun execute(oldPassword: String, newPassword: String, activateUser: Boolean
-                         , callback: ChangePasswordUseCase.Callback) {
+                         , callback: ChangePasswordActivateUserUseCase.Callback) {
         Logger.getInstance().logI(tag, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE)
         this.oldPassword = oldPassword
@@ -54,26 +55,27 @@ class ChangePasswordUseCaseImpl(private val userRepository: UserRepository
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.io())
                         .subscribe({next ->
-                            if (!activateUser){
+                            Log.d(tag,"after changing password user: ${data.isActivated}")
+                            if (activateUser){
                                 SmoochUtil.sendSignedUpSmoochMessage(data!!.firstName ?: "", data!!.lastName ?: "")
                                 userRepository.setUserActive(data!!.id)
                                         .subscribeOn(Schedulers.computation())
                                         .observeOn(Schedulers.io())
                                         .subscribe({next ->
-                                            this@ChangePasswordUseCaseImpl.onSuccess()
+                                            this@ChangePasswordActivateUserUseCaseImpl.onSuccess()
                                         },{error ->
-                                            this@ChangePasswordUseCaseImpl.onSuccess()
+                                            this@ChangePasswordActivateUserUseCaseImpl.onSuccess()
                                         })
                             }else{
-                                this@ChangePasswordUseCaseImpl.onSuccess()
+                                this@ChangePasswordActivateUserUseCaseImpl.onSuccess()
                             }
                         }, {error->
-                            this@ChangePasswordUseCaseImpl.onError(RequestError(error))
+                            this@ChangePasswordActivateUserUseCaseImpl.onError(RequestError(error))
                         })
             }
 
             override fun onError(error: RequestError) {
-                this@ChangePasswordUseCaseImpl.onError(error)
+                this@ChangePasswordActivateUserUseCaseImpl.onError(error)
             }
 
         })

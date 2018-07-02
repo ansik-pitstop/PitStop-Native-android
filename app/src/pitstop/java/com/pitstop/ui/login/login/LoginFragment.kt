@@ -48,9 +48,9 @@ class LoginFragment: Fragment(), LoginView {
                 presenter?.onFacebookLoginCancel()
             }
 
-            override fun onError(error: FacebookException?) {
+            override fun onError(error: FacebookException) {
                 Log.d(TAG,"onError() err: $error")
-                presenter?.onFacebookLoginError()
+                presenter?.onFacebookLoginError(error)
             }
 
         })

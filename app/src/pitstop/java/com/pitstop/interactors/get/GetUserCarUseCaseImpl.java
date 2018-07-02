@@ -101,8 +101,10 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             .observeOn(Schedulers.computation(), true)
                             .subscribe(response -> {
                                 Log.d(TAG,"carRepository.get() isLocal?"+response.isLocal()+", car: "+response.getData());
-                                if (response.getData() == null){
+                                if (response.getData() == null && !response.isLocal()){
                                     GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                                    return;
+                                }else if (response.getData() == null && response.isLocal()){
                                     return;
                                 }
                                 response.getData().setCurrentCar(true);

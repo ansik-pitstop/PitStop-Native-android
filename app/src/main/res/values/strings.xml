@@ -658,4 +658,5 @@
     <string name="reset_password_instructions">An email with instructions on how to reset your password has been sent. Please check your email.</string>
     <string name="please_provide_your_email">Please provide the email associated with the Pitstop account that you are trying to recover.</string>
     <string name="reset_password">Reset Password</string>
+    <string name="engine_code_disclaimer">The Pitstop device reads OBDII standard engine codes, if your vehicle is showing a manufacturer specific code Pitstop may not detect it</string>
 </resources>

@@ -184,7 +184,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"startCustomServiceActivity()");
         Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
-        startActivityForResult(intent,RC_CUSTOM_ISSUE);
+        getActivity().startActivityForResult(intent,RC_CUSTOM_ISSUE);
     }
 
     @Override

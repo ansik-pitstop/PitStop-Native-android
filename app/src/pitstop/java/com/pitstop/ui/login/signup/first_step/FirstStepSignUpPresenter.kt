@@ -80,6 +80,7 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
     fun onFacebookLoginError(){
         Log.d(TAG,"onFacebookLoginError()")
+        view?.displayToast("Please connect to the internet")
 
     }
 

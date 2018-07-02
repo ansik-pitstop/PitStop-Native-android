@@ -252,10 +252,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                         else next.data.shopId = 19
 
                     localCarStorage.deleteAndStoreCar(next.data)
-                }).onErrorReturn { err ->
-                    Log.d(tag,"getCarsByUserId() remote error: $err")
-                    RepositoryResponse(null,false)
-                }.map({pitstopResponse ->
+                }).map({pitstopResponse ->
                     val carList = pitstopResponse.data
                     if (carList != null){
 
