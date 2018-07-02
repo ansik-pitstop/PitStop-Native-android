@@ -227,7 +227,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(false);
 
     }
 
@@ -542,13 +542,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @OnClick(R.id.offline_try_again)
     public void onOfflineTryAgainClicked() {
         Log.d(TAG, "onOfflineTryAgainClicked()");
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(true);
     }
 
     @OnClick(R.id.unknown_error_try_again)
     public void onUnknownTryAgainClicked() {
         Log.d(TAG, "onUnknownTryAgainClicked()");
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(true);
     }
 
     @OnClick(R.id.fuel_consumption_row)

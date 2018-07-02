@@ -108,18 +108,11 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                     return;
                                 }
                                 response.getData().setCurrentCar(true);
-                                shopRepository.get(response.getData().getShopId(), new Repository.Callback<Dealership>() {
 
-                                    @Override
-                                    public void onSuccess(Dealership dealership) {
-                                        GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData(), dealership, response.isLocal());
-                                    }
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
+                                        , response.getData().getShop()
+                                        , response.isLocal());
 
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        GetUserCarUseCaseImpl.this.onError(error);
-                                    }
-                                });
                             }, err ->{
                                 GetUserCarUseCaseImpl.this.onError(new RequestError(err));
                             });
@@ -137,19 +130,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                             if (carList.isEmpty()){
                                 GetUserCarUseCaseImpl.this.onNoCarSet(carListResponse.isLocal());
                             } else{
-                                shopRepository.get(carList.get(0).getShopId(), new Repository.Callback<Dealership>() {
-                                    @Override
-                                    public void onSuccess(Dealership dealership) {
-                                        GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
-                                                , dealership,carListResponse.isLocal());
-
-                                    }
-
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        GetUserCarUseCaseImpl.this.onError(error);
-                                    }
-                                });
+                                GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
+                                        , carList.get(0).getShop(),carListResponse.isLocal());
                                 //Fix corrupted user settings
                                 userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
                                         , new Repository.Callback<Object>() {
