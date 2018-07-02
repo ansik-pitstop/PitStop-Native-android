@@ -44,7 +44,7 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
     override fun onStart() {
         super.onStart()
         supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, notificationFragment)
+                .replace(R.id.fragment_container, notificationFragment)
                 .commit()
     }
 
