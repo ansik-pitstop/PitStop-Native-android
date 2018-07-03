@@ -119,8 +119,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 usedLocal[0] = false;
                 //Get user car
                 Disposable disposable = carRepository.get(data.getCarId(), Repository.DATABASE_TYPE.BOTH)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.computation(),true)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.io(),true)
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))
                     .doOnNext(response -> {
 

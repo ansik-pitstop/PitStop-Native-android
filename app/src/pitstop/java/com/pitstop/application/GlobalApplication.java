@@ -401,6 +401,8 @@ public class GlobalApplication extends Application implements LoginManager {
             Log.d(TAG,"smooch logout response: "+response.getError());
         });
 
+        LocalDatabaseHelper.getInstance(this).deleteAllData();
+
     }
 
     public void modifyMixpanelSettings(String field, Object value){

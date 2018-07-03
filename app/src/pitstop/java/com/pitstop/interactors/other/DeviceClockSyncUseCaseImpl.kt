@@ -50,8 +50,8 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
                 override fun onSuccess(data: Settings?) {
                     if (data?.hasMainCar() == true){
                         val disposable = carRepository.get(data.carId,Repository.DATABASE_TYPE.REMOTE)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.from(useCaseHandler.looper),true)
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(Schedulers.io(),true)
                                 .subscribe({next ->
                                     if (next.isLocal) return@subscribe //Only use remote responses
                                     if (next.data == null){

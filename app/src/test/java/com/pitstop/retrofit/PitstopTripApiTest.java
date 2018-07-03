@@ -41,7 +41,7 @@ public class PitstopTripApiTest {
         RetrofitTestUtil.Companion
                 .getTripApi()
                 .store(gson.toJsonTree(data))
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe(stringResponse -> {
                     completableFuture.complete(true);

@@ -43,11 +43,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
         Log.d(tag, "getTripsByCarVin() vin: $vin")
 
-//        if (isLocal) {
-//            return getLocalTripsByCarVin(vin)
-//        } else {
-//            return getRemoteTripsByCarVin(vin)
-//        }
 
         when (whatToReturn) {
 
