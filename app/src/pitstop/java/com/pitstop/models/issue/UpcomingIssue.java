@@ -48,8 +48,6 @@ public class UpcomingIssue implements Issue{
         this.id = id;
     }
 
-    public void setIntervalMileage(String mileage){ this.intervalMileage = mileage; }
-
     public String getIntervalMileage() {
         return intervalMileage;
     }

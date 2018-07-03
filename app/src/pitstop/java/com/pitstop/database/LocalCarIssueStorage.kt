@@ -123,15 +123,59 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     }
 
-    fun storeIssues(issueList: List<CarIssue>): Int {
+    fun replaceDoneIssues(issueList: List<CarIssue>): Int {
         Log.d(TAG,"storeIssues()")
         val db = databaseHelper.writableDatabase
 
         db.beginTransaction()
         var rows = 0
         try{
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
+                    arrayOf(CarIssue.ISSUE_DONE))
             issueList.forEach({
                 val values = carIssueObjectToContentValues(it)
+                if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
+                    rows += 1
+            })
+        }finally{
+            db.endTransaction()
+        }
+
+        return rows
+    }
+
+    fun replaceCurrentIssues(issueList: List<CarIssue>): Int {
+        Log.d(TAG,"storeIssues()")
+        val db = databaseHelper.writableDatabase
+
+        db.beginTransaction()
+        var rows = 0
+        try{
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
+                    arrayOf(CarIssue.ISSUE_NEW))
+            issueList.forEach({
+                val values = carIssueObjectToContentValues(it)
+                if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
+                    rows += 1
+            })
+        }finally{
+            db.endTransaction()
+        }
+
+        return rows
+    }
+
+    fun replaceUpcomingIssues(issueList: List<UpcomingIssue>): Int {
+        Log.d(TAG,"replaceUpcomingIssues()")
+        val db = databaseHelper.writableDatabase
+
+        db.beginTransaction()
+        var rows = 0
+        try{
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
+                    arrayOf(CarIssue.ISSUE_PENDING))
+            issueList.forEach({
+                val values = upcomingCarIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
             })
@@ -183,31 +227,9 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         Log.d(TAG,"deleteAllDoneCarIssues()")
         val db = databaseHelper.writableDatabase
 
-        return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_ISSUE_TYPE + "=?",
+        return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS + "=?",
                 arrayOf(CarIssue.ISSUE_DONE))
     }
-
-    fun getAllCarIssues(carId: Int): ArrayList<CarIssue> {
-        Log.d(TAG,"getAllCarIssues()")
-
-        val carIssues = ArrayList<CarIssue>()
-
-        val db = databaseHelper.readableDatabase
-
-        val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null,
-                TABLES.CAR_ISSUES.KEY_CAR_ID + "=?", arrayOf(carId.toString())
-                , null, null, null)
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast) {
-                carIssues.add(cursorToCarIssue(c))
-                c.moveToNext()
-            }
-        }
-
-        c.close()
-        return carIssues
-    }
-
 
     fun deleteCarIssue(issue: CarIssue): Int {
         Log.d(TAG,"deleteCarIssue()")
