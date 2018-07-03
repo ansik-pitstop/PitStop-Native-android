@@ -20,7 +20,6 @@ import com.pitstop.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -89,8 +88,8 @@ public class UpdateCarDealershipUseCaseImpl implements UpdateCarDealershipUseCas
                     return;
                 }
                 Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.REMOTE)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .doOnError(err -> UpdateCarDealershipUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(response -> {
 

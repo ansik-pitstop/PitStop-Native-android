@@ -49,9 +49,9 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                 //Set user so that when this use case finishes the user is set and ready for messaging
                 SmoochUtil.setSmoochProperties(user)
                 if (user.settings.hasMainCar()){
-                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
+                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io())
+                            .observeOn(Schedulers.io(), true)
                             .subscribe({next->
                                 val car: Car = next.data!!
                                 //Set car

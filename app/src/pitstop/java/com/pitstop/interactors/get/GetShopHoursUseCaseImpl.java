@@ -1,6 +1,7 @@
 package com.pitstop.interactors.get;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.pitstop.models.Dealership;
 import com.pitstop.models.DebugMessage;
@@ -91,6 +92,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                 shopRepository.get(shopId, new Repository.Callback<Dealership>() {
                     @Override
                     public void onSuccess(Dealership dealership) {
+                        Log.d(TAG,"got dealership: "+dealership);
                         getHours(dealership);
                         return;
                     }
@@ -112,6 +114,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
         networkHelper.get("shop/" + dealership.getId() + "/calendar", (response, requestError) -> {
             List<String> timesToRemove = new ArrayList<String>();
             if(requestError == null && response != null){
+                Log.d(TAG,"hours response: "+response);
                 try{
                     JSONObject responsesJson = new JSONObject(response);
                     JSONObject dates = responsesJson.getJSONObject("dates");
@@ -141,6 +144,7 @@ public class GetShopHoursUseCaseImpl implements GetShopHoursUseCase {
                         .onHoursGot(makeTimes(Integer.parseInt(hour.getString("open"))
                                 ,Integer.parseInt(hour.getString("close")),timesToRemove));
             }catch (JSONException e){
+                e.printStackTrace();
                 GetShopHoursUseCaseImpl.this.onError(RequestError.getUnknownError());
             }
         });

@@ -127,7 +127,7 @@ public class Logger {
 
         localDebugMessageStorage = new LocalDebugMessageStorage(LocalDatabaseHelper.getInstance(context));
         localDebugMessageStorage.getUnsentQueryObservable()
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .map(query -> {
                     Cursor c = query.run();
