@@ -8,6 +8,8 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class UpcomingIssue implements Issue{
+
+    private int carId;
     @SerializedName("id")
     @Expose
     private Integer id;
@@ -34,9 +36,19 @@ public class UpcomingIssue implements Issue{
         return id;
     }
 
+    public void setCarId(int carId){
+        this.carId = carId;
+    }
+
+    public int getCarId(){
+        return carId;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
+    public void setIntervalMileage(String mileage){ this.intervalMileage = mileage; }
 
     public String getIntervalMileage() {
         return intervalMileage;
