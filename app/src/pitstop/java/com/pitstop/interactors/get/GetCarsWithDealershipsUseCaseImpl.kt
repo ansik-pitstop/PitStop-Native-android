@@ -46,8 +46,8 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
             override fun onSuccess(user: User) {
                 Log.d(tag,"Got user")
                 val disposable = carRepository.getCarsByUserId(user.id,Repository.DATABASE_TYPE.BOTH)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation(),true)
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io(),true)
                         .doOnError({err ->
                             Log.d(tag,"err: "+err)
                             this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))

@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -94,8 +93,8 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                 if (!data.hasMainCar()){
                     //Check user car list
                     Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io(),true)
                             .subscribe(next -> {
                                 //Ignore local responses
                                 if (next.isLocal()){}

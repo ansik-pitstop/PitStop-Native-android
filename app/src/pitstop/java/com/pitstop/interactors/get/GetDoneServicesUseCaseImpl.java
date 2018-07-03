@@ -15,7 +15,6 @@ import com.pitstop.utils.Logger;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -86,8 +85,8 @@ public class GetDoneServicesUseCaseImpl implements GetDoneServicesUseCase {
                 if (!data.hasMainCar()) {
                     //Double check car repo in case settings is out of sync
                     Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io(),true)
                             .subscribe(next -> {
                                 //Ignore local responses
                                 if (next.isLocal()){}

@@ -18,7 +18,6 @@ import com.pitstop.utils.NetworkHelper;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -80,8 +79,8 @@ public class RemoveShopUseCaseImpl implements RemoveShopUseCase {
             @Override
             public void onSuccess(User user) {
                 Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .doOnError(err -> RemoveShopUseCaseImpl.this.onError(new RequestError(err)))
                         .doOnNext(carListResponse -> {
                             if (carListResponse.isLocal()) return;

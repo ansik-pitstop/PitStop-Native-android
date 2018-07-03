@@ -13,7 +13,6 @@ import com.pitstop.repositories.ShopRepository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
@@ -50,8 +49,8 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                 }
 
                 val disposable = appointmentRepository.getAllAppointments(data.carId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .subscribe({response ->
                             Log.d(tag,"appointments: "+response)
                             //null if none found
@@ -76,8 +75,8 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
                             }else{
                                 //Get predicted service
                                 val disposable = appointmentRepository.getPredictedService(data.carId)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.from(usecaseHandler.looper))
+                                        .subscribeOn(Schedulers.computation())
+                                        .observeOn(Schedulers.io())
                                         .subscribe({response ->
                                             Log.d(tag,"Got predicted service: "+response)
                                             this@GetAppointmentStateUseCaseImpl.onPredictedServiceState(response)

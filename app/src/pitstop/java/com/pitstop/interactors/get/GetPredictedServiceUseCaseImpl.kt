@@ -10,7 +10,6 @@ import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -60,8 +59,8 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
                 if (data == null) this@GetPredictedServiceUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
 
                 val disposable = appointmentRepository.getPredictedService(data!!.carId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(usecaseHandler.getLooper()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .subscribe({response ->
                             this@GetPredictedServiceUseCaseImpl.onGotPredictedService(response)
                         },{error ->

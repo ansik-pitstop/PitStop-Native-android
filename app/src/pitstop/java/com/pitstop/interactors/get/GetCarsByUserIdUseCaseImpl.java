@@ -17,7 +17,6 @@ import com.pitstop.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -83,8 +82,8 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     @Override
                     public void onSuccess(User user) {
                         Disposable disposable = carRepository.getCarsByUserId(user.getId(), Repository.DATABASE_TYPE.REMOTE)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(Schedulers.io())
                                 .doOnNext(carListResponse -> {
                                     if (carListResponse.getData() == null){
                                         GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());

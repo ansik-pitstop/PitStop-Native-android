@@ -59,8 +59,8 @@ public class GetCarByDeviceIdUseCaseImpl implements GetCarByDeviceIdUseCase {
                     @Override
                     public void onSuccess(ObdScanner obdScanner) {
                         carRepository.get(obdScanner.getCarId(), Repository.DATABASE_TYPE.BOTH)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.computation())
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(Schedulers.io())
                                 .doOnNext(response -> {
                             if (response.getData() == null) callback.onNoCarFound();
                             else callback.onGotCar(response.getData());

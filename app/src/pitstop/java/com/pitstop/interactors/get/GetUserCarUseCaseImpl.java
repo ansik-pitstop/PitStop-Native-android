@@ -97,8 +97,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 //Main car is stored in user settings, retrieve it from there
                 if (userSettings.hasMainCar()){
                     Disposable disposable = carRepository.get(userSettings.getCarId(),requestType)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.computation(), true)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io(), true)
                             .subscribe(response -> {
                                 Log.d(TAG,"carRepository.get() isLocal?"+response.isLocal()+", car: "+response.getData());
                                 if (response.getData() == null && !response.isLocal()){
@@ -123,8 +123,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                 /*User settings doesn't have mainCar stored, we cannot trust this because settings
                 ** could potentially be corrupted, so perform a double-check by retrieving cars*/
                 Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId(),Repository.DATABASE_TYPE.BOTH)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation(),true)
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io(),true)
                         .subscribe(carListResponse -> {
                             List<Car> carList = carListResponse.getData();
                             if (carList.isEmpty()){
