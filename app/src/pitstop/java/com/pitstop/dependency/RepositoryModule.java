@@ -27,6 +27,7 @@ import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSensorDataApi;
+import com.pitstop.retrofit.PitstopServiceApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.PitstopUserApi;
 import com.pitstop.utils.NetworkHelper;
@@ -71,8 +72,8 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public CarIssueRepository getCarIssueRepository(LocalCarIssueStorage localCarIssueStorage
-            , NetworkHelper networkHelper){
-        return new CarIssueRepository(localCarIssueStorage,networkHelper);
+            , PitstopServiceApi pitstopServiceApi, NetworkHelper networkHelper){
+        return new CarIssueRepository(localCarIssueStorage, pitstopServiceApi, networkHelper);
     }
 
     @Provides

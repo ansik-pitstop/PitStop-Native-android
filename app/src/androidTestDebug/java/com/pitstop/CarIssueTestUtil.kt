@@ -12,15 +12,8 @@ class CarIssueTestUtil {
     companion object {
 
         fun getUpcomingCarIssue(issueId: Int, carId: Int): UpcomingIssue{
-            val issue = UpcomingIssue()
-            issue.carId = carId
-            issue.intervalMileage = "100"
-            issue.id = issueId
-            val issueDetail = IssueDetail()
-            issueDetail.item = "Oil"
-            issueDetail.action = "Change"
-            issueDetail.description = "Your oil needs to be changed."
-            return issue
+            val issueDetail = IssueDetail("Oil","Change","Your oil needs to be changed.")
+            return UpcomingIssue(carId, issueId, 1, "100",issueDetail)
 
         }
 
@@ -34,6 +27,21 @@ class CarIssueTestUtil {
             issue.doneMileage = 500
             issue.issueType = CarIssue.DTC
             issue.symptoms = "These are symptoms"
+            issue.status = CarIssue.ISSUE_DONE
+            issue.action = "Take action"
+            issue.description = "This is a description"
+            issue.item = "Item"
+            issue.priority = 1
+            return issue
+        }
+
+        fun getCurrentCarIssue(issueId: Int, carId: Int): CarIssue{
+            val issue = CarIssue()
+            issue.id = issueId
+            issue.carId = carId
+            issue.causes = "These are causes"
+            issue.symptoms = "These are symptoms"
+            issue.issueType = CarIssue.PENDING_DTC
             issue.status = CarIssue.ISSUE_NEW
             issue.action = "Take action"
             issue.description = "This is a description"
@@ -42,23 +50,5 @@ class CarIssueTestUtil {
             return issue
         }
 
-        fun getCurrentIssue(issueId: Int, carId: Int): CarIssue{
-            val issue = CarIssue()
-            issue.id = issueId
-            issue.carId = carId
-            issue.causes = "These are causes"
-            issue.symptoms = "These are symptoms"
-            issue.issueType = CarIssue.PENDING_DTC
-            issue.status = CarIssue.ISSUE_PENDING
-            issue.action = "Take action"
-            issue.description = "This is a description"
-            issue.item = "Item"
-            issue.priority = 1
-            return issue
-        }
-
-        fun getCurrentCarIssue(){
-
-        }
     }
 }

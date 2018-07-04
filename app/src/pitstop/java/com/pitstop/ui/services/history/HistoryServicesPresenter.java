@@ -52,8 +52,8 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
         useCaseComponent.getDoneServicesUseCase().execute(
                 new GetDoneServicesUseCase.Callback() {
             @Override
-            public void onGotDoneServices(List<CarIssue> doneServices) {
-                updating = false;
+            public void onGotDoneServices(List<CarIssue> doneServices, boolean isLocal) {
+                if (!isLocal) updating = false;
                 if (getView() == null) return;
 
                 if (doneServices.isEmpty()){
@@ -61,8 +61,11 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                 }else{
                     getView().populateDoneServices(doneServices);
                 }
-                getView().hideLoading();
                 getView().displayOnlineView();
+
+                if (!isLocal){
+                    getView().hideLoading();
+                }
             }
 
             @Override

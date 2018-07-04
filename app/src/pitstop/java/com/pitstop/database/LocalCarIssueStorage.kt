@@ -35,28 +35,29 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                 + ")")
     }
 
-    fun getAllUpcomingCarIssues(): List<CarIssue>{
+    fun getAllUpcomingCarIssues(): List<UpcomingIssue>{
         Log.d(TAG,"getAllUpcomingCarIssues()")
-        val carIssues = ArrayList<CarIssue>()
+        val carIssues = arrayListOf<UpcomingIssue>()
 
-            val db = databaseHelper.readableDatabase
+        val db = databaseHelper.readableDatabase
 
-            val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
-                    , TABLES.CAR_ISSUES.KEY_STATUS + "=?"
-                    , arrayOf(CarIssue.ISSUE_PENDING), null, null, null)
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast) {
-                    carIssues.add(cursorToCarIssue(c))
-                    c.moveToNext()
-                }
+        val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
+                , TABLES.CAR_ISSUES.KEY_STATUS + "=?"
+                , arrayOf(CarIssue.ISSUE_PENDING), null, null, null)
+        Log.d(TAG,"getAllUpcomingCarIssues() count=${c.count}")
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast) {
+                carIssues.add(cursorToUpcomingCarIssue(c))
+                c.moveToNext()
             }
-            c.close()
-            return carIssues
         }
+        c.close()
+        return carIssues
+    }
 
     fun getAllDoneCarIssues(): List<CarIssue>{
         Log.d(TAG,"getAllDoneCarIssues()")
-        val carIssues = ArrayList<CarIssue>()
+        val carIssues = arrayListOf<CarIssue>()
 
         val db = databaseHelper.readableDatabase
 
@@ -137,6 +138,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
             })
+            db.setTransactionSuccessful()
         }finally{
             db.endTransaction()
         }
@@ -158,6 +160,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
             })
+            db.setTransactionSuccessful()
         }finally{
             db.endTransaction()
         }
@@ -172,13 +175,15 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         db.beginTransaction()
         var rows = 0
         try{
-            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
+            val replacedRows = db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
                     arrayOf(CarIssue.ISSUE_PENDING))
+            Log.d(TAG, "replacedRows = $replacedRows")
             issueList.forEach({
                 val values = upcomingCarIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
             })
+            db.setTransactionSuccessful()
         }finally{
             db.endTransaction()
         }
@@ -220,7 +225,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         val db = databaseHelper.writableDatabase
 
         return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS + "=?",
-                arrayOf(CarIssue.ISSUE_NEW))
+                arrayOf(CarIssue.ISSUE_PENDING))
     }
 
     fun deleteAllDoneCarIssues(): Int {
@@ -229,6 +234,14 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
 
         return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS + "=?",
                 arrayOf(CarIssue.ISSUE_DONE))
+    }
+
+    fun deleteAllCurrentCarIssues(): Int {
+        Log.d(TAG, "deleteAllDoneCarIssues()")
+        val db = databaseHelper.writableDatabase
+
+        return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS + "=?",
+                arrayOf(CarIssue.ISSUE_NEW))
     }
 
     fun deleteCarIssue(issue: CarIssue): Int {
@@ -261,9 +274,11 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         carIssue.priority = c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_PRIORITY))
         carIssue.doneAt = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_TIMESTAMP))
 
-        carIssue.item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM))
-        carIssue.description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION))
-        carIssue.action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
+        carIssue.issueDetail = IssueDetail(
+                item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)),
+                description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)),
+                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
+        )
         carIssue.symptoms = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS))
         carIssue.causes = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES))
 
@@ -271,16 +286,20 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
     }
 
     private fun cursorToUpcomingCarIssue(c: Cursor): UpcomingIssue {
-        val upcomingIssue = UpcomingIssue()
-        upcomingIssue.id = c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID))
-        upcomingIssue.carId = c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAR_ID))
-        upcomingIssue.priority = c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_PRIORITY))
-        upcomingIssue.intervalMileage = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_UPCOMING_ISSUE_MILEAGE))
-        val issueDetails = IssueDetail()
-        issueDetails.item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM))
-        issueDetails.description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION))
-        issueDetails.action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
 
+        val issueDetails = IssueDetail(
+                item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)),
+                description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)),
+                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
+        )
+
+        val upcomingIssue = UpcomingIssue(
+                id = c.getInt(c.getColumnIndex(TABLES.COMMON.KEY_OBJECT_ID)),
+                carId = c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAR_ID)),
+                priority = c.getInt(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_PRIORITY)),
+                intervalMileage = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_UPCOMING_ISSUE_MILEAGE)),
+                issueDetail = issueDetails
+        )
         return upcomingIssue
     }
 

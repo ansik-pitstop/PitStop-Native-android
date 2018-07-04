@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface GetUpcomingServicesMapUseCase extends Interactor {
     interface Callback{
-        void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap);
+        void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap, boolean local);
         void onNoCarAdded();
         void onError(RequestError error);
     }

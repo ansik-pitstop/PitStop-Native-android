@@ -1,14 +1,12 @@
 package com.pitstop.ui.services.custom_service.view_fragments;
 
-import android.content.res.Resources;
-
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
-import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCustomServiceUseCase;
 import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.models.issue.CarIssue;
+import com.pitstop.models.issue.IssueDetail;
 import com.pitstop.models.service.CustomIssueListItem;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.services.custom_service.CustomServiceActivityCallback;
@@ -264,9 +262,7 @@ public class ServiceFormPresenter implements PresenterCallback {
             view.disableCreateButton(true);
             return;
         }
-        customIssue.setAction(view.getAction());
-        customIssue.setDescription(view.getDescription());
-        customIssue.setItem(view.getPartName());
+        customIssue.setIssueDetail(new IssueDetail(view.getPartName(),view.getAction(),view.getDescription()));
         customIssue.setIssueType(CarIssue.SERVICE_USER);
         String priority = view.getPriority();
         if(priority.contains("Low")){
