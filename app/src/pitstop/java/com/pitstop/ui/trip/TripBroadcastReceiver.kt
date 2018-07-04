@@ -84,8 +84,10 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             Logger.getInstance().logD(tag,"Received activity location intent, loc.size = " +
                     "${locationResult.locations.size}", DebugMessage.TYPE_TRIP)
 
-            val coords = locationResult.locations.map { LatLng(it.latitude,it.longitude) }
-            Logger.getInstance().logD(tag,"received locations: $coords"
+            val accuracies = arrayListOf<Float>()
+            val coords = locationResult.locations.onEach { accuracies.add(it.accuracy) }
+                    .map { LatLng(it.latitude,it.longitude) }
+            Logger.getInstance().logD(tag,"received locations: $coords, accuracies: $accuracies"
                     ,DebugMessage.TYPE_TRIP)
 
             val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
