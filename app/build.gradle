@@ -30,14 +30,6 @@ allprojects {
 }
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'pitstopandroidkey'
-            keyPassword 'Ansik.23'
-            storeFile file('C:/Users/Work/Downloads/pitstopkeystore (1).jks')
-            storePassword 'Ansik.23'
-        }
-    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -78,7 +70,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 27
         // Change versioning in productFlavors instead of here
-        versionCode 284
+        versionCode 285
         versionName "5.3.0"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
@@ -110,7 +102,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {

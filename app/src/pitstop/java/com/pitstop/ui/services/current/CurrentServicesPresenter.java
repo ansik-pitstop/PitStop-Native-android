@@ -131,9 +131,9 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
-            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues, boolean local) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
-                updating = false;
+                if (!local) updating = false;
                 if (getView() == null) return;
 
                 getView().displayBadge(currentServices.size() + customIssues.size());
@@ -182,7 +182,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().displayRecalls(recallList, selectionMap);
                 getView().showMoveToHistory(selectionMap.values().contains(true));
 
-                getView().hideLoading();
+                if (!local)
+                    getView().hideLoading();
             }
 
             @Override

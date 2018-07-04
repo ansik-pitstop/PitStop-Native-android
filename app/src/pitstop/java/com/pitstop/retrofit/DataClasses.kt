@@ -14,6 +14,8 @@ data class UserActivationResponse(val userId: Int, val activated: Boolean)
 
 data class LoginResponse(val accessToken: String, val refreshToken: String, val user: User)
 
+data class PitstopIssuesResponse<T>(val issues: List<T>, val type: String)
+
 data class PitstopResponse<T>(val response: T)
 
 data class PitstopResult<T>(val results: T)

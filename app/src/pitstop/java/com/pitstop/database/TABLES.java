@@ -120,6 +120,7 @@ public final class TABLES {
         String KEY_ACTION = "action";
         String KEY_SYMPTOMS = "symptoms";
         String KEY_CAUSES = "causes";
+        String KEY_UPCOMING_ISSUE_MILEAGE = "upcoming_issue_mileage";
     }
 
     public interface USER {
