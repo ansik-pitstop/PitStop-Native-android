@@ -35,15 +35,15 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                 + ")")
     }
 
-    fun getAllUpcomingCarIssues(): List<UpcomingIssue>{
+    fun getAllUpcomingCarIssues(carId: Int): List<UpcomingIssue>{
         Log.d(TAG,"getAllUpcomingCarIssues()")
         val carIssues = arrayListOf<UpcomingIssue>()
 
         val db = databaseHelper.readableDatabase
 
         val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
-                , TABLES.CAR_ISSUES.KEY_STATUS + "=?"
-                , arrayOf(CarIssue.ISSUE_PENDING), null, null, null)
+                , TABLES.CAR_ISSUES.KEY_STATUS + "=? AND "+TABLES.CAR_ISSUES.KEY_CAR_ID + "=?"
+                , arrayOf(CarIssue.ISSUE_PENDING,carId.toString()), null, null, null)
         Log.d(TAG,"getAllUpcomingCarIssues() count=${c.count}")
         if (c.moveToFirst()) {
             while (!c.isAfterLast) {
@@ -55,15 +55,15 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         return carIssues
     }
 
-    fun getAllDoneCarIssues(): List<CarIssue>{
+    fun getAllDoneCarIssues(carId: Int): List<CarIssue>{
         Log.d(TAG,"getAllDoneCarIssues()")
         val carIssues = arrayListOf<CarIssue>()
 
         val db = databaseHelper.readableDatabase
 
         val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
-                , TABLES.CAR_ISSUES.KEY_STATUS + "=?"
-                , arrayOf(CarIssue.ISSUE_DONE), null, null, null)
+                , TABLES.CAR_ISSUES.KEY_STATUS + "=? AND "+TABLES.CAR_ISSUES.KEY_CAR_ID + "=?"
+                , arrayOf(CarIssue.ISSUE_DONE,carId.toString()), null, null, null)
         if (c.moveToFirst()) {
             while (!c.isAfterLast) {
                 carIssues.add(cursorToCarIssue(c))
@@ -75,15 +75,15 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         return carIssues
     }
 
-    fun getAllCurrentCarIssues(): List<CarIssue>{
+    fun getAllCurrentCarIssues(carId: Int): List<CarIssue>{
         Log.d(TAG,"getAllCurrentCarIssues()")
         val carIssues = ArrayList<CarIssue>()
 
         val db = databaseHelper.readableDatabase
 
         val c = db.query(TABLES.CAR_ISSUES.TABLE_NAME, null
-                , TABLES.CAR_ISSUES.KEY_STATUS + "=?"
-                , arrayOf(CarIssue.ISSUE_NEW), null, null, null)
+                , TABLES.CAR_ISSUES.KEY_STATUS + "=? AND "+TABLES.CAR_ISSUES.KEY_CAR_ID + "=?"
+                , arrayOf(CarIssue.ISSUE_NEW,carId.toString()), null, null, null)
         if (c.moveToFirst()) {
             while (!c.isAfterLast) {
                 carIssues.add(cursorToCarIssue(c))
@@ -136,6 +136,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                     + "=?  AND "+TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",
                     arrayOf(CarIssue.ISSUE_DONE,carId.toString()))
             issueList.forEach({
+                it.carId = carId
                 val values = carIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
@@ -159,6 +160,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                     + "=?  AND "+TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",
                     arrayOf(CarIssue.ISSUE_NEW,carId.toString()))
             issueList.forEach({
+                it.carId = carId
                 val values = carIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1
@@ -184,6 +186,7 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
                     arrayOf(CarIssue.ISSUE_PENDING,carId.toString()))
             Log.d(TAG, "replacedRows = $replacedRows")
             issueList.forEach({
+                it.carId = carId
                 val values = upcomingCarIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
                     rows += 1

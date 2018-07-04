@@ -236,7 +236,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                     val storedRows = localCarIssueStorage.replaceUpcomingIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedRows upcoming issues locally.")
                 })
-        val local = Observable.just(localCarIssueStorage.getAllUpcomingCarIssues())
+        val local = Observable.just(localCarIssueStorage.getAllUpcomingCarIssues(carId))
                 .map { RepositoryResponse(it,true) }
 
         return when (databaseType){
@@ -259,7 +259,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                     val storedRows = localCarIssueStorage.replaceCurrentIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedRows current issues locally.")
                 })
-        val local = Observable.just(localCarIssueStorage.getAllCurrentCarIssues())
+        val local = Observable.just(localCarIssueStorage.getAllCurrentCarIssues(carId))
                 .map {
                     RepositoryResponse(it,true)
                 }
@@ -283,7 +283,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                     val storedDoneIssues = localCarIssueStorage.replaceDoneIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedDoneIssues done issues locally.")
                 })
-        val local = Observable.just(localCarIssueStorage.getAllDoneCarIssues())
+        val local = Observable.just(localCarIssueStorage.getAllDoneCarIssues(carId))
                 .map {
                     RepositoryResponse(it,true)
                 }
