@@ -28,9 +28,8 @@ class CarIssueTestUtil {
             issue.issueType = CarIssue.DTC
             issue.symptoms = "These are symptoms"
             issue.status = CarIssue.ISSUE_DONE
-            issue.action = "Take action"
-            issue.description = "This is a description"
-            issue.item = "Item"
+            issue.issueDetail = IssueDetail("Item","Take action"
+                    ,"This is a description")
             issue.priority = 1
             return issue
         }
@@ -43,9 +42,8 @@ class CarIssueTestUtil {
             issue.symptoms = "These are symptoms"
             issue.issueType = CarIssue.PENDING_DTC
             issue.status = CarIssue.ISSUE_NEW
-            issue.action = "Take action"
-            issue.description = "This is a description"
-            issue.item = "Item"
+            issue.issueDetail = IssueDetail("Item","Take action"
+                    ,"This is a description")
             issue.priority = 1
             return issue
         }

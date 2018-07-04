@@ -124,15 +124,17 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     }
 
-    fun replaceDoneIssues(issueList: List<CarIssue>): Int {
+    fun replaceDoneIssues(carId: Int, issueList: List<CarIssue>): Int {
         Log.d(TAG,"storeIssues()")
         val db = databaseHelper.writableDatabase
 
         db.beginTransaction()
         var rows = 0
         try{
-            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
-                    arrayOf(CarIssue.ISSUE_DONE))
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME
+                    , TABLES.CAR_ISSUES.KEY_STATUS
+                    + "=?  AND "+TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",
+                    arrayOf(CarIssue.ISSUE_DONE,carId.toString()))
             issueList.forEach({
                 val values = carIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
@@ -146,15 +148,16 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         return rows
     }
 
-    fun replaceCurrentIssues(issueList: List<CarIssue>): Int {
+    fun replaceCurrentIssues(carId: Int, issueList: List<CarIssue>): Int {
         Log.d(TAG,"storeIssues()")
         val db = databaseHelper.writableDatabase
 
         db.beginTransaction()
         var rows = 0
         try{
-            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
-                    arrayOf(CarIssue.ISSUE_NEW))
+            db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS
+                    + "=?  AND "+TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",
+                    arrayOf(CarIssue.ISSUE_NEW,carId.toString()))
             issueList.forEach({
                 val values = carIssueObjectToContentValues(it)
                 if (db.insert(TABLES.CAR_ISSUES.TABLE_NAME, null, values) > 0L)
@@ -168,15 +171,17 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         return rows
     }
 
-    fun replaceUpcomingIssues(issueList: List<UpcomingIssue>): Int {
+    fun replaceUpcomingIssues(carId:Int, issueList: List<UpcomingIssue>): Int {
         Log.d(TAG,"replaceUpcomingIssues()")
         val db = databaseHelper.writableDatabase
 
         db.beginTransaction()
         var rows = 0
         try{
-            val replacedRows = db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.CAR_ISSUES.KEY_STATUS+ "=?",
-                    arrayOf(CarIssue.ISSUE_PENDING))
+            val replacedRows = db.delete(TABLES.CAR_ISSUES.TABLE_NAME
+                    , TABLES.CAR_ISSUES.KEY_STATUS
+                    + "=? AND "+TABLES.CAR_ISSUES.KEY_CAR_ID+"=?",
+                    arrayOf(CarIssue.ISSUE_PENDING,carId.toString()))
             Log.d(TAG, "replacedRows = $replacedRows")
             issueList.forEach({
                 val values = upcomingCarIssueObjectToContentValues(it)
@@ -191,15 +196,16 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         return rows
     }
 
-    fun updateCarIssue(carIssue: CarIssue): Int {
-        Log.d(TAG,"updateCarIssue()")
+    fun markIssueDone(id: Int, doneAt: String): Int {
+        Log.d(TAG,"markDone()")
         val db = databaseHelper.writableDatabase
 
-        val values = carIssueObjectToContentValues(carIssue)
-
+        val values = ContentValues()
+        values.put(TABLES.CAR_ISSUES.KEY_STATUS,CarIssue.ISSUE_DONE)
+        values.put(TABLES.CAR_ISSUES.KEY_TIMESTAMP, doneAt)
         return db.update(TABLES.CAR_ISSUES.TABLE_NAME, values,
                 TABLES.COMMON.KEY_OBJECT_ID + "=?",
-                arrayOf(carIssue.id.toString()))
+                arrayOf(id.toString()))
     }
 
     fun getCarIssue(issueId: Int): CarIssue? {
@@ -250,6 +256,13 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
 
         return db.delete(TABLES.CAR_ISSUES.TABLE_NAME, TABLES.COMMON.KEY_OBJECT_ID + "=?",
                 arrayOf(issue.id.toString()))
+    }
+
+    fun deleteAllCarIssues(carId: Int): Int {
+        Log.d(TAG,"deleteAllCarIssues()")
+        val db = databaseHelper.writableDatabase
+        return db.delete(TABLES.CAR_ISSUES.TABLE_NAME
+                , TABLES.CAR_ISSUES.KEY_CAR_ID+"=?", arrayOf(carId.toString()))
     }
 
     fun deleteAllCarIssues(): Int {

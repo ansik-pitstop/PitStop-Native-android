@@ -50,7 +50,6 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                             .put("rtcTime", rtcTime)
                             .put("dtcCode", dtcCode)
                             .put("isPending", isPending))
-            //.put("freezeData", data));
         } catch (e: JSONException) {
             Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
             e.printStackTrace()
@@ -65,6 +64,10 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                         + requestError.message + ", body: " + body.toString())
             }
         }, body)
+    }
+
+    fun deleteLocalCarIssueData(carId: Int){
+        localCarIssueStorage.deleteAllCarIssues(carId)
     }
 
     fun insert(issue: CarIssue, callback: Repository.Callback<Any>) {
@@ -199,7 +202,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
         }
     }
 
-    fun updateCarIssue(issue: CarIssue): Observable<CarIssue> {
+    fun markDone(issue: CarIssue): Observable<CarIssue> {
         val body = JsonObject()
         try {
             body.addProperty("carId", issue.carId)
@@ -216,8 +219,11 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
             e.printStackTrace()
         }
 
-       return pitstopServiceApi.updateService(body)
-               .doOnNext({ localCarIssueStorage.updateCarIssue(it)})
+       return pitstopServiceApi.markDone(body)
+               .doOnNext({
+                    Log.d(TAG,"got issue from server: $it")
+                   localCarIssueStorage.markIssueDone(issue.id, it.doneAt)
+               })
 
     }
 
@@ -227,7 +233,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                 .map { RepositoryResponse(it.results[0].issues,false) }
                 .doOnNext({
                     Log.d(TAG,"Got data:" +it.data)
-                    val storedRows = localCarIssueStorage.replaceUpcomingIssues(it.data!!)
+                    val storedRows = localCarIssueStorage.replaceUpcomingIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedRows upcoming issues locally.")
                 })
         val local = Observable.just(localCarIssueStorage.getAllUpcomingCarIssues())
@@ -250,7 +256,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                 .map{ RepositoryResponse(it.results,false)}
                 .doOnNext({
                     Log.d(TAG,"got data: "+it.data)
-                    val storedRows = localCarIssueStorage.replaceCurrentIssues(it.data!!)
+                    val storedRows = localCarIssueStorage.replaceCurrentIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedRows current issues locally.")
                 })
         val local = Observable.just(localCarIssueStorage.getAllCurrentCarIssues())
@@ -274,7 +280,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
         val remote = pitstopServiceApi.getDoneServices(carId)
                 .map{ RepositoryResponse(it.results,false) }
                 .doOnNext({
-                    val storedDoneIssues = localCarIssueStorage.replaceDoneIssues(it.data!!)
+                    val storedDoneIssues = localCarIssueStorage.replaceDoneIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedDoneIssues done issues locally.")
                 })
         val local = Observable.just(localCarIssueStorage.getAllDoneCarIssues())

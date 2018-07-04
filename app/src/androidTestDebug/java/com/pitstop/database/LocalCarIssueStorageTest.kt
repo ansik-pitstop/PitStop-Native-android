@@ -62,15 +62,15 @@ class LocalCarIssueStorageTest {
         }
 
         //Store tests
-        val currentIssuesReplacedCount = localCarIssueStorage.replaceCurrentIssues(currentIssues)
+        val currentIssuesReplacedCount = localCarIssueStorage.replaceCurrentIssues(carId,currentIssues)
         Log.d(tag,"currentIssuesReplacedCount = $currentIssuesReplacedCount")
         Assert.assertEquals(currentIssueListSize, currentIssuesReplacedCount)
 
-        val doneIssuesReplacedCount = localCarIssueStorage.replaceDoneIssues(doneIssues)
+        val doneIssuesReplacedCount = localCarIssueStorage.replaceDoneIssues(carId,doneIssues)
         Log.d(tag,"doneIssuesReplacedCount = $doneIssuesReplacedCount")
         Assert.assertEquals(doneIssueListSize, doneIssuesReplacedCount)
 
-        val upcomingIssuesReplacedCount = localCarIssueStorage.replaceUpcomingIssues(upcomingIssues)
+        val upcomingIssuesReplacedCount = localCarIssueStorage.replaceUpcomingIssues(carId,upcomingIssues)
         Log.d(tag,"upcomingIssuesReplacedCount = $upcomingIssuesReplacedCount")
         Assert.assertEquals(upcomingIssueListSize,upcomingIssuesReplacedCount)
 

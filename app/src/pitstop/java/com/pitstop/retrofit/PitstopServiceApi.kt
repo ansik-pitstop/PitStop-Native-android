@@ -24,5 +24,5 @@ interface PitstopServiceApi {
     fun getUpcomingServices(@Path("carId") carId: Int): Observable<PitstopResult<List<PitstopIssuesResponse<UpcomingIssue>>>>
 
     @PUT("issue")
-    fun updateService(@Body body: JsonObject): Observable<CarIssue>
+    fun markDone(@Body body: JsonObject): Observable<CarIssue>
 }

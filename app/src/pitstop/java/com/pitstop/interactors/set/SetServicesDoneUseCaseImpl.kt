@@ -42,14 +42,14 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
             val issue = issuesIterator.next()
             issue.status = CarIssue.ISSUE_DONE
             val hasNext = issuesIterator.hasNext()
-            Log.d(tag,"calling updateCarIssue() on issue: $issue")
-            val disposable = carIssueRepository.updateCarIssue(issue)
+            Log.d(tag,"calling markDone() on issue: $issue")
+            val disposable = carIssueRepository.markDone(issue)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.io())
                     .subscribe({next ->
                         issue.doneAt = next.doneAt
                         issue.status = next.status
-                        Log.d(tag,"updateCarIssue, hasNext? $hasNext, onSuccess, issue: $issue")
+                        Log.d(tag,"markDone, hasNext? $hasNext, onSuccess, issue: $issue")
                         mainHandler.post({callback!!.onServiceMarkedAsDone(issue)})
                         if (!hasNext){
                             EventBusNotifier.notifyCarDataChanged(
@@ -59,6 +59,7 @@ class SetServicesDoneUseCaseImpl(val carIssueRepository: CarIssueRepository
                                     , DebugMessage.TYPE_USE_CASE)
                         }
                     }, {error ->
+                        error.printStackTrace()
                         Logger.getInstance()!!.logI(tag, "Use case returned error: err=$error"
                                 , DebugMessage.TYPE_USE_CASE)
                         mainHandler.post({callback!!.onError(RequestError(error))})

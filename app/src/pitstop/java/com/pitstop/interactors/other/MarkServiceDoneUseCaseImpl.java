@@ -60,7 +60,7 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
     @Override
     public void run() {
         carIssue.setStatus(CarIssue.ISSUE_DONE);
-        Disposable d = carIssueRepository.updateCarIssue(carIssue)
+        Disposable d = carIssueRepository.markDone(carIssue)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe(next -> {
@@ -68,6 +68,7 @@ public class MarkServiceDoneUseCaseImpl implements MarkServiceDoneUseCase {
                     carIssue.setStatus(next.getStatus());
                     MarkServiceDoneUseCaseImpl.this.onServiceMarkedAsDone(carIssue);
                 }, error -> {
+                    error.printStackTrace();
                     MarkServiceDoneUseCaseImpl.this.onError(new RequestError(error));
                 });
         compositeDisposable.add(d);
