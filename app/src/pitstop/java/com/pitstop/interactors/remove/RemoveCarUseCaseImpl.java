@@ -13,6 +13,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
@@ -45,6 +46,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private CarRepository carRepository;
     private UserRepository userRepository;
     private TripRepository tripRepository;
+    private CarIssueRepository carIssueRepository;
     private int carToDeleteId;
     private Callback callback;
     private Handler useCaseHandler;
@@ -54,11 +56,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private EventSource eventSource;
 
-    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, TripRepository tripRepository
+    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+            , TripRepository tripRepository, CarIssueRepository carIssueRepository
             , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.tripRepository = tripRepository;
+        this.carIssueRepository = carIssueRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
         this.networkHelper = networkHelper;
@@ -124,6 +128,8 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                                 RemoveCarUseCaseImpl.this.onError(error);
                                             }
                                         });
+
+                                        carIssueRepository.deleteLocalCarIssueData(carToDeleteId);
 
                                         if(data.getCarId() == carToDeleteId){// deleted the users current car
                                             userRepository.getCurrentUser(new Repository.Callback<User>() {

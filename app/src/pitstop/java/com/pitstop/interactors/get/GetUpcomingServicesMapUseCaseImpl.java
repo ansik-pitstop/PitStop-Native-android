@@ -61,11 +61,11 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
         useCaseHandler.post(this);
     }
 
-    private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap){
+    private void onGotUpcomingServicesMap(Map<Integer,List<UpcomingService>> serviceMap, boolean local){
         Logger.getInstance().logI(TAG, "Use case finished: serviceMap="+serviceMap
                 , DebugMessage.TYPE_USE_CASE);
-        compositeDisposable.clear();
-        mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap));
+        if (!local) compositeDisposable.clear();
+        mainHandler.post(() -> callback.onGotUpcomingServicesMap(serviceMap,local));
     }
 
     private void onNoCarAdded(){
@@ -136,25 +136,23 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
     private void getUpcomingCarIssues(int carId){
         //Use the current users car to get all the current issues
-        carIssueRepository.getUpcomingCarIssues(carId
-                , new CarIssueRepository.Callback<List<UpcomingIssue>>() {
+        Disposable disposable = carIssueRepository.getUpcomingCarIssues(carId, Repository.DATABASE_TYPE.BOTH)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(), true)
+                .subscribe(next -> {
+                    if (next.getData() == null) return;
+                    //Return ordered upcoming services through parameter to callback
+                    List<UpcomingService> list = getUpcomingServicesOrdered(next.getData());
+                    Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
 
-                    @Override
-                    public void onSuccess(List<UpcomingIssue> carIssueUpcoming) {
-
-                        //Return ordered upcoming services through parameter to callback
-                        List<UpcomingService> list = getUpcomingServicesOrdered(carIssueUpcoming);
-                        Map<Integer,List<UpcomingService>> map = getUpcomingServiceMileageMap(list);
-
-                        GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map);
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        GetUpcomingServicesMapUseCaseImpl.this.onError(error);
-                    }
+                    GetUpcomingServicesMapUseCaseImpl.this.onGotUpcomingServicesMap(map,next.isLocal());
+                }, error -> {
+                    Log.d(TAG,"error: "+error);
+                    error.printStackTrace();
+                    GetUpcomingServicesMapUseCaseImpl.this.onError(new RequestError(error));
 
                 });
+        compositeDisposable.add(disposable);
     }
 
     private List<UpcomingService> getUpcomingServicesOrdered(List<UpcomingIssue> carIssueUpcoming){
