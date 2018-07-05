@@ -4,4 +4,5 @@ package com.pitstop.models.issue
  * Created by zohaibhussain on 2017-01-11.
  */
 
-data class IssueDetail(val item: String, val action: String, val description: String)
+data class IssueDetail(val item: String?, val action: String?, val description: String?
+                       , val symptoms: String?, val causes: String?)

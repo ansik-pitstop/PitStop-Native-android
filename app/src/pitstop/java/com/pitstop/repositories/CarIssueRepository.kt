@@ -188,7 +188,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
                     val item = responseJson.getString("item")
                     val action = responseJson.getString("action")
                     val description = responseJson.getString("description")
-                    issue.issueDetail = IssueDetail(item,action,description)
+                    issue.issueDetail = IssueDetail(item,action,description,"","")
                     issue.issueType = CarIssue.SERVICE_USER
                     callback.onSuccess(issue)
                 } catch (e: JSONException) {

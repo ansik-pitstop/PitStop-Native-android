@@ -45,25 +45,29 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
         int rows = 0;
         BriteDatabase.Transaction t = mDatabaseHelper.getBriteDatabase().newTransaction();
 
-        //Remove any unsent logs more than 4 weeks old or sent logs that are more than a day old
-        double monthAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24 * 28);
-        double dayAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24);
-        int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
-                ,"("+COLUMN_SENT + "=? AND " + COLUMN_TIMESTAMP +" <?) " +
-                        "OR ("+COLUMN_SENT + "=? AND "+COLUMN_TIMESTAMP+" <?)"
-                ,"0",String.valueOf(monthAgo),"1",String.valueOf(dayAgo));
+        try{
+            //Remove any unsent logs more than 4 weeks old or sent logs that are more than a day old
+            double monthAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24 * 28);
+            double dayAgo = (System.currentTimeMillis()/1000) - (60 * 60 * 24);
+            int deletedRows = mDatabaseHelper.getBriteDatabase().delete(TABLE_NAME
+                    ,"("+COLUMN_SENT + "=? AND " + COLUMN_TIMESTAMP +" <?) " +
+                            "OR ("+COLUMN_SENT + "=? AND "+COLUMN_TIMESTAMP+" <?)"
+                    ,"0",String.valueOf(monthAgo),"1",String.valueOf(dayAgo));
 
-        Log.d(TAG,"deleted "+deletedRows+" debug messages");
+            Log.d(TAG,"deleted "+deletedRows+" debug messages");
 
-        //Mark as sent
-        for (DebugMessage d: messages){
-            rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
-                    ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
-                    ,String.valueOf(d.getTimestamp()),d.getMessage());
+            //Mark as sent
+            for (DebugMessage d: messages){
+                rows += mDatabaseHelper.getBriteDatabase().update(TABLE_NAME,DebugMessage.toContentValues(d,true)
+                        ,COLUMN_TIMESTAMP+" =? AND "+COLUMN_MESSAGE+" =?"
+                        ,String.valueOf(d.getTimestamp()),d.getMessage());
+            }
+            Log.d(TAG,"updated "+rows+" messages to sent.");
+            t.markSuccessful();
+        }finally{
+            t.end();
         }
-        Log.d(TAG,"updated "+rows+" messages to sent.");
-        t.markSuccessful();
-        t.end();
+
     }
 
     public QueryObservable getQueryObservable(int type) {

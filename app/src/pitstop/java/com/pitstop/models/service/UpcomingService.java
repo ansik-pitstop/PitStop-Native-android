@@ -45,7 +45,7 @@ public class UpcomingService implements Parcelable {
         String interval = in.readString();
         int id = in.readInt();
         int carId = in.readInt();
-        IssueDetail issueDetail = new IssueDetail(item,action,description);
+        IssueDetail issueDetail = new IssueDetail(item,action,description,"","");
         this.issue = new UpcomingIssue(carId,id,priority,interval,issueDetail);
     }
 

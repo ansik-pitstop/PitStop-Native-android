@@ -293,10 +293,10 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         carIssue.issueDetail = IssueDetail(
                 item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)),
                 description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)),
-                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
+                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION)),
+                symptoms = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS)),
+                causes = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES))
         )
-        carIssue.symptoms = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS))
-        carIssue.causes = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES))
 
         return carIssue
     }
@@ -306,7 +306,9 @@ class LocalCarIssueStorage(private val databaseHelper: LocalDatabaseHelper) {
         val issueDetails = IssueDetail(
                 item = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ITEM)),
                 description = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_DESCRIPTION)),
-                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION))
+                action = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_ACTION)),
+                symptoms = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_SYMPTOMS)),
+                causes = c.getString(c.getColumnIndex(TABLES.CAR_ISSUES.KEY_CAUSES))
         )
 
         val upcomingIssue = UpcomingIssue(
