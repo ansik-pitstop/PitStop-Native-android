@@ -22,7 +22,8 @@ class SmoochUtil {
 
         fun setSmoochProperties(user: User){
             val smoochUser = io.smooch.core.User.getCurrentUser()
-            smoochUser.firstName = user.firstName
+            smoochUser.firstName = user.firstName ?: ""
+            smoochUser.lastName = user.lastName ?: ""
             smoochUser.email = user.email
         }
 
