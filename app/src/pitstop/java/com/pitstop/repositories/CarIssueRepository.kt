@@ -255,7 +255,7 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
         val remote = pitstopServiceApi.getCurrentServices(carId)
                 .map{ RepositoryResponse(it.results,false)}
                 .doOnNext({
-                    Log.d(TAG,"got data: "+it.data)
+                    Log.d(TAG,"got current data: "+it.data)
                     val storedRows = localCarIssueStorage.replaceCurrentIssues(carId,it.data!!)
                     Log.d(TAG, "Stored $storedRows current issues locally.")
                 })

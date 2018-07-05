@@ -119,6 +119,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
                                     GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
                                 }
                             },error -> {
+                                error.printStackTrace();
                                 GetUpcomingServicesMapUseCaseImpl.this
                                         .onError(new RequestError(error));
                             });
