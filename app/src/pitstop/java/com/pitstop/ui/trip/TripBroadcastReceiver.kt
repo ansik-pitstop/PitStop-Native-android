@@ -9,10 +9,12 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import com.pitstop.database.*
+import com.pitstop.interactors.other.ProcessTripDataUseCaseImpl
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
 import com.pitstop.utils.Logger
+import com.pitstop.utils.NotificationsHelper
 
 /**
  * Created by Karol Zdebel on 6/7/2018.
@@ -67,6 +69,10 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 }
                 carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
+
+            if (vehicleActivity > ProcessTripDataUseCaseImpl.HIGH_VEH_CONF){
+                NotificationsHelper.sendNotification(context,"Recording Trip","Pitstop")
+            }
 
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
                     ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
