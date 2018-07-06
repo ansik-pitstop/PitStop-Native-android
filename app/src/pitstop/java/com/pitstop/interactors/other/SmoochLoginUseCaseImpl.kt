@@ -47,7 +47,6 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                 val userId = user.id
 
                 //Set user so that when this use case finishes the user is set and ready for messaging
-                SmoochUtil.setSmoochProperties(user)
                 if (user.settings.hasMainCar()){
                     val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.REMOTE)
                             .subscribeOn(Schedulers.computation())
@@ -74,7 +73,10 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                             if (smoochToken != null) {
                                 Smooch.login(userId.toString(), smoochToken, {
                                     Log.d(tag, "login response err: " + it.error)
-                                    if (it.error == null) onLogin()
+                                    if (it.error == null){
+                                        SmoochUtil.setSmoochProperties(user)
+                                        onLogin()
+                                    }
                                     else onErrorFound(RequestError.getUnknownError())
                                 })
                             } else {
