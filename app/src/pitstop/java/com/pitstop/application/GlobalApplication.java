@@ -41,6 +41,7 @@ import com.pitstop.models.Notification;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.LoginManager;
@@ -402,7 +403,10 @@ public class GlobalApplication extends Application implements LoginManager {
         });
 
         LocalDatabaseHelper.getInstance(this).deleteAllData();
-
+        Intent intent = new Intent(this,LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public void modifyMixpanelSettings(String field, Object value){

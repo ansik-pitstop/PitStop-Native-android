@@ -75,7 +75,7 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.ViewHo
                     .getDrawable(holder.container.getContext(), R.drawable.ic_warning_amber_300_24dp));
         }
 
-        holder.title.setText(String.format("%s %s", carIssue.getAction(), carIssue.getItem()));
+        holder.title.setText(String.format("%s",carIssue.getItem()));
 
         holder.container.setOnClickListener((View view)
                 -> issueHolderListener.onServiceClicked(carIssues, position));

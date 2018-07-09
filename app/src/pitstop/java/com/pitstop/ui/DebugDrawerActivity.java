@@ -17,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
@@ -195,7 +197,8 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         updateMileage.setOnClickListener(v -> {
             try{
                 int num = Integer.valueOf(editText.getText().toString());
-                useCaseComponent.updateCarMileageUseCase().execute(num, new UpdateCarMileageUseCase.Callback() {
+                useCaseComponent.updateCarMileageUseCase().execute(num
+                        ,new EventSourceImpl(EventSource.SOURCE_DRAWER), new UpdateCarMileageUseCase.Callback() {
                     @Override
                     public void onMileageUpdated() {
                         Toast.makeText(DebugDrawerActivity.this

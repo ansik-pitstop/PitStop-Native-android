@@ -193,7 +193,10 @@ public class HistoryIssueGroupAdapter extends BaseExpandableListAdapter {
             imageView.setImageDrawable(convertView.getContext().getResources().getDrawable(R.drawable.ic_warning_amber_300_24dp));
         }
 
-        title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
+        if (issue.getAction() != null)
+            title.setText(String.format("%s %s", issue.getAction(), issue.getItem()));
+        else
+            title.setText(String.format("%s", issue.getItem()));
 
         return convertView;
     }
