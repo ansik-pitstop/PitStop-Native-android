@@ -1,5 +1,6 @@
 package com.pitstop.interactors.update;
 
+import com.pitstop.EventBus.EventSource;
 import com.pitstop.interactors.Interactor;
 import com.pitstop.network.RequestError;
 
@@ -14,5 +15,5 @@ public interface UpdateCarMileageUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(double mileage, Callback callback);
+    void execute(double mileage, EventSource eventSource, Callback callback);
 }

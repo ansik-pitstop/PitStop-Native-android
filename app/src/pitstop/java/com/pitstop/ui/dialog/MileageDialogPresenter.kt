@@ -52,7 +52,7 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         Log.d(tag,"onPositiveButtonClicked()")
         try{
             val mileage = view!!.getMileageInput().toDouble()
-            usecaseComponent.updateCarMileageUseCase().execute(mileage, object: UpdateCarMileageUseCase.Callback{
+            usecaseComponent.updateCarMileageUseCase().execute(mileage, view?.getEventSource(), object: UpdateCarMileageUseCase.Callback{
                 override fun onMileageUpdated() {
                     Log.d(tag,"onMileageUpdated()")
                 }
