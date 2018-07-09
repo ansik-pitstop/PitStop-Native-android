@@ -27,12 +27,14 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
     private val tag = ProcessTripDataUseCaseImpl::class.java.simpleName
     private lateinit var callback: ProcessTripDataUseCase.Callback
 
-    private val LOW_FOOT_CONF = 40
-    private val LOW_VEH_CONF = 30
-    private val HIGH_VEH_CONF = 70
-    private val HIGH_FOOT_CONF = 90
-    private val HIGH_STILL_CONF = 99
-    private val STILL_TIMEOUT = 600000
+    companion object {
+        val LOW_FOOT_CONF = 40
+        val LOW_VEH_CONF = 30
+        val HIGH_VEH_CONF = 70
+        val HIGH_FOOT_CONF = 90
+        val HIGH_STILL_CONF = 99
+        val STILL_TIMEOUT = 600000
+    }
 
     private var hardStart = -1L
     private var softStart = -1L

@@ -74,7 +74,7 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
                     @Override
                     public void onSuccess(CarIssue data) {
 
-                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_HISTORY);
+                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
                         EventBus.getDefault().post(new CarDataChangedEvent(eventType
                                 ,eventSource));
                         AddCustomServiceUseCaseImpl.this.onIssueAdded(data);

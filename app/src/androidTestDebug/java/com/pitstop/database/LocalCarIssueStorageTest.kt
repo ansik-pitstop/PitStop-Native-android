@@ -31,23 +31,31 @@ class LocalCarIssueStorageTest {
     }
 
     @Test
-    fun localActivityStorageTest(){
+    fun localCarIssueStorageTest(){
         Log.d(tag,"running localCarIssueStorageTest()")
 
         localCarIssueStorage.deleteAllCarIssues()
 
-        val upcomingIssueListSize = 1
+        val upcomingIssueListSize = 3
+        val upcomingIssueOtherListSize = 2
         val currentIssueListSize = 1
         val doneIssueListSize = 1
         val carId = 6112
+        val carIdOther = 1234
 
         val upcomingIssues = arrayListOf<UpcomingIssue>()
+        val upcomingIssuesOther = arrayListOf<UpcomingIssue>()
         val currentIssues = arrayListOf<CarIssue>()
         val doneIssues = arrayListOf<CarIssue>()
 
         var index = 1
         for (i in 1..upcomingIssueListSize){
             upcomingIssues.add(CarIssueTestUtil.getUpcomingCarIssue(carId,index))
+            index++
+        }
+
+        for (i in 1..upcomingIssueOtherListSize){
+            upcomingIssuesOther.add(CarIssueTestUtil.getUpcomingCarIssue(carIdOther,index))
             index++
         }
 
@@ -74,18 +82,24 @@ class LocalCarIssueStorageTest {
         Log.d(tag,"upcomingIssuesReplacedCount = $upcomingIssuesReplacedCount")
         Assert.assertEquals(upcomingIssueListSize,upcomingIssuesReplacedCount)
 
+        val upcomingIssuesOtherCarReplacedCount = localCarIssueStorage
+                .replaceUpcomingIssues(carIdOther,upcomingIssuesOther)
+        Log.d(tag,"upcomingIssuesReplacedCount = $upcomingIssuesOtherCarReplacedCount")
+        Assert.assertEquals(upcomingIssueOtherListSize,upcomingIssuesOtherCarReplacedCount)
 
         //Retrieve tests
-        val storedUpcomingIssues = localCarIssueStorage.getAllUpcomingCarIssues().toSet()
+        val storedUpcomingIssues = localCarIssueStorage
+                .getAllUpcomingCarIssues(carId).toSet()
         Log.d(tag,"storedUpcomingIssues = $storedUpcomingIssues")
         Assert.assertEquals(upcomingIssues.toSet(),storedUpcomingIssues)
 
-        Assert.assertEquals(currentIssues.toSet(),localCarIssueStorage.getAllCurrentCarIssues().toSet())
-        Assert.assertEquals(doneIssues.toSet(),localCarIssueStorage.getAllDoneCarIssues().toSet())
+        Assert.assertEquals(currentIssues.toSet(),localCarIssueStorage.getAllCurrentCarIssues(carId).toSet())
+        Assert.assertEquals(doneIssues.toSet(),localCarIssueStorage.getAllDoneCarIssues(carId).toSet())
 
         //Delete tests
-        Assert.assertEquals(upcomingIssueListSize,localCarIssueStorage.deleteAllUpcomingCarIssues())
-        Assert.assertEquals(doneIssueListSize,localCarIssueStorage.deleteAllDoneCarIssues())
-        Assert.assertEquals(currentIssueListSize,localCarIssueStorage.deleteAllCurrentCarIssues())
+        Assert.assertEquals(upcomingIssueListSize,localCarIssueStorage.deleteAllUpcomingCarIssues(carId))
+        Assert.assertEquals(doneIssueListSize,localCarIssueStorage.deleteAllDoneCarIssues(carId))
+        Assert.assertEquals(upcomingIssueOtherListSize,localCarIssueStorage.deleteAllUpcomingCarIssues(carIdOther))
+        Assert.assertEquals(currentIssueListSize,localCarIssueStorage.deleteAllCurrentCarIssues(carId))
     }
 }

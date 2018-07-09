@@ -262,7 +262,8 @@ public class ServiceFormPresenter implements PresenterCallback {
             view.disableCreateButton(true);
             return;
         }
-        customIssue.setIssueDetail(new IssueDetail(view.getPartName(),view.getAction(),view.getDescription()));
+        customIssue.setIssueDetail(new IssueDetail(view.getPartName(),view.getAction()
+                ,view.getDescription(),"",""));
         customIssue.setIssueType(CarIssue.SERVICE_USER);
         String priority = view.getPriority();
         if(priority.contains("Low")){

@@ -47,8 +47,6 @@ public class CarIssue implements Parcelable, Issue {
     private int priority;
     private IssueDetail issueDetail;
     private String issueType;
-    private String symptoms;
-    private String causes;
 
     public CarIssue() {}
 
@@ -170,19 +168,11 @@ public class CarIssue implements Parcelable, Issue {
     }
 
     public String getSymptoms() {
-        return symptoms;
-    }
-
-    public void setSymptoms(String symptoms) {
-        this.symptoms = symptoms;
+        return issueDetail.getSymptoms();
     }
 
     public String getCauses() {
-        return causes;
-    }
-
-    public void setCauses(String causes) {
-        this.causes = causes;
+        return issueDetail.getCauses();
     }
 
     @Override
@@ -248,11 +238,11 @@ public class CarIssue implements Parcelable, Issue {
         dest.writeString(this.doneAt);
         dest.writeInt(this.priority);
         dest.writeString(this.issueType);
+        dest.writeString(this.issueDetail.getItem());
         dest.writeString(this.issueDetail.getAction());
         dest.writeString(this.issueDetail.getDescription());
-        dest.writeString(this.issueDetail.getAction());
-        dest.writeString(this.symptoms);
-        dest.writeString(this.causes);
+        dest.writeString(this.issueDetail.getCauses());
+        dest.writeString(this.issueDetail.getSymptoms());
     }
 
     protected CarIssue(Parcel in) {
@@ -263,11 +253,11 @@ public class CarIssue implements Parcelable, Issue {
         this.priority = in.readInt();
         this.issueType = in.readString();
         String item = in.readString();
-        String description = in.readString();
         String action = in.readString();
-        this.issueDetail = new IssueDetail(item,action,description);
-        this.symptoms = in.readString();
-        this.causes = in.readString();
+        String description = in.readString();
+        String causes = in.readString();
+        String symptoms = in.readString();
+        this.issueDetail = new IssueDetail(item,action,description,symptoms,causes);
     }
 
     public static final Creator<CarIssue> CREATOR = new Creator<CarIssue>() {
@@ -292,9 +282,9 @@ public class CarIssue implements Parcelable, Issue {
         String item = builder.item;
         String description = builder.description;
         String action = builder.action;
-        issueDetail = new IssueDetail(item,action,description);
-        symptoms = builder.symptoms;
-        causes = builder.causes;
+        String symptoms = builder.symptoms;
+        String causes = builder.causes;
+        issueDetail = new IssueDetail(item,action,description,symptoms,causes);
     }
 
     public static class Builder{
@@ -376,9 +366,9 @@ public class CarIssue implements Parcelable, Issue {
     public String toString(){
         try{
             return String.format("id:%d, carId:%d, year:%d, month:%d, day:%d, doneMileage:%d, status:%s" +
-                            ", doneAt:%s, priority:%d, issueType:%s, symptoms:%s" +
-                            ", causes:%s, issueDetail: %s", id, carId, year, month, day ,doneMileage, status, doneAt
-                    , priority, issueType, symptoms, causes, issueDetail);
+                            ", doneAt:%s, priority:%d, issueType:%s" +
+                            ",issueDetail: %s", id, carId, year, month, day ,doneMileage, status, doneAt
+                    , priority, issueType, issueDetail);
         }catch(NullPointerException e){
             return "null";
         }

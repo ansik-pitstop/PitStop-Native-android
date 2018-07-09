@@ -6,6 +6,8 @@ import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.pitstop.EventBus.EventSource
+import com.pitstop.EventBus.EventSourceImpl
 import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -18,6 +20,7 @@ import kotlinx.android.synthetic.main.dialog_milage.*
 class MileageDialog: DialogFragment(),MileageDialogView {
 
     private var presenter: MileageDialogPresenter? = null
+    private var eventSource: EventSource = EventSourceImpl(EventSource.SOURCE_MY_GARAGE)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -29,6 +32,10 @@ class MileageDialog: DialogFragment(),MileageDialogView {
 
         val view = inflater.inflate(R.layout.dialog_milage, container, false)
         return view
+    }
+
+    override fun getEventSource(): EventSource {
+        return eventSource
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
