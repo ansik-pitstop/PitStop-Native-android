@@ -61,7 +61,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     localCarStorage.storeCarData(car)
                     callback.onSuccess(car)
 
-                } catch (e: JSONException) {
+                } catch (e: Exception) {
                     Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
                     callback.onError(RequestError.getUnknownError())
                 }
