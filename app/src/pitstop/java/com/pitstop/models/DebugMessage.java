@@ -9,6 +9,7 @@ import com.pitstop.database.TABLES;
 public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
     private final static int MESSAGE_MAX_LENGTH = 200;
+    private final static int MESSAGE_MAX_LENGTH_DEBUG = 5000;
 
     public static final int TYPE_NETWORK = 0;
     public static final int TYPE_BLUETOOTH = 1;
@@ -35,8 +36,10 @@ public class DebugMessage implements TABLES.DEBUG_MESSAGES{
 
     public DebugMessage(long timestamp, String message, String tag, int type, int level) {
 
-        if (message.length() > MESSAGE_MAX_LENGTH){
+        if (message.length() > MESSAGE_MAX_LENGTH && level != DebugMessage.LEVEL_D){
             mMessage = message.substring(0,MESSAGE_MAX_LENGTH)+"...";
+        }else if (message.length() > MESSAGE_MAX_LENGTH_DEBUG){
+            mMessage = message.substring(0,MESSAGE_MAX_LENGTH_DEBUG)+"...";
         }
         else{
             mMessage = message;
