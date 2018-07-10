@@ -24,8 +24,8 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
                 + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LATITUDE+ " REAL,"
                 + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
-                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME"
-                + "FOREIGN KEY ("+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+") REFERENCES "
+                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME,"
+                + " FOREIGN KEY ("+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+") REFERENCES "
                 +TABLES.PENDING_TRIP_DATA.TABLE_NAME+"("+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+")"
                 + ")")
 
