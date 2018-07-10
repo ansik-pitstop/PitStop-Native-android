@@ -88,22 +88,25 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
             if (currentTripState != nextState){
                 val notifMessage = when (nextState.tripStateType){
-                    TripStateType.TRIP_DRIVING_HARD -> "Trip driving hard"
-                    TripStateType.TRIP_DRIVING_SOFT -> "Trip driving soft"
+                    TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
                     TripStateType.TRIP_STILL -> "Trip still"
                     TripStateType.TRIP_END_SOFT ->{
                         sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip soft end"
+                        "Trip finished recording, it may take a moment to appear in the app"
                     }
                     TripStateType.TRIP_END_HARD -> {
                         //Allow for processing trip data on end, but wait for next location bundle to come in
                         sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip hard end"
+                        "Trip finished recording, it may take a moment to appear in the app"
                     }
-                    TripStateType.TRIP_NONE -> "Trip none"
+                    else -> null
                 }
-                NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
+                if (notifMessage != null)
+                    NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
             }
+
+            sharedPreferences.edit().putInt(TYPE_CURRENT_STATE,nextState.tripStateType.value).apply()
+            sharedPreferences.edit().putLong(TIME_CURRENT_STATE,nextState.time).apply()
 
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
                     ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
