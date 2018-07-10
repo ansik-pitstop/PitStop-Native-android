@@ -250,10 +250,10 @@ public class GlobalApplication extends Application implements LoginManager {
                 };
                 registerReceiver(broadcastReceiver,intentFilter);
 
-                Intent serviceIntent = new Intent(GlobalApplication.this
-                        , BluetoothAutoConnectService.class);
-                startService(serviceIntent);
-                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+//                Intent serviceIntent = new Intent(GlobalApplication.this
+//                        , BluetoothAutoConnectService.class);
+//                startService(serviceIntent);
+//                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
                 Intent tripsServiceIntent = new Intent(GlobalApplication.this
                         , TripsService.class);

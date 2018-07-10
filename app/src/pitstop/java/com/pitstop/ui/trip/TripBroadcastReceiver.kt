@@ -9,12 +9,14 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import com.pitstop.database.*
-import com.pitstop.interactors.other.ProcessTripDataUseCaseImpl
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
+import com.pitstop.models.trip.TripState
+import com.pitstop.models.trip.TripStateType
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NotificationsHelper
+import com.pitstop.utils.TripUtils
 
 /**
  * Created by Karol Zdebel on 6/7/2018.
@@ -28,6 +30,8 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val LOCATION_EXTRA = "location_extra"
         const val ACTION_PROCESS_UPDATE = "action_process_update"
         const val MIN_LOC_ACCURACY = 100
+        const val TIME_CURRENT_STATE = "current_state_time"
+        const val TYPE_CURRENT_STATE = "current_state_type"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -70,8 +74,23 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
 
-            if (vehicleActivity > ProcessTripDataUseCaseImpl.HIGH_VEH_CONF){
-                NotificationsHelper.sendNotification(context,"Recording Trip","Pitstop")
+            val sharedPreferences = context.getSharedPreferences(tag, Context.MODE_PRIVATE)
+            val currentStateType = sharedPreferences.getInt(TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
+            val currentStateTime = sharedPreferences.getLong(TIME_CURRENT_STATE, System.currentTimeMillis())
+            val currentTripState = TripState(TripStateType.values().first { it.value == currentStateType },currentStateTime)
+
+            val nextState = TripUtils.getNextTripState(currentTripState,carActivity)
+
+            if (currentTripState != nextState){
+                val notifMessage = when (nextState.tripStateType){
+                    TripStateType.TRIP_DRIVING_HARD -> "Trip driving hard"
+                    TripStateType.TRIP_DRIVING_SOFT -> "Trip driving soft"
+                    TripStateType.TRIP_STILL -> "Trip still"
+                    TripStateType.TRIP_END_SOFT -> "Trip soft end"
+                    TripStateType.TRIP_END_HARD -> "Trip hard end"
+                    TripStateType.TRIP_NONE -> "Trip none"
+                }
+                NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
             }
 
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +

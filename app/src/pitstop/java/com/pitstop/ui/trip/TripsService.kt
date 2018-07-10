@@ -36,12 +36,12 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener {
 
     companion object {
-        const val LOC_UPDATE_INTERVAL = 3000L
+        const val LOC_UPDATE_INTERVAL = 10000L
         const val LOC_MAX_UPDATE_INTERVAL = 1200000L
-        const val LOC_FASTEST_UPDATE_INTERVAL = 2000L
+        const val LOC_FASTEST_UPDATE_INTERVAL = 10000L
         const val ACT_UPDATE_INTERVAL = 3000L
         const val LOC_UPDATE_PRIORITY = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        const val PROCESS_TRIPS_INTERVAL = 1800000L //5 min
+        const val PROCESS_TRIPS_INTERVAL = 1800000L //30 min
     }
 
     private val tag = javaClass.simpleName
