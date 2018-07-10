@@ -69,7 +69,8 @@ class TripTestUtil {
                 trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
             }
 
-            return TripData(trip.first().id,inVin,trip)
+            return TripData(trip.first().id,inVin,trip,(trip.first().data.time/1000).toInt()
+                    ,(trip.last().data.time/1000).toInt())
         }
 
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added

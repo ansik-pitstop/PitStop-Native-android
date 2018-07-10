@@ -19,7 +19,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-    private static final int DATABASE_VERSION = 74;
+    private static final int DATABASE_VERSION = 75;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private BriteDatabase mBriteDatabase;
@@ -50,7 +50,8 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(LocalSpecsStorage.CREATE_LOCAL_SPEC_STORAGE);
         db.execSQL(LocalAlarmStorage.CREATE_LOCAL_ALARM_STORAGE);
         db.execSQL(LocalFuelConsumptionStorage.CREATE_LOCAL_FUEL_CONSUMPTION_STORAGE);
-        db.execSQL(LocalPendingTripStorage.Companion.getCREATE_PENDING_TRIP_TABLE());
+        db.execSQL(LocalPendingTripStorage.Companion.getCREATE_PENDING_TRIP_DATA_TABLE());
+        db.execSQL(LocalPendingTripStorage.Companion.getCREATE_PENDING_TRIP_LOCATIONS_TABLE());
         db.execSQL(LocalLocationStorage.Companion.getCREATE_LOCATION_DATA_TABLE());
         db.execSQL(LocalActivityStorage.Companion.getCREATE_ACTIVITY_DATA_TABLE());
         db.execSQL(LocalTripStorage.CREATE_TABLE_TRIP);
@@ -82,7 +83,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_END.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_POLYLINE.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLES.PENDING_TRIP_DATA.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SENSOR_DATA.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SENSOR_DATA_POINT.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCATION_DATA.TABLE_NAME);
@@ -110,7 +111,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION_END.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION_POLYLINE.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION.TABLE_NAME);
-        getWritableDatabase().execSQL("DELETE FROM " + TABLES.PENDING_TRIP_DATA.TABLE_NAME);
+        getWritableDatabase().execSQL("DELETE FROM " + TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.SENSOR_DATA.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.SENSOR_DATA_POINT.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION_DATA.TABLE_NAME);
