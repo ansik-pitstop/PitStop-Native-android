@@ -82,7 +82,7 @@ public final class TABLES {
         String TABLE_NAME = "pending_trip_data";
         String KEY_TRIP_ID = "trip_id";
         String KEY_START_TIMESTAMP = "start_timestamp";
-        String KEY_END_TIMESTAMP = "start_timestamp";
+        String KEY_END_TIMESTAMP = "end_timestamp";
         String KEY_VIN = "vin";
     }
 

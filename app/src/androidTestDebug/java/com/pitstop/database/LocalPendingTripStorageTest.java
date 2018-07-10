@@ -53,8 +53,8 @@ public class LocalPendingTripStorageTest {
         assertTrue(localPendingTripStorage.store(tripData) > 0);
         List<TripData> tripDataRetrieved = localPendingTripStorage.getAll();
         Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
-        assertEquals(tripDataRetrieved.size(),1);
-        assertEquals(tripData,tripDataRetrieved.get(0));
+        assertEquals(1,tripDataRetrieved.size());
+        assertEquals(tripDataRetrieved.get(0),tripData);
 
     }
 
