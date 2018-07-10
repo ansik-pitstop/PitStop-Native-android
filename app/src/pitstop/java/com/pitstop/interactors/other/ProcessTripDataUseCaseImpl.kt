@@ -34,6 +34,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val HIGH_FOOT_CONF = 90
         val HIGH_STILL_CONF = 99
         val STILL_TIMEOUT = 600000
+        val HARD_END_TIME_OFFSET = 1000 * 60 * 15 //Time after a trip ends that a location still qualifies as within the trip
+        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
     }
 
     private var hardStart = -1L
@@ -66,7 +68,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 if (hardStart != -1L){
                     val trip = arrayListOf<CarLocation>()
                     locations.forEach {
-                        if (it.time in softStart..softEnd){
+                        if (it.time in softStart-BEFORE_START_TIME_OFFSET..softEnd+HARD_END_TIME_OFFSET){
                             trip.add(it)
                         }
                     }
@@ -128,7 +130,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                             val trip = arrayListOf<CarLocation>()
                             locations.forEach {
-                                if (it.time in softStart..hardEnd){
+                                if (it.time in softStart-BEFORE_START_TIME_OFFSET..hardEnd+HARD_END_TIME_OFFSET){
                                     trip.add(it)
                                 }
                             }

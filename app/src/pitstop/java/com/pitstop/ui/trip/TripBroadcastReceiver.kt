@@ -9,6 +9,9 @@ import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import com.pitstop.database.*
+import com.pitstop.dependency.ContextModule
+import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.interactors.other.ProcessTripDataUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
@@ -32,12 +35,14 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val MIN_LOC_ACCURACY = 100
         const val TIME_CURRENT_STATE = "current_state_time"
         const val TYPE_CURRENT_STATE = "current_state_type"
+        const val READY_TO_PROCESS_TRIP_DATA = "process_trip_data" //Wait for locations before processing trip data since they can be delayed
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(tag,"onReceive()")
 
         val currentTime = System.currentTimeMillis()
+        val sharedPreferences = context.getSharedPreferences(tag, Context.MODE_PRIVATE)
 
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
@@ -74,11 +79,11 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
 
-            val sharedPreferences = context.getSharedPreferences(tag, Context.MODE_PRIVATE)
             val currentStateType = sharedPreferences.getInt(TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
             val currentStateTime = sharedPreferences.getLong(TIME_CURRENT_STATE, System.currentTimeMillis())
             val currentTripState = TripState(TripStateType.values().first { it.value == currentStateType },currentStateTime)
 
+            //Move this code to use case
             val nextState = TripUtils.getNextTripState(currentTripState,carActivity)
 
             if (currentTripState != nextState){
@@ -86,8 +91,15 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                     TripStateType.TRIP_DRIVING_HARD -> "Trip driving hard"
                     TripStateType.TRIP_DRIVING_SOFT -> "Trip driving soft"
                     TripStateType.TRIP_STILL -> "Trip still"
-                    TripStateType.TRIP_END_SOFT -> "Trip soft end"
-                    TripStateType.TRIP_END_HARD -> "Trip hard end"
+                    TripStateType.TRIP_END_SOFT ->{
+                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+                        "Trip soft end"
+                    }
+                    TripStateType.TRIP_END_HARD -> {
+                        //Allow for processing trip data on end, but wait for next location bundle to come in
+                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+                        "Trip hard end"
+                    }
                     TripStateType.TRIP_NONE -> "Trip none"
                 }
                 NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
@@ -137,6 +149,20 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             val rows = localLocationStorage.store(locations)
             Logger.getInstance().logD(tag,"Stored locations locally, response: $rows"
                     , DebugMessage.TYPE_TRIP)
+
+            if (sharedPreferences.getBoolean(READY_TO_PROCESS_TRIP_DATA,false)){
+                val useCaseComponent = DaggerUseCaseComponent.builder()
+                        .contextModule(ContextModule(context)).build()
+
+                useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
+                    override fun processed(trip: List<List<CarLocation>>) {
+                        Log.d(tag,"processed() trip: $trip")
+                    }
+                })
+                sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,false).apply()
+            }
+
+
         }
 
     }

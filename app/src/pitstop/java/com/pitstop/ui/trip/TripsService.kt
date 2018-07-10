@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Binder
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
@@ -20,10 +19,8 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.ProcessTripDataUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
-import com.pitstop.models.trip.CarLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 
@@ -64,27 +61,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         Logger.getInstance()!!.logI(tag, "Trips service created", DebugMessage.TYPE_TRIP)
 
         super.onCreate()
-
-        lateinit var runnable: Runnable
-
-        runnable = Runnable {
-            val useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(baseContext)).build()
-
-            if (!tripsProcessing){
-                tripsProcessing = true
-                useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
-                    override fun processed(trip: List<List<CarLocation>>) {
-                        Log.d(tag,"processed() trip: $trip")
-                        tripsProcessing = false
-                    }
-                })
-            }
-
-            Handler().postDelayed(runnable,PROCESS_TRIPS_INTERVAL)
-        }
-        //Delay so app doesn't freeze up on start
-        Handler().postDelayed(runnable,5000)
 
         sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
 
