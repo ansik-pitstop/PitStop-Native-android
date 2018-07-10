@@ -53,24 +53,24 @@ class TripTestUtil {
                     , r.nextDouble() * 90, r.nextDouble() * 90)
         }
 
-        fun getRandomLocation(): RecordedLocation {
+        fun getRandomLocation(offset: Int): RecordedLocation {
             val r = Random()
-            return RecordedLocation(time = System.currentTimeMillis() - Math.abs(r.nextInt()) * 1000
+            return RecordedLocation(time = System.currentTimeMillis() + (offset * 100000)
                     , longitude = r.nextDouble() * 90
                     , latitude = r.nextDouble() * 90
                     , conf = 100)
         }
 
-        fun generateTripData(locNum: Int, inVin:String, deviceTimestampIn: Long): TripData {
+        fun generateTripData(locNum: Int,tripIndex: Int, inVin:String, deviceTimestampIn: Long): TripData {
             val trip: MutableSet<LocationData> = hashSetOf()
 
             for (i in 1..locNum){
-                val loc = getRandomLocation()
-                trip.add(LocationData(loc.time/10000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
+                val loc = getRandomLocation(i+(tripIndex*locNum))
+                trip.add(LocationData(loc.time/1000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
             }
 
-            return TripData(trip.first().id,inVin,trip,(trip.first().data.time/1000).toInt()
-                    ,(trip.last().data.time/1000).toInt())
+            return TripData(trip.first().id,inVin,trip,(trip.first().data.time).toInt()
+                    ,(trip.last().data.time).toInt())
         }
 
         //This will actually return a TripData object with locNum+1 locations since trip indicator data point is added
@@ -78,7 +78,7 @@ class TripTestUtil {
 
             val trip = hashSetOf<RecordedLocation>()
             for (i in 1..locNum){
-                trip.add(getRandomLocation())
+                trip.add(getRandomLocation(i))
             }
 
             val tripDataPoints: MutableSet<LocationDataFormatted> = mutableSetOf()

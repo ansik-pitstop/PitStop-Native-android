@@ -73,7 +73,7 @@ public class TripRepositoryTest {
         Log.d(TAG,"running storeTripTest()");
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        TripData tripData = TripTestUtil.Companion.generateTripData(3,VIN,System.currentTimeMillis());
+        TripData tripData = TripTestUtil.Companion.generateTripData(3,0,VIN,System.currentTimeMillis());
         Log.d(TAG,"generated trip data, location size = "+tripData.getLocations().size());
         tripRepository.storeTripDataAndDump(tripData)
                 .subscribeOn(Schedulers.io())

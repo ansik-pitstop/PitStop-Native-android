@@ -98,6 +98,7 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
         Log.d(TAG,"deleteAll()")
         val db = databaseHelper.writableDatabase
         db.delete(TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME, null, null)
+        db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,null)
     }
 
     //Return list of trips stored in database that are completed
@@ -130,20 +131,17 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
                 Log.d(TAG,"got tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
+                Log.d(TAG,"got startTimestamp: $startTimestamp")
 
-                if (curTripId != tripId && curTripId != -1L){
+                if (curTripId != tripId){
                     //New trip
-                    trips.add(TripData(curTripId, vin, curTrip,startTimestamp, endTimestamp))
-                    Log.d(TAG,"new trip: $curTrip")
+                    curTripId = tripId
                     curTrip = mutableSetOf()
+                    trips.add(TripData(curTripId, vin, curTrip,startTimestamp, endTimestamp))
+                    Log.d(TAG,"new trip: $trips")
                 }
                 curTrip.add(LocationData(locationId, cursorToLocation(c)))
-                curTripId = tripId
 
-                if (c.isLast){
-                    trips.add(TripData(curTripId, vin, curTrip,startTimestamp, endTimestamp))
-                    Log.d(TAG,"exiting afterlast loop")
-                }
                 c.moveToNext()
 
             }
