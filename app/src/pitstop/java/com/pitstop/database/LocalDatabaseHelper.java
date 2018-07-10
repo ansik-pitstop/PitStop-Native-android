@@ -113,6 +113,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION_POLYLINE.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME);
+        getWritableDatabase().execSQL("DELETE FROM " + TABLES.PENDING_TRIP_DATA.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.SENSOR_DATA.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.SENSOR_DATA_POINT.TABLE_NAME);
         getWritableDatabase().execSQL("DELETE FROM " + TABLES.LOCATION_DATA.TABLE_NAME);

@@ -75,7 +75,7 @@ public class LocalPendingTripStorageTest {
 
         Set<TripData> t1 = new HashSet<>(tripDataRetrieved);
         Set<TripData> t2 = new HashSet<>(tripDataList);
-        assertEquals(t1, t2);
+        assertEquals(t2, t1);
     }
 
 }
