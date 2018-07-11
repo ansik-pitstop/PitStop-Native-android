@@ -45,7 +45,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
-    private var tripsProcessing = false
 
     inner class TripsBinder : Binder() {
         val service: TripsService
