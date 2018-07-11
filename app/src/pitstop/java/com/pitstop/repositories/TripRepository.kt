@@ -193,9 +193,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
         val localPendingData = localPendingTripStorage.getAll()
+        Log.d(tag,"local pending data: "+localPendingData)
         Log.d(tag,"dumping ${localPendingData.size} data points")
         if (localPendingData.isEmpty()) return Observable.just(0)
-
         val formattedData = formatTripData(localPendingData) ?: return Observable.just(0)
 
         //Check for error, likely due to geocoder
@@ -245,7 +245,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
         //Go through each trip
         tripData.forEach{
-
             val snappedPoints = arrayListOf<SnappedPoint>()
             it.locations.chunked(100).forEach{
                 //calculate mileage
@@ -340,8 +339,12 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     , it.locations.last().data.latitude.toString())
             val startLongitude = DataPoint(DataPoint.ID_START_LONGTITUDE, it.locations.first().data.longitude.toString())
             val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, it.locations.last().data.longitude.toString())
-            val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, it.startTimestamp.toString())
-            val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, it.endTimestamp.toString())
+            val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, (it.locations.first().data.time).toString())
+            val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, (it.locations.last().data.time).toString())
+            val locFirstTime = it.locations.first().data.time
+            val locLastTime = it.locations.last().data.time
+            Log.d(tag,"locations: ${it.locations}")
+            Log.d(tag,"startTimestamp: $startTimestamp, locFirstTime: $locFirstTime, endTimestamp: $endTimestamp, locLastTime: $locLastTime")
             val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
             indicatorDataPoint.add(startLocation)
             indicatorDataPoint.add(endLocation)

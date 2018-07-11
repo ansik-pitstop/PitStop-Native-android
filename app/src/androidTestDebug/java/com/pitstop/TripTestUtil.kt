@@ -1,5 +1,6 @@
 package com.pitstop
 
+import android.util.Log
 import com.pitstop.models.sensor_data.DataPoint
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.LocationDataFormatted
@@ -55,18 +56,21 @@ class TripTestUtil {
 
         fun getRandomLocation(offset: Int): RecordedLocation {
             val r = Random()
-            return RecordedLocation(time = System.currentTimeMillis() + (offset * 100000)
+            return RecordedLocation(time = System.currentTimeMillis() + (offset * 10000L)
                     , longitude = r.nextDouble() * 90
                     , latitude = r.nextDouble() * 90
                     , conf = 100)
         }
 
         fun generateTripData(locNum: Int,tripIndex: Int, inVin:String, deviceTimestampIn: Long): TripData {
-            val trip: MutableSet<LocationData> = hashSetOf()
+            val trip: MutableList<LocationData> = mutableListOf()
 
             for (i in 1..locNum){
                 val loc = getRandomLocation(i+(tripIndex*locNum))
-                trip.add(LocationData(loc.time/1000, PendingLocation(loc.longitude,loc.latitude,loc.time/1000)))
+                val locationData = LocationData(loc.time/1000
+                        , PendingLocation(loc.longitude,loc.latitude,loc.time/1000))
+                trip.add(locationData)
+                Log.d(TAG,"loc[$i]: $locationData")
             }
 
             return TripData(trip.first().id,inVin,trip,(trip.first().data.time).toInt()

@@ -167,7 +167,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         Log.d(tag,"processedTrips: size=${processedTrips.size} data=$processedTrips")
 
         processedTrips.filter { !it.isEmpty() }.forEach({
-            val recordedLocationList = mutableSetOf<LocationData>()
+            val recordedLocationList = mutableListOf<LocationData>()
             it.forEachIndexed { i,carLocation ->
                 //Do not include points in the same location back to back
                 if ((it.lastIndex != i && (it[i+1].latitude != carLocation.latitude

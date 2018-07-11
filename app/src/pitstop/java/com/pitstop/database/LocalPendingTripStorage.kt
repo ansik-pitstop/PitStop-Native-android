@@ -122,7 +122,7 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
             Log.d(TAG,"c.moveToFirst()")
             var curTripId = -1L
 
-            var curTrip = mutableSetOf<LocationData>()
+            var curTrip = mutableListOf<LocationData>()
             while (!c.isAfterLast) {
                 val startTimestamp = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_START_TIMESTAMP))
                 val endTimestamp = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_END_TIMESTAMP))
@@ -131,12 +131,12 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
                 Log.d(TAG,"got tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
-                Log.d(TAG,"got startTimestamp: $startTimestamp")
+                Log.d(TAG,"got startTimestamp: $startTimestamp, endTimestamp: $endTimestamp")
 
                 if (curTripId != tripId){
                     //New trip
                     curTripId = tripId
-                    curTrip = mutableSetOf()
+                    curTrip = mutableListOf()
                     trips.add(TripData(curTripId, vin, curTrip,startTimestamp, endTimestamp))
                     Log.d(TAG,"new trip: $trips")
                 }

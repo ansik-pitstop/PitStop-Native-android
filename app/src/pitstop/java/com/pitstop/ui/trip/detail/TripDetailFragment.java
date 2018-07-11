@@ -163,6 +163,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
         milesNum.setText(String.format("%.2f",trip.getMileageAccum()));
 
+        Log.d(TAG,"trip time start: "+trip.getTimeStart()+", trip time end: "+trip.getTimeEnd());
+
         // Calculate minutes using timestamps
         long totalTimestamp = Long.valueOf(trip.getTimeEnd()) - Long.valueOf(trip.getTimeStart());
         long totalMinutes = totalTimestamp / 60;

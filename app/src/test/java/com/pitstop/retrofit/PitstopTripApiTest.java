@@ -31,7 +31,7 @@ public class PitstopTripApiTest {
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        String VIN = "1GB0CVCL7BF147611";
+        String VIN = "2GCCC14D5B1125395";
 
         List<List<DataPoint>> data = new ArrayList<>();
         data.add(getRandomLocationDataPoint(VIN,false));
