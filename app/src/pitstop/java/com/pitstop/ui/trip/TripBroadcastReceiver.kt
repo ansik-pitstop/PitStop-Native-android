@@ -3,6 +3,8 @@ package com.pitstop.ui.trip
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Handler
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
@@ -79,17 +81,34 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
             })
 
-            val currentStateType = sharedPreferences.getInt(TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
-            val currentStateTime = sharedPreferences.getLong(TIME_CURRENT_STATE, System.currentTimeMillis())
-            val currentTripState = TripState(TripStateType.values().first { it.value == currentStateType },currentStateTime)
+            val currentTripState = getCurrentTripState(sharedPreferences)
 
             //Move this code to use case
             val nextState = TripUtils.getNextTripState(currentTripState,carActivity)
 
+            Logger.getInstance().logD(tag, "current state: $currentTripState" +
+                    ", next state: $nextState",DebugMessage.TYPE_TRIP)
             if (currentTripState != nextState){
+
+                //Launch still timer and end trip if 10 min goes by
+                if (nextState.tripStateType == TripStateType.TRIP_STILL_HARD) {
+                    Logger.getInstance().logD(tag, "Still timer started",DebugMessage.TYPE_TRIP)
+                    Handler().postDelayed({
+                        Logger.getInstance().logD(tag, "Still timer ended current trip state $currentTripState",DebugMessage.TYPE_TRIP)
+                        if (getCurrentTripState(sharedPreferences) == nextState){
+                            Logger.getInstance().logD(tag, "Still timer timeout",DebugMessage.TYPE_TRIP)
+                            sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+                            setCurrentState(sharedPreferences
+                                    , TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis()))
+                            NotificationsHelper.sendNotification(context
+                                    ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
+                        }
+
+                    },TripUtils.STILL_TIMEOUT.toLong())
+                }
+
                 val notifMessage = when (nextState.tripStateType){
                     TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
-                    TripStateType.TRIP_STILL -> "Trip still"
                     TripStateType.TRIP_END_SOFT ->{
                         sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
                         "Trip finished recording, it may take a moment to appear in the app"
@@ -105,8 +124,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                     NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
             }
 
-            sharedPreferences.edit().putInt(TYPE_CURRENT_STATE,nextState.tripStateType.value).apply()
-            sharedPreferences.edit().putLong(TIME_CURRENT_STATE,nextState.time).apply()
+            setCurrentState(sharedPreferences,nextState)
 
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
                     ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
@@ -165,9 +183,19 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,false).apply()
             }
 
-
         }
 
+    }
+
+    private fun setCurrentState(sharedPreferences: SharedPreferences, nextState: TripState){
+        sharedPreferences.edit().putInt(TYPE_CURRENT_STATE,nextState.tripStateType.value).apply()
+        sharedPreferences.edit().putLong(TIME_CURRENT_STATE,nextState.time).apply()
+    }
+
+    private fun getCurrentTripState(sharedPreferences: SharedPreferences): TripState{
+        val currentStateType = sharedPreferences.getInt(TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
+        val currentStateTime = sharedPreferences.getLong(TIME_CURRENT_STATE, System.currentTimeMillis())
+        return TripState(TripStateType.values().first { it.value == currentStateType },currentStateTime)
     }
 
 //******************** Code used for generating fake activity during location change*********************

@@ -31,7 +31,10 @@ class TripUtils {
             detectedActivities.forEach {
 
                 //If in a still state and 10 mins passed return soft end
-                if (currentTripState.tripStateType == TripStateType.TRIP_STILL
+                if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT
+                        && it.time - currentTripState.time > STILL_TIMEOUT){
+                    return TripState(TripStateType.TRIP_NONE, System.currentTimeMillis())
+                }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD
                         && it.time - currentTripState.time > STILL_TIMEOUT){
                     return TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis())
                 }
@@ -39,10 +42,12 @@ class TripUtils {
                 when (it.type){
                     DetectedActivity.STILL -> {
                         //If driving and still for sure, then return still state
-                        if (it.conf > HIGH_STILL_CONF
-                                && (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
-                                        || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT)){
-                            return TripState(TripStateType.TRIP_STILL, it.time)
+                        if (it.conf >= HIGH_STILL_CONF){
+                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD){
+                                return TripState(TripStateType.TRIP_STILL_HARD, it.time)
+                            }else if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
+                                return TripState(TripStateType.TRIP_STILL_SOFT, it.time)
+                            }
                         }
                     }
                     DetectedActivity.IN_VEHICLE -> {

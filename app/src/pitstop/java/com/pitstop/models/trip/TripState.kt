@@ -7,10 +7,11 @@ package com.pitstop.models.trip
 enum class TripStateType(val value: Int){
     TRIP_DRIVING_HARD(0)
     , TRIP_DRIVING_SOFT(1)
-    , TRIP_STILL(2)
-    , TRIP_END_SOFT(3)
-    , TRIP_END_HARD(4)
-    , TRIP_NONE(5)
+    , TRIP_STILL_SOFT(2)
+    , TRIP_STILL_HARD(3)
+    , TRIP_END_SOFT(4)
+    , TRIP_END_HARD(5)
+    , TRIP_NONE(6)
 }
 
 data class TripState(val tripStateType: TripStateType, val time: Long)
