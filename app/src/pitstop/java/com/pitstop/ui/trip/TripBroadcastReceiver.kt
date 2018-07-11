@@ -88,18 +88,21 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
             Logger.getInstance().logD(tag, "current state: $currentTripState" +
                     ", next state: $nextState",DebugMessage.TYPE_TRIP)
+
             if (currentTripState != nextState){
 
-                //Launch still timer and end trip if 10 min goes by
+                //Launch still timer and end trip if 10 min goes by and the still state hasn't changed
                 if (nextState.tripStateType == TripStateType.TRIP_STILL_HARD) {
                     Logger.getInstance().logD(tag, "Still timer started",DebugMessage.TYPE_TRIP)
                     Handler().postDelayed({
                         Logger.getInstance().logD(tag, "Still timer ended current trip state $currentTripState",DebugMessage.TYPE_TRIP)
                         if (getCurrentTripState(sharedPreferences) == nextState){
                             Logger.getInstance().logD(tag, "Still timer timeout",DebugMessage.TYPE_TRIP)
+                            localActivityStorage.store(arrayListOf(CarActivity(vin ?: ""
+                                    ,System.currentTimeMillis()+1000,DetectedActivity.STILL,100)))
                             sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
                             setCurrentState(sharedPreferences
-                                    , TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis()))
+                                    , TripState(TripStateType.TRIP_NONE, System.currentTimeMillis()))
                             NotificationsHelper.sendNotification(context
                                     ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
                         }
