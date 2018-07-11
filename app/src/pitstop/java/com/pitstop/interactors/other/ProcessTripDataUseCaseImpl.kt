@@ -34,8 +34,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val HIGH_FOOT_CONF = 90
         val HIGH_STILL_CONF = 99
         val STILL_TIMEOUT = 600000
-        val HARD_END_TIME_OFFSET = 1000 * 60 * 5 //Time after a trip ends that a location still qualifies as within the trip
-        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 5 //Time before a trip starts that a location still qualifies as within the trip
+        val HARD_END_TIME_OFFSET = 1000 * 60 * 15 //Time after a trip ends that a location still qualifies as within the trip
+        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
     }
 
     private var hardStart = -1L
@@ -59,20 +59,15 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         activities.forEach loop@{
 
             //See how long we've been still for, if at all
-            if ( (hardStart != -1L || softStart != -1L) && softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
+            if ( (hardStart != -1L || softStart != -1L)
+                    && softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
                 Logger.getInstance().logD(tag,"soft end end time=${it.time}"
                         ,DebugMessage.TYPE_USE_CASE)
                 hardEnd = it.time
 
                 //Process trip location points
                 if (hardStart != -1L){
-                    val trip = arrayListOf<CarLocation>()
-                    locations.forEach {
-                        if (it.time in softStart-BEFORE_START_TIME_OFFSET..softEnd+HARD_END_TIME_OFFSET){
-                            trip.add(it)
-                        }
-                    }
-                    processedTrips.add(trip)
+                    processedTrips.add(filterLocations(softStart,softEnd,locations))
 
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -128,13 +123,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             Logger.getInstance().logD(tag,"Hard end time=${it.time}"
                                     ,DebugMessage.TYPE_USE_CASE)
 
-                            val trip = arrayListOf<CarLocation>()
-                            locations.forEach {
-                                if (it.time in softStart-BEFORE_START_TIME_OFFSET..hardEnd+HARD_END_TIME_OFFSET){
-                                    trip.add(it)
-                                }
-                            }
-                            processedTrips.add(trip)
+
+                            processedTrips.add(filterLocations(softStart,hardEnd,locations))
 
                             //Remove all processed data points
                             val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -222,5 +212,33 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         })
 
 
+    }
+
+    private fun filterLocations(start: Long, end: Long, locations: List<CarLocation>): List<CarLocation>{
+        val trip = arrayListOf<CarLocation>()
+        var priorLoc: CarLocation? = null
+        var includedAfterLoc = false
+        //Locations sorte by time
+        locations.forEach {
+            if (it.time in start-BEFORE_START_TIME_OFFSET..end+HARD_END_TIME_OFFSET){
+                //Closest location after trip start
+                if (!includedAfterLoc && it.time > hardEnd){
+                    includedAfterLoc = true
+                    trip.add(it)
+                }
+                //Closest location prior to trip start
+                else if (it.time < softStart){
+                    priorLoc = it
+                }
+                //Add all location points during trip and prior loc first if present
+                else if (it.time in softStart..hardEnd){
+                    if (priorLoc != null){
+                        trip.add(priorLoc!!)
+                    }
+                    trip.add(it)
+                }
+            }
+        }
+        return trip
     }
 }
