@@ -34,8 +34,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val HIGH_FOOT_CONF = 90
         val HIGH_STILL_CONF = 99
         val STILL_TIMEOUT = 600000
-        val HARD_END_TIME_OFFSET = 1000 * 60 * 15 //Time after a trip ends that a location still qualifies as within the trip
-        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
+        val HARD_END_TIME_OFFSET = 1000 * 60 * 5 //Time after a trip ends that a location still qualifies as within the trip
+        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 5 //Time before a trip starts that a location still qualifies as within the trip
     }
 
     private var hardStart = -1L
