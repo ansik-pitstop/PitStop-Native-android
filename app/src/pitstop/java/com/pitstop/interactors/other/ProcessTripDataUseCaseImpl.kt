@@ -50,10 +50,6 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         usecaseHandler.post(this)
     }
 
-    private fun processTripData(start: Long, end:Long){
-
-    }
-
     override fun run() {
         val locations = localLocationStorage.getAll()
         val activities = localActivityStorage.getAll()
@@ -70,21 +66,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
                 //Process trip location points
                 if (hardStart != -1L){
-                    val trip = arrayListOf<CarLocation>()
-                    var lastLocBeforeTrip : CarLocation? = null
-                    locations.forEach {
-                        if (it.time in softStart-BEFORE_START_TIME_OFFSET..softEnd+HARD_END_TIME_OFFSET){
-                            if (lastLocBeforeTrip != null){
-                                trip.add(lastLocBeforeTrip!!)
-                                lastLocBeforeTrip = null
-                            }
-                            trip.add(it)
-                        }else if (it.time < softStart){
-                            lastLocBeforeTrip = it
-                        }
-                    }
-                    processedTrips.add(trip)
-
+                    processedTrips.add(processTripData(softStart,softEnd,locations))
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                     val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
@@ -139,13 +121,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             Logger.getInstance().logD(tag,"Hard end time=${it.time}"
                                     ,DebugMessage.TYPE_USE_CASE)
 
-                            val trip = arrayListOf<CarLocation>()
-                            locations.forEach {
-                                if (it.time in softStart-BEFORE_START_TIME_OFFSET..hardEnd+HARD_END_TIME_OFFSET){
-                                    trip.add(it)
-                                }
-                            }
-                            processedTrips.add(trip)
+                            processedTrips.add(processTripData(softStart,hardEnd,locations))
 
                             //Remove all processed data points
                             val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -231,7 +207,26 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 callback.processed(processedTrips)
             })
         })
+    }
 
-
+    private fun processTripData(start: Long, end:Long, locations: List<CarLocation>): List<CarLocation>{
+        val trip = arrayListOf<CarLocation>()
+        var lastLocBeforeTrip : CarLocation? = null
+        var nextLocAfterTrip : CarLocation? = null
+        locations.forEach {
+            if (it.time in start..end){
+                if (lastLocBeforeTrip != null){
+                    trip.add(lastLocBeforeTrip!!)
+                    lastLocBeforeTrip = null
+                }
+                trip.add(it)
+            }else if (it.time < start){
+                lastLocBeforeTrip = it
+            }else if (it.time > end && nextLocAfterTrip == null){
+                nextLocAfterTrip = it
+                trip.add(it)
+            }
+        }
+        return trip
     }
 }
