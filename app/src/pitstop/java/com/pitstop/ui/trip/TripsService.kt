@@ -2,7 +2,6 @@ package com.pitstop.ui.trip
 
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -33,12 +32,12 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener {
 
     companion object {
-        const val LOC_UPDATE_INTERVAL = 10000L
-        const val LOC_MAX_UPDATE_INTERVAL = 1200000L
-        const val LOC_FASTEST_UPDATE_INTERVAL = 10000L
-        const val ACT_UPDATE_INTERVAL = 3000L
+        const val LOC_UPDATE_INTERVAL = 60 * 1000L
+        const val LOC_MAX_UPDATE_INTERVAL = 60 * 20 * 1000L
+        const val LOC_FASTEST_UPDATE_INTERVAL = 20 * 1000L
+        const val ACT_UPDATE_INTERVAL = 30 * 1000L
         const val LOC_UPDATE_PRIORITY = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        const val PROCESS_TRIPS_INTERVAL = 1800000L //30 min
+        const val LOC_SMALLEST_DISPLACEMENT = 100f
     }
 
     private val tag = javaClass.simpleName
@@ -47,7 +46,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var receiver: BroadcastReceiver
     private var tripsProcessing = false
 
     inner class TripsBinder : Binder() {
@@ -92,11 +90,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
     override fun onDestroy() {
         Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
-        try{
-            unregisterReceiver(receiver)
-        }catch(e: Exception){
-
-        }
         super.onDestroy()
     }
 
@@ -113,6 +106,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         locationRequest.interval = LOC_UPDATE_INTERVAL
         locationRequest.fastestInterval = LOC_FASTEST_UPDATE_INTERVAL
         locationRequest.maxWaitTime = LOC_MAX_UPDATE_INTERVAL
+        locationRequest.smallestDisplacement = LOC_SMALLEST_DISPLACEMENT
 
         val builder = LocationSettingsRequest.Builder()
         builder.addLocationRequest(locationRequest)
@@ -142,6 +136,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                 .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
 
         beginTrackingLocationUpdates()
+        stopSelf()
     }
 
     override fun onConnectionSuspended(p0: Int) {

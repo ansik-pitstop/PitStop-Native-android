@@ -343,8 +343,6 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, (it.locations.last().data.time).toString())
             val locFirstTime = it.locations.first().data.time
             val locLastTime = it.locations.last().data.time
-            Log.d(tag,"locations: ${it.locations}")
-            Log.d(tag,"startTimestamp: $startTimestamp, locFirstTime: $locFirstTime, endTimestamp: $endTimestamp, locLastTime: $locLastTime")
             val indicator = DataPoint(DataPoint.ID_TRIP_INDICATOR,"true")
             indicatorDataPoint.add(startLocation)
             indicatorDataPoint.add(endLocation)
