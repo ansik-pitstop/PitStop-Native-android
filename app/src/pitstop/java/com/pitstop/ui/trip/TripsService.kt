@@ -37,7 +37,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         const val LOC_FASTEST_UPDATE_INTERVAL = 20 * 1000L
         const val ACT_UPDATE_INTERVAL = 30 * 1000L
         const val LOC_UPDATE_PRIORITY = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        const val LOC_SMALLEST_DISPLACEMENT = 5f
     }
 
     private val tag = javaClass.simpleName
@@ -106,7 +105,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         locationRequest.interval = LOC_UPDATE_INTERVAL
         locationRequest.fastestInterval = LOC_FASTEST_UPDATE_INTERVAL
         locationRequest.maxWaitTime = LOC_MAX_UPDATE_INTERVAL
-        locationRequest.smallestDisplacement = LOC_SMALLEST_DISPLACEMENT
 
         val builder = LocationSettingsRequest.Builder()
         builder.addLocationRequest(locationRequest)
