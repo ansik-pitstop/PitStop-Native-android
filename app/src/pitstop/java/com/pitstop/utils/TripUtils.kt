@@ -63,7 +63,15 @@ class TripUtils {
                                 && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_SOFT
                                 && (walkingActivity == null || walkingActivity.conf < LOW_FOOT_CONF) ){
 
-                            return TripState(TripStateType.TRIP_DRIVING_SOFT,it.time)
+                            //still hard timer resumes to hard driving after low veh conf, because we are likely back to driving
+                            // and we cannot risk the trip ending
+                            return if (currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD){
+                                TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
+                            }
+                            //Trip started by driving soft or resumed after soft still state
+                            else{
+                                TripState(TripStateType.TRIP_DRIVING_SOFT,it.time)
+                            }
 
                         }
                     }
