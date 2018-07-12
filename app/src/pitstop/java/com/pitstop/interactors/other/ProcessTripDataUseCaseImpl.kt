@@ -227,7 +227,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     trip.add(it)
                 }
                 //Closest location prior to trip start
-                else if (it.time < softStart){
+                else if (it.time < start){
                     priorLoc = it
                 }
                 //Add all location points during trip and prior loc first if present
