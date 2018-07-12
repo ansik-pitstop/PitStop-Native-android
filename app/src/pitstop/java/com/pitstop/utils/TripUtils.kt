@@ -69,11 +69,14 @@ class TripUtils {
                     }
                     DetectedActivity.ON_FOOT -> {
                         //End trip hard only if driving hard or soft
-                        if (it.conf > HIGH_FOOT_CONF
-                                && ( currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
-                                        || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT) ){
-                            return TripState(TripStateType.TRIP_END_HARD,it.time)
-
+                        if (it.conf > HIGH_FOOT_CONF){
+                            if ( currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
+                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT
+                                    || currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD){
+                                return TripState(TripStateType.TRIP_END_HARD, it.time)
+                            }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT){
+                                    return TripState(TripStateType.TRIP_NONE, it.time)
+                            }
                         }
                     }
                 }
