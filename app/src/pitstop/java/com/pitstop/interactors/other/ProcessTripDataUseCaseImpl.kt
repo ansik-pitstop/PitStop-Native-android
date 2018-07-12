@@ -216,26 +216,23 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
     private fun filterLocations(start: Long, end: Long, locations: List<CarLocation>): List<CarLocation>{
         val trip = arrayListOf<CarLocation>()
-        var priorLoc: CarLocation? = null
+        var includedPriorLoc = false
         var includedAfterLoc = false
         //Locations sorte by time
         locations.forEach {
             if (it.time in start-BEFORE_START_TIME_OFFSET..end+HARD_END_TIME_OFFSET){
                 //Closest location after trip start
-                if (!includedAfterLoc && it.time > hardEnd){
+                if (!includedAfterLoc && it.time > end){
                     includedAfterLoc = true
                     trip.add(it)
                 }
                 //Closest location prior to trip start
-                else if (it.time < start){
-                    priorLoc = it
+                else if (!includedPriorLoc && it.time < start){
+                    includedPriorLoc = true
+                    trip.add(it)
                 }
                 //Add all location points during trip and prior loc first if present
-                else if (it.time in softStart..hardEnd){
-                    if (priorLoc != null){
-                        trip.add(priorLoc!!)
-                        priorLoc = null
-                    }
+                else if (it.time in start..end){
                     trip.add(it)
                 }
             }
