@@ -160,7 +160,8 @@ public class CarIssue implements Parcelable, Issue {
     }
 
     public String getAction() {
-        return issueDetail.getAction();
+        if (issueDetail.getAction() == null) return "Engine trouble code";
+        else return issueDetail.getAction();
     }
 
     public String getDescription() {

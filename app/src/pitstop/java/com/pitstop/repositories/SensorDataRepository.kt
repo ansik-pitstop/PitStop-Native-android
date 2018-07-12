@@ -31,7 +31,7 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
         if (dumping) return
         dumping = true
         connectionObservable.subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.io(),true)
                 .subscribe({next ->
                     Log.d(TAG,"connectionObservable onNext(): $next")
                     if (next){
@@ -78,7 +78,7 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
             val remoteObservable = remote.store(body)
             remoteObservable
                     .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
+                    .observeOn(Schedulers.io(),true)
                     .subscribe({next ->
                         Log.d(TAG,"Stored chunk, response: $next")
                         local.delete(it)
@@ -93,7 +93,7 @@ class SensorDataRepository(private val local: LocalSensorDataStorage
                         var message: String
                         if (err is HttpException){
                             message = err.response().message().toString()
-                            if (err.code().toString().isNotEmpty() && err.code().toString()[0] == '4'){
+                            if (err.code().toString().isNotEmpty() && err.code() == 400){
                                 //Remove data that failed to send due to server rejection
                                 local.delete(it)
                             }
