@@ -234,6 +234,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 else if (it.time in softStart..hardEnd){
                     if (priorLoc != null){
                         trip.add(priorLoc!!)
+                        priorLoc = null
                     }
                     trip.add(it)
                 }

@@ -95,7 +95,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 if (nextState.tripStateType == TripStateType.TRIP_STILL_HARD) {
                     Logger.getInstance().logD(tag, "Still timer started",DebugMessage.TYPE_TRIP)
                     Handler().postDelayed({
-                        Logger.getInstance().logD(tag, "Still timer ended current trip state $currentTripState",DebugMessage.TYPE_TRIP)
+                        Logger.getInstance().logD(tag, "Still timer ended current trip state ${getCurrentTripState(sharedPreferences)}",DebugMessage.TYPE_TRIP)
                         if (getCurrentTripState(sharedPreferences) == nextState){
                             Logger.getInstance().logD(tag, "Still timer timeout",DebugMessage.TYPE_TRIP)
                             localActivityStorage.store(arrayListOf(CarActivity(vin ?: ""
