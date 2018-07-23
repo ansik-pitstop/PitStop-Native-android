@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -26,12 +27,14 @@ import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
+import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.
@@ -376,6 +379,36 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void displayToast(int message) {
         Log.d(TAG,"displayToast() message: "+getString(message));
         if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean isBluetoothServiceRunning() {
+        Log.d(TAG,"isBluetoothServiceRunning()");
+        if (getActivity() != null){
+            return ((GlobalApplication)getActivity().getApplication()).isBluetoothServiceRunning();
+        }
+        return false;
+    }
+
+    @Override
+    public void startBluetoothService() {
+        Log.d(TAG,"startBluetoothService()");
+        if (getActivity() != null){
+            ((GlobalApplication)getActivity().getApplication()).startBluetoothService();
+        }
+    }
+
+    @Override
+    public void endBluetoothService() {
+        Log.d(TAG,"endBluetoothService()");
+        if (getActivity() != null){
+            ((GlobalApplication)getActivity().getApplication()).stopBluetoothService();
+        }
+    }
+
+    @Override
+    public Observable<BluetoothService> getBluetoothService() {
+        return ((MainActivity)getActivity()).getBluetoothService().map((next) -> next);
     }
 
     @Override

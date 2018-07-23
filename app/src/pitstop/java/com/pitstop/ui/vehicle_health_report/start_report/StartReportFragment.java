@@ -209,6 +209,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         Disposable d = ((MainActivity)getActivity()).getBluetoothService()
+                .take(1)
                 .subscribe(next -> {
                     presenter.setBluetoothConnectionObservable(next);
                 },err -> {

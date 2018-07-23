@@ -99,7 +99,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         super.subscribe(view);
         carAdded = true;
         CompositeDisposable compositeDisposable = new CompositeDisposable();
-        Disposable d = view.getBluetoothConnectionObservable().subscribe((next) -> {
+        Disposable d = view.getBluetoothConnectionObservable().take(1).subscribe((next) -> {
             next.subscribe(StartReportPresenter.this);
             compositeDisposable.clear();
         });
@@ -111,7 +111,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         Log.d(TAG,"unsubscribe()");
         carAdded = true;
         CompositeDisposable compositeDisposable = new CompositeDisposable();
-        Disposable d = getView().getBluetoothConnectionObservable().subscribe((next) -> {
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next) -> {
             next.unsubscribe(StartReportPresenter.this);
             compositeDisposable.clear();
         });
@@ -151,7 +151,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         Log.d(TAG,"onBluetoothSearchRequested()");
         if (getView() == null) return;
         CompositeDisposable compositeDisposable = new CompositeDisposable();
-        Disposable d = getView().getBluetoothConnectionObservable().subscribe((next)->{
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
           next.requestDeviceSearch(true,false);
             compositeDisposable.clear();
         });
@@ -173,7 +173,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             getView().startBluetoothService();
         }
         CompositeDisposable compositeDisposable = new CompositeDisposable();
-        Disposable d = getView().getBluetoothConnectionObservable().subscribe((next) -> {
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next) -> {
             //Check bluetooth connection
             if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
                 //Ask for search
@@ -236,7 +236,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG,"onCarRetrieved() car: "+car);
                 carAdded = true;
-                Disposable d = getView().getBluetoothConnectionObservable().subscribe((next)->{
+                Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
                     displayBluetoothState(next);
                     compositeDisposable.clear();
                 });
