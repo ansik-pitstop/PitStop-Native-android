@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.adapters.ServicesAdapter;
@@ -523,6 +524,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void startDisplayIssueActivity(List<CarIssue> issues, int position){
         if (getActivity() == null) return;
         ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issues, position);
+    }
+
+    @Override
+    public void displayToast(String error) {
+        Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayToast(int error) {
+        Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -111,7 +111,8 @@ public class IssueDetailsActivity extends AppCompatActivity {
             try {
                 JSONObject properties = new JSONObject();
                 properties.put("View", MixpanelHelper.ISSUE_DETAIL_VIEW);
-                properties.put("Issue", allIssues.get(positionClicked).getAction() + " " + allIssues.get(positionClicked).getItem());
+                String action = allIssues.get(positionClicked).getAction();
+                properties.put("Issue", action == null ? "Engine trouble code": action + " " + allIssues.get(positionClicked).getItem());
                 mixpanelHelper.trackCustom(MixpanelHelper.EVENT_VIEW_APPEARED, properties);
             } catch (JSONException e) {
                 e.printStackTrace();

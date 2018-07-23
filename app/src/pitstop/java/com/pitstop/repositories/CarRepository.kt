@@ -164,17 +164,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     fun updateMileage(carId: Int, mileage: Double): Observable<Boolean>{
-        val body = JSONObject()
-
-        try {
-            body.put("carId", carId)
-            body.put("totalMileage", mileage)
-        } catch (e: JSONException) {
-            Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
-            e.printStackTrace()
-        }
-
-        return carApi.updateMileage(carId, TotalMileage(mileage))
+        return carApi.updateMileage(TotalMileage(mileage,carId))
                 .doOnNext({localCarStorage.updateCarMileage(carId, mileage)})
                 .map { true }
                 .doOnError({

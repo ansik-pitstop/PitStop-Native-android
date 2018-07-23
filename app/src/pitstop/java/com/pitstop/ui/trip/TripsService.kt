@@ -2,13 +2,11 @@ package com.pitstop.ui.trip
 
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Binder
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
@@ -20,10 +18,8 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
-import com.pitstop.interactors.other.ProcessTripDataUseCase
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
-import com.pitstop.models.trip.CarLocation
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 
@@ -36,12 +32,11 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener {
 
     companion object {
-        const val LOC_UPDATE_INTERVAL = 3000L
-        const val LOC_MAX_UPDATE_INTERVAL = 1200000L
-        const val LOC_FASTEST_UPDATE_INTERVAL = 2000L
-        const val ACT_UPDATE_INTERVAL = 3000L
+        const val LOC_UPDATE_INTERVAL = 60 * 1000L
+        const val LOC_MAX_UPDATE_INTERVAL = 60 * 20 * 1000L
+        const val LOC_FASTEST_UPDATE_INTERVAL = 20 * 1000L
+        const val ACT_UPDATE_INTERVAL = 30 * 1000L
         const val LOC_UPDATE_PRIORITY = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        const val PROCESS_TRIPS_INTERVAL = 300000L //5 min
     }
 
     private val tag = javaClass.simpleName
@@ -50,8 +45,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var receiver: BroadcastReceiver
-    private var tripsProcessing = false
 
     inner class TripsBinder : Binder() {
         val service: TripsService
@@ -64,27 +57,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         Logger.getInstance()!!.logI(tag, "Trips service created", DebugMessage.TYPE_TRIP)
 
         super.onCreate()
-
-        lateinit var runnable: Runnable
-
-        runnable = Runnable {
-            val useCaseComponent = DaggerUseCaseComponent.builder()
-                    .contextModule(ContextModule(baseContext)).build()
-
-            if (!tripsProcessing){
-                tripsProcessing = true
-                useCaseComponent.processTripDataUseCase().execute(object: ProcessTripDataUseCase.Callback{
-                    override fun processed(trip: List<List<CarLocation>>) {
-                        Log.d(tag,"processed() trip: $trip")
-                        tripsProcessing = false
-                    }
-                })
-            }
-
-            Handler().postDelayed(runnable,PROCESS_TRIPS_INTERVAL)
-        }
-        //Delay so app doesn't freeze up on start
-        Handler().postDelayed(runnable,5000)
 
         sharedPreferences = getSharedPreferences(tag, Context.MODE_PRIVATE)
 
@@ -116,11 +88,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
     override fun onDestroy() {
         Logger.getInstance()!!.logI(tag, "Trips service destroyed", DebugMessage.TYPE_TRIP)
-        try{
-            unregisterReceiver(receiver)
-        }catch(e: Exception){
-
-        }
         super.onDestroy()
     }
 
@@ -166,6 +133,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                 .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
 
         beginTrackingLocationUpdates()
+        stopSelf()
     }
 
     override fun onConnectionSuspended(p0: Int) {

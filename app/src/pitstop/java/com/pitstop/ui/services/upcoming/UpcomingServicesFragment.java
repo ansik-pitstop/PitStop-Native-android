@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -221,6 +222,11 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
 //
 //        offlineAlertDialog.show();
 
+    }
+
+    @Override
+    public void displayToast(int error) {
+        Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
     }
 
     @Override
