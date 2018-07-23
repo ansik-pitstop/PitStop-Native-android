@@ -30,7 +30,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
@@ -73,7 +73,7 @@ public class GlobalApplication extends Application implements LoginManager {
 
     private UseCaseComponent useCaseComponent;
     private Observable<Service> serviceObservable;
-    private BluetoothAutoConnectService autoConnectService;
+    private BluetoothService autoConnectService;
     private TripsService tripsService;
     private ServiceConnection serviceConnection;
 
@@ -192,8 +192,8 @@ public class GlobalApplication extends Application implements LoginManager {
                     public void onServiceConnected(ComponentName className, IBinder service) {
                         Log.i(TAG, String.format("connecting: onServiceConnection, className: %s, trips class: %s"
                                 ,className.getClassName(),TripsService.class.getCanonicalName()));
-                        if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
-                            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
+                        if (className.getClassName().equals(BluetoothService.class.getCanonicalName())){
+                            autoConnectService = ((BluetoothService.BluetoothBinder)service).getService();
                             emitter.onNext(autoConnectService);
                             Log.d(TAG,"bluetooth service set");
                         }
@@ -212,7 +212,7 @@ public class GlobalApplication extends Application implements LoginManager {
                     public void onServiceDisconnected(ComponentName arg0) {
                         Log.i(TAG, "Disconnecting: onServiceConnection componentName.className: "
                                 +arg0.getClassName());
-                        if (arg0.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                        if (arg0.getClassName().equals(BluetoothService.class.getCanonicalName())){
                             autoConnectService = null;
                         }else if (arg0.getClassName().equals(TripsService.class.getName())){
                             tripsService = null;
@@ -263,7 +263,7 @@ public class GlobalApplication extends Application implements LoginManager {
     public void startBluetoothService(){
         Log.d(TAG,"startBluetoothService()");
         Intent serviceIntent = new Intent(GlobalApplication.this
-                , BluetoothAutoConnectService.class);
+                , BluetoothService.class);
         startService(serviceIntent);
         bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 

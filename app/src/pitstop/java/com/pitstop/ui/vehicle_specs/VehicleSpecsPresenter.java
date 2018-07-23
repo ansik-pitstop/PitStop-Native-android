@@ -9,7 +9,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
@@ -408,10 +408,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     }
 
-    public void onServiceBound(BluetoothAutoConnectService bluetoothAutoConnectService) {
-        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
+    public void onServiceBound(BluetoothService bluetoothService) {
+        this.fuelObservable = (FuelObservable) bluetoothService;
         fuelObservable.subscribe(this);
-        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
+        this.alarmObservable = (AlarmObservable) bluetoothService;
         alarmObservable.subscribe(this);
     }
 

@@ -22,7 +22,7 @@ import com.pitstop.BuildConfig
 import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
-import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
@@ -207,7 +207,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         (applicationContext as GlobalApplication).services
                 .subscribe({
                     Log.d(TAG,"GlobalApplication.services() onNext()")
-                    if (it is BluetoothAutoConnectService){
+                    if (it is BluetoothService){
                         Log.d(TAG,"got bluetooth service")
                         autoConnectService = it
                         it.subscribe(this@MainActivity)
@@ -284,9 +284,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         serviceObservers.add(autoConnectBinderObserver);
     }
 
-    fun notifyServiceBinded(bluetoothAutoConnectService: BluetoothAutoConnectService) {
+    fun notifyServiceBinded(bluetoothService: BluetoothService) {
         for (listener in serviceObservers) {
-            listener.onServiceBinded(bluetoothAutoConnectService)
+            listener.onServiceBinded(bluetoothService)
         }
     }
 
@@ -360,7 +360,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         })
     }
 
-    fun getBluetoothConnectService(): BluetoothAutoConnectService? {
+    fun getBluetoothConnectService(): BluetoothService? {
         return autoConnectService
     }
 

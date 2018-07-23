@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
@@ -25,7 +25,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     private final String TAG = getClass().getSimpleName();
 
     public static final int RC_LOCATION_PERM = 101;
-    protected BluetoothAutoConnectService autoConnectService;
+    protected BluetoothService autoConnectService;
 
     public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                   @Nullable final String message) {
@@ -76,12 +76,12 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         }
     }
 
-    public Observable<BluetoothAutoConnectService> getAutoConnectService(){
+    public Observable<BluetoothService> getAutoConnectService(){
         return ((GlobalApplication)getApplicationContext())
                 .getServices()
-                .filter ((it)-> it instanceof BluetoothAutoConnectService)
+                .filter ((it)-> it instanceof BluetoothService)
                 .map((it)->{
-                    autoConnectService = (BluetoothAutoConnectService)it;
+                    autoConnectService = (BluetoothService)it;
                     return autoConnectService;
                 });
     }
