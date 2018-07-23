@@ -204,6 +204,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        if (!(applicationContext as GlobalApplication).isBluetoothServiceRunning){
+            (applicationContext as GlobalApplication).startBluetoothService()
+        }
         (applicationContext as GlobalApplication).services
                 .subscribe({
                     Log.d(TAG,"GlobalApplication.services() onNext()")
@@ -388,7 +391,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)
             bluetoothService?.subscribe(this)
             bluetoothService?.requestDeviceSearch(false, false)
-        }else{
+        }else if (application?.isBluetoothServiceRunning == false){
             application?.startBluetoothService()
         }
     }
@@ -567,7 +570,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getBluetoothService()
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
-                        .subscribe{it.requestDeviceSearch(false,false) }
+                        .subscribe{
+                            Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
+
+                            it.requestDeviceSearch(false,false)
+                        }
             }
         }
     }
