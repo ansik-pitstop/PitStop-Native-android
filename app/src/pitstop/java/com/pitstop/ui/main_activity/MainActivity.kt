@@ -204,9 +204,11 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (!(applicationContext as GlobalApplication).isBluetoothServiceRunning){
-            (applicationContext as GlobalApplication).startBluetoothService()
-        }
+        //Cannot do this since service connection is null still in onCreate(),
+        // since Global app starts the service anyway, we don't need this
+//        if (!(applicationContext as GlobalApplication).isBluetoothServiceRunning){
+//            (applicationContext as GlobalApplication).startBluetoothService()
+//        }
         (applicationContext as GlobalApplication).services
                 .subscribe({
                     Log.d(TAG,"GlobalApplication.services() onNext()")
