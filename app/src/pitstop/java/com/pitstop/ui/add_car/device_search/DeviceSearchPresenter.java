@@ -137,6 +137,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             searchingForDevice = false;
             view.onCannotFindDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.FAIL);
@@ -189,6 +192,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         //Already searching, no need to start another search
         if (searchingForDevice) return;
+
+        //Start service if not already running
+        if (!view.isBluetoothServiceRunning()){
+            view.startBluetoothService();
+        }
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
