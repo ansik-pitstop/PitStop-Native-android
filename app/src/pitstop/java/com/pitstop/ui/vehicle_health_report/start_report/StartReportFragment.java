@@ -32,6 +32,8 @@ import com.wang.avi.AVLoadingIndicatorView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Matt on 2017-08-11.
@@ -203,20 +205,15 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        BluetoothConnectionObservable bluetoothConnectionObservable
-                = ((MainActivity)getActivity()).getBluetoothConnectService();
-        Log.d(TAG,"getBluetoothConnectionObservable() null ? "
-                + (bluetoothConnectionObservable == null));
-        return bluetoothConnectionObservable;
-    }
-
-    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
-        if (getBluetoothConnectionObservable() != null)
-            presenter.setBluetoothConnectionObservable(getBluetoothConnectionObservable());
+        Disposable d = ((MainActivity)getActivity()).getBluetoothService()
+                .subscribe(next -> {
+                    presenter.setBluetoothConnectionObservable(next);
+                },err -> {
+                        Log.d(TAG,"error = "+err);
+                });
         presenter.onViewReadyForLoad();
     }
 
@@ -261,6 +258,31 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }else{
             return true;
         }
+    }
+
+    @Override
+    public void startBluetoothService() {
+        Log.d(TAG,"startBluetoothService()");
+        if (getActivity() != null){
+            GlobalApplication app = ((GlobalApplication)getActivity().getApplication());
+            app.startBluetoothService();
+        }
+    }
+
+    @Override
+    public boolean isBluetoothServiceRunning() {
+        Log.d(TAG,"isBluetoothServiceRunning()");
+        if (getActivity() != null){
+            GlobalApplication app = ((GlobalApplication)getActivity().getApplication());
+            return app.isBluetoothServiceRunning();
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable() {
+        return ((MainActivity)getActivity()).getBluetoothService().map((next)-> next);
     }
 
     @OnClick(R.id.show_reports_button)

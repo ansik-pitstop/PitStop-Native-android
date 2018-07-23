@@ -60,7 +60,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
                 .filter(next -> next instanceof BluetoothService)
                 .map(next -> (BluetoothService) next)
                 .subscribe(next -> {
-                    autoConnectService = next;
+                    bluetoothService = next;
                     bluetoothConnectionObservable = next;
                     if (currentFragment == deviceSearchFragment)
                         deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
@@ -203,7 +203,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     public BluetoothWriter getBluetoothWriter() {
-        return autoConnectService;
+        return bluetoothService;
     }
 
     public void setViewVinAndDeviceEntry() {

@@ -79,6 +79,7 @@ public class GlobalApplication extends Application implements LoginManager {
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
+    private boolean isBluetoothServiceRunning = false;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -194,6 +195,7 @@ public class GlobalApplication extends Application implements LoginManager {
                                 ,className.getClassName(),TripsService.class.getCanonicalName()));
                         if (className.getClassName().equals(BluetoothService.class.getCanonicalName())){
                             autoConnectService = ((BluetoothService.BluetoothBinder)service).getService();
+                            isBluetoothServiceRunning = true;
                             emitter.onNext(autoConnectService);
                             Log.d(TAG,"bluetooth service set");
                         }
@@ -260,18 +262,27 @@ public class GlobalApplication extends Application implements LoginManager {
         });
     }
 
+    public boolean isBluetoothServiceRunning(){
+        return isBluetoothServiceRunning;
+    }
+
     public void startBluetoothService(){
         Log.d(TAG,"startBluetoothService()");
-        Intent serviceIntent = new Intent(GlobalApplication.this
-                , BluetoothService.class);
-        startService(serviceIntent);
-        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (!isBluetoothServiceRunning){
+            Intent serviceIntent = new Intent(GlobalApplication.this
+                    , BluetoothService.class);
+            startService(serviceIntent);
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
+        }
     }
 
     public void stopBluetoothService(){
         Log.d(TAG,"stopBluetoothService()");
-        autoConnectService.stopSelf();
+        if (autoConnectService != null){
+            isBluetoothServiceRunning = false;
+            autoConnectService.stopSelf();
+        }
     }
 
     public Observable<Service> getServices(){

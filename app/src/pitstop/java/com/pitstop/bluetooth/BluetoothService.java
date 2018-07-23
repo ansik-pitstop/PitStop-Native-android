@@ -179,6 +179,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
         @Override
         public void onTimeout() {
+            Log.d(TAG,"getVinTimeoutTimer() timeout, vinRequested: "+vinRequested);
             if (!vinRequested) return;
             vinRequested = false;
             Logger.getInstance().logW(TAG,"VIN retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
