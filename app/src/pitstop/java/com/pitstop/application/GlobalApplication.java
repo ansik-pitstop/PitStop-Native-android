@@ -250,10 +250,7 @@ public class GlobalApplication extends Application implements LoginManager {
                 };
                 registerReceiver(broadcastReceiver,intentFilter);
 
-                Intent serviceIntent = new Intent(GlobalApplication.this
-                        , BluetoothAutoConnectService.class);
-                startService(serviceIntent);
-                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+                startBluetoothService();
 
                 Intent tripsServiceIntent = new Intent(GlobalApplication.this
                         , TripsService.class);
@@ -261,6 +258,20 @@ public class GlobalApplication extends Application implements LoginManager {
                 bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
             }
         });
+    }
+
+    public void startBluetoothService(){
+        Log.d(TAG,"startBluetoothService()");
+        Intent serviceIntent = new Intent(GlobalApplication.this
+                , BluetoothAutoConnectService.class);
+        startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+    }
+
+    public void stopBluetoothService(){
+        Log.d(TAG,"stopBluetoothService()");
+        autoConnectService.stopSelf();
     }
 
     public Observable<Service> getServices(){
