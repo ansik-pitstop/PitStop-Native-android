@@ -75,6 +75,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         , readyDevice.getScannerId(), mileage);
             }
 
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
+
             view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_NOT_SUPPORT_VIN);
@@ -98,6 +102,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (view == null) return;
             connectingToDevice = false;
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
 
         }
@@ -310,12 +317,18 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             connectingToDevice = false;
             connectionTimer.cancel();
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
         }
         if (searchingForVin){
             searchingForVin = false;
             getVinTimer.cancel();
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
         }
     }

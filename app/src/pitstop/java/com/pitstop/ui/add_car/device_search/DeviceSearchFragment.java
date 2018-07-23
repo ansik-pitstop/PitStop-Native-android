@@ -27,7 +27,6 @@ import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.AddCarActivity;
 import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
-import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 
@@ -408,7 +407,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @Override
     public Observable<BluetoothService> getBluetoothService() {
-        return ((MainActivity)getActivity()).getBluetoothService().map((next) -> next);
+        return ((IBluetoothServiceActivity)getActivity()).getBluetoothService().map((next) -> next);
     }
 
     @Override
