@@ -516,7 +516,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public boolean requestVin() {
-        if (vinRequested) return false;
+        if (vinRequested || deviceManager == null) return false;
         Logger.getInstance().logI(TAG,"VIN requested", DebugMessage.TYPE_BLUETOOTH);
         vinRequested = true;
 
@@ -529,7 +529,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public boolean requestAllPid() {
-        if (allPidRequested) return false;
+        if (allPidRequested || deviceManager == null) return false;
         Logger.getInstance().logI(TAG,"All pid requested", DebugMessage.TYPE_BLUETOOTH);
 
         allPidRequested = true;
@@ -541,7 +541,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public boolean requestDeviceTime() {
-        if (rtcTimeRequested) return false;
+        if (rtcTimeRequested || deviceManager == null) return false;
         rtcTimeRequested = true;
         Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 

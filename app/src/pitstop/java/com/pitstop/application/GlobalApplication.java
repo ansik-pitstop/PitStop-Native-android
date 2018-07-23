@@ -268,11 +268,12 @@ public class GlobalApplication extends Application implements LoginManager {
 
     public void startBluetoothService(){
         Log.d(TAG,"startBluetoothService()");
-        if (!isBluetoothServiceRunning){
+        if (!isBluetoothServiceRunning && serviceConnection != null){
             Intent serviceIntent = new Intent(GlobalApplication.this
                     , BluetoothService.class);
             startService(serviceIntent);
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            isBluetoothServiceRunning = true;
 
         }
     }

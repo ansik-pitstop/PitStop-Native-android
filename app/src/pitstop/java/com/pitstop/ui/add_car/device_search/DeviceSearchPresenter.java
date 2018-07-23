@@ -312,7 +312,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onDeviceDisconnected() {
-        Log.d(TAG,"onDeviceDisconnected()");
+        Log.d(TAG,"onDeviceDisconnected() searchingForVin? "+searchingForVin+", connectingToDevice? "+connectingToDevice);
         if (connectingToDevice){
             connectingToDevice = false;
             connectionTimer.cancel();
