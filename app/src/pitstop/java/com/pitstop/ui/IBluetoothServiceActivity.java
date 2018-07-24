@@ -70,6 +70,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getBluetoothService()
+                        .take(1)
                         .filter((it)-> it.getDeviceState() != BluetoothConnectionObservable.State.DISCONNECTED)
                         .subscribe((it)-> it.requestDeviceSearch(false,false));
             }
