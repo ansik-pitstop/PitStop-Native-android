@@ -130,7 +130,7 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".bluetooth.BluetoothAutoConnectService"
+            android:name=".bluetooth.BluetoothService"
             android:label="Background Service" />
         <service
             android:name=".ui.trip.TripsService"

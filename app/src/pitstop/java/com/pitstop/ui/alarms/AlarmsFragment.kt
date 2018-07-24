@@ -42,8 +42,8 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         Log.d(TAG, "onCreateView()" )
         val view : View?  = inflater?.inflate(R.layout.fragment_alarms, null)
-        if ((activity as AlarmsActivity).autoConnectService != null){
-            alarmsObservable = ((activity as AlarmsActivity).autoConnectService as AlarmObservable)
+        if ((activity as AlarmsActivity).service != null){
+            alarmsObservable = ((activity as AlarmsActivity).service as AlarmObservable)
             alarmsObservable?.subscribe(this)
         }
 

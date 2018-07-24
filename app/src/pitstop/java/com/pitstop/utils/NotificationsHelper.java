@@ -17,7 +17,7 @@ import android.support.v4.app.TaskStackBuilder;
 import com.pitstop.R;
 import com.pitstop.ui.main_activity.MainActivity;
 
-import static com.pitstop.bluetooth.BluetoothAutoConnectService.notifID;
+import static com.pitstop.bluetooth.BluetoothService.notifID;
 
 /**
  * Created by Karol Zdebel on 8/16/2017.

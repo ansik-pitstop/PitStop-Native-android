@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
@@ -57,10 +57,10 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         vinEntryFragment = VinEntryFragment.getInstance();
 
         ((GlobalApplication)getApplicationContext()).getServices()
-                .filter(next -> next instanceof BluetoothAutoConnectService)
-                .map(next -> (BluetoothAutoConnectService) next)
+                .filter(next -> next instanceof BluetoothService)
+                .map(next -> (BluetoothService) next)
                 .subscribe(next -> {
-                    autoConnectService = next;
+                    bluetoothService = next;
                     bluetoothConnectionObservable = next;
                     if (currentFragment == deviceSearchFragment)
                         deviceSearchFragment.setBluetoothConnectionObservable(bluetoothConnectionObservable);
@@ -203,7 +203,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     public BluetoothWriter getBluetoothWriter() {
-        return autoConnectService;
+        return bluetoothService;
     }
 
     public void setViewVinAndDeviceEntry() {

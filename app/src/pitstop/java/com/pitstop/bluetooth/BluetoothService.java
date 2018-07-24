@@ -76,13 +76,13 @@ import java.util.Map;
 /**
  * Created by Paul Soladoye on 11/04/2016.
  */
-public class BluetoothAutoConnectService extends Service implements ObdManager.IBluetoothDataListener
+public class BluetoothService extends Service implements ObdManager.IBluetoothDataListener
         , BluetoothConnectionObservable, ConnectionStatusObserver, BluetoothDataHandlerManager
         , DeviceVerificationObserver, BluetoothWriter, AlarmObservable, FuelObservable {
 
     public class BluetoothBinder extends Binder {
-        public BluetoothAutoConnectService getService() {
-            return BluetoothAutoConnectService.this;
+        public BluetoothService getService() {
+            return BluetoothService.this;
         }
     }
 
@@ -91,7 +91,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
     private String ElmMacAddress ="";
 
     public static final int notifID = 1360119;
-    private static final String TAG = BluetoothAutoConnectService.class.getSimpleName();
+    private static final String TAG = BluetoothService.class.getSimpleName();
 
     //Timer length values
     public static final int DTC_RETRY_LEN = 3; //Seconds
@@ -179,6 +179,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
         @Override
         public void onTimeout() {
+            Log.d(TAG,"getVinTimeoutTimer() timeout, vinRequested: "+vinRequested);
             if (!vinRequested) return;
             vinRequested = false;
             Logger.getInstance().logW(TAG,"VIN retrieval timeout", DebugMessage.TYPE_BLUETOOTH);
@@ -515,7 +516,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean requestVin() {
-        if (vinRequested) return false;
+        if (vinRequested || deviceManager == null) return false;
         Logger.getInstance().logI(TAG,"VIN requested", DebugMessage.TYPE_BLUETOOTH);
         vinRequested = true;
 
@@ -528,7 +529,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean requestAllPid() {
-        if (allPidRequested) return false;
+        if (allPidRequested || deviceManager == null) return false;
         Logger.getInstance().logI(TAG,"All pid requested", DebugMessage.TYPE_BLUETOOTH);
 
         allPidRequested = true;
@@ -540,7 +541,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
 
     @Override
     public boolean requestDeviceTime() {
-        if (rtcTimeRequested) return false;
+        if (rtcTimeRequested || deviceManager == null) return false;
         rtcTimeRequested = true;
         Logger.getInstance().logI(TAG,"Rtc time requested", DebugMessage.TYPE_BLUETOOTH);
 
@@ -984,7 +985,7 @@ public class BluetoothAutoConnectService extends Service implements ObdManager.I
         deviceManager.close();
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
+        mNotificationManager.cancel(BluetoothService.notifID);
     }
 
     @Override
