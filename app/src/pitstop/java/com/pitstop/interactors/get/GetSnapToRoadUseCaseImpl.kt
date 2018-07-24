@@ -2,8 +2,8 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
-import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.snapToRoad.SnappedLocation
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.RecordedLocation
 import com.pitstop.network.RequestError
@@ -11,7 +11,6 @@ import com.pitstop.repositories.SnapToRoadRepository
 import com.pitstop.utils.Logger
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by David C. and Karol Zdebel on 16/3/18.
@@ -48,58 +47,68 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
         var polylinePartition = arrayListOf<RecordedLocation>()
         var observableList = arrayListOf<Observable<List<SnappedPoint>>>()
 
-        while (index <= polylineList.lastIndex){
-            polylinePartition.add(polylineList[index])
+//        while (index <= polylineList.lastIndex){
+//            polylinePartition.add(polylineList[index])
+//
+//            if (index != 0 && (index == nextPartitionIndex || index == polylineList.lastIndex)){
+//
+//                if (index != polylineList.lastIndex){
+//                    index = index.minus(overlap+1) //Add one since index is incremented
+//                }
+//                nextPartitionIndex = index + listSizeLimit
+//
+//                //send request
+//                var latLngString = ""
+//                polylinePartition.forEachIndexed({ index,loc->
+//                    latLngString = latLngString.plus("${loc.latitude},${loc.longitude}")
+//                    if (polylinePartition.lastIndex != index) latLngString = latLngString.plus("|")
+//                })
+//                Log.d(tag,"polylinePartition converted to str, size: ${polylinePartition.size} " +
+//                        "last point: (${polylinePartition.last().latitude},${polylinePartition.last().longitude}) " +
+//                        "first point: (${polylinePartition.first().latitude},${polylinePartition.first().longitude})")
+//                polylinePartition = arrayListOf()
+//                observableList.add(snapToRoadRepository.getSnapToRoadFromLocations(latLngString)
+//                        //Remove overlap points on all paritions other than first
+//                        .map {
+//                            return@map if (observableList.size > 1)
+//                                it.data!!.subList(overlap,it.data.lastIndex)
+//                            else it.data
+//                        })
+//            }
+//            index = index.inc()
+//
+//        }
 
-            if (index != 0 && (index == nextPartitionIndex || index == polylineList.lastIndex)){
+//        val disposable = Observable.combineLatest(observableList,{
+//                    val snappedPoints = arrayListOf<SnappedPoint>()
+//                    it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
+//                   // it.forEach { (it as Collection<SnappedPoint>).forEach { Log.d(tag,"returned original index ${it.originalIndex}, coordinates: ${it.location}") } }
+//                    return@combineLatest snappedPoints
+//                }).subscribeOn(Schedulers.computation())
+//                .observeOn(Schedulers.io())
+//                .subscribe({
+//                    Log.d(tag, "snapToRoadRepository.onNext() data.size: ${it.size}")
+//
+//                }, { error ->
+//                    if (error is HttpException){
+//                        val errorBody = error.response().errorBody()?.string()
+//                        Log.d(tag,"snapToRoadRepository.error: $errorBody")
+//                    }
+//                    this@GetSnapToRoadUseCaseImpl.onError(RequestError(error))
+//
+//                })
+//        compositeDisposable.add(disposable)
+        this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(polylinePartition.map {
+            val snappedPoint = SnappedPoint()
+            val snappedLocation = SnappedLocation()
+            snappedLocation.longitude = it.longitude.toFloat()
+            snappedLocation.latitude = it.latitude.toFloat()
+            snappedPoint.location = snappedLocation
+            snappedPoint.originalIndex = index
+            snappedPoint.placeId = index.toString()
+            snappedPoint
+        })
 
-                if (index != polylineList.lastIndex){
-                    index = index.minus(overlap+1) //Add one since index is incremented
-                }
-                nextPartitionIndex = index + listSizeLimit
-
-                //send request
-                var latLngString = ""
-                polylinePartition.forEachIndexed({ index,loc->
-                    latLngString = latLngString.plus("${loc.latitude},${loc.longitude}")
-                    if (polylinePartition.lastIndex != index) latLngString = latLngString.plus("|")
-                })
-                Log.d(tag,"polylinePartition converted to str, size: ${polylinePartition.size} " +
-                        "last point: (${polylinePartition.last().latitude},${polylinePartition.last().longitude}) " +
-                        "first point: (${polylinePartition.first().latitude},${polylinePartition.first().longitude})")
-                polylinePartition = arrayListOf()
-                observableList.add(snapToRoadRepository.getSnapToRoadFromLocations(latLngString)
-                        //Remove overlap points on all paritions other than first
-                        .map {
-                            return@map if (observableList.size > 1)
-                                it.data!!.subList(overlap,it.data.lastIndex)
-                            else it.data
-                        })
-            }
-            index = index.inc()
-
-        }
-
-        val disposable = Observable.combineLatest(observableList,{
-                    val snappedPoints = arrayListOf<SnappedPoint>()
-                    it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
-                   // it.forEach { (it as Collection<SnappedPoint>).forEach { Log.d(tag,"returned original index ${it.originalIndex}, coordinates: ${it.location}") } }
-                    return@combineLatest snappedPoints
-                }).subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.io())
-                .subscribe({
-                    Log.d(tag, "snapToRoadRepository.onNext() data.size: ${it.size}")
-                    this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(it)
-
-                }, { error ->
-                    if (error is HttpException){
-                        val errorBody = error.response().errorBody()?.string()
-                        Log.d(tag,"snapToRoadRepository.error: $errorBody")
-                    }
-                    this@GetSnapToRoadUseCaseImpl.onError(RequestError(error))
-
-                })
-        compositeDisposable.add(disposable)
 
     }
 
