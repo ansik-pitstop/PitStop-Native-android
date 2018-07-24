@@ -1,7 +1,10 @@
 package com.pitstop.ui.add_car.device_search;
 
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.Car;
 import com.pitstop.ui.LoadingView;
+
+import io.reactivex.Observable;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.
@@ -22,5 +25,9 @@ public interface DeviceSearchView extends LoadingView{
     void onCouldNotConnectToDevice();
     void connectingToDevice();
     void displayToast(int message);
+    boolean isBluetoothServiceRunning();
+    void startBluetoothService();
+    void endBluetoothService();
+    Observable<BluetoothService> getBluetoothService();
     boolean checkPermissions();
 }

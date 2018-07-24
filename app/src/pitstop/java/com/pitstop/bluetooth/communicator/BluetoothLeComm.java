@@ -17,7 +17,7 @@ import android.util.Log;
 
 import com.pitstop.bluetooth.bleDevice.AbstractDevice;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.io.UnsupportedEncodingException;
@@ -197,7 +197,7 @@ public class BluetoothLeComm implements BluetoothCommunicator {
                     device.onConnectionStateChange(btConnectionState);
                     NotificationManager mNotificationManager =
                             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-                    mNotificationManager.cancel(BluetoothAutoConnectService.notifID);
+                    mNotificationManager.cancel(BluetoothService.notifID);
                     break;
 
 

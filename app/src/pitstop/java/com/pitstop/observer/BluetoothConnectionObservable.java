@@ -1,6 +1,6 @@
 package com.pitstop.observer;
 
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.ReadyDevice;
 
 /**
@@ -10,14 +10,14 @@ import com.pitstop.models.ReadyDevice;
 public interface BluetoothConnectionObservable extends Subject{
 
     //Number of seconds before an error or success response occurs with pid data
-    double RETRIEVAL_LEN_ALL_PID = (BluetoothAutoConnectService.PID_RETRY_LEN
-            * BluetoothAutoConnectService.PID_RETRY_COUNT)
-            + BluetoothAutoConnectService.DTC_RETRY_LEN;
+    double RETRIEVAL_LEN_ALL_PID = (BluetoothService.PID_RETRY_LEN
+            * BluetoothService.PID_RETRY_COUNT)
+            + BluetoothService.DTC_RETRY_LEN;
 
     //Number of seconds before an error or success response occurs with dtc data
-    double RETRIEVAL_LEN_DTC = BluetoothAutoConnectService.DTC_RETRY_COUNT
-            * BluetoothAutoConnectService.DTC_RETRY_LEN
-            + BluetoothAutoConnectService.DTC_RETRY_LEN;
+    double RETRIEVAL_LEN_DTC = BluetoothService.DTC_RETRY_COUNT
+            * BluetoothService.DTC_RETRY_LEN
+            + BluetoothService.DTC_RETRY_LEN;
 
     void disconnect();
 

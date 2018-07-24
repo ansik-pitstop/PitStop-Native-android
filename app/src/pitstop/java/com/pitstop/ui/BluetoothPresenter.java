@@ -1,6 +1,6 @@
 package com.pitstop.ui;
 
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.observer.BluetoothDtcObserver;
 import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
@@ -16,7 +16,7 @@ public interface BluetoothPresenter extends BasePresenter, BluetoothConnectionOb
 
     void bindBluetoothService();
 
-    void onServiceBound(BluetoothAutoConnectService service);
+    void onServiceBound(BluetoothService service);
 
     void unbindBluetoothService();
 

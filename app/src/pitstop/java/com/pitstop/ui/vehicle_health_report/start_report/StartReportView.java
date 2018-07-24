@@ -2,6 +2,8 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import com.pitstop.observer.BluetoothConnectionObservable;
 
+import io.reactivex.Observable;
+
 /**
  * Created by Matt on 2017-08-11.
  */
@@ -19,5 +21,7 @@ public interface StartReportView {
     void displayOffline();
     void changeTitle(int stringId, boolean progress);
     boolean checkPermissions();
-    BluetoothConnectionObservable getBluetoothConnectionObservable();
+    void startBluetoothService();
+    boolean isBluetoothServiceRunning();
+    Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable();
 }

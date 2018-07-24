@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.models.Car;
@@ -18,6 +19,8 @@ import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import io.reactivex.disposables.Disposable;
+
 /**
  * Created by Karol Zdebel on 8/1/2017.
  */
@@ -29,7 +32,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
     private DeviceSearchView view;
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
     private ReadyDevice readyDevice = new ReadyDevice("","","");
     private boolean searchingForVin;
     private boolean searchingForDevice;
@@ -47,7 +49,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.ADD_CAR_RETRY_GET_VIN);
-            bluetoothConnectionObservable.requestVin();
+            if (view != null)
+                view.getBluetoothService().take(1).subscribe(BluetoothService::requestVin);
         }
 
         @Override
@@ -70,6 +73,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             else{
                 view.onVinRetrievalFailed(readyDevice.getScannerName()
                         , readyDevice.getScannerId(), mileage);
+            }
+
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
             }
 
             view.hideLoading(null);
@@ -95,6 +102,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (view == null) return;
             connectingToDevice = false;
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
 
         }
@@ -117,13 +127,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             , FIND_DEVICE_RETRY_AMOUNT) {
         @Override
         public void onRetry() {
-            Log.d(TAG,"onRetry()");
+            Log.d(TAG, "onRetry()");
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
-                    ,MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
-            if (bluetoothConnectionObservable != null){
-                bluetoothConnectionObservable.requestDeviceSearch(true, true);
+                    , MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
+            if (view != null) {
+                Disposable d = view.getBluetoothService().take(1)
+                        .subscribe((next) -> next.requestDeviceSearch(true, true));
             }
-    }
+        }
 
         @Override
         public void onTimeout() {
@@ -133,6 +144,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             searchingForDevice = false;
             view.onCannotFindDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                     , MixpanelHelper.FAIL);
@@ -150,8 +164,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void setBluetoothConnectionObservable(
             BluetoothConnectionObservable bluetoothConnectionObservable){
 
-        this.bluetoothConnectionObservable = bluetoothConnectionObservable;
-
         //If view is subscribed, subscribe to bluetooth service
         if (view != null){
             bluetoothConnectionObservable.subscribe(this);
@@ -161,35 +173,37 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     public void subscribe(DeviceSearchView view){
         Log.d(TAG,"subscribe()");
         this.view = view;
-
-        if (bluetoothConnectionObservable != null){
-            bluetoothConnectionObservable.subscribe(this);
-        }
+        if (view != null)
+            view.getBluetoothService().take(1).subscribe((next)->next.subscribe(this));
     }
 
     public void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
+
+        if (view != null)
+            view.getBluetoothService().take(1).subscribe((next)->next.unsubscribe(this));
+        findDeviceTimer.cancel();
+        connectionTimer.cancel();
+        getVinTimer.cancel();
+
+        searchingForVin = false;
+        connectingToDevice = false;
+        searchingForVin = false;
         this.view = null;
-        if (bluetoothConnectionObservable != null){
-            bluetoothConnectionObservable.unsubscribe(this);
-
-            findDeviceTimer.cancel();
-            connectionTimer.cancel();
-            getVinTimer.cancel();
-
-            searchingForVin = false;
-            connectingToDevice = false;
-            searchingForVin = false;
-        }
     }
 
     public void startSearch(){
         Log.d(TAG,"startSearch()");
 
-        if (view == null || bluetoothConnectionObservable == null) return;
+        if (view == null) return;
 
         //Already searching, no need to start another search
         if (searchingForDevice) return;
+
+        //Start service if not already running
+        if (!view.isBluetoothServiceRunning()){
+            view.startBluetoothService();
+        }
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
@@ -206,41 +220,43 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
 
         //Check if already connected to device
-        if (bluetoothConnectionObservable.getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+        Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+            if (next.getDeviceState()
+                    .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
 
-            mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
-                    , MixpanelHelper.SUCCESS);
+                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+                        , MixpanelHelper.SUCCESS);
 
-            readyDevice = bluetoothConnectionObservable.getReadyDevice();
+                readyDevice = next.getReadyDevice();
 
-            //Check if retrieved VIN is valid, otherwise begin timer
-            if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
-                searchingForVin = true;
-                bluetoothConnectionObservable.requestVin();
-                getVinTimer.start();
+                //Check if retrieved VIN is valid, otherwise begin timer
+                if (!AddCarUtils.isVinValid(readyDevice.getVin())){
+                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
+                    searchingForVin = true;
+                    next.requestVin();
+                    getVinTimer.start();
+                }
+
+                //Add the car
+                else{
+                    addCar(readyDevice);
+                }
+
             }
-
-            //Add the car
+            //Otherwise request search and wait for callback
             else{
-                addCar(readyDevice);
-            }
+                //Try to start search or check if state isn't disconnected and therefore already searching
+                if (next.requestDeviceSearch(true, true)
+                        || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
+                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
+                    searchingForDevice = true;
+                    findDeviceTimer.start();
 
-        }
-        //Otherwise request search and wait for callback
-        else{
-            //Try to start search or check if state isn't disconnected and therefore already searching
-            if (bluetoothConnectionObservable.requestDeviceSearch(true, true)
-                    || !bluetoothConnectionObservable.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
-                view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
-                searchingForDevice = true;
-                findDeviceTimer.start();
-
-            } else{
-                view.displayToast(R.string.request_search_failed_add_car_message);
+                } else{
+                    view.displayToast(R.string.request_search_failed_add_car_message);
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -285,24 +301,34 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             //Try to get valid VIN
             searchingForVin = true;
-            bluetoothConnectionObservable.requestVin();
+            Disposable d = view.getBluetoothService()
+                    .take(1)
+                    .subscribe((next)->{
+                        next.requestVin();
+                    });
             getVinTimer.start();
         }
     }
 
     @Override
     public void onDeviceDisconnected() {
-        Log.d(TAG,"onDeviceDisconnected()");
+        Log.d(TAG,"onDeviceDisconnected() searchingForVin? "+searchingForVin+", connectingToDevice? "+connectingToDevice);
         if (connectingToDevice){
             connectingToDevice = false;
             connectionTimer.cancel();
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
         }
         if (searchingForVin){
             searchingForVin = false;
             getVinTimer.cancel();
             view.onCouldNotConnectToDevice();
+            if (view.isBluetoothServiceRunning()){
+                view.endBluetoothService();
+            }
             view.hideLoading(null);
         }
     }

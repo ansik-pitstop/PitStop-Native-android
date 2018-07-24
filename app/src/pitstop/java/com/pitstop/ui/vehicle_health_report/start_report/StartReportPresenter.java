@@ -19,6 +19,9 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 
 /**
  * Created by Matt on 2017-08-11.
@@ -42,7 +45,6 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
-    private BluetoothConnectionObservable bluetoothConnectionObservable;
     private boolean carAdded = true; //Assume car is added, but check when loading view and set to false if not
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
@@ -54,9 +56,6 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     public void setBluetoothConnectionObservable(BluetoothConnectionObservable bluetoothConnectionObservable){
         Log.d(TAG,"setBluetoothConnectionObservable() state: "+bluetoothConnectionObservable.getDeviceState());
 
-        if (this.bluetoothConnectionObservable != null) return;
-
-        this.bluetoothConnectionObservable = bluetoothConnectionObservable;
         bluetoothConnectionObservable.subscribe(this);
         if (getView() != null && carAdded){
             displayBluetoothState(bluetoothConnectionObservable);
@@ -99,20 +98,25 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         Log.d(TAG,"subscribe()");
         super.subscribe(view);
         carAdded = true;
-        if (bluetoothConnectionObservable != null){
-            bluetoothConnectionObservable.subscribe(this);
-        }
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Disposable d = view.getBluetoothConnectionObservable().take(1).subscribe((next) -> {
+            next.subscribe(StartReportPresenter.this);
+            compositeDisposable.clear();
+        });
+        compositeDisposable.add(d);
     }
 
     @Override
     public void unsubscribe(){
         Log.d(TAG,"unsubscribe()");
-        super.unsubscribe();
         carAdded = true;
-        if (bluetoothConnectionObservable != null){
-            bluetoothConnectionObservable.unsubscribe(this);
-            bluetoothConnectionObservable = null;
-        }
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next) -> {
+            next.unsubscribe(StartReportPresenter.this);
+            compositeDisposable.clear();
+        });
+        compositeDisposable.add(d);
+        super.unsubscribe();
     }
 
     @Override
@@ -146,7 +150,12 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     void onBluetoothSearchRequested(){
         Log.d(TAG,"onBluetoothSearchRequested()");
         if (getView() == null) return;
-        getView().getBluetoothConnectionObservable().requestDeviceSearch(true,false);
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
+          next.requestDeviceSearch(true,false);
+            compositeDisposable.clear();
+        });
+        compositeDisposable.add(d);
     }
 
     void startReportButtonClicked(boolean emissions){
@@ -159,36 +168,39 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             return;
         }
 
-        //Check bluetooth connection
-        if (!getView().getBluetoothConnectionObservable().getDeviceState()
-                .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-
-            //Ask for search
-            if (!getView().getBluetoothConnectionObservable().getDeviceState()
-                    .equals(BluetoothConnectionObservable.State.SEARCHING)) {
-                getView().promptBluetoothSearch();
-            } else {
-                getView().displaySearchInProgress();
-            }
-            return;
+        //Don't stop the service anywhere because it is stopped inside MainActivity (Tight coupling)
+        if (!getView().isBluetoothServiceRunning()){
+            getView().startBluetoothService();
         }
-
-        //Check network connection
-        useCaseComponent.getCheckNetworkConnectionUseCase().execute(status -> {
-            if (getView() == null) return;
-            else if (!status) getView().displayOffline();
-
-            //No car added
-            else if (!carAdded) getView().promptAddCar();
-
-            else if (emissions){
-                getView().startEmissionsProgressActivity();
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next) -> {
+            //Check bluetooth connection
+            if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+                //Ask for search
+                if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.SEARCHING)) {
+                    getView().promptBluetoothSearch();
+                } else {
+                    getView().displaySearchInProgress();
+                }
             }else{
-                getView().startVehicleHealthReportProgressActivity();
+                //Check network connection
+                useCaseComponent.getCheckNetworkConnectionUseCase().execute(status -> {
+                    if (getView() == null) return;
+                    else if (!status) getView().displayOffline();
+
+                        //No car added
+                    else if (!carAdded) getView().promptAddCar();
+
+                    else if (emissions){
+                        getView().startEmissionsProgressActivity();
+                    }else{
+                        getView().startVehicleHealthReportProgressActivity();
+                    }
+                });
             }
+            compositeDisposable.clear();
         });
-
-
+        compositeDisposable.add(d);
     }
 
     void onAddCarClicked(){
@@ -218,13 +230,17 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     }
 
     private void loadView(){
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
         useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG,"onCarRetrieved() car: "+car);
                 carAdded = true;
-                if (bluetoothConnectionObservable != null)
-                    displayBluetoothState(bluetoothConnectionObservable);
+                Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
+                    displayBluetoothState(next);
+                    compositeDisposable.clear();
+                });
+                compositeDisposable.add(d);
             }
 
             @Override

@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -567,9 +567,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @Override
-    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+    public void onServiceBinded(@NotNull BluetoothService bluetoothService) {
         Log.d(TAG, "onServiceBinded()");
-        this.presenter.onServiceBound(bluetoothAutoConnectService);
+        this.presenter.onServiceBound(bluetoothService);
     }
 
     @OnClick(R.id.fuel_expense_row)

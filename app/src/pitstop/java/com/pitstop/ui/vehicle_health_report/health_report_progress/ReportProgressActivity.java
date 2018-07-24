@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.models.report.EmissionsReport;
 import com.pitstop.models.report.VehicleHealthReport;
@@ -34,7 +34,7 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
     private FragmentManager fragmentManager;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private BluetoothAutoConnectService bluetoothAutoConnectService;
+    private BluetoothService bluetoothService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,12 +49,12 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
         healthReportFragment = new HealthReportFragment();
 
         ((GlobalApplication)getApplicationContext()).getServices()
-                .filter(next -> next instanceof BluetoothAutoConnectService)
-                .map(next -> (BluetoothAutoConnectService)next)
+                .filter(next -> next instanceof BluetoothService)
+                .map(next -> (BluetoothService)next)
                 .subscribe(next -> {
                     Log.d(TAG,"getServices.onNext()");
                     bluetoothConnectionObservable = next;
-                    bluetoothAutoConnectService = next;
+                    bluetoothService = next;
                     healthReportProgressFragment.setBluetooth(bluetoothConnectionObservable);
                     checkPermissions();
 
@@ -87,12 +87,12 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
     @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        return bluetoothAutoConnectService;
+        return bluetoothService;
     }
 
     @Override
     public BluetoothWriter getBluetoothWriter() {
-        return bluetoothAutoConnectService;
+        return bluetoothService;
     }
 
     @Override

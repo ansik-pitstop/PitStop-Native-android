@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
 
@@ -25,7 +25,7 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
     private final String TAG = getClass().getSimpleName();
 
     public static final int RC_LOCATION_PERM = 101;
-    protected BluetoothAutoConnectService autoConnectService;
+    protected BluetoothService bluetoothService;
 
     public void requestPermission(final Activity activity, final String[] permissions, final int requestCode,
                                   @Nullable final String message) {
@@ -69,20 +69,25 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
                                             ,int[] grantResults) {
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getAutoConnectService()
+                getBluetoothService()
+                        .take(1)
                         .filter((it)-> it.getDeviceState() != BluetoothConnectionObservable.State.DISCONNECTED)
                         .subscribe((it)-> it.requestDeviceSearch(false,false));
             }
         }
     }
 
-    public Observable<BluetoothAutoConnectService> getAutoConnectService(){
+    public Observable<BluetoothService> getBluetoothService(){
         return ((GlobalApplication)getApplicationContext())
                 .getServices()
-                .filter ((it)-> it instanceof BluetoothAutoConnectService)
+                .filter ((it)-> it instanceof BluetoothService)
                 .map((it)->{
-                    autoConnectService = (BluetoothAutoConnectService)it;
-                    return autoConnectService;
+                    bluetoothService = (BluetoothService)it;
+                    return bluetoothService;
                 });
+    }
+
+    public BluetoothConnectionObservable getBluetoothConnectionObservable(){
+        return bluetoothService;
     }
 }

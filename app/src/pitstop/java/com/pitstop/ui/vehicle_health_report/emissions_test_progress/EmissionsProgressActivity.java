@@ -12,7 +12,7 @@ import android.view.WindowManager;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
@@ -33,7 +33,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
     private InProgressFragment inProgressFragment;
     private EmissionsReportFragment emissionsReportFragment;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
-    private BluetoothAutoConnectService bluetoothAutoConnectService;
+    private BluetoothService bluetoothService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,10 +48,10 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
         inProgressFragment.setCallback(this);
 
         ((GlobalApplication)getApplicationContext()).getServices()
-                .filter(next -> next instanceof BluetoothAutoConnectService)
-                .map(next -> (BluetoothAutoConnectService)next)
+                .filter(next -> next instanceof BluetoothService)
+                .map(next -> (BluetoothService)next)
                 .subscribe(next -> {
-                    bluetoothAutoConnectService = next;
+                    bluetoothService = next;
                     bluetoothConnectionObservable = next;
                     checkPermissions();
                     inProgressFragment.setBluetooth(bluetoothConnectionObservable);
@@ -83,12 +83,12 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        return bluetoothAutoConnectService;
+        return bluetoothService;
     }
 
     @Override
     public BluetoothWriter getBluetoothWriter() {
-        return bluetoothAutoConnectService;
+        return bluetoothService;
     }
 
     @Override

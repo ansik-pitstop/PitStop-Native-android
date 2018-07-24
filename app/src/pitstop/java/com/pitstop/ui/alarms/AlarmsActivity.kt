@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import com.pitstop.R
-import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.models.Alarm
 
 /**
@@ -23,19 +23,19 @@ class AlarmsActivity: AppCompatActivity() {
     var alarmsFragment: AlarmsFragment?  = null
     var bundle: Bundle? = Bundle()
     var alarmClicked: Alarm? = null;
-    var autoConnectService : BluetoothAutoConnectService? = null;
+    var service : BluetoothService? = null;
     var currFragment: Fragment? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             Log.d(TAG, "serviceConnection.onServiceConnected()")
-            autoConnectService =  ((service as BluetoothAutoConnectService.BluetoothBinder)
+            this@AlarmsActivity.service =  ((service as BluetoothService.BluetoothBinder)
                     .service)
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             Log.d(TAG, "serviceConnection.onServiceDisconnected()")
-            autoConnectService = null
+            service = null
             alarmsFragment?.serviceUnbinded()
 
         }
@@ -44,7 +44,7 @@ class AlarmsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarms)
-        bindService(Intent(this, BluetoothAutoConnectService::class.java),
+        bindService(Intent(this, BluetoothService::class.java),
                 serviceConnection, Context.BIND_AUTO_CREATE)
         alarmsFragment = AlarmsFragment()
         currFragment = alarmsFragment
