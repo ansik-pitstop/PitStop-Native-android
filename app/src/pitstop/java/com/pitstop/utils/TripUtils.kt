@@ -7,6 +7,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.RoundCap
+import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.*
 import com.pitstop.ui.MapView
@@ -108,14 +109,14 @@ class TripUtils {
             return locList
         }
 
-        fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
+        fun getPolylineDistance(polyline: List<LocationData>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
                     .sumByDouble {
-                        val next = polyline[polyline.indexOf(it).plus(1)].location
-                        distFrom(it.location.latitude.toDouble()
-                                ,it.location.longitude.toDouble()
-                                ,next.latitude.toDouble()
-                                ,next.longitude.toDouble())/1000
+                        val next = polyline[polyline.indexOf(it).plus(1)]
+                        distFrom(it.data.latitude
+                                ,it.data.longitude
+                                ,next.data.latitude
+                                ,next.data.longitude)/1000
             }
         }
 

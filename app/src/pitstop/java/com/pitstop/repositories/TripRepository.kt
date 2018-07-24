@@ -11,18 +11,15 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.models.sensor_data.DataPoint
 import com.pitstop.models.sensor_data.trip.LocationDataFormatted
 import com.pitstop.models.sensor_data.trip.TripData
-import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
 import com.pitstop.retrofit.GoogleSnapToRoadApi
 import com.pitstop.retrofit.PitstopResponse
 import com.pitstop.retrofit.PitstopTripApi
-import com.pitstop.retrofit.SnapToRoadResponse
 import com.pitstop.utils.Logger
 import com.pitstop.utils.TripUtils
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Response
 import java.io.IOException
 
 /**
@@ -245,30 +242,30 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
         //Go through each trip
         tripData.forEach{
-            val snappedPoints = arrayListOf<SnappedPoint>()
-            it.locations.chunked(100).forEach{
-                //calculate mileage
-                var locString = ""
-                it.map { loc -> loc.data }.forEach({ loc ->
-                    locString += "${loc.latitude},${loc.longitude}"
-                    if (it.last().data != loc) locString += "|"
-                })
-                lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
-                try{
-                    response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
-                            , "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU").execute()
-                    if (response.isSuccessful){
-                        snappedPoints.addAll(response.body()?.snappedPoints ?: emptyList())
-                    }
-                }catch(e: Exception){
-                    e.printStackTrace()
-                    return null
-                }
-            }
+//            val snappedPoints = arrayListOf<SnappedPoint>()
+//            it.locations.chunked(100).forEach{
+//                //calculate mileage
+//                var locString = ""
+//                it.map { loc -> loc.data }.forEach({ loc ->
+//                    locString += "${loc.latitude},${loc.longitude}"
+//                    if (it.last().data != loc) locString += "|"
+//                })
+//                lateinit var response: Response<SnapToRoadResponse<List<SnappedPoint>>>
+//                try{
+//                    response = snapToRoadApi.getSnapToRoadFromLatLngCall(locString,"true"
+//                            , "AIzaSyDW84AecyYE0rvSFHregjW-a0tRE0-nzFU").execute()
+//                    if (response.isSuccessful){
+//                        snappedPoints.addAll(response.body()?.snappedPoints ?: emptyList())
+//                    }
+//                }catch(e: Exception){
+//                    e.printStackTrace()
+//                    return null
+//                }
+//            }
 
-            val mileageTrip = if (snappedPoints.isEmpty()) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
+            val mileageTrip = if (it.locations.isEmpty()) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
             else DataPoint(DataPoint.ID_MILEAGE_TRIP
-                    , TripUtils.Companion.getPolylineDistance(snappedPoints).toString())
+                    , TripUtils.getPolylineDistance(it.locations).toString())
 
             //Reverse geocode lat and long info
             var startAddress: Address? = null
