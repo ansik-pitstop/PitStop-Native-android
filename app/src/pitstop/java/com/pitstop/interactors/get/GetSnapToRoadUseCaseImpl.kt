@@ -98,7 +98,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
 //
 //                })
 //        compositeDisposable.add(disposable)
-        this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(polylinePartition.map {
+        this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(polylineList.map {
             val snappedPoint = SnappedPoint()
             val snappedLocation = SnappedLocation()
             snappedLocation.longitude = it.longitude.toFloat()
