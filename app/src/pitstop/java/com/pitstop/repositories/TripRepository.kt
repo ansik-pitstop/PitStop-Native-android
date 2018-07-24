@@ -266,6 +266,7 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val mileageTrip = if (it.locations.isEmpty()) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
             else DataPoint(DataPoint.ID_MILEAGE_TRIP
                     , TripUtils.getPolylineDistance(it.locations).toString())
+            Log.d(tag,"calculated mileage:"+TripUtils.getPolylineDistance(it.locations).toString())
 
             //Reverse geocode lat and long info
             var startAddress: Address? = null
