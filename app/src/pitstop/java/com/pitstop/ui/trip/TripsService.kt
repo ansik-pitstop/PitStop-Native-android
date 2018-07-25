@@ -20,6 +20,7 @@ import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
+import com.pitstop.models.trip.CarActivity
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 
@@ -97,10 +98,16 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
     override fun startTripManual(){
         Log.d(tag,"startTripManual()")
+        val intent = Intent(TripBroadcastReceiver.INTENT_ACTIVITY)
+        intent.putExtra(TripBroadcastReceiver.ACTIVITY_TYPE, CarActivity.TYPE_MANUAL_START)
+        sendBroadcast(intent)
     }
 
     override fun endTripManual(){
         Log.d(tag,"endTripManual()")
+        val intent = Intent(TripBroadcastReceiver.INTENT_ACTIVITY)
+        intent.putExtra(TripBroadcastReceiver.ACTIVITY_TYPE, CarActivity.TYPE_MANUAL_END)
+        sendBroadcast(intent)
 
     }
 

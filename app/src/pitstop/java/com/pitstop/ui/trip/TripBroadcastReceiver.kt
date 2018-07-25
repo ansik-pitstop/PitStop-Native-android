@@ -38,6 +38,8 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val TIME_CURRENT_STATE = "current_state_time"
         const val TYPE_CURRENT_STATE = "current_state_type"
         const val READY_TO_PROCESS_TRIP_DATA = "process_trip_data" //Wait for locations before processing trip data since they can be delayed
+        const val INTENT_ACTIVITY = "intent_activity"
+        const val ACTIVITY_TYPE = "activity_type"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -46,24 +48,34 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         val currentTime = System.currentTimeMillis()
         val sharedPreferences = context.getSharedPreferences(tag, Context.MODE_PRIVATE)
 
+        val localLocationStorage = LocalLocationStorage(LocalDatabaseHelper.getInstance(context))
+        val localActivityStorage = LocalActivityStorage(LocalDatabaseHelper.getInstance(context))
+        val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
+        if (localUserStorage.user == null || localUserStorage.user.id == -1){
+            Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
+            return
+        }
+        val carId = localUserStorage.user.settings.carId
+        val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
+        val vin = localCarStorage.getCar(carId)?.vin ?: ""
+        if (vin.isEmpty()){
+            Logger.getInstance().logE(tag,"Vin is null! ",DebugMessage.TYPE_TRIP)
+        }
+
+        val carActivity = arrayListOf<CarActivity>()
+
+        Log.d(tag,"got intent action: "+intent.action)
+
+        if (intent.action == INTENT_ACTIVITY){
+            val activityType = intent.getIntExtra(ACTIVITY_TYPE,CarActivity.TYPE_OTHER)
+            Log.d(tag,"Got INTENT_ACTIVITY, type: $activityType")
+            carActivity.add(CarActivity(vin = vin, conf = 100
+                    , type = activityType, time = currentTime))
+        }
+
         if (ActivityRecognitionResult.hasResult(intent)) {
             val activityResult = ActivityRecognitionResult.extractResult(intent)
             Logger.getInstance().logD(tag,"Received activity recognition intent",DebugMessage.TYPE_TRIP)
-
-            val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
-            if (localUserStorage.user == null || localUserStorage.user.id == -1){
-                Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
-                return
-            }
-            val carId = localUserStorage.user.settings.carId
-            val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
-            val vin = localCarStorage.getCar(carId)?.vin
-            val localActivityStorage = LocalActivityStorage(LocalDatabaseHelper.getInstance(context))
-            val carActivity = arrayListOf<CarActivity>()
-
-            if (vin == null){
-                Logger.getInstance().logE(tag,"Vin is null! ",DebugMessage.TYPE_TRIP)
-            }
 
             var onFootActivity = 0
             var stillActivity = 0
@@ -133,10 +145,6 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
                     ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
 
-
-            val rows = localActivityStorage.store(carActivity)
-            Logger.getInstance().logD(tag,"Stored activities locally, response: $rows"
-                    , DebugMessage.TYPE_TRIP)
         }
         if (LocationResult.hasResult(intent)){
             val locationResult = LocationResult.extractResult(intent)
@@ -152,15 +160,6 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             Logger.getInstance().logD(tag,"received locations: $coords, accuracies: $accuracies"
                     ,DebugMessage.TYPE_TRIP)
 
-            val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(context))
-            if (localUserStorage.user == null || localUserStorage.user.id == -1){
-                Logger.getInstance().logE(tag,"User id is null!",DebugMessage.TYPE_TRIP)
-                return
-            }
-            val carId = localUserStorage.user.settings.carId
-            val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
-            val vin = localCarStorage.getCar(carId)?.vin
-            val localLocationStorage = LocalLocationStorage(LocalDatabaseHelper.getInstance(context))
             val locations = arrayListOf<CarLocation>()
 
             if (vin == null){
@@ -187,6 +186,13 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,false).apply()
             }
 
+        }
+
+        //Store car activity both from manual start & end, and detected activity API
+        if (!carActivity.isEmpty()){
+            val rows = localActivityStorage.store(carActivity)
+            Logger.getInstance().logD(tag,"Stored activities locally, response: $rows"
+                    , DebugMessage.TYPE_TRIP)
         }
 
     }
