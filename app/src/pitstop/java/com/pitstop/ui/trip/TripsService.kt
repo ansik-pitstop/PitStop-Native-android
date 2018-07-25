@@ -29,7 +29,7 @@ import com.pitstop.utils.Logger
  * Created by Karol Zdebel on 3/1/2018.
  */
 class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
-        , GoogleApiClient.OnConnectionFailedListener {
+        , GoogleApiClient.OnConnectionFailedListener, TripManualController {
 
     companion object {
         const val LOC_UPDATE_INTERVAL = 60 * 1000L
@@ -95,11 +95,11 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         return START_STICKY
     }
 
-    fun startTripManual(){
+    override fun startTripManual(){
         Log.d(tag,"startTripManual()")
     }
 
-    fun endTripManual(){
+    override fun endTripManual(){
         Log.d(tag,"endTripManual()")
 
     }
