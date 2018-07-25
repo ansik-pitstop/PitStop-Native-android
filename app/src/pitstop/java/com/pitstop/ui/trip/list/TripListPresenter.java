@@ -9,6 +9,7 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
+import com.pitstop.models.trip.TripStateType;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.TripActivityObserver;
@@ -18,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by David C. on 14/3/18.
@@ -84,6 +87,15 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void subscribe(TripListView view) {
         super.subscribe(view);
+        Disposable d = view.getManualTripController().subscribe(controller -> {
+            Log.d(TAG,"Got manual trip controller");
+            controller.getTripState().subscribe(state ->{
+                Log.d(TAG,"Got new trip state: "+state);
+                switch(state.getTripStateType()){
+                    case TripStateType.
+                }
+            });
+        });
     }
 
     @Override

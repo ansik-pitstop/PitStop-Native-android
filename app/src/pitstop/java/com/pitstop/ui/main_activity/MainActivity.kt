@@ -48,12 +48,14 @@ import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripsFragment
+import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
+import io.reactivex.Observable
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -894,5 +896,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun getBluetoothWriter(): BluetoothWriter?
             = bluetoothService
+
+    fun getTripsService(): Observable<TripsService> {
+        return (applicationContext as GlobalApplication)
+                .services
+                .filter { it -> it is TripsService }
+                .map { it ->
+                    it as TripsService
+                }
+    }
 
 }

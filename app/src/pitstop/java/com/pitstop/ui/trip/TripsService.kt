@@ -2,6 +2,7 @@ package com.pitstop.ui.trip
 
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -21,9 +22,10 @@ import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
+import com.pitstop.models.trip.TripState
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
-
+import io.reactivex.Observable
 
 
 /**
@@ -76,6 +78,28 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
         })
 
+        val observable: Observable<Boolean> = Observable.create({emitter ->
+            val receiver: BroadcastReceiver = object: BroadcastReceiver(){
+                override fun onReceive(p0: Context?, p1: Intent?) {
+                    if (p1 == null) return
+                    Log.d(tag,"received intent, action = ${p1.action}")
+                    if (p1.action == TripBroadcastReceiver.ACTION_TRIP_STATE_CHANGE){
+                        Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TRIP_RUNNING_STATE)}")
+                        when (p1.getStringExtra(TripBroadcastReceiver.TRIP_RUNNING_STATE)){
+                            TripBroadcastReceiver.TRIP_RUNNING -> {
+                                emitter.onNext(true)
+                            }
+                            TripBroadcastReceiver.TRIP_NOT_RUNNING -> {
+                                emitter.onNext(false)
+                            }
+                        }
+                    }
+                }
+
+            }
+        })
+
+
         googleApiClient = GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
                 .addApi(LocationServices.API)
@@ -85,6 +109,10 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
 
         googleApiClient.connect()
+    }
+
+    override fun getTripState(): Observable<TripState> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onDestroy() {

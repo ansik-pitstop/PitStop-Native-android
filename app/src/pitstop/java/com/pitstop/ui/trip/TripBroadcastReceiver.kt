@@ -40,6 +40,10 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         const val READY_TO_PROCESS_TRIP_DATA = "process_trip_data" //Wait for locations before processing trip data since they can be delayed
         const val INTENT_ACTIVITY = "intent_activity"
         const val ACTIVITY_TYPE = "activity_type"
+        const val ACTION_TRIP_STATE_CHANGE = "action_trip_state_change"
+        const val TRIP_RUNNING_STATE = "trip_running_state"
+        const val TRIP_RUNNING = "trip_running"
+        const val TRIP_NOT_RUNNING = "trip_not_running"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
