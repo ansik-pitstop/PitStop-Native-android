@@ -120,7 +120,7 @@ class LocalSensorDataStorage(private val databaseHelper: LocalDatabaseHelper) {
     }
 
     fun delete(sensorData: Collection<SensorData>): Int{
-        Log.d(TAG,"delete()")
+        Log.d(TAG,"delete() sensor data timestamps: "+sensorData.map { it.phoneTimestamp })
         val db = databaseHelper.writableDatabase
         var rows = 0
         db.beginTransaction()

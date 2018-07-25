@@ -7,6 +7,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.RoundCap
+import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.snapToRoad.SnappedPoint
 import com.pitstop.models.trip.*
 import com.pitstop.ui.MapView
@@ -102,20 +103,24 @@ class TripUtils {
         fun polylineToLocationList(polyline: List<LocationPolyline>): List<RecordedLocation>{
             val locList = arrayListOf<RecordedLocation>()
             polyline.forEach {
-                locList.add(RecordedLocation(time = it.timestamp.toLong() * 1000
-                        , latitude = getLatitudeValue(it), longitude = getLongitudeValue(it),conf = 100))
+                val longitude = getLongitudeValue(it)
+                val latitude = getLatitudeValue(it)
+                if (longitude != 0.0 && latitude != 0.0){
+                    locList.add(RecordedLocation(time = it.timestamp.toLong() * 1000
+                            , latitude = latitude, longitude = longitude,conf = 100))
+                }
             }
             return locList
         }
 
-        fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
+        fun getPolylineDistance(polyline: List<LocationData>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
                     .sumByDouble {
-                        val next = polyline[polyline.indexOf(it).plus(1)].location
-                        distFrom(it.location.latitude.toDouble()
-                                ,it.location.longitude.toDouble()
-                                ,next.latitude.toDouble()
-                                ,next.longitude.toDouble())/1000
+                        val next = polyline[polyline.indexOf(it).plus(1)]
+                        distFrom(it.data.latitude
+                                ,it.data.longitude
+                                ,next.data.latitude
+                                ,next.data.longitude)/1000
             }
         }
 
