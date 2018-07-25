@@ -1,6 +1,5 @@
 package com.pitstop.ui.trip
 
-import com.pitstop.models.trip.TripState
 import io.reactivex.Observable
 
 /**
@@ -10,6 +9,6 @@ interface TripManualController {
 
     fun startTripManual()
     fun endTripManual()
-    fun getTripState(): Observable<TripState>
+    fun getTripState(): Observable<Boolean>
 
 }

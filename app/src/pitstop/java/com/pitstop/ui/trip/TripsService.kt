@@ -2,10 +2,7 @@ package com.pitstop.ui.trip
 
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
@@ -22,7 +19,7 @@ import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.other.StartDumpingTripDataWhenConnecteUseCase
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.trip.CarActivity
-import com.pitstop.models.trip.TripState
+import com.pitstop.models.trip.TripStateType
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
 import io.reactivex.Observable
@@ -48,6 +45,8 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private lateinit var useCaseComponent: UseCaseComponent
     private var googlePendingIntent: PendingIntent? = null
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var tripStateObservable: Observable<Boolean>
+
 
     inner class TripsBinder : Binder() {
         val service: TripsService
@@ -78,18 +77,27 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
         })
 
-        val observable: Observable<Boolean> = Observable.create({emitter ->
+        //Getting trip states and passing them to subscribes in app lifecycle such as trip list fragment
+        tripStateObservable = Observable.create({emitter ->
+
+            //Return current state to emitter
+            val currentStateType = sharedPreferences.getInt(TripBroadcastReceiver.TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
+            if (currentStateType == TripStateType.TRIP_DRIVING_HARD.value){
+                emitter.onNext(true)
+            }
+
+            //Continue streaming updates from receiver, broadcasted from TripBroadcastReceiver
             val receiver: BroadcastReceiver = object: BroadcastReceiver(){
                 override fun onReceive(p0: Context?, p1: Intent?) {
                     if (p1 == null) return
                     Log.d(tag,"received intent, action = ${p1.action}")
-                    if (p1.action == TripBroadcastReceiver.ACTION_TRIP_STATE_CHANGE){
-                        Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TRIP_RUNNING_STATE)}")
-                        when (p1.getStringExtra(TripBroadcastReceiver.TRIP_RUNNING_STATE)){
-                            TripBroadcastReceiver.TRIP_RUNNING -> {
+                    if (p1.action == TripBroadcastReceiver.TYPE_CURRENT_STATE){
+                        Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE)}")
+                        when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
+                            TripStateType.TRIP_DRIVING_HARD.value -> {
                                 emitter.onNext(true)
                             }
-                            TripBroadcastReceiver.TRIP_NOT_RUNNING -> {
+                            else -> {
                                 emitter.onNext(false)
                             }
                         }
@@ -97,6 +105,9 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                 }
 
             }
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(TripBroadcastReceiver.TYPE_CURRENT_STATE)
+            registerReceiver(receiver, intentFilter)
         })
 
 
@@ -111,8 +122,8 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         googleApiClient.connect()
     }
 
-    override fun getTripState(): Observable<TripState> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getTripState(): Observable<Boolean> {
+        return tripStateObservable
     }
 
     override fun onDestroy() {

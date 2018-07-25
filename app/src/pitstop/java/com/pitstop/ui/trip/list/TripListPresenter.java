@@ -9,7 +9,6 @@ import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
-import com.pitstop.models.trip.TripStateType;
 import com.pitstop.network.RequestError;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.ui.trip.TripActivityObserver;
@@ -91,8 +90,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             Log.d(TAG,"Got manual trip controller");
             controller.getTripState().subscribe(state ->{
                 Log.d(TAG,"Got new trip state: "+state);
-                switch(state.getTripStateType()){
-                    case TripStateType.
+                if (state){
+
+                }else{
+
                 }
             });
         });
