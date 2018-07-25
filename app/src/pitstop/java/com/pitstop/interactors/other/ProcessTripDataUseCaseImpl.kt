@@ -2,13 +2,13 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
-import com.google.android.gms.location.DetectedActivity
 import com.pitstop.database.LocalActivityStorage
 import com.pitstop.database.LocalLocationStorage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
 import com.pitstop.repositories.TripRepository
 import com.pitstop.utils.Logger
@@ -85,7 +85,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
 
             when(it.type){
-                (DetectedActivity.IN_VEHICLE) -> {
+                (CarActivity.TYPE_DRIVING) -> {
 
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
@@ -102,7 +102,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             (softEnd != -1L || (softStart == -1L && hardStart == -1L) ) ){
                         //See if walking confidence is less than 40 for that time or null
                         val footActivity = activities.find{a -> a.time == it.time
-                                && it.type == DetectedActivity.ON_FOOT}
+                                && it.type == CarActivity.TYPE_ON_FOOT}
                         if (footActivity == null || footActivity.conf < LOW_FOOT_CONF){
                             //Soft start
 
@@ -114,7 +114,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
-                (DetectedActivity.ON_FOOT) -> {
+                (CarActivity.TYPE_ON_FOOT) -> {
                     if (hardStart != -1L && it.conf > HIGH_FOOT_CONF){
                         hardEnd = it.time
 
@@ -141,7 +141,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
-                (DetectedActivity.STILL) -> {
+                (CarActivity.TYPE_STILL) -> {
                     if (it.conf >= HIGH_STILL_CONF && softEnd == -1L
                             && (softStart != -1L || hardStart != -1L)){
                         softEnd = it.time

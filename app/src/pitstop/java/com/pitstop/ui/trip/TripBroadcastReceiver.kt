@@ -78,7 +78,8 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                 }else if (it.type == DetectedActivity.IN_VEHICLE){
                     vehicleActivity = it.confidence
                 }
-                carActivity.add(CarActivity(vin ?: "", currentTime,it.type,it.confidence))
+                carActivity.add(CarActivity(vin ?: "", currentTime
+                        ,TripUtils.getCarActivityType(it),it.confidence))
             })
 
             val currentTripState = getCurrentTripState(sharedPreferences)
@@ -99,7 +100,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                         if (getCurrentTripState(sharedPreferences) == nextState){
                             Logger.getInstance().logD(tag, "Still timer timeout",DebugMessage.TYPE_TRIP)
                             localActivityStorage.store(arrayListOf(CarActivity(vin ?: ""
-                                    ,System.currentTimeMillis()+1000,DetectedActivity.STILL,100)))
+                                    ,System.currentTimeMillis()+1000,CarActivity.TYPE_STILL_TIMEOUT,100)))
                             sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
                             setCurrentState(sharedPreferences
                                     , TripState(TripStateType.TRIP_NONE, System.currentTimeMillis()))
