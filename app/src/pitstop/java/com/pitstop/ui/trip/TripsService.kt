@@ -95,6 +95,15 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         return START_STICKY
     }
 
+    fun startTripManual(){
+        Log.d(tag,"startTripManual()")
+    }
+
+    fun endTripManual(){
+        Log.d(tag,"endTripManual()")
+
+    }
+
     private fun beginTrackingLocationUpdates(){
         Log.d(tag,"beginTrackingLocationUpdates()")
 
