@@ -276,6 +276,19 @@ public class TripListFragment extends Fragment implements TripListView {
     }
 
     @Override
+    public void toggleRecordingButton(boolean recording) {
+        Log.d(TAG,"toggleRecordingButton() recording: "+recording);
+        if (recording){
+            bottomButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
+            bottomButton.setText(R.string.stop_recording);
+        }else{
+            bottomButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
+            bottomButton.setText(R.string.begin_recording);
+        }
+
+    }
+
+    @Override
     public void showLoading() {
         Log.d(TAG, "showLoading()");
         if (!swipeRefreshLayout.isRefreshing()) {
@@ -349,5 +362,7 @@ public class TripListFragment extends Fragment implements TripListView {
     public Observable<TripManualController> getManualTripController() {
         return ((MainActivity)getActivity()).getTripsService().map(tripsService -> tripsService);
     }
+
+
 
 }

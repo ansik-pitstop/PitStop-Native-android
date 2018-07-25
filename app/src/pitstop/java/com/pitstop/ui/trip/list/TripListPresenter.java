@@ -90,11 +90,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             Log.d(TAG,"Got manual trip controller");
             controller.getTripState().subscribe(state ->{
                 Log.d(TAG,"Got new trip state: "+state);
-                if (state){
-
-                }else{
-
-                }
+                view.toggleRecordingButton(state);
             });
         });
     }

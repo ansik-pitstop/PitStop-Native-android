@@ -96,6 +96,11 @@ class TripBroadcastReceiver: BroadcastReceiver() {
 
             val currentTripState = getCurrentTripState(sharedPreferences)
 
+            //Broadcast current state to TripsService so state can be displayed in UI
+            val currentStateIntent = Intent()
+            currentStateIntent.action = TYPE_CURRENT_STATE
+            currentStateIntent.putExtra(TYPE_CURRENT_STATE,currentStateIntent.type)
+            context.sendBroadcast(currentStateIntent)
 
             //Move this code to use case
             val nextState = TripUtils.getNextTripState(currentTripState,carActivity)

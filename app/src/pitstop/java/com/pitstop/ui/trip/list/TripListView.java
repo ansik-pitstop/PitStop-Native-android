@@ -25,6 +25,8 @@ public interface TripListView extends ErrorHandlingView, LoadingTabView {
 
     boolean hasBeenPopulated();
 
+    void toggleRecordingButton(boolean recording);
+
     int getSortType();
 
     void displayNoTrips();
