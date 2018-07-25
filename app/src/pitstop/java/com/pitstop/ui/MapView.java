@@ -176,7 +176,7 @@ public class MapView extends FrameLayout {
 
                 if (location.getLocation().size() > 2) { // First Array containing 4 objects inside
 
-                } else { // Arrays that will only contain 2 objects
+                } else if (location.getLocation().size() == 2){ // Arrays that will only contain 2 objects
 
                     double lat = 0f;
                     double lng = 0f;

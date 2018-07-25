@@ -102,8 +102,12 @@ class TripUtils {
         fun polylineToLocationList(polyline: List<LocationPolyline>): List<RecordedLocation>{
             val locList = arrayListOf<RecordedLocation>()
             polyline.forEach {
-                locList.add(RecordedLocation(time = it.timestamp.toLong() * 1000
-                        , latitude = getLatitudeValue(it), longitude = getLongitudeValue(it),conf = 100))
+                val longitude = getLongitudeValue(it)
+                val latitude = getLatitudeValue(it)
+                if (longitude != 0.0 && latitude != 0.0){
+                    locList.add(RecordedLocation(time = it.timestamp.toLong() * 1000
+                            , latitude = latitude, longitude = longitude,conf = 100))
+                }
             }
             return locList
         }
