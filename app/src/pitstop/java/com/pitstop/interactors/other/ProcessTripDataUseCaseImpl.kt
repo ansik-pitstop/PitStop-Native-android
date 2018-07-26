@@ -34,8 +34,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val HIGH_FOOT_CONF = 90
         val HIGH_STILL_CONF = 99
         val STILL_TIMEOUT = 600000
-        val HARD_END_TIME_OFFSET = 0 //1000 * 60 * 15 //Time after a trip ends that a location still qualifies as within the trip
-        val BEFORE_START_TIME_OFFSET = 0 //1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
+        val HARD_END_TIME_OFFSET = 1000 * 60 * 15 //Time after a trip ends that a location still qualifies as within the trip
+        val BEFORE_START_TIME_OFFSET = 1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
     }
 
     private var hardStart = -1L
@@ -85,6 +85,27 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
 
             when(it.type){
+                (CarActivity.TYPE_MANUAL_START) -> {
+                    if (hardStart == -1L) hardStart = it.time
+                    if (softStart == -1L) softStart = it.time
+                    softEnd = -1
+                }
+                (CarActivity.TYPE_MANUAL_END) -> {
+                    processedTrips.add(filterLocations(softStart,hardEnd,locations))
+
+                    //Remove all processed data points
+                    val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                    val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                    Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
+                            "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
+
+                    //Reset variables in case another trip is present
+                    softStart = -1L
+                    softEnd = -1L
+                    hardStart = -1L
+                    hardEnd = -1L
+                }
                 (CarActivity.TYPE_DRIVING) -> {
 
                     //Hard start

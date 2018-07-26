@@ -103,17 +103,13 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                         Log.d(tag,"received intent, action = ${p1.action}")
                         if (p1.action == TripBroadcastReceiver.TYPE_CURRENT_STATE){
                             Log.d(tag,"trip state change = ${p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,0)}")
-                            when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
-                                TripStateType.TRIP_DRIVING_HARD.value -> {
-                                    emitterList.forEach{
-                                        it.onNext(true)
-                                    }
-                                }
-                                else -> {
-                                    emitterList.forEach{
-                                        it.onNext(false)
-                                    }
-                                }
+                            val tripInProgress = when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
+                                TripStateType.TRIP_DRIVING_HARD.value -> true
+                                TripStateType.TRIP_MANUAL.value -> true
+                                else -> false
+                            }
+                            emitterList.forEach{
+                                it.onNext(tripInProgress)
                             }
                         }
                     }
