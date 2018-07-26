@@ -403,7 +403,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onStop() {
         hideLoading()
 
-        getBluetoothService().subscribe{ it.unsubscribe(this@MainActivity) }
+        getBluetoothService().take(1).subscribe{ it.unsubscribe(this@MainActivity) }
 
         super.onStop()
     }
@@ -530,7 +530,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                             "the ID found on the front of the device so our algorithm can fix it.")
                     .setCancelable(false)
                     .setPositiveButton("Yes") { dialog, id ->
-                        getBluetoothService().subscribe{
+                        getBluetoothService().take(1).subscribe{
                             it.setDeviceNameAndId(input.text
                                     .toString().trim { it <= ' ' }.toUpperCase())
                         }
@@ -573,6 +573,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getBluetoothService()
+                        .take(1)
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
                         .subscribe{
                             Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
@@ -898,8 +899,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             = bluetoothService
 
     fun getTripsService(): Observable<TripsService> {
+        Log.d(TAG,"getTripsService() called!")
         return (applicationContext as GlobalApplication)
                 .services
+                .doOnNext({next -> Log.d(TAG,"getTripsService() doOnNext()")})
                 .filter { it -> it is TripsService }
                 .map { it ->
                     it as TripsService

@@ -80,6 +80,8 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         //Getting trip states and passing them to subscribes in app lifecycle such as trip list fragment
         tripStateObservable = Observable.create({emitter ->
 
+            Log.d(tag,"trip state observable subscription received!")
+
             //Return current state to emitter
             val currentStateType = sharedPreferences.getInt(TripBroadcastReceiver.TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
             if (currentStateType == TripStateType.TRIP_DRIVING_HARD.value){
@@ -188,7 +190,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                 .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
 
         beginTrackingLocationUpdates()
-        stopSelf()
     }
 
     override fun onConnectionSuspended(p0: Int) {

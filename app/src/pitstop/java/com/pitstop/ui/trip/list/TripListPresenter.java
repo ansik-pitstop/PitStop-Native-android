@@ -94,6 +94,8 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             controller.getTripState().subscribe(state ->{
                 Log.d(TAG,"Got new trip state: "+state);
                 view.toggleRecordingButton(state);
+            },err -> {
+                Log.d(TAG,"error getting manual trip controller");
             });
         });
         compositeDisposable.add(d);
@@ -191,8 +193,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
-
-                Log.d(TAG, "onTripListRetrieved() trips: " + tripList);
 
                 carAdded = true;
                 updating = false;

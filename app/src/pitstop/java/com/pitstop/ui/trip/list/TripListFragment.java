@@ -211,7 +211,6 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG, "displayTripList() notifList: " + listTrip);
 
         tripsRecyclerView.setVisibility(View.VISIBLE);
-        bottomButton.setVisibility(View.GONE);
         noTripsText.setVisibility(View.GONE);
         if (listTrip != null && listTrip.size() > 0) {
 
@@ -228,7 +227,6 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG,"displayNoTrips()");
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
-        bottomButton.setVisibility(View.GONE);
         noTripsText.setText(R.string.no_trips_message);
     }
 
