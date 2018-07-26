@@ -33,7 +33,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         , GoogleApiClient.OnConnectionFailedListener, TripManualController {
 
     companion object {
-        const val LOC_UPDATE_INTERVAL = 3000L //60 * 1000L
+        const val LOC_UPDATE_INTERVAL = 60 * 1000L
         const val LOC_MAX_UPDATE_INTERVAL = 60 * 20 * 1000L
         const val LOC_FASTEST_UPDATE_INTERVAL = 20 * 1000L
         const val ACT_UPDATE_INTERVAL = 30 * 1000L
