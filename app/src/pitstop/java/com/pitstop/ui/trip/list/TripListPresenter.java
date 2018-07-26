@@ -61,6 +61,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     private boolean updating = false;
     private boolean carAdded = true;
+    private boolean tripRunning = false;
 
     public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
@@ -93,6 +94,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             Log.d(TAG,"Got manual trip controller");
             controller.getTripState().subscribe(state ->{
                 Log.d(TAG,"Got new trip state: "+state);
+                tripRunning = state;
                 view.toggleRecordingButton(state);
             },err -> {
                 Log.d(TAG,"error getting manual trip controller");
@@ -153,6 +155,19 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
         if (!carAdded){
             getView().beginAddCar();
+        }else{
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            Disposable d = getView().getManualTripController().take(1).subscribe(next -> {
+                if (tripRunning){
+                    next.endTripManual();
+                    getView().toggleRecordingButton(false);
+                }else{
+                    next.startTripManual();
+                    getView().toggleRecordingButton(true);
+                }
+            });
+            compositeDisposable.add(d);
+            compositeDisposable.clear();
         }
     }
 

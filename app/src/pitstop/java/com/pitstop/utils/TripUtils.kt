@@ -49,6 +49,16 @@ class TripUtils {
                 }
 
                 when (it.type){
+                    CarActivity.TYPE_MANUAL_END -> {
+                        if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD){
+                            return TripState(TripStateType.TRIP_END_HARD, it.time)
+                        }
+                    }
+                    CarActivity.TYPE_MANUAL_START -> {
+                        if (currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD){
+                            return TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
+                        }
+                    }
                     CarActivity.TYPE_STILL -> {
                         //If driving and still for sure, then return still state
                         if (it.conf >= HIGH_STILL_CONF){

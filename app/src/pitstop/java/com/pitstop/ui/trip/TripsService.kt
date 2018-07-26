@@ -22,6 +22,7 @@ import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.TripStateType
 import com.pitstop.network.RequestError
 import com.pitstop.utils.Logger
+import io.reactivex.Emitter
 import io.reactivex.Observable
 
 
@@ -78,38 +79,50 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         })
 
         //Getting trip states and passing them to subscribes in app lifecycle such as trip list fragment
+        var receiver: BroadcastReceiver? = null
+        val emitterList = arrayListOf<Emitter<Boolean>>()
         tripStateObservable = Observable.create({emitter ->
 
             Log.d(tag,"trip state observable subscription received!")
+
+            emitterList.add(emitter)
 
             //Return current state to emitter
             val currentStateType = sharedPreferences.getInt(TripBroadcastReceiver.TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
             if (currentStateType == TripStateType.TRIP_DRIVING_HARD.value){
                 emitter.onNext(true)
+            }else{
+                emitter.onNext(false)
             }
 
             //Continue streaming updates from receiver, broadcasted from TripBroadcastReceiver
-            val receiver: BroadcastReceiver = object: BroadcastReceiver(){
-                override fun onReceive(p0: Context?, p1: Intent?) {
-                    if (p1 == null) return
-                    Log.d(tag,"received intent, action = ${p1.action}")
-                    if (p1.action == TripBroadcastReceiver.TYPE_CURRENT_STATE){
-                        Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE)}")
-                        when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
-                            TripStateType.TRIP_DRIVING_HARD.value -> {
-                                emitter.onNext(true)
-                            }
-                            else -> {
-                                emitter.onNext(false)
+            if (receiver == null){
+                receiver = object: BroadcastReceiver(){
+                    override fun onReceive(p0: Context?, p1: Intent?) {
+                        if (p1 == null) return
+                        Log.d(tag,"received intent, action = ${p1.action}")
+                        if (p1.action == TripBroadcastReceiver.TYPE_CURRENT_STATE){
+                            Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE)}")
+                            when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
+                                TripStateType.TRIP_DRIVING_HARD.value -> {
+                                    emitterList.forEach{
+                                        it.onNext(true)
+                                    }
+                                }
+                                else -> {
+                                    emitterList.forEach{
+                                        it.onNext(false)
+                                    }
+                                }
                             }
                         }
                     }
-                }
 
+                }
+                val intentFilter = IntentFilter()
+                intentFilter.addAction(TripBroadcastReceiver.TYPE_CURRENT_STATE)
+                registerReceiver(receiver, intentFilter)
             }
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(TripBroadcastReceiver.TYPE_CURRENT_STATE)
-            registerReceiver(receiver, intentFilter)
         })
 
 
@@ -139,15 +152,19 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
     override fun startTripManual(){
         Log.d(tag,"startTripManual()")
-        val intent = Intent(TripBroadcastReceiver.INTENT_ACTIVITY)
+        val intent = Intent()
+        intent.action = TripBroadcastReceiver.INTENT_ACTIVITY
         intent.putExtra(TripBroadcastReceiver.ACTIVITY_TYPE, CarActivity.TYPE_MANUAL_START)
+        intent.putExtra(TripBroadcastReceiver.ACTIVITY_TIME, System.currentTimeMillis())
         sendBroadcast(intent)
     }
 
     override fun endTripManual(){
         Log.d(tag,"endTripManual()")
-        val intent = Intent(TripBroadcastReceiver.INTENT_ACTIVITY)
+        val intent = Intent()
+        intent.action = TripBroadcastReceiver.INTENT_ACTIVITY
         intent.putExtra(TripBroadcastReceiver.ACTIVITY_TYPE, CarActivity.TYPE_MANUAL_END)
+        intent.putExtra(TripBroadcastReceiver.ACTIVITY_TIME, System.currentTimeMillis())
         sendBroadcast(intent)
 
     }
@@ -185,7 +202,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         val intent = Intent(this, TripBroadcastReceiver::class.java)
         intent.action = TripBroadcastReceiver.ACTION_PROCESS_UPDATE
         googlePendingIntent = PendingIntent.getBroadcast( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
-
         ActivityRecognition.getClient(baseContext)
                 .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
 
