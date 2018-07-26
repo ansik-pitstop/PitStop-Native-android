@@ -102,7 +102,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                         if (p1 == null) return
                         Log.d(tag,"received intent, action = ${p1.action}")
                         if (p1.action == TripBroadcastReceiver.TYPE_CURRENT_STATE){
-                            Log.d(tag,"trip state change = ${p1.getStringExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE)}")
+                            Log.d(tag,"trip state change = ${p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,0)}")
                             when (p1.getIntExtra(TripBroadcastReceiver.TYPE_CURRENT_STATE,TripStateType.TRIP_NONE.value)){
                                 TripStateType.TRIP_DRIVING_HARD.value -> {
                                     emitterList.forEach{
@@ -206,7 +206,11 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                 .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
 
         beginTrackingLocationUpdates()
-    }
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(TripBroadcastReceiver.INTENT_ACTIVITY)
+        registerReceiver(TripBroadcastReceiver(),intentFilter)
+
+}
 
     override fun onConnectionSuspended(p0: Int) {
         Log.d(tag,"onConnectionSuspended() google api")

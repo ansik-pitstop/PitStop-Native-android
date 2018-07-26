@@ -160,10 +160,8 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
             Disposable d = getView().getManualTripController().take(1).subscribe(next -> {
                 if (tripRunning){
                     next.endTripManual();
-                    getView().toggleRecordingButton(false);
                 }else{
                     next.startTripManual();
-                    getView().toggleRecordingButton(true);
                 }
             });
             compositeDisposable.add(d);
