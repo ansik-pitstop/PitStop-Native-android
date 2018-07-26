@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -56,6 +57,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
+    private CompositeDisposable compositeDisposable;
 
     private boolean updating = false;
     private boolean carAdded = true;
@@ -63,6 +65,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
@@ -93,10 +96,12 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
                 view.toggleRecordingButton(state);
             });
         });
+        compositeDisposable.add(d);
     }
 
     @Override
     public void unsubscribe(){
+        compositeDisposable.clear();
         super.unsubscribe();
     }
 
