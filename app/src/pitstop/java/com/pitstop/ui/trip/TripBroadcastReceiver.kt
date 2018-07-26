@@ -190,6 +190,10 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                         sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
                         "Trip finished recording, it may take a moment to appear in the app"
                     }
+                    TripStateType.TRIP_MANUAL_END -> {
+                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+                        null
+                    }
                     else -> null
                 }
                 if (notifMessage != null)

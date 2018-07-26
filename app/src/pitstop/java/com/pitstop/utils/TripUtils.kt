@@ -50,13 +50,14 @@ class TripUtils {
 
                 when (it.type){
                     CarActivity.TYPE_MANUAL_END -> {
-                        if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD){
-                            return TripState(TripStateType.TRIP_END_HARD, it.time)
+                        if (currentTripState.tripStateType == TripStateType.TRIP_MANUAL
+                                || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL_END, it.time)
                         }
                     }
                     CarActivity.TYPE_MANUAL_START -> {
-                        if (currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD){
-                            return TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
+                        if (currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL, it.time)
                         }
                     }
                     CarActivity.TYPE_STILL -> {
@@ -111,7 +112,8 @@ class TripUtils {
 
             //None state with time of last end
             if (currentTripState.tripStateType == TripStateType.TRIP_END_SOFT
-                    || currentTripState.tripStateType == TripStateType.TRIP_END_HARD){
+                    || currentTripState.tripStateType == TripStateType.TRIP_END_HARD
+                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL_END){
                 return TripState(TripStateType.TRIP_NONE, currentTripState.time)
             }
 
