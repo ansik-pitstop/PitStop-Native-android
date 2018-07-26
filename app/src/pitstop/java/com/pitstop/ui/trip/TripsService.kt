@@ -166,7 +166,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     }
 
     private fun beginTrackingLocationUpdates(){
-        Log.d(tag,"beginTrackingLocationUpdates()")
+        Log.d(tag,"beginTrackingLocationUpdatess()")
 
         LocationServices.getFusedLocationProviderClient(baseContext).removeLocationUpdates(googlePendingIntent)
         val locationRequest = LocationRequest.create()
