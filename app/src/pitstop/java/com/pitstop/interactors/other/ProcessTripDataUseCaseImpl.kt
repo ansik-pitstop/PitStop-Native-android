@@ -89,8 +89,11 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     if (hardStart == -1L) hardStart = it.time
                     if (softStart == -1L) softStart = it.time
                     softEnd = -1
+                    Log.d(tag,"manual trip start found, time = ${it.time}")
                 }
                 (CarActivity.TYPE_MANUAL_END) -> {
+                    Log.d(tag,"manual end found, time = ${it.time}, hardstart = ${it.time}")
+                    hardEnd = it.time
                     processedTrips.add(filterLocations(softStart,hardEnd,locations))
 
                     //Remove all processed data points
