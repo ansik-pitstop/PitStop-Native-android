@@ -40,7 +40,7 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
 
     //Store trip
     fun store(trip: TripData): Long {
-        Log.d(TAG,"store() trip size = ${trip.locations.size}")
+        Log.d(TAG,"store() trip size = ${trip.locations.size}, start timestamp: ${trip.startTimestamp}")
         val db = databaseHelper.writableDatabase
         var rows = 0L
 

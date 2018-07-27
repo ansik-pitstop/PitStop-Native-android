@@ -296,13 +296,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     }
 
     private List<Trip> sortTripsByLengthOfTime(List<Trip> tripList) {
-        Collections.sort(tripList, (trip1, trip2) -> {
-
-            int time1 = Integer.valueOf(trip1.getTimeEnd()) - Integer.valueOf(trip1.getTimeStart());
-            int time2 = Integer.valueOf(trip2.getTimeEnd()) - Integer.valueOf(trip2.getTimeStart());
-
-            return time1 < time2 ? 1 : -1;
-        });
+        Collections.sort(tripList, (trip1, trip2) -> trip1.getTripLength() < trip2.getTripLength()? 1 : -1);
 
         return tripList;
     }

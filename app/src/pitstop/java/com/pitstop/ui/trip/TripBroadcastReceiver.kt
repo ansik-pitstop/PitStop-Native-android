@@ -170,8 +170,14 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                             localActivityStorage.store(arrayListOf(CarActivity(vin ?: ""
                                     ,System.currentTimeMillis()+1000,CarActivity.TYPE_STILL_TIMEOUT,100)))
                             sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                            setCurrentState(sharedPreferences
-                                    , TripState(TripStateType.TRIP_NONE, System.currentTimeMillis()))
+                            val nextStateAfterStill = TripState(TripStateType.TRIP_NONE, System.currentTimeMillis())
+                            setCurrentState(sharedPreferences,nextStateAfterStill)
+
+                            val nextIntent = Intent()
+                            nextIntent.action = TYPE_CURRENT_STATE
+                            nextIntent.putExtra(TYPE_CURRENT_STATE,nextStateAfterStill.tripStateType.value)
+                            context.sendBroadcast(nextIntent)
+
                             NotificationsHelper.sendNotification(context
                                     ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
                         }

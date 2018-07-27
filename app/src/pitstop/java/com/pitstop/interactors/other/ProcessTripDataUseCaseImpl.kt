@@ -42,11 +42,15 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
     private var softStart = -1L
     private var hardEnd = -1L
     private var softEnd = -1L
+    private lateinit var startTimestampsList: MutableList<Long>
+    private lateinit var endTimestampsList: MutableList<Long>
 
     override fun execute(callback: ProcessTripDataUseCase.Callback) {
         this.callback = callback
         Logger.getInstance().logI(tag,"Use case execution started"
                 ,DebugMessage.TYPE_USE_CASE)
+        startTimestampsList = mutableListOf()
+        endTimestampsList = mutableListOf()
         usecaseHandler.post(this)
     }
 
@@ -68,7 +72,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 //Process trip location points
                 if (hardStart != -1L){
                     processedTrips.add(filterLocations(softStart,softEnd,locations))
-
+                    startTimestampsList.add(softStart)
+                    endTimestampsList.add(softEnd)
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                     val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
@@ -95,7 +100,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     Log.d(tag,"manual end found, time = ${it.time}, hardstart = ${it.time}")
                     hardEnd = it.time
                     processedTrips.add(filterLocations(softStart,hardEnd,locations))
-
+                    startTimestampsList.add(softStart)
+                    endTimestampsList.add(hardEnd)
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                     val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
@@ -149,6 +155,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
 
                             processedTrips.add(filterLocations(softStart,hardEnd,locations))
+                            startTimestampsList.add(softStart)
+                            endTimestampsList.add(hardEnd)
 
                             //Remove all processed data points
                             val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -180,7 +188,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         Log.d(tag,"processedTrips: size=${processedTrips.size} data=$processedTrips")
 
-        processedTrips.filter { !it.isEmpty() }.forEach({
+        processedTrips.filter { !it.isEmpty() }.forEachIndexed({ i, it ->
             val recordedLocationList = mutableListOf<LocationData>()
             it.forEachIndexed { i,carLocation ->
                 //Do not include points in the same location back to back
@@ -192,7 +200,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
             val tripData = TripData(it[0].time/1000,it[0].vin,recordedLocationList
-                    , (softStart/1000).toInt(),(hardEnd/1000).toInt())
+                    , (startTimestampsList[i]/1000).toInt(),(endTimestampsList[i]/1000).toInt())
             observableList.add(tripRepository.storeTripDataAndDump(tripData))
         })
 

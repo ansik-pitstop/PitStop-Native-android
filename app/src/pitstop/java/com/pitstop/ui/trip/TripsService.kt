@@ -91,7 +91,8 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
 
             //Return current state to emitter
             val currentStateType = sharedPreferences.getInt(TripBroadcastReceiver.TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
-            if (currentStateType == TripStateType.TRIP_DRIVING_HARD.value){
+            if (currentStateType == TripStateType.TRIP_DRIVING_HARD.value
+                    || currentStateType == TripStateType.TRIP_STILL_HARD.value){
                 emitter.onNext(true)
             }else{
                 emitter.onNext(false)
@@ -176,7 +177,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         locationRequest.interval = LOC_UPDATE_INTERVAL
         locationRequest.fastestInterval = LOC_FASTEST_UPDATE_INTERVAL
         locationRequest.maxWaitTime = LOC_MAX_UPDATE_INTERVAL
-        locationRequest.smallestDisplacement = MIN_DISPLACEMENT
+        //locationRequest.smallestDisplacement = MIN_DISPLACEMENT
 
         val builder = LocationSettingsRequest.Builder()
         builder.addLocationRequest(locationRequest)
