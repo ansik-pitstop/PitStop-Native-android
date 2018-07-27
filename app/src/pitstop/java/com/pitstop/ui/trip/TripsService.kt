@@ -54,6 +54,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
             get() = this@TripsService
     }
 
+
     override fun onBind(p0: Intent?): IBinder = binder
 
     override fun onCreate() {

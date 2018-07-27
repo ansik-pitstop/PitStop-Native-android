@@ -74,7 +74,8 @@ class TripUtils {
                         val walkingActivity = detectedActivities.find { it.type == CarActivity.TYPE_ON_FOOT }
                         //If definitely driving but not already in a driving state(to not override time) return new state
                         if (it.conf > HIGH_VEH_CONF
-                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD){
+                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
                             return TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
                         }
                         //If surely not walking and not already driving(to not override time) driving soft state returned
