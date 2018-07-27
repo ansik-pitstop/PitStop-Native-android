@@ -129,7 +129,7 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
                 val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
                 val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID))
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
-                Log.d(TAG,"got tripId: $tripId")
+                Log.d(TAG,"gots tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
                 Log.d(TAG,"got startTimestamp: $startTimestamp, endTimestamp: $endTimestamp")
 
