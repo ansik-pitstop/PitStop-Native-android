@@ -63,7 +63,8 @@ class TripUtils {
                     CarActivity.TYPE_STILL -> {
                         //If driving and still for sure, then return still state
                         if (it.conf >= HIGH_STILL_CONF){
-                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD){
+                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
+                                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
                                 return TripState(TripStateType.TRIP_STILL_HARD, it.time)
                             }else if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
                                 return TripState(TripStateType.TRIP_STILL_SOFT, it.time)
@@ -101,8 +102,7 @@ class TripUtils {
                         //End trip hard only if driving hard or soft
                         if (it.conf > HIGH_FOOT_CONF){
                             if ( currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
-                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT
-                                    || currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD){
+                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
                                 return TripState(TripStateType.TRIP_END_HARD, it.time)
                             }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT){
                                     return TripState(TripStateType.TRIP_NONE, it.time)
