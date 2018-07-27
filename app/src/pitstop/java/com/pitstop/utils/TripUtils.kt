@@ -80,6 +80,7 @@ class TripUtils {
                         }
                         //If surely not walking and not already driving(to not override time) driving soft state returned
                         else if (it.conf > LOW_VEH_CONF
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL
                                 && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
                                 && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_SOFT
                                 && (walkingActivity == null || walkingActivity.conf < LOW_FOOT_CONF) ){
