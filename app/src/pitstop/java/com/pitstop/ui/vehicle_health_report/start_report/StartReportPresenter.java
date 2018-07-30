@@ -312,7 +312,8 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     public void onGotPid(PidPackage pidPackage) {
         Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
         for (Map.Entry<String,String> pid: pidPackage.getPids().entrySet()){
-            getView().displaySeriesData(pid.getKey(),new DataPoint(0,Integer.valueOf(pid.getValue(),16)));
+            getView().displaySeriesData(pid.getKey()
+                    ,new DataPoint(pidPackage.getTimestamp(),Integer.valueOf(pid.getValue(),16)));
         }
     }
 }
