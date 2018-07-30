@@ -32,6 +32,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -86,6 +87,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_start_report,container,false);
+        GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
         context = getActivity().getApplicationContext();
         ButterKnife.bind(this,view);
         emissionsMode = false;
@@ -215,6 +220,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        lineGraphSeriesMap = new HashMap<>();
         presenter.subscribe(this);
         Disposable d = ((MainActivity)getActivity()).getBluetoothService()
                 .take(1)

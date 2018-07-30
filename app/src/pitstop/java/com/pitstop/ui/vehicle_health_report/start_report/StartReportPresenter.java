@@ -106,6 +106,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             compositeDisposable.clear();
         });
         view.displaySeriesData(1,new DataPoint(1,10));
+        view.displaySeriesData(1,new DataPoint(2,20));
         compositeDisposable.add(d);
     }
 
