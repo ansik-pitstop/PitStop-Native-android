@@ -145,6 +145,7 @@ dependencies {
     androidTestImplementation 'com.android.support:support-annotations:27.1.1'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    implementation 'com.github.AnyChart:AnyChart-Android:0.2.9'
     implementation 'com.github.deano2390:MaterialShowcaseView:1.2.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
