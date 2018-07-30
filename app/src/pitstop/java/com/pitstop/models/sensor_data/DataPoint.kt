@@ -28,5 +28,7 @@ data class DataPoint(val id: String, val data: String){
         const val ID_DEVICE_TYPE = "deviceType"
         const val ID_DEVICE_ID = "deviceId"
         const val ID_RTC = "bluetoothDeviceTime"
+        const val ID_DRIVE_START ="drive_start"
+        const val ID_DRIVE_END ="drive_end"
     }
 }

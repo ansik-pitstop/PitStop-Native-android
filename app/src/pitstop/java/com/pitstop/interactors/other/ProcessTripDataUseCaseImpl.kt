@@ -2,13 +2,13 @@ package com.pitstop.interactors.other
 
 import android.os.Handler
 import android.util.Log
-import com.google.android.gms.location.DetectedActivity
 import com.pitstop.database.LocalActivityStorage
 import com.pitstop.database.LocalLocationStorage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.sensor_data.trip.LocationData
 import com.pitstop.models.sensor_data.trip.PendingLocation
 import com.pitstop.models.sensor_data.trip.TripData
+import com.pitstop.models.trip.CarActivity
 import com.pitstop.models.trip.CarLocation
 import com.pitstop.repositories.TripRepository
 import com.pitstop.utils.Logger
@@ -42,11 +42,15 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
     private var softStart = -1L
     private var hardEnd = -1L
     private var softEnd = -1L
+    private lateinit var startTimestampsList: MutableList<Long>
+    private lateinit var endTimestampsList: MutableList<Long>
 
     override fun execute(callback: ProcessTripDataUseCase.Callback) {
         this.callback = callback
         Logger.getInstance().logI(tag,"Use case execution started"
                 ,DebugMessage.TYPE_USE_CASE)
+        startTimestampsList = mutableListOf()
+        endTimestampsList = mutableListOf()
         usecaseHandler.post(this)
     }
 
@@ -68,7 +72,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                 //Process trip location points
                 if (hardStart != -1L){
                     processedTrips.add(filterLocations(softStart,softEnd,locations))
-
+                    startTimestampsList.add(softStart)
+                    endTimestampsList.add(softEnd)
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                     val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
@@ -85,7 +90,32 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
 
             when(it.type){
-                (DetectedActivity.IN_VEHICLE) -> {
+                (CarActivity.TYPE_MANUAL_START) -> {
+                    if (hardStart == -1L) hardStart = it.time
+                    if (softStart == -1L) softStart = it.time
+                    softEnd = -1
+                    Log.d(tag,"manual trip start found, time = ${it.time}")
+                }
+                (CarActivity.TYPE_MANUAL_END) -> {
+                    Log.d(tag,"manual end found, time = ${it.time}, hardstart = ${it.time}")
+                    hardEnd = it.time
+                    processedTrips.add(filterLocations(softStart,hardEnd,locations))
+                    startTimestampsList.add(softStart)
+                    endTimestampsList.add(hardEnd)
+                    //Remove all processed data points
+                    val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
+                    val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
+
+                    Logger.getInstance().logD(tag,"Removed $removedLocs locations and " +
+                            "$removedActivities activities after processing trip",DebugMessage.TYPE_TRIP)
+
+                    //Reset variables in case another trip is present
+                    softStart = -1L
+                    softEnd = -1L
+                    hardStart = -1L
+                    hardEnd = -1L
+                }
+                (CarActivity.TYPE_DRIVING) -> {
 
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
@@ -102,7 +132,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                             (softEnd != -1L || (softStart == -1L && hardStart == -1L) ) ){
                         //See if walking confidence is less than 40 for that time or null
                         val footActivity = activities.find{a -> a.time == it.time
-                                && it.type == DetectedActivity.ON_FOOT}
+                                && it.type == CarActivity.TYPE_ON_FOOT}
                         if (footActivity == null || footActivity.conf < LOW_FOOT_CONF){
                             //Soft start
 
@@ -114,7 +144,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
-                (DetectedActivity.ON_FOOT) -> {
+                (CarActivity.TYPE_ON_FOOT) -> {
                     if (hardStart != -1L && it.conf > HIGH_FOOT_CONF){
                         hardEnd = it.time
 
@@ -125,6 +155,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
 
                             processedTrips.add(filterLocations(softStart,hardEnd,locations))
+                            startTimestampsList.add(softStart)
+                            endTimestampsList.add(hardEnd)
 
                             //Remove all processed data points
                             val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
@@ -141,7 +173,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
-                (DetectedActivity.STILL) -> {
+                (CarActivity.TYPE_STILL) -> {
                     if (it.conf >= HIGH_STILL_CONF && softEnd == -1L
                             && (softStart != -1L || hardStart != -1L)){
                         softEnd = it.time
@@ -156,7 +188,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         Log.d(tag,"processedTrips: size=${processedTrips.size} data=$processedTrips")
 
-        processedTrips.filter { !it.isEmpty() }.forEach({
+        processedTrips.filter { !it.isEmpty() }.forEachIndexed({ i, it ->
             val recordedLocationList = mutableListOf<LocationData>()
             it.forEachIndexed { i,carLocation ->
                 //Do not include points in the same location back to back
@@ -168,7 +200,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
             Log.d(tag,"recorded location list: $recordedLocationList")
             val tripData = TripData(it[0].time/1000,it[0].vin,recordedLocationList
-                    , (softStart/1000).toInt(),(hardEnd/1000).toInt())
+                    , (startTimestampsList[i]/1000).toInt(),(endTimestampsList[i]/1000).toInt())
             observableList.add(tripRepository.storeTripDataAndDump(tripData))
         })
 

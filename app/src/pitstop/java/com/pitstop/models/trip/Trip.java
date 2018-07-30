@@ -1,5 +1,7 @@
 package com.pitstop.models.trip;
 
+import android.util.Log;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -54,6 +56,14 @@ public class Trip {
     @SerializedName("timeEnd")
     @Expose
     private String timeEnd;
+
+    @SerializedName("drive_start")
+    @Expose
+    private String driveStart;
+
+    @SerializedName("drive_end")
+    @Expose
+    private String driveEnd;
 
     @SerializedName("vin")
     @Expose
@@ -186,6 +196,24 @@ public class Trip {
         this.timeStart = timeStart;
     }
 
+    public String getDriveStart() {
+        return driveStart;
+    }
+
+    public void setDriveStart(String driveStart) {
+        this.driveStart = driveStart;
+    }
+
+    public String getDriveEnd() {
+        return driveEnd;
+    }
+
+    public void setDriveEnd(String driveEnd) {
+        this.driveEnd = driveEnd;
+    }
+
+
+
     public String getTimeEnd() {
         return timeEnd;
     }
@@ -208,6 +236,18 @@ public class Trip {
 
     public void setLocationPolyline(List<LocationPolyline> locationPolyline) {
         this.locationPolyline = locationPolyline;
+    }
+
+    //Trip length in seconds
+    public int getTripLength(){
+        if (driveStart != null && driveEnd != null){
+            Log.d(this.getClass().getSimpleName(),"driveStart and driveEnd not null! calculating length!");
+            return Integer.valueOf(driveEnd) - Integer.valueOf(driveStart);
+        }
+        else {
+            Log.d(this.getClass().getSimpleName(), "driveStart or driveEnd null!!");
+            return Integer.valueOf(timeEnd) - Integer.valueOf(timeStart);
+        }
     }
 
     @Override

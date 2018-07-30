@@ -19,6 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 /**
  * Created by David C. on 14/3/18.
  */
@@ -54,13 +57,16 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     private UseCaseComponent useCaseComponent;
     private MixpanelHelper mixpanelHelper;
+    private CompositeDisposable compositeDisposable;
 
     private boolean updating = false;
     private boolean carAdded = true;
+    private boolean tripRunning = false;
 
     public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
@@ -84,10 +90,22 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     @Override
     public void subscribe(TripListView view) {
         super.subscribe(view);
+        Disposable d = view.getManualTripController().subscribe(controller -> {
+            Log.d(TAG,"Got manual trip controller");
+            controller.getTripState().subscribe(state ->{
+                Log.d(TAG,"Got new trip state: "+state);
+                tripRunning = state;
+                view.toggleRecordingButton(state);
+            },err -> {
+                Log.d(TAG,"error getting manual trip controller");
+            });
+        });
+        compositeDisposable.add(d);
     }
 
     @Override
     public void unsubscribe(){
+        compositeDisposable.clear();
         super.unsubscribe();
     }
 
@@ -137,6 +155,17 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
         if (!carAdded){
             getView().beginAddCar();
+        }else{
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            Disposable d = getView().getManualTripController().take(1).subscribe(next -> {
+                if (tripRunning){
+                    next.endTripManual();
+                }else{
+                    next.startTripManual();
+                }
+            });
+            compositeDisposable.add(d);
+            compositeDisposable.clear();
         }
     }
 
@@ -177,8 +206,6 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
             @Override
             public void onTripsRetrieved(@NotNull List<? extends Trip> tripList, boolean isLocal) {
-
-                Log.d(TAG, "onTripListRetrieved() trips: " + tripList);
 
                 carAdded = true;
                 updating = false;
@@ -269,13 +296,7 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     }
 
     private List<Trip> sortTripsByLengthOfTime(List<Trip> tripList) {
-        Collections.sort(tripList, (trip1, trip2) -> {
-
-            int time1 = Integer.valueOf(trip1.getTimeEnd()) - Integer.valueOf(trip1.getTimeStart());
-            int time2 = Integer.valueOf(trip2.getTimeEnd()) - Integer.valueOf(trip2.getTimeStart());
-
-            return time1 < time2 ? 1 : -1;
-        });
+        Collections.sort(tripList, (trip1, trip2) -> trip1.getTripLength() < trip2.getTripLength()? 1 : -1);
 
         return tripList;
     }

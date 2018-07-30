@@ -33,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -73,6 +74,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptSearchInProgressDialog;
     private AlertDialog promptOfflineDialog;
     private AlertDialog promptAddCar;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -215,6 +217,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
                 },err -> {
                         Log.d(TAG,"error = "+err);
                 });
+        compositeDisposable.add(d);
         presenter.onViewReadyForLoad();
     }
 
@@ -222,6 +225,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
+        compositeDisposable.clear();
         presenter.unsubscribe();
     }
 

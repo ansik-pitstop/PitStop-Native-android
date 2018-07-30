@@ -341,6 +341,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
             val endLongitude = DataPoint(DataPoint.ID_END_LONGITUDE, it.locations.last().data.longitude.toString())
             val startTimestamp = DataPoint(DataPoint.ID_START_TIMESTAMP, (it.locations.first().data.time).toString())
             val endTimestamp = DataPoint(DataPoint.ID_END_TIMESTAMP, (it.locations.last().data.time).toString())
+            val driveStart = DataPoint(DataPoint.ID_DRIVE_START,it.startTimestamp.toString())
+            val driveEnd = DataPoint(DataPoint.ID_DRIVE_END,it.endTimestamp.toString())
             val locFirstTime = it.locations.first().data.time
             val locLastTime = it.locations.last().data.time
             Log.d(tag,"locations: ${it.locations}")
@@ -359,6 +361,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
             indicatorDataPoint.add(mileageTrip)
             indicatorDataPoint.add(startTimestamp)
             indicatorDataPoint.add(endTimestamp)
+            indicatorDataPoint.add(driveStart)
+            indicatorDataPoint.add(driveEnd)
             indicatorDataPoint.add(indicator)
             indicatorDataPoint.add(vin)
             indicatorDataPoint.add(tripId)
