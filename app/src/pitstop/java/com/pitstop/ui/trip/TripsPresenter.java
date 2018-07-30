@@ -118,7 +118,7 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
                         @Override
                         public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
                             PolylineOptions polylineOptions = TripUtils.Companion.snappedPointListToPolylineOptions(snappedPointList);
-
+                            Log.d(TAG,"Received snapped points: "+snappedPointList+", input was: "+locations);
                             if (getView() == null) return;
 
                             getView().displayTripPolylineOnMap(polylineOptions);

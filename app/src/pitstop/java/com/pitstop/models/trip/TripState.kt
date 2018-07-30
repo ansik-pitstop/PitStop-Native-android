@@ -12,6 +12,8 @@ enum class TripStateType(val value: Int){
     , TRIP_END_SOFT(4)
     , TRIP_END_HARD(5)
     , TRIP_NONE(6)
+    , TRIP_MANUAL(7)
+    , TRIP_MANUAL_END(8)
 }
 
 data class TripState(val tripStateType: TripStateType, val time: Long)

@@ -51,9 +51,11 @@ import com.pitstop.utils.SecretUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -176,9 +178,11 @@ public class GlobalApplication extends Application implements LoginManager {
 
         tripsService = null;
         autoConnectService = null;
+        List<Emitter<Service>> emitterList = new ArrayList<>();
         serviceObservable = Observable.create(emitter -> {
             Log.d(TAG,"serviceObservable.subscribe() autoconnectService null? "
                     +(autoConnectService == null) +", tripsService null? "+(tripsService == null));
+            emitterList.add(emitter);
             if (autoConnectService != null){
                 emitter.onNext(autoConnectService);
             }
@@ -196,14 +200,19 @@ public class GlobalApplication extends Application implements LoginManager {
                         if (className.getClassName().equals(BluetoothService.class.getCanonicalName())){
                             autoConnectService = ((BluetoothService.BluetoothBinder)service).getService();
                             isBluetoothServiceRunning = true;
-                            emitter.onNext(autoConnectService);
+                            for (Emitter e: emitterList){
+                                e.onNext(autoConnectService);
+                            }
                             Log.d(TAG,"bluetooth service set");
                         }
                         else if (className.getClassName().equals(TripsService.class.getName())) {
                             Log.d(TAG, "trips service set");
                             try {
                                 tripsService = ((TripsService.TripsBinder) service).getService();
-                                emitter.onNext(tripsService);
+                                for (Emitter e: emitterList){
+                                    e.onNext(tripsService);
+                                }
+                                Log.d(TAG,"passed trips service to emitter");
                             } catch (ClassCastException e) {
                                 e.printStackTrace();
                             }

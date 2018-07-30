@@ -48,12 +48,14 @@ import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripsFragment
+import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
+import io.reactivex.Observable
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -401,7 +403,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onStop() {
         hideLoading()
 
-        getBluetoothService().subscribe{ it.unsubscribe(this@MainActivity) }
+        getBluetoothService().take(1).subscribe{ it.unsubscribe(this@MainActivity) }
 
         super.onStop()
     }
@@ -528,7 +530,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                             "the ID found on the front of the device so our algorithm can fix it.")
                     .setCancelable(false)
                     .setPositiveButton("Yes") { dialog, id ->
-                        getBluetoothService().subscribe{
+                        getBluetoothService().take(1).subscribe{
                             it.setDeviceNameAndId(input.text
                                     .toString().trim { it <= ' ' }.toUpperCase())
                         }
@@ -571,6 +573,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getBluetoothService()
+                        .take(1)
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
                         .subscribe{
                             Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
@@ -894,5 +897,16 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun getBluetoothWriter(): BluetoothWriter?
             = bluetoothService
+
+    fun getTripsService(): Observable<TripsService> {
+        Log.d(TAG,"getTripsService() called!")
+        return (applicationContext as GlobalApplication)
+                .services
+                .doOnNext({next -> Log.d(TAG,"getTripsService() doOnNext()")})
+                .filter { it -> it is TripsService }
+                .map { it ->
+                    it as TripsService
+                }
+    }
 
 }

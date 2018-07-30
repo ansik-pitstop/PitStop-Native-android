@@ -25,6 +25,15 @@ class TripUtils {
         val HIGH_STILL_CONF = 99
         val STILL_TIMEOUT = 600000
 
+        fun getCarActivityType(activity: DetectedActivity): Int{
+            return when (activity.type){
+                DetectedActivity.ON_FOOT -> CarActivity.TYPE_ON_FOOT
+                DetectedActivity.IN_VEHICLE -> CarActivity.TYPE_DRIVING
+                DetectedActivity.STILL -> CarActivity.TYPE_STILL
+                else -> CarActivity.TYPE_OTHER
+            }
+        }
+
         fun getNextTripState(currentTripState: TripState, detectedActivities: List<CarActivity>): TripState{
             //Do not let the same detected activity override the time
 
@@ -40,25 +49,39 @@ class TripUtils {
                 }
 
                 when (it.type){
-                    DetectedActivity.STILL -> {
+                    CarActivity.TYPE_MANUAL_END -> {
+                        if (currentTripState.tripStateType == TripStateType.TRIP_MANUAL
+                                || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL_END, it.time)
+                        }
+                    }
+                    CarActivity.TYPE_MANUAL_START -> {
+                        if (currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL, it.time)
+                        }
+                    }
+                    CarActivity.TYPE_STILL -> {
                         //If driving and still for sure, then return still state
                         if (it.conf >= HIGH_STILL_CONF){
-                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD){
+                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
+                                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
                                 return TripState(TripStateType.TRIP_STILL_HARD, it.time)
                             }else if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
                                 return TripState(TripStateType.TRIP_STILL_SOFT, it.time)
                             }
                         }
                     }
-                    DetectedActivity.IN_VEHICLE -> {
-                        val walkingActivity = detectedActivities.find { it.type == DetectedActivity.ON_FOOT }
+                    CarActivity.TYPE_DRIVING -> {
+                        val walkingActivity = detectedActivities.find { it.type == CarActivity.TYPE_ON_FOOT }
                         //If definitely driving but not already in a driving state(to not override time) return new state
                         if (it.conf > HIGH_VEH_CONF
-                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD){
+                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
                             return TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
                         }
                         //If surely not walking and not already driving(to not override time) driving soft state returned
                         else if (it.conf > LOW_VEH_CONF
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL
                                 && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
                                 && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_SOFT
                                 && (walkingActivity == null || walkingActivity.conf < LOW_FOOT_CONF) ){
@@ -75,12 +98,11 @@ class TripUtils {
 
                         }
                     }
-                    DetectedActivity.ON_FOOT -> {
+                    CarActivity.TYPE_ON_FOOT -> {
                         //End trip hard only if driving hard or soft
                         if (it.conf > HIGH_FOOT_CONF){
                             if ( currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
-                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT
-                                    || currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD){
+                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
                                 return TripState(TripStateType.TRIP_END_HARD, it.time)
                             }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT){
                                     return TripState(TripStateType.TRIP_NONE, it.time)
@@ -92,7 +114,8 @@ class TripUtils {
 
             //None state with time of last end
             if (currentTripState.tripStateType == TripStateType.TRIP_END_SOFT
-                    || currentTripState.tripStateType == TripStateType.TRIP_END_HARD){
+                    || currentTripState.tripStateType == TripStateType.TRIP_END_HARD
+                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL_END){
                 return TripState(TripStateType.TRIP_NONE, currentTripState.time)
             }
 

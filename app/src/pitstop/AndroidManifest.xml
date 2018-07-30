@@ -195,8 +195,11 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".ui.trip.TripBroadcastReceiver"
-            android:exported="false"/>
+            android:name=".ui.trip.TripBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.pitstop.ui.trip.TripBroadcastReceiver.intent_activity" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".utils.PitstopPushBroadcastReceiver"
             android:exported="false">
