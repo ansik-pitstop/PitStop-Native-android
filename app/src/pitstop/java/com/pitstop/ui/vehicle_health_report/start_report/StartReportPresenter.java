@@ -21,6 +21,8 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
+import java.util.Map;
+
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -105,8 +107,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             next.subscribe(StartReportPresenter.this);
             compositeDisposable.clear();
         });
-        view.displaySeriesData(1,new DataPoint(1,10));
-        view.displaySeriesData(1,new DataPoint(2,20));
+
         compositeDisposable.add(d);
     }
 
@@ -310,5 +311,8 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onGotPid(PidPackage pidPackage) {
         Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
+        for (Map.Entry<String,String> pid: pidPackage.getPids().entrySet()){
+            getView().displaySeriesData(pid.getKey(),new DataPoint(0,Integer.valueOf(pid.getValue(),16)));
+        }
     }
 }

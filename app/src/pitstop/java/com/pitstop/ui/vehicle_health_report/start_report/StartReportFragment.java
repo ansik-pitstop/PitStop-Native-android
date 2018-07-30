@@ -81,16 +81,12 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptOfflineDialog;
     private AlertDialog promptAddCar;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private Map<Integer, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
+    private Map<String, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_start_report,container,false);
-        GraphView graph = getActivity().findViewById(R.id.graph);
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(40);
         context = getActivity().getApplicationContext();
         ButterKnife.bind(this,view);
         emissionsMode = false;
@@ -221,6 +217,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         lineGraphSeriesMap = new HashMap<>();
+        GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
         presenter.subscribe(this);
         Disposable d = ((MainActivity)getActivity()).getBluetoothService()
                 .take(1)
@@ -298,7 +298,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public void displaySeriesData(Integer series, DataPoint dataPoint) {
+    public void displaySeriesData(String series, DataPoint dataPoint) {
         Log.d(TAG,"displaySeriesData() series: "+series+", coordinate:"+dataPoint);
         LineGraphSeries<DataPoint> lineGraphSeries = lineGraphSeriesMap.get(series);
         if (lineGraphSeries == null){
