@@ -2,9 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -34,7 +32,7 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import java.util.Random;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,8 +80,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptOfflineDialog;
     private AlertDialog promptAddCar;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
-
-    double lastXValue = 0d;
+    private Map<Integer, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,34 +99,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
 
-
-        GraphView graph = view.findViewById(R.id.graph);
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(40);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>();
-        series.setColor(Color.RED);
-        LineGraphSeries<DataPoint> series2 = new LineGraphSeries<DataPoint>();
-
-        Handler mHandler = new Handler();
-
-        Random random = new Random();
-        graph.getViewport().setXAxisBoundsManual(true);
-        Runnable timer2 = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG,"run() lastXValue: "+lastXValue);
-                lastXValue += 1d;
-                series.appendData(new DataPoint(lastXValue, Math.abs(random.nextInt(10))), true, 60);
-                series2.appendData(new DataPoint(lastXValue, Math.abs(random.nextInt(10))), true, 60);
-                mHandler.postDelayed(this, 1000);
-            }
-        };
-        mHandler.post(timer2);
-
-        graph.addSeries(series);
-        graph.addSeries(series2);
-
-        //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
         return view;
     }
 
@@ -320,6 +289,20 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }else{
             return false;
         }
+    }
+
+    @Override
+    public void displaySeriesData(Integer series, DataPoint dataPoint) {
+        Log.d(TAG,"displaySeriesData() series: "+series+", coordinate:"+dataPoint);
+        LineGraphSeries<DataPoint> lineGraphSeries = lineGraphSeriesMap.get(series);
+        if (lineGraphSeries == null){
+            lineGraphSeries = new LineGraphSeries<>();
+            lineGraphSeriesMap.put(series, lineGraphSeries);
+            GraphView graph = getActivity().findViewById(R.id.graph);
+            graph.addSeries(lineGraphSeries);
+        }
+
+        lineGraphSeries.appendData(dataPoint,true,40);
     }
 
     @Override

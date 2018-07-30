@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
@@ -104,6 +105,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             next.subscribe(StartReportPresenter.this);
             compositeDisposable.clear();
         });
+        view.displaySeriesData(1,new DataPoint(1,10));
         compositeDisposable.add(d);
     }
 

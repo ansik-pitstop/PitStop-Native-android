@@ -1,5 +1,6 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
+import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.observer.BluetoothConnectionObservable;
 
 import io.reactivex.Observable;
@@ -23,5 +24,6 @@ public interface StartReportView {
     boolean checkPermissions();
     void startBluetoothService();
     boolean isBluetoothServiceRunning();
+    void displaySeriesData(Integer series, DataPoint dataPoint);
     Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable();
 }
