@@ -7,6 +7,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -301,5 +302,10 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     public void onFoundDevices() {
         Log.d(TAG,"onFoundDevices()");
         if (carAdded && getView() != null) getView().changeTitle(R.string.found_devices,true);
+    }
+
+    @Override
+    public void onGotPid(PidPackage pidPackage) {
+        Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
     }
 }

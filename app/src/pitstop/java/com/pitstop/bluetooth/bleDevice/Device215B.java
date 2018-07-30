@@ -29,9 +29,6 @@ import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -478,13 +475,6 @@ public class Device215B implements AbstractDevice {
 
         if (payload == null || payload.isEmpty()) {
             return false;
-        }
-
-        try { // get instruction string from json payload
-            String temp = new JSONObject(payload).getString("instruction");
-            payload = temp;
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);

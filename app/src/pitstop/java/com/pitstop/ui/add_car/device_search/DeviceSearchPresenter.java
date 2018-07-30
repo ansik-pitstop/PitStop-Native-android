@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothService;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddCarUseCase;
 import com.pitstop.models.Car;
@@ -344,6 +345,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.showLoading(R.string.found_devices);
         }
 
+    }
+
+    @Override
+    public void onGotPid(PidPackage pidPackage) {
+        Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
     }
 
     @Override

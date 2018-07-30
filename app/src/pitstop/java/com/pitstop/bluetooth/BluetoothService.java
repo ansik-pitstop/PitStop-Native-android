@@ -710,6 +710,13 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         pidPackage.setDeviceId(currentDeviceId);
         pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
 
+        //Broadcast to all observers
+        for (Observer o: observerList){
+            if (o instanceof BluetoothConnectionObserver){
+                ((BluetoothConnectionObserver)o).onGotPid(pidPackage);
+            }
+        }
+
         //212 pid "snapshot" broadcast logic
         if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
             Log.d(TAG ,"deviceManager is not connected to 215");

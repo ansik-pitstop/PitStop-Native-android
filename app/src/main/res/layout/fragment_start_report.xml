@@ -8,6 +8,7 @@
     <TextView
         android:id="@+id/title_vehicle_health"
         android:layout_width="wrap_content"
+        android:visibility="visible"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textAlignment="center"
@@ -20,10 +21,13 @@
         android:textColor="@color/primary" />
 
     <FrameLayout
+        android:visibility="visible"
         android:id="@+id/start_report_button_holder"
+        android:background="@drawable/background_transparent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="55dp"
         android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true">
+        android:layout_height="300dp">
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/start_report_animation"
@@ -44,7 +48,15 @@
 
     </FrameLayout>
 
+    <com.jjoe64.graphview.GraphView
+        android:layout_below="@id/start_report_button_holder"
+        android:layout_above="@id/bottomlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/graph" />
+
     <LinearLayout
+        android:id="@+id/bottomlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
