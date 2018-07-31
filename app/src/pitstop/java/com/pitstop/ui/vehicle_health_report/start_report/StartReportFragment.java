@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -28,6 +31,9 @@ import com.pitstop.ui.vehicle_health_report.past_reports.PastReportsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -75,6 +81,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptOfflineDialog;
     private AlertDialog promptAddCar;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Map<String, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,7 +99,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
-        //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
+
         return view;
     }
 
@@ -209,6 +216,11 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        lineGraphSeriesMap = new HashMap<>();
+        GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
         presenter.subscribe(this);
         Disposable d = ((MainActivity)getActivity()).getBluetoothService()
                 .take(1)
@@ -283,6 +295,20 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }else{
             return false;
         }
+    }
+
+    @Override
+    public void displaySeriesData(String series, DataPoint dataPoint) {
+        Log.d(TAG,"displaySeriesData() series: "+series+", coordinate:"+dataPoint);
+        LineGraphSeries<DataPoint> lineGraphSeries = lineGraphSeriesMap.get(series);
+        if (lineGraphSeries == null){
+            lineGraphSeries = new LineGraphSeries<>();
+            lineGraphSeriesMap.put(series, lineGraphSeries);
+            GraphView graph = getActivity().findViewById(R.id.graph);
+                graph.addSeries(lineGraphSeries);
+        }
+
+        lineGraphSeries.appendData(dataPoint,true,40);
     }
 
     @Override

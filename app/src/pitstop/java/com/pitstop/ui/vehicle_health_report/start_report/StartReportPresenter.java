@@ -2,11 +2,13 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -46,6 +48,9 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
     private boolean carAdded = true; //Assume car is added, but check when loading view and set to false if not
+    private int pidPackageNum = 0;
+    private long lastPidTime = 0;
+
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper) {
@@ -103,6 +108,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             next.subscribe(StartReportPresenter.this);
             compositeDisposable.clear();
         });
+
         compositeDisposable.add(d);
     }
 
@@ -301,5 +307,26 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     public void onFoundDevices() {
         Log.d(TAG,"onFoundDevices()");
         if (carAdded && getView() != null) getView().changeTitle(R.string.found_devices,true);
+    }
+
+    @Override
+    public void onGotPid(PidPackage pidPackage) {
+        Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
+        if (getView() == null) return;
+        long currentTime = System.currentTimeMillis();
+        //Don't display data more often than every 4 seconds, this is because historical data can stream fast
+        if (currentTime - lastPidTime > 4000){
+            pidPackageNum++;
+            String rpm = pidPackage.getPids().get("210C");
+            if (rpm != null){
+                try{
+                    getView().displaySeriesData("210C"
+                            ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        lastPidTime = currentTime;
     }
 }

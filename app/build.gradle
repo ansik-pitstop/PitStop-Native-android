@@ -201,6 +201,8 @@ dependencies {
     implementation 'com.prolificinteractive:material-calendarview:1.4.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('../libs/gelfclient.jar')
+    implementation 'com.jjoe64:graphview:4.2.2'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

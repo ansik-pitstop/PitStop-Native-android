@@ -146,6 +146,7 @@ public class HttpRequest {
                     }
 
                     case POST: {
+                        Log.d(TAG,"Post request body: "+params[2]);
                         Request request = webClient.post(params[0].toString())
                                 .header(Webb.HDR_CONTENT_TYPE, Webb.APP_JSON)
                                 .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
