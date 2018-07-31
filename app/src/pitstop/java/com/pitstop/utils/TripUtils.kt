@@ -42,10 +42,10 @@ class TripUtils {
                 //If in a still state and 10 mins passed return soft end
                 if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT
                         && it.time - currentTripState.time > STILL_TIMEOUT){
-                    return TripState(TripStateType.TRIP_NONE, System.currentTimeMillis())
+                    return TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis())
                 }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD
                         && it.time - currentTripState.time > STILL_TIMEOUT){
-                    return TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis())
+                    return TripState(TripStateType.TRIP_END_HARD, System.currentTimeMillis())
                 }
 
                 when (it.type){
