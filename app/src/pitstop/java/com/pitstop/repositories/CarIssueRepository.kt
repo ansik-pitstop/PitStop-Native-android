@@ -42,7 +42,6 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
         val body = JSONObject()
 
         try {
-
             body.put("carId", carId)
             body.put("issueType", CarIssue.DTC)
             body.put("data",

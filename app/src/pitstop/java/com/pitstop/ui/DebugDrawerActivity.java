@@ -21,6 +21,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothWriter;
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.database.LocalAlarmStorage;
 import com.pitstop.database.LocalDatabaseHelper;
@@ -499,6 +500,11 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         if (getBluetoothConnectionObservable() != null){
             getBluetoothConnectionObservable().unsubscribe(this);
         }
+    }
+
+    @Override
+    public void onGotPid(PidPackage pidPackage){
+        Log.d(TAG,"onGotPid");
     }
 
     public abstract BluetoothConnectionObservable getBluetoothConnectionObservable();

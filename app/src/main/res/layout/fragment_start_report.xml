@@ -8,10 +8,11 @@
     <TextView
         android:id="@+id/title_vehicle_health"
         android:layout_width="wrap_content"
+        android:visibility="visible"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textAlignment="center"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_above="@id/start_report_animation"
@@ -20,10 +21,13 @@
         android:textColor="@color/primary" />
 
     <FrameLayout
+        android:visibility="visible"
         android:id="@+id/start_report_button_holder"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true">
+        android:background="@drawable/background_transparent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="35dp"
+        android:layout_width="270dp"
+        android:layout_height="270dp">
 
         <com.wang.avi.AVLoadingIndicatorView
             android:id="@+id/start_report_animation"
@@ -44,47 +48,26 @@
 
     </FrameLayout>
 
+    <com.jjoe64.graphview.GraphView
+        android:layout_below="@id/start_report_button_holder"
+        android:layout_above="@id/bottomlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/graph" />
+
     <LinearLayout
+        android:id="@+id/bottomlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
-
-        <!--<TextView-->
-            <!--android:id="@+id/health_report_label"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:layout_marginTop="5dp"-->
-            <!--android:text="Health Report"-->
-            <!--android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
-            <!--android:textColor="@color/primary" />-->
-
-        <!--<Switch-->
-            <!--android:id="@+id/emissions_switch"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:layout_marginTop="2dp"-->
-            <!--android:scaleX="1.4"-->
-            <!--android:scaleY="1.4"-->
-            <!--android:thumbTint="@color/primary" />-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/emissions_label"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:text="Emissions Test"-->
-            <!--android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
-            <!--android:textColor="@color/dark_grey" />-->
 
         <Button
             android:id="@+id/show_reports_button"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:background="@drawable/color_button_rectangle_primary"
             android:text="Past Reports" />
 
