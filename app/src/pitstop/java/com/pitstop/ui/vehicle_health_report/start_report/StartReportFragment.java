@@ -305,7 +305,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
             lineGraphSeries = new LineGraphSeries<>();
             lineGraphSeriesMap.put(series, lineGraphSeries);
             GraphView graph = getActivity().findViewById(R.id.graph);
-            graph.addSeries(lineGraphSeries);
+                graph.addSeries(lineGraphSeries);
         }
 
         lineGraphSeries.appendData(dataPoint,true,40);

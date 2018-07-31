@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -285,10 +286,23 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     };
 
+    Random random = new Random();
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
+
+//        Runnable dummyPidSenderRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                OBD215PidPackage pidPackage = new OBD215PidPackage("","","",System.currentTimeMillis());
+//                pidPackage.addPid("210C",Integer.toHexString(Math.abs(random.nextInt(6000))));
+//                idrPidData(pidPackage);
+//                backgroundHandler.postDelayed(this,2000);
+//            }
+//        };
+//        backgroundHandler.post(dummyPidSenderRunnable);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getBaseContext()))

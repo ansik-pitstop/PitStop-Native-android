@@ -21,8 +21,6 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
-import java.util.Map;
-
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -50,6 +48,8 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
     private boolean carAdded = true; //Assume car is added, but check when loading view and set to false if not
+    private int pidPackageNum = 0;
+
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
             , MixpanelHelper mixpanelHelper) {
@@ -311,14 +311,15 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onGotPid(PidPackage pidPackage) {
         Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
-        for (Map.Entry<String,String> pid: pidPackage.getPids().entrySet()){
+        pidPackageNum++;
+        String rpm = pidPackage.getPids().get("210C");
+        if (rpm != null){
             try{
-                getView().displaySeriesData(pid.getKey()
-                        ,new DataPoint(pidPackage.getTimestamp(),Integer.valueOf(pid.getValue(),16)));
+                getView().displaySeriesData("210C"
+                        ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
             }catch(Exception e){
                 e.printStackTrace();
             }
-
         }
     }
 }
