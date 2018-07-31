@@ -20,7 +20,7 @@ import java.util.Map;
 public class MixpanelHelper {
 
     /**
-     * Event
+     * Events
      */
     public static final String EVENT_BUTTON_TAPPED = "tapp";
     public static final String EVENT_ITEM_TAPPED = "Item Tapped";
