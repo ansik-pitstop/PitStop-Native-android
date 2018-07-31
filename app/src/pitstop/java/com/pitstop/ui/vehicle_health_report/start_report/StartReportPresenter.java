@@ -49,6 +49,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     private UseCaseComponent useCaseComponent;
     private boolean carAdded = true; //Assume car is added, but check when loading view and set to false if not
     private int pidPackageNum = 0;
+    private long lastPidTime = 0;
 
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
@@ -311,15 +312,21 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onGotPid(PidPackage pidPackage) {
         Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
-        pidPackageNum++;
-        String rpm = pidPackage.getPids().get("210C");
-        if (rpm != null){
-            try{
-                getView().displaySeriesData("210C"
-                        ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
-            }catch(Exception e){
-                e.printStackTrace();
+        if (getView() == null) return;
+        long currentTime = System.currentTimeMillis();
+        //Don't display data more often than every 4 seconds, this is because historical data can stream fast
+        if (currentTime - lastPidTime > 4000){
+            pidPackageNum++;
+            String rpm = pidPackage.getPids().get("210C");
+            if (rpm != null){
+                try{
+                    getView().displaySeriesData("210C"
+                            ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
+        lastPidTime = currentTime;
     }
 }
