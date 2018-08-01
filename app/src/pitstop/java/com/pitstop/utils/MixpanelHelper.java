@@ -189,12 +189,12 @@ public class MixpanelHelper {
     /**
      * Scan View / Activity
      */
-    public static final String SCAN_CAR_CONFIRM_SCAN = "Confirm Scan";
-    public static final String SCAN_CAR_RETRY_SCAN = "Retry Scan (Vehicle not connected)";
-    public static final String SCAN_CAR_CANCEL_SCAN = "Cancel (Vehicle not connected)";
-    public static final String SCAN_CAR_ALLOW_BLUETOOTH_ON = "Settings (Bluetooth not on)";
-    public static final String SCAN_CAR_DENY_BLUETOOTH_ON = "Cancel (Bluetooth not on)";
-    public static final String SCAN_CAR_VIEW = "Scan";
+//    public static final String SCAN_CAR_CONFIRM_SCAN = "Confirm Scan";
+//    public static final String SCAN_CAR_RETRY_SCAN = "Retry Scan (Vehicle not connected)";
+//    public static final String SCAN_CAR_CANCEL_SCAN = "Cancel (Vehicle not connected)";
+//    public static final String SCAN_CAR_ALLOW_BLUETOOTH_ON = "Settings (Bluetooth not on)";
+//    public static final String SCAN_CAR_DENY_BLUETOOTH_ON = "Cancel (Bluetooth not on)";
+//    public static final String SCAN_CAR_VIEW = "Scan";
 
     /**
      * Issue details
