@@ -402,17 +402,17 @@ public class MixpanelHelper {
         application.getMixpanelAPI().track(EVENT_BUTTON_TAPPED, json);
     }
 
-    public void trackScrolledInView(String view) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put(VIEW, view);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        insertUsername(json);
-        insertCar(json);
-        application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
-    }
+//    public void trackScrolledInView(String view) {
+//        JSONObject json = new JSONObject();
+//        try {
+//            json.put(VIEW, view);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        insertUsername(json);
+//        insertCar(json);
+//        application.getMixpanelAPI().track(EVENT_SCROLLED_IN_VIEW, json);
+//    }
 
     public void trackSwitchedToTab(String tab){
         JSONObject json = new JSONObject();
