@@ -329,4 +329,8 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         }
         lastPidTime = currentTime;
     }
+
+    void onGraphClicked(){
+        getView().startGraphActivity();
+    }
 }

@@ -218,6 +218,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         super.onViewCreated(view, savedInstanceState);
         lineGraphSeriesMap = new HashMap<>();
         GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.setOnClickListener((v) -> presenter.onGraphClicked());
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(0);
         graph.getViewport().setMaxX(40);
@@ -309,6 +310,16 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }
 
         lineGraphSeries.appendData(dataPoint,true,40);
+    }
+
+    @Override
+    public void startGraphActivity() {
+        Log.d(TAG,"startGraphActivity()");
+        try{
+            ((MainActivity)getActivity()).startGraphsActivity();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override

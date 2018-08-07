@@ -2,11 +2,12 @@ package com.pitstop.database
 
 import android.content.ContentValues
 import com.pitstop.bluetooth.dataPackages.PidPackage
-import com.squareup.sqlbrite.QueryObservable
+import com.pitstop.models.PidGraphDataPoint
+import rx.Observable
 import java.sql.Date
 
 /**
- * Created by Paul Soladoye on 4/1/2016.
+ * Created by Karol ZDebel on 8/7/2018.
  */
 class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
 
@@ -46,9 +47,25 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         return storedCount
     }
 
-    fun getAll(after: Long): QueryObservable{
-        return databaseHelper.briteDatabase.createQuery(TABLES.PID.TABLE_NAME,"SELECT * FROM "
-                +TABLES.PID.TABLE_NAME+" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > "+ Date(after) +" ORDER BY "+TABLES.PID.KEY_RTC_TIME)
+    fun getAll(after: Long): Observable<List<PidGraphDataPoint>>{
+        return databaseHelper.briteDatabase.createQuery(
+                TABLES.PID.TABLE_NAME,"SELECT * FROM "
+                +TABLES.PID.TABLE_NAME+" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > "
+                + Date(after) +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
+                val data = it.run()
+                val pidGraphPointList = arrayListOf<PidGraphDataPoint>()
+                if (data != null) {
+                    if (data.moveToFirst()){
+                        while(!data.isAfterLast){
+                            val timestamp = data.getLong(data.getColumnIndex(TABLES.PID.KEY_RTC_TIME))
+                            val type = data.getString(data.getColumnIndex(TABLES.PID.KEY_TYPE))
+                            val value = data.getString(data.getColumnIndex(TABLES.PID.KEY_VALUE))
+                            pidGraphPointList.add(PidGraphDataPoint(timestamp,type,Integer.valueOf(value,16)))
+                        }
+                    }
+                }
+            pidGraphPointList
+        }
     }
 
     fun deleteAllRows() {

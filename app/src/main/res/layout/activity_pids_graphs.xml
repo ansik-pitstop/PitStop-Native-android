@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/text_view_1"
+            android:text="Title 1"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/graph_1" />
+
+        <TextView
+            android:id="@+id/text_view_1"
+            android:text="Title 2"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/graph_2" />
+
+        <TextView
+            android:id="@+id/text_view_3"
+            android:text="Title 3"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/graph_3" />
+
+        <TextView
+            android:id="@+id/text_view_4"
+            android:text="Title 4"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/graph_4" />
+
+        <TextView
+            android:id="@+id/text_view_5"
+            android:text="Title 5"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/graph_5" />
+
+    </LinearLayout>
+
+
+</ScrollView>
