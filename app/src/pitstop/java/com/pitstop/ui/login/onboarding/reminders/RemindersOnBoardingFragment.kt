@@ -11,9 +11,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.pitstop.R
+import com.pitstop.application.GlobalApplication
 import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.login.onboarding.chat.RemindersOnBoardingPresenter
 import com.pitstop.ui.login.onboarding.chat.RemindersOnBoardingView
+import com.pitstop.utils.MixpanelHelper
 import kotlinx.android.synthetic.main.layout_slide_chat.*
 
 /**
@@ -32,7 +34,7 @@ class RemindersOnBoardingFragment: Fragment(), RemindersOnBoardingView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (presenter == null){
-            presenter = RemindersOnBoardingPresenter()
+            presenter = RemindersOnBoardingPresenter(MixpanelHelper(context?.applicationContext as GlobalApplication))
         }
         presenter?.subscribe(this)
         next_button.setOnClickListener {

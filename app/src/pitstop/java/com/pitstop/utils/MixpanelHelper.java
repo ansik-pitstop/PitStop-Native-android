@@ -310,6 +310,28 @@ public class MixpanelHelper {
     public static final String BT_SCAN_NOT_URGENT = "Started Non-urgent Scan";
     public static final String BT_DEVICE_BROKEN = "Device Recognized as Broken";
 
+    /* Login and Signup*/
+    public static final String EVENT_SIGNUP_PROCESS = "Signup Process";
+    public static final String EVENT_LOGIN_PROCESS = "Login Process";
+
+    public static final String STEP_SIGNUP_OPENED = "Signup Opened";
+    public static final String STEP_SIGNUP_EMAIL_AND_PASSWORD = "Email and Password Opened";
+    public static final String STEP_SIGNUP_NAME_AND_NUMBER = "Name and Phone Number Opened";
+    public static final String STEP_SIGNUP_SIGNED_UP = "Signed Up";
+    public static final String STEP_ONBOARDING_CHAT = "Onboarding Chat";
+    public static final String STEP_ONBOARDING_REMINDERS = "Onboarding Reminders";
+    public static final String STEP_ONBOARDING_PROMOTIONS = "Onboarding Promotions";
+
+    public static final String STEP_LOGIN = "Step Login";
+    public static final String SIGN_UP_RESULT_SUCCESS_FACEBOOK = "Success Facebook";
+    public static final String SIGN_UP_RESULT_SUCCESS_REGULAR = "Success Regular";
+    public static final String LOGIN_RESULT_SUCCESS_NOT_ACTIVATED = "Success Not Activated";
+    public static final String LOGIN_RESULT_SUCCESS_ACTIVATED = "Success Activated";
+    public static final String LOGIN_RESULT_SUCCESS_FACEBOOK = "Success Facebook";
+
+
+
+
     private GlobalApplication application;
     private LocalUserStorage localUserStorage;
     private LocalCarStorage localCarStorage;
@@ -496,6 +518,28 @@ public class MixpanelHelper {
             properties.put(item, itemValue);
             trackCustom(EVENT_ITEM_TAPPED, properties);
         }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void trackSignUpProcess(String step, String result){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(STEP, step)
+                    .put(RESULT, result);
+            application.getMixpanelAPI().track(EVENT_SIGNUP_PROCESS, properties);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trackLoginProcess(String step, String result){
+        try {
+            JSONObject properties = new JSONObject();
+            properties.put(STEP, step)
+                    .put(RESULT, result);
+            application.getMixpanelAPI().track(EVENT_LOGIN_PROCESS, properties);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

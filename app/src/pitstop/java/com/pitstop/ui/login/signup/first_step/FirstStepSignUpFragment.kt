@@ -15,9 +15,11 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.pitstop.R
+import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
+import com.pitstop.utils.MixpanelHelper
 import kotlinx.android.synthetic.main.layout_signup_step_one.*
 
 /**
@@ -82,7 +84,8 @@ class FirstStepSignUpFragment: Fragment() , FirstStepSignUpView {
             val useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(ContextModule(activity?.applicationContext))
                     .build()
-            presenter = FirstStepSignUpPresenter(useCaseComponent)
+            presenter = FirstStepSignUpPresenter(useCaseComponent
+                    , MixpanelHelper(context?.applicationContext as GlobalApplication))
         }
         presenter?.subscribe(this)
 
