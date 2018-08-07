@@ -70,6 +70,7 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent
     fun onForgotPasswordPressed(){
         Log.d(TAG,"onForgotPasswordPressed()")
         view?.switchToResetPassword()
+        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN,MixpanelHelper.LOGIN_RESULT_RESET_PASSWORD)
     }
 
     fun onFacebookLoginPressed(){
@@ -116,5 +117,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent
     fun onSignupPressed(){
         Log.d(TAG,"onSignupPressed()")
         view?.switchToSignUp()
+        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN,MixpanelHelper.LOGIN_RESULT_SWITCHED_TO_SIGN_UP)
     }
 }

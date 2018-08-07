@@ -36,11 +36,6 @@ public class MixpanelHelper {
     public static final String EVENT_PAIR_UNRECOGNIZED_MODULE = "Pair Unrecognized Module";
 
     /**
-     * General Button
-     */
-    public static final String BUTTON_BACK = "Back";
-
-    /**
      * Application Status
      */
     public static final String APP_LAUNCHED = "Launched";
@@ -53,29 +48,6 @@ public class MixpanelHelper {
     public static final String DISCONNECTED = "Disconnected";
     //    public static final String CONNECTED = "Connected to Bluetooth";
     public static final String CONNECTED = "Connected";
-
-    /**
-     * Login View and Registration View
-     */
-    public static final String LOGIN_FORGOT_PASSWORD = "Forgot Password";
-    public static final String LOGIN_LOGIN_WITH_FACEBOOK = "Login with Facebook";
-    public static final String LOGIN_REGISTER_WITH_EMAIL = "Register with Email";
-    public static final String LOGIN_LOGIN_WITH_EMAIL = "Login with Email";
-    public static final String LOGIN_REGISTER_WITH_FACEBOOK = "Register with Facebook"; // Added
-    public static final String LOGIN_VIEW = "Login";
-    public static final String ONBOARDING_VIEW_APPEARED = "Onboarding"; // Added
-    public static final String REGISTER_BUTTON_TAPPED = "Register";
-    public static final String REGISTER_VIEW = "Register";
-    public static final String CONFIRM_INFORMATION_VIEW = "Confirm Information";
-    public static final String CONFIRM_INFORMATION_CONTINUE = "Continue";
-    public static final String FORGOT_PASSWORD_CANCEL = "Cancel Forgot Password";
-    public static final String FORGOT_PASSWORD_CONFIRM = "Confirm Forgot Password";
-
-    /**
-     * Tutorial/Onboarding view
-     */
-    public static final String TUTORIAL_VIEW_APPEARED = "Tutorial Onboarding";
-    public static final String TUTORIAL_GET_STARTED_TAPPED = "Get Started";
 
     /**
     * Vehicle Health Report
@@ -166,13 +138,6 @@ public class MixpanelHelper {
     public static final String ADD_CAR_RETRY_GET_VIN = "Try Getting VIN Again";
     public static final String ADD_CAR_SUCCESS_GET_VIN = "Get Vin Success";
     public static final String ADD_CAR_NOT_SUPPORT_VIN = "VIN Not Supported";
-
-    /**
-     * Main Activity
-     */
-    public static final String MAIN_ACTIVITY_OPEN_SIDE_MENU = "Open Side Menu";
-    public static final String MAIN_ACTIVITY_CLOSE_SIDE_MENU = "Close Side Menu";
-
     /**
      * Dashboard
      */
@@ -185,16 +150,6 @@ public class MixpanelHelper {
      * Tools
      */
     public static final String TOOLS_VIEW = "Tools";
-
-    /**
-     * Scan View / Activity
-     */
-//    public static final String SCAN_CAR_CONFIRM_SCAN = "Confirm Scan";
-//    public static final String SCAN_CAR_RETRY_SCAN = "Retry Scan (Vehicle not connected)";
-//    public static final String SCAN_CAR_CANCEL_SCAN = "Cancel (Vehicle not connected)";
-//    public static final String SCAN_CAR_ALLOW_BLUETOOTH_ON = "Settings (Bluetooth not on)";
-//    public static final String SCAN_CAR_DENY_BLUETOOTH_ON = "Cancel (Bluetooth not on)";
-//    public static final String SCAN_CAR_VIEW = "Scan";
 
     /**
      * Issue details
@@ -323,11 +278,15 @@ public class MixpanelHelper {
     public static final String STEP_ONBOARDING_PROMOTIONS = "Onboarding Promotions";
 
     public static final String STEP_LOGIN = "Step Login";
+
     public static final String SIGN_UP_RESULT_SUCCESS_FACEBOOK = "Success Facebook";
     public static final String SIGN_UP_RESULT_SUCCESS_REGULAR = "Success Regular";
+
     public static final String LOGIN_RESULT_SUCCESS_NOT_ACTIVATED = "Success Not Activated";
     public static final String LOGIN_RESULT_SUCCESS_ACTIVATED = "Success Activated";
     public static final String LOGIN_RESULT_SUCCESS_FACEBOOK = "Success Facebook";
+    public static final String LOGIN_RESULT_RESET_PASSWORD = "Reset Password";
+    public static final String LOGIN_RESULT_SWITCHED_TO_SIGN_UP = "Switched To Sign Up";
 
     /*Appointment Booking*/
     public static final String EVENT_REQUEST_SERVICE_PROCESS = "Request Service Process";
