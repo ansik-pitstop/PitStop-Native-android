@@ -329,8 +329,11 @@ public class MixpanelHelper {
     public static final String LOGIN_RESULT_SUCCESS_ACTIVATED = "Success Activated";
     public static final String LOGIN_RESULT_SUCCESS_FACEBOOK = "Success Facebook";
 
+    /*Appointment Booking*/
+    public static final String EVENT_REQUEST_SERVICE_PROCESS = "Request Service Process";
 
-
+    public static final String STEP_REQUEST_SERVICE_OPENED = "Request Service Opened";
+    public static final String STEP_SERVICE_REQUESTED = "Service Requested";
 
     private GlobalApplication application;
     private LocalUserStorage localUserStorage;
@@ -517,6 +520,16 @@ public class MixpanelHelper {
             JSONObject properties = new JSONObject();
             properties.put(item, itemValue);
             trackCustom(EVENT_ITEM_TAPPED, properties);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void trackRequestServiceProcess(String step){
+        try{
+            JSONObject properties = new JSONObject();
+            properties.put(step, SUCCESS);
+            trackCustom(EVENT_REQUEST_SERVICE_PROCESS, properties);
         }catch (JSONException e){
             e.printStackTrace();
         }
