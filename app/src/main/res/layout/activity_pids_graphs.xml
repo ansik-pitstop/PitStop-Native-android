@@ -5,65 +5,76 @@
 
     <LinearLayout
         android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/text_view_1"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
             android:text="Title 1"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:id="@+id/graph_1" />
 
         <TextView
-            android:id="@+id/text_view_1"
+            android:id="@+id/text_view_2"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
             android:text="Title 2"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:id="@+id/graph_2" />
 
         <TextView
             android:id="@+id/text_view_3"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
             android:text="Title 3"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:id="@+id/graph_3" />
 
         <TextView
             android:id="@+id/text_view_4"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
             android:text="Title 4"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:id="@+id/graph_4" />
 
         <TextView
             android:id="@+id/text_view_5"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
             android:text="Title 5"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:id="@+id/graph_5" />
 
     </LinearLayout>
-
 
 </ScrollView>

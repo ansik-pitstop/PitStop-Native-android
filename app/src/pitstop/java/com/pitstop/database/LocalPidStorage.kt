@@ -18,9 +18,9 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         // PID_DATA table create statement
         val CREATE_TABLE_PID_DATA = ("CREATE TABLE IF NOT EXISTS "
                 + TABLES.PID.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
-                + TABLES.PID.KEY_TYPE
-                + TABLES.PID.KEY_VALUE
-                + TABLES.PID.KEY_RTC_TIME
+                + TABLES.PID.KEY_TYPE +" TEXT,"
+                + TABLES.PID.KEY_VALUE +" TEXT,"
+                + TABLES.PID.KEY_RTC_TIME +" LONG,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 

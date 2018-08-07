@@ -1,6 +1,7 @@
 package com.pitstop.ui.graph_pid
 
 import android.util.Log
+import com.jjoe64.graphview.series.DataPoint
 import com.pitstop.repositories.PidRepository
 
 /**
@@ -23,6 +24,10 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
         pidRepository.getAll(System.currentTimeMillis() - 1000*60*60)
                 .subscribe({
                     Log.d(tag,"Got data: $it")
+                    it.forEach {
+                        view?.displaySeriesData(it.type
+                                , DataPoint(it.timestamp.toDouble(),it.value.toDouble()))
+                    }
                 })
     }
 }

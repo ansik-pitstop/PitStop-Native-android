@@ -22,10 +22,11 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
     private var presenter: PidGraphsPresenter? = null
     private lateinit var lineGraphSeriesMap: MutableMap<String, LineGraphSeries<DataPoint>>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_pids_graphs)
         presenter = PidGraphsPresenter(PidRepository(LocalPidStorage(LocalDatabaseHelper.getInstance(applicationContext))))
         lineGraphSeriesMap = mutableMapOf()
+
         super.onCreate(savedInstanceState)
     }
 
