@@ -6,5 +6,6 @@ import com.jjoe64.graphview.series.DataPoint
  * Created by Karol Zdebel on 8/7/2018.
  */
 interface PidGraphsView {
-    fun displaySeriesData(series: String, dataPoint: DataPoint)
+    fun drawGraph(title: String): Boolean
+    fun addDataPoint(title: String, dataPoint: DataPoint)
 }

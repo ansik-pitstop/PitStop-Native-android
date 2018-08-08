@@ -57,7 +57,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                     if (car.data == null || usedLocalCar) return@subscribe
                                     if (car.isLocal) usedLocalCar = true
 
-                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
+                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data?.vin))
 
                                 },{err ->
                                     this@AddPidUseCaseImpl.onError(RequestError(err))

@@ -3,6 +3,8 @@ package com.pitstop.ui.graph_pid
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -21,11 +23,13 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
 
     private var presenter: PidGraphsPresenter? = null
     private lateinit var lineGraphSeriesMap: MutableMap<String, LineGraphSeries<DataPoint>>
+    private lateinit var graphViewMap: MutableMap<String, GraphView>
 
         override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_pids_graphs)
         presenter = PidGraphsPresenter(PidRepository(LocalPidStorage(LocalDatabaseHelper.getInstance(applicationContext))))
         lineGraphSeriesMap = mutableMapOf()
+        graphViewMap = mutableMapOf()
 
         super.onCreate(savedInstanceState)
     }
@@ -45,16 +49,38 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
         super.onDestroy()
     }
 
-    override fun displaySeriesData(series: String, dataPoint: DataPoint) {
-        Log.d(tag, "displaySeriesData() series: $series, coordinate:$dataPoint")
-        var lineGraphSeries: LineGraphSeries<DataPoint>? = lineGraphSeriesMap[series]
-        if (lineGraphSeries == null) {
-            lineGraphSeries = LineGraphSeries()
-            lineGraphSeriesMap[series] = lineGraphSeries
-            val graph: GraphView = graph_1
-            graph.addSeries(lineGraphSeries)
-        }
+    override fun drawGraph(title: String): Boolean {
+        Log.d(tag,"drawGraph() title: $title")
 
-        lineGraphSeries.appendData(dataPoint, true, 40)
+        if (graphViewMap[title] != null || lineGraphSeriesMap[title] != null) return false
+
+        val textView = TextView(this)
+        textView.text = title
+        textView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        val textViewLayoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
+                ,LinearLayout.LayoutParams.WRAP_CONTENT)
+        textViewLayoutParams.topMargin = Math.round(resources.displayMetrics.density*10)
+        textView.layoutParams = textViewLayoutParams
+
+        val graphView = GraphView(this)
+        graphView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
+                , Math.round(resources.displayMetrics.density*100))
+
+        graph_container.addView(textView)
+        graph_container.addView(graphView)
+
+        val lineGraphSeries = LineGraphSeries<DataPoint>()
+        graphView.addSeries(lineGraphSeries)
+
+        lineGraphSeriesMap[title] = lineGraphSeries
+        graphViewMap[title] = graphView
+
+        return true
     }
+
+    override fun addDataPoint(title: String, dataPoint: DataPoint) {
+        Log.d(tag,"addDataPoint() title: $title, dataPoint: $dataPoint")
+        lineGraphSeriesMap[title]?.appendData(dataPoint,true,40)
+    }
+
 }

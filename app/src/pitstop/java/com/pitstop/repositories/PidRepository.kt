@@ -19,9 +19,18 @@ class PidRepository(private val localPidStorage: LocalPidStorage) : Repository {
         return localPidStorage.getAll(after)
     }
 
+    fun getAll(): List<PidGraphDataPoint>{
+        return localPidStorage.getAll()
+    }
+
     fun store(pidPackage: PidPackage): Int{
         Log.d(TAG,"store() pidPackage: $pidPackage")
         return localPidStorage.store(pidPackage)
+    }
+
+    fun removeAll(){
+        Log.d(TAG,"removeAll()")
+        localPidStorage.deleteAllRows()
     }
 
 }

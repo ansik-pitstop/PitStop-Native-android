@@ -1,10 +1,11 @@
 package com.pitstop.database
 
 import android.content.ContentValues
+import android.database.Cursor
+import android.util.Log
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.PidGraphDataPoint
 import rx.Observable
-import java.sql.Date
 
 /**
  * Created by Karol ZDebel on 8/7/2018.
@@ -20,7 +21,7 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
                 + TABLES.PID.TABLE_NAME + "(" + TABLES.COMMON.KEY_ID + " INTEGER PRIMARY KEY,"
                 + TABLES.PID.KEY_TYPE +" TEXT,"
                 + TABLES.PID.KEY_VALUE +" TEXT,"
-                + TABLES.PID.KEY_RTC_TIME +" LONG,"
+                + TABLES.PID.KEY_RTC_TIME +" INTEGER,"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
@@ -47,25 +48,41 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         return storedCount
     }
 
+    fun getAll(): List<PidGraphDataPoint>{
+        return cursorToPidGraphPointList(databaseHelper.readableDatabase.query(TABLES.PID.TABLE_NAME,null,null
+                ,null,null,null,null))
+    }
+
     fun getAll(after: Long): Observable<List<PidGraphDataPoint>>{
         return databaseHelper.briteDatabase.createQuery(
                 TABLES.PID.TABLE_NAME,"SELECT * FROM "
-                +TABLES.PID.TABLE_NAME+" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > "
-                + Date(after) +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
+                +TABLES.PID.TABLE_NAME
+                //" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + Date(after)
+                +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
                 val data = it.run()
-                val pidGraphPointList = arrayListOf<PidGraphDataPoint>()
+                var pidGraphPointList : List<PidGraphDataPoint> = arrayListOf<PidGraphDataPoint>()
+                Log.d(TAG,"got rows: ${data?.count}")
                 if (data != null) {
-                    if (data.moveToFirst()){
-                        while(!data.isAfterLast){
-                            val timestamp = data.getLong(data.getColumnIndex(TABLES.PID.KEY_RTC_TIME))
-                            val type = data.getString(data.getColumnIndex(TABLES.PID.KEY_TYPE))
-                            val value = data.getString(data.getColumnIndex(TABLES.PID.KEY_VALUE))
-                            pidGraphPointList.add(PidGraphDataPoint(timestamp,type,Integer.valueOf(value,16)))
-                        }
-                    }
+                    pidGraphPointList = cursorToPidGraphPointList(data)
                 }
             pidGraphPointList
         }
+    }
+
+    fun cursorToPidGraphPointList(cursor: Cursor): List<PidGraphDataPoint>{
+        val pidGraphPointList = arrayListOf<PidGraphDataPoint>()
+        if (cursor.moveToFirst()){
+            while(!cursor.isAfterLast){
+                val timestamp = cursor.getLong(cursor.getColumnIndex(TABLES.PID.KEY_RTC_TIME))
+                val type = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_TYPE))
+                val value = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_VALUE))
+                pidGraphPointList.add(PidGraphDataPoint(timestamp,type,Integer.valueOf(value,16)))
+                cursor.moveToNext()
+            }
+        }
+        cursor.close()
+        return pidGraphPointList
+
     }
 
     fun deleteAllRows() {

@@ -2,6 +2,7 @@ package com.pitstop.ui.graph_pid
 
 import android.util.Log
 import com.jjoe64.graphview.series.DataPoint
+import com.pitstop.models.PidGraphDataPoint
 import com.pitstop.repositories.PidRepository
 
 /**
@@ -9,8 +10,10 @@ import com.pitstop.repositories.PidRepository
  */
 class PidGraphsPresenter(private val pidRepository: PidRepository) {
 
-    private val tag = PidGraphsActivity::class.java.simpleName
+    private val tag = PidGraphsPresenter::class.java.simpleName
     private var view: PidGraphsView? = null
+    private var displayedData = arrayListOf<PidGraphDataPoint>()
+    private var pidTypesDisplayed = arrayListOf<String>()
 
     fun subscribe(view: PidGraphsView){
         this.view = view
@@ -25,8 +28,15 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
                 .subscribe({
                     Log.d(tag,"Got data: $it")
                     it.forEach {
-                        view?.displaySeriesData(it.type
-                                , DataPoint(it.timestamp.toDouble(),it.value.toDouble()))
+                        if (!pidTypesDisplayed.contains(it.type)){
+                            pidTypesDisplayed.add(it.type)
+                            view?.drawGraph(it.type)
+                        }
+                        if (!displayedData.contains(it)){
+                            view?.addDataPoint(it.type
+                                    ,DataPoint((displayedData.size+1).toDouble(),it.value.toDouble()))
+                            displayedData.add(it)
+                        }
                     }
                 })
     }
