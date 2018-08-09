@@ -63,6 +63,9 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
         textView.layoutParams = textViewLayoutParams
 
         val graphView = GraphView(this)
+        graphView.viewport.isXAxisBoundsManual = true
+        graphView.viewport.setMinX(0.0)
+        graphView.viewport.setMaxX(40.0)
         graphView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
                 , Math.round(resources.displayMetrics.density*100))
 
@@ -80,7 +83,7 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
 
     override fun addDataPoint(title: String, dataPoint: DataPoint) {
         Log.d(tag,"addDataPoints() title: $title, dataPoint: $dataPoint")
-        lineGraphSeriesMap[title]?.appendData(dataPoint,true,1000)
+        lineGraphSeriesMap[title]?.appendData(dataPoint,true,70)
     }
 
 }

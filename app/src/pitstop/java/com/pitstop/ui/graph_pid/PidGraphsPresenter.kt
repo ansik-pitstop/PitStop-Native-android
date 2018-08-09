@@ -33,6 +33,7 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
                             view?.drawGraph(it.type)
                         }
                         if (!displayedData.contains(it)){
+                            Log.d(tag,"undisplayed point: $it")
                             view?.addDataPoint(it.type
                                     ,DataPoint((displayedData.size+1).toDouble(),it.value.toDouble()))
                             displayedData.add(it)

@@ -60,15 +60,15 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         return databaseHelper.briteDatabase.createQuery(
                 TABLES.PID.TABLE_NAME,"SELECT * FROM "
                 +TABLES.PID.TABLE_NAME
-                +" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + after
+                //+" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + after
                 +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
-                val data = it.run()
-                var pidGraphPointList : List<PidGraphDataPoint> = arrayListOf<PidGraphDataPoint>()
-                Log.d(TAG,"got rows: ${data?.count}")
-                if (data != null) {
-                    pidGraphPointList = cursorToPidGraphPointList(data)
-                }
-            pidGraphPointList
+                    val data = it.run()
+                    var pidGraphPointList : List<PidGraphDataPoint> = arrayListOf<PidGraphDataPoint>()
+                    Log.d(TAG,"got rows: ${data?.count}")
+                    if (data != null) {
+                        pidGraphPointList = cursorToPidGraphPointList(data)
+                    }
+                pidGraphPointList
         }
     }
 
