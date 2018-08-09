@@ -21,6 +21,7 @@ import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
@@ -293,16 +294,28 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
-//        Runnable dummyPidSenderRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                OBD215PidPackage pidPackage = new OBD215PidPackage("","","",System.currentTimeMillis());
-//                pidPackage.addPid("210C",Integer.toHexString(Math.abs(random.nextInt(6000))));
-//                idrPidData(pidPackage);
-//                backgroundHandler.postDelayed(this,2000);
-//            }
-//        };
-//        backgroundHandler.post(dummyPidSenderRunnable);
+        final Random random = new Random();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG,"runnable running!");
+                OBD215PidPackage obd215PidPackage = new OBD215PidPackage("215B002373"
+                        ,"1000","1000",System.currentTimeMillis());
+                obd215PidPackage.addPid("P101",Integer.toString(random.nextInt(100),16));
+                obd215PidPackage.addPid("P102",Integer.toString(random.nextInt(10),16));
+                obd215PidPackage.addPid("P103",Integer.toString(random.nextInt(1000),16));
+                obd215PidPackage.addPid("P104",Integer.toString(random.nextInt(60),16));
+                obd215PidPackage.addPid("P105",Integer.toString(random.nextInt(20),16));
+                obd215PidPackage.addPid("P106",Integer.toString(random.nextInt(300),16));
+                obd215PidPackage.addPid("P107",Integer.toString(random.nextInt(10000),16));
+                obd215PidPackage.addPid("P108",Integer.toString(random.nextInt(100),16));
+                obd215PidPackage.addPid("P109",Integer.toString(random.nextInt(5),16));
+                idrPidData(obd215PidPackage);
+                backgroundHandler.postDelayed(this,5000);
+            }
+        };
+        backgroundHandler.post(runnable);
+
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getBaseContext()))

@@ -29,9 +29,12 @@ public class LocalDebugMessageStorage implements TABLES.DEBUG_MESSAGES {
 
     public void addMessage(DebugMessage message) {
         BriteDatabase.Transaction t = mDatabaseHelper.getBriteDatabase().newTransaction();
-        mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message,false));
-        t.markSuccessful();
-        t.end();
+        try{
+            mDatabaseHelper.getBriteDatabase().insert(TABLE_NAME, DebugMessage.toContentValues(message,false));
+            t.markSuccessful();
+        }finally{
+            t.end();
+        }
     }
 
     public void markAllAsSent(){

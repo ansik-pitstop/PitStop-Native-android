@@ -289,10 +289,10 @@ public class GlobalApplication extends Application implements LoginManager {
 
     public void stopBluetoothService(){
         Log.d(TAG,"stopBluetoothService()");
-        if (autoConnectService != null){
-            isBluetoothServiceRunning = false;
-            autoConnectService.stopSelf();
-        }
+//        if (autoConnectService != null){
+//            isBluetoothServiceRunning = false;
+//            autoConnectService.stopSelf();
+//        }
     }
 
     public Observable<Service> getServices(){

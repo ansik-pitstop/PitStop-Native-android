@@ -6,6 +6,7 @@ import android.util.Log
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.PidGraphDataPoint
 import rx.Observable
+import java.sql.Date
 
 /**
  * Created by Karol ZDebel on 8/7/2018.
@@ -22,13 +23,13 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
                 + TABLES.PID.KEY_TYPE +" TEXT,"
                 + TABLES.PID.KEY_VALUE +" TEXT,"
                 + TABLES.PID.KEY_RTC_TIME +" INTEGER,"
-                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
+                + TABLES.COMMON.KEY_CREATED_AT + " TIMESTAMP" + ")")
     }
 
     fun store(pid: PidPackage): Int {
-        val db = databaseHelper.writableDatabase
+        val db = databaseHelper.briteDatabase
 
-        db.beginTransaction()
+        val transaction = db.newTransaction()
 
         var storedCount = 0
         try{
@@ -37,12 +38,13 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
                 values.put(TABLES.PID.KEY_TYPE, it.key)
                 values.put(TABLES.PID.KEY_VALUE, it.value)
                 values.put(TABLES.PID.KEY_RTC_TIME, pid.timestamp)
-                if (db.insert(TABLES.PID.TABLE_NAME, null, values) > 0)
+                values.put(TABLES.COMMON.KEY_CREATED_AT, System.currentTimeMillis())
+                if (db.insert(TABLES.PID.TABLE_NAME, values) > 0)
                     storedCount = storedCount.inc()
             })
-            db.setTransactionSuccessful()
+            transaction.markSuccessful()
         }finally{
-            db.endTransaction()
+            transaction.end()
         }
 
         return storedCount
@@ -54,10 +56,11 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
     }
 
     fun getAll(after: Long): Observable<List<PidGraphDataPoint>>{
+        Log.d(TAG,"after: ${Date(after)}")
         return databaseHelper.briteDatabase.createQuery(
                 TABLES.PID.TABLE_NAME,"SELECT * FROM "
                 +TABLES.PID.TABLE_NAME
-                //" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + Date(after)
+                +" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + after
                 +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
                 val data = it.run()
                 var pidGraphPointList : List<PidGraphDataPoint> = arrayListOf<PidGraphDataPoint>()
