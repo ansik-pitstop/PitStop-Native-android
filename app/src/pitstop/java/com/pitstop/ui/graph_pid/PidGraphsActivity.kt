@@ -79,7 +79,7 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
     }
 
     override fun addDataPoint(title: String, dataPoint: DataPoint) {
-        Log.d(tag,"addDataPoint() title: $title, dataPoint: $dataPoint")
+        Log.d(tag,"addDataPoints() title: $title, dataPoint: $dataPoint")
         lineGraphSeriesMap[title]?.appendData(dataPoint,true,1000)
     }
 
