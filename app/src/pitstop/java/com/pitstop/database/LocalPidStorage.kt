@@ -50,9 +50,10 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         return storedCount
     }
 
-    fun getAll(): List<PidGraphDataPoint>{
-        return cursorToPidGraphPointList(databaseHelper.readableDatabase.query(TABLES.PID.TABLE_NAME,null,null
-                ,null,null,null,null))
+    fun getAllSync(after: Long): List<PidGraphDataPoint>{
+        return cursorToPidGraphPointList(databaseHelper.readableDatabase.query(TABLES.PID.TABLE_NAME
+                ,null,TABLES.COMMON.KEY_CREATED_AT+" > ?"
+                , arrayOf(after.toString()),null,null,null))
     }
 
     fun getAll(after: Long): Observable<List<PidGraphDataPoint>>{
@@ -60,7 +61,7 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         return databaseHelper.briteDatabase.createQuery(
                 TABLES.PID.TABLE_NAME,"SELECT * FROM "
                 +TABLES.PID.TABLE_NAME
-                //+" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + after
+                +" WHERE "+TABLES.COMMON.KEY_CREATED_AT+" > " + after
                 +" ORDER BY "+TABLES.PID.KEY_RTC_TIME).map {
                     val data = it.run()
                     var pidGraphPointList : List<PidGraphDataPoint> = arrayListOf<PidGraphDataPoint>()

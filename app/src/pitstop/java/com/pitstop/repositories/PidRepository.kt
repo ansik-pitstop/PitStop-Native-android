@@ -19,8 +19,8 @@ class PidRepository(private val localPidStorage: LocalPidStorage) : Repository {
         return localPidStorage.getAll(after)
     }
 
-    fun getAll(): List<PidGraphDataPoint>{
-        return localPidStorage.getAll()
+    fun getAllSync(after: Long): List<PidGraphDataPoint>{
+        return localPidStorage.getAllSync(after)
     }
 
     fun store(pidPackage: PidPackage): Int{

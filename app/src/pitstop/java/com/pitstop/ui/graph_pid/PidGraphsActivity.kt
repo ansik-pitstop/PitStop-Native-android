@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.Viewport
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.pitstop.R
@@ -13,6 +15,8 @@ import com.pitstop.database.LocalDatabaseHelper
 import com.pitstop.database.LocalPidStorage
 import com.pitstop.repositories.PidRepository
 import kotlinx.android.synthetic.main.activity_pids_graphs.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Karol Zdebel on 8/7/2018.
@@ -63,9 +67,22 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
         textView.layoutParams = textViewLayoutParams
 
         val graphView = GraphView(this)
+        val dateFormat = SimpleDateFormat("hh:mm:ss", Locale.getDefault())
+        graphView.gridLabelRenderer.numHorizontalLabels = 4
+        graphView.gridLabelRenderer.labelFormatter = object: DefaultLabelFormatter(){
+            override fun formatLabel(value: Double, isValueX: Boolean): String {
+                if (isValueX)
+                    return dateFormat.format(value)
+                else return value.toString()
+            }
+
+            override fun setViewport(viewport: Viewport?) {
+            }
+
+        }
         graphView.viewport.isXAxisBoundsManual = true
         graphView.viewport.setMinX(0.0)
-        graphView.viewport.setMaxX(40.0)
+        graphView.viewport.setMaxX(80000.0)
         graphView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
                 , Math.round(resources.displayMetrics.density*100))
 
@@ -83,7 +100,7 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
 
     override fun addDataPoint(title: String, dataPoint: DataPoint) {
         Log.d(tag,"addDataPoints() title: $title, dataPoint: $dataPoint")
-        lineGraphSeriesMap[title]?.appendData(dataPoint,true,70)
+        lineGraphSeriesMap[title]?.appendData(dataPoint,true,10)
     }
 
 }

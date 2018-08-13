@@ -27,6 +27,6 @@ class LocalPidStorageTest {
         data1.forEach{
             Assert.assertEquals(localPidStorage.store(it),10)
         }
-        Assert.assertEquals(localPidStorage.getAll().size,50)
+        Assert.assertEquals(localPidStorage.getAllSync(1000).size,50)
     }
 }

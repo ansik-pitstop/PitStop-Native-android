@@ -4,6 +4,7 @@ import android.util.Log
 import com.jjoe64.graphview.series.DataPoint
 import com.pitstop.models.PidGraphDataPoint
 import com.pitstop.repositories.PidRepository
+import java.sql.Date
 
 /**
  * Created by Karol Zdebel on 8/7/2018.
@@ -35,7 +36,7 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
                         if (!displayedData.contains(it)){
                             Log.d(tag,"undisplayed point: $it")
                             view?.addDataPoint(it.type
-                                    ,DataPoint((displayedData.size+1).toDouble(),it.value.toDouble()))
+                                    ,DataPoint(Date(it.timestamp),it.value.toDouble()))
                             displayedData.add(it)
                         }
                     }
