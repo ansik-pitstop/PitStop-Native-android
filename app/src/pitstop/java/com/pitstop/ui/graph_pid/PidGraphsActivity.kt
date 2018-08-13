@@ -54,7 +54,7 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
     }
 
     override fun drawGraph(title: String): Boolean {
-        Log.d(tag,"drawGraph() title: $title")
+        Log.d(tag,"drawsGraph() title: $title")
 
         if (graphViewMap[title] != null || lineGraphSeriesMap[title] != null) return false
 
