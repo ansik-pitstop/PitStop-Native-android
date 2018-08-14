@@ -2,7 +2,6 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
-import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
@@ -311,22 +310,22 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
     @Override
     public void onGotPid(PidPackage pidPackage) {
-        Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
-        if (getView() == null) return;
-        long currentTime = System.currentTimeMillis();
-        //Don't display data more often than every 4 seconds, this is because historical data can stream fast
-        if (currentTime - lastPidTime > 4000){
-            pidPackageNum++;
-            String rpm = pidPackage.getPids().get("210C");
-            if (rpm != null){
-                try{
-                    getView().displaySeriesData("210C"
-                            ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-        lastPidTime = currentTime;
+//        Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
+//        if (getView() == null) return;
+//        long currentTime = System.currentTimeMillis();
+//        //Don't display data more often than every 4 seconds, this is because historical data can stream fast
+//        if (currentTime - lastPidTime > 4000){
+//            pidPackageNum++;
+//            String rpm = pidPackage.getPids().get("210C");
+//            if (rpm != null){
+//                try{
+//                    getView().displaySeriesData("210C"
+//                            ,new DataPoint(pidPackageNum,Integer.valueOf(rpm,16)));
+//                }catch(Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        lastPidTime = currentTime;
     }
 }
