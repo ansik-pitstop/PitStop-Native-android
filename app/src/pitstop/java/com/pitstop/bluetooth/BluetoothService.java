@@ -732,7 +732,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
 
         //212 pid "snapshot" broadcast logic
-        if (pidPackage != null && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
+        if (pidPackage != null
+                && deviceManager.getDeviceType() == BluetoothDeviceManager.DeviceType.OBD212){
             Log.d(TAG ,"deviceManager is not connected to 215");
             if (pidPackage.getPids() == null){
                 pidPackage.setPids(new HashMap<>());

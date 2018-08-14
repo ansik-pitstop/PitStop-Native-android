@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textAlignment="center"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_above="@id/start_report_animation"
@@ -24,8 +24,7 @@
         android:visibility="visible"
         android:id="@+id/start_report_button_holder"
         android:background="@drawable/background_transparent"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
+        android:layout_centerInParent="true"
         android:layout_width="270dp"
         android:layout_height="270dp">
 
@@ -48,12 +47,12 @@
 
     </FrameLayout>
 
-    <com.jjoe64.graphview.GraphView
-        android:layout_below="@id/start_report_button_holder"
-        android:layout_above="@id/bottomlayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/graph" />
+    <!--<com.jjoe64.graphview.GraphView-->
+        <!--android:layout_below="@id/start_report_button_holder"-->
+        <!--android:layout_above="@id/bottomlayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/graph" />-->
 
     <LinearLayout
         android:id="@+id/bottomlayout"
