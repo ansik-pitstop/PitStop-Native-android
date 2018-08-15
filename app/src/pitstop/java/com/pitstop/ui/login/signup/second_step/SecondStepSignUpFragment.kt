@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.pitstop.R
+import com.pitstop.application.GlobalApplication
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.login.LoginActivity
+import com.pitstop.utils.MixpanelHelper
 import kotlinx.android.synthetic.main.layout_signup_step_two.*
 
 /**
@@ -44,7 +46,8 @@ class SecondStepSignUpFragment: Fragment() , SecondStepSignUpView {
             val useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(ContextModule(activity?.applicationContext))
                     .build()
-            presenter = SecondStepSignUpPresenter(useCaseComponent)
+            presenter = SecondStepSignUpPresenter(useCaseComponent
+                    , MixpanelHelper(context?.applicationContext as GlobalApplication))
         }
         presenter?.subscribe(this)
     }

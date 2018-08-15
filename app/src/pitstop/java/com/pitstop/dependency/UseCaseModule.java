@@ -171,6 +171,7 @@ import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.SensorDataRepository;
@@ -726,12 +727,12 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository
+    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository, PidRepository pidRepository
             , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
-        return new AddPidUseCaseImpl(sensorDataRepository, userRepository, carRepository
+        return new AddPidUseCaseImpl(sensorDataRepository, pidRepository, userRepository, carRepository
                 , useCaseHandler, mainHandler);
     }
 

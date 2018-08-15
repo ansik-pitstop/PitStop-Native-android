@@ -5,11 +5,13 @@ import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.other.ResetPasswordUseCase
 import com.pitstop.network.RequestError
+import com.pitstop.utils.MixpanelHelper
 
 /**
  * Created by Karol Zdebel on 6/29/2018.
  */
-class ResetPasswordPresenter(private val useCaseComponent: UseCaseComponent) {
+class ResetPasswordPresenter(private val useCaseComponent: UseCaseComponent
+                             , private val mixpanelHelper: MixpanelHelper) {
 
     private val TAG = ResetPasswordPresenter::class.java.simpleName
 
@@ -46,6 +48,7 @@ class ResetPasswordPresenter(private val useCaseComponent: UseCaseComponent) {
                     Log.d(TAG,"Reset password use case returned success")
                     view?.hideLoading()
                     view?.displaySuccessDialog(R.string.reset_password_instructions)
+                    mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN,MixpanelHelper.LOGIN_RESULT_RESET_PASSWORD)
                 }
 
                 override fun onError(err: RequestError) {

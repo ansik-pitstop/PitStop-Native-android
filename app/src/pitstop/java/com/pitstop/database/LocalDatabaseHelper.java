@@ -19,7 +19,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-    private static final int DATABASE_VERSION = 82;
+    private static final int DATABASE_VERSION = 86;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private BriteDatabase mBriteDatabase;
@@ -38,7 +38,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(LocalPidStorage.CREATE_TABLE_PID_DATA);
+        db.execSQL(LocalPidStorage.Companion.getCREATE_TABLE_PID_DATA());
         db.execSQL(LocalCarStorage.Companion.getCREATE_TABLE_CAR());
         db.execSQL(LocalCarStorage.Companion.getCREATE_TABLE_PENDING_UPDATES());
         db.execSQL(LocalCarIssueStorage.Companion.getCREATE_TABLE_CAR_ISSUES());

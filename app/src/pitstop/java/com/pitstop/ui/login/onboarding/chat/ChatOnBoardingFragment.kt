@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.pitstop.R
+import com.pitstop.application.GlobalApplication
 import com.pitstop.ui.login.LoginActivity
+import com.pitstop.utils.MixpanelHelper
 import kotlinx.android.synthetic.main.layout_slide_chat.*
 
 /**
@@ -26,7 +28,7 @@ class ChatOnBoardingFragment: Fragment(), ChatOnBoardingView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (presenter == null){
-            presenter = ChatOnboardingPresenter()
+            presenter = ChatOnboardingPresenter(MixpanelHelper(context?.applicationContext as GlobalApplication))
         }
         presenter?.subscribe(this)
         next_button.setOnClickListener {
