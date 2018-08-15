@@ -194,4 +194,54 @@ public class PIDParser {
         }
         return decimalPidPackage;
     }
+
+    public static String getPidName(String rawPidKey){
+        switch(rawPidKey){
+            case "2102": return "DTC";
+            case "2103": return "Fuel System 1 Status";
+            case "214F": return "Fuel System 2 Status";
+            case "2100": return "Mass Airflow Sensor";
+            case "2104": return "Calculated Load Value";
+            case "2105": return "Engine Coolant Temperature (C)";
+            case "2106": return "Short Term Fuel Trim - Bank1";
+            case "2107": return "Long Term Fuel Trim - Bank1";
+            case "2108": return "Short Term Fuel Trim - Bank2 (%)";
+            case "2109": return "Long Term Fuel Trim - Bank2 (%)";
+            case "210C": return "Engine RPM (/min)";
+            case "210D": return " Vehicle Speed Sensor (km/h)";
+            case "210E": return "Ignition Advance (degrees)";
+            case "210F": return "Intake Air Temperature (C)";
+            case "2110": return "Mass Air Flow Sensor (g/s)";
+            case "2111": return "Absolute Throttle Position (%)";
+            case "2142": return "Battery Voltage";
+            case "2131": return "Distance Traveled Since Codes Cleared";
+            case "213C": return "Catalyst Temperature: Bank 1, Sensor 1";
+            case "214C": return "Commanded throttle actuator";
+            case "2121": return "Distance traveled with malfunction indicator lamp (MIL) on";
+            case "2119": return "Oxygen Sensor 6, A: Voltage, B: Short term fuel trim";
+            case "2146": return "Ambient air temperature";
+            case "2145": return "Relative throttle position";
+            case "2118": return "Oxygen Sensor 5, A: Voltage, B: Short term fuel trim";
+            case "212F": return "Fuel Tank Level Input";
+            case "2144": return "Fuel?Air commanded equivalence ratio";
+            case "2115": return "Oxygen Sensor 2, A: Voltage, B: Short term fuel trim";
+            case "2143": return "Absolute load value";
+            case "2150": return "Maximum value for air flow rate from mass air flow sensor";
+            case "2133": return "Absolute Barometric Pressure";
+            case "211C": return "OBD standards this vehicle conforms to";
+            case "212E": return "Commanded evaporative purge";
+            case "2114": return "Oxygen Sensor 1, A: Voltage, B: Short term fuel trim";
+            case "210A": return "Fuel pressure (gauge pressure)";
+            case "2101": return "Monitor status since DTCs cleared. (Includes malfunction indicator lamp (MIL) status and number of DTCs.)";
+            case "213D": return "Catalyst Temperature: Bank 2, Sensor 1";
+            case "2149": return "Accelerator pedal position D";
+            case "211F": return "Run time since engine start";
+            case "2147": return "Absolute throttle position B";
+            case "2132": return "Evap. System Vapor Pressure";
+            case "2151": return "Fuel Type";
+            case "210B": return "Intake manifold absolute pressure";
+            case "2113": return "Oxygen sensors present (in 2 banks)";
+            default: return "Unknown";
+        }
+    }
 }

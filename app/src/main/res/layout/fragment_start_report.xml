@@ -48,6 +48,14 @@
 
     </FrameLayout>
 
+    <TextView
+        android:text="RPM"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_above="@id/graph"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <com.jjoe64.graphview.GraphView
         android:layout_below="@id/start_report_button_holder"
         android:layout_above="@id/bottomlayout"
@@ -61,6 +69,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/more_graphs_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/color_button_rectangle_primary"
+            android:text="View More Graphs" />
 
         <Button
             android:id="@+id/show_reports_button"

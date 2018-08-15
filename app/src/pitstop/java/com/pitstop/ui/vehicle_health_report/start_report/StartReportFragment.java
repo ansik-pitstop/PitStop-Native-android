@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -65,6 +66,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @BindView(R.id.show_reports_button)
     Button pastReportsButton;
 
+    @BindView(R.id.more_graphs_button)
+    Button moreGraphsButton;
+
     @BindView(R.id.start_report_button)
     Button startReportButton;
 
@@ -99,7 +103,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
-
+        moreGraphsButton.setOnClickListener(view1 -> presenter.onGraphClicked());
         return view;
     }
 
@@ -219,6 +223,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         lineGraphSeriesMap = new HashMap<>();
         GraphView graph = getActivity().findViewById(R.id.graph);
         graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().scrollToEnd();
         graph.getViewport().setMinX(0);
         graph.getViewport().setMaxX(40);
         presenter.subscribe(this);
@@ -309,6 +314,21 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }
 
         lineGraphSeries.appendData(dataPoint,true,40);
+    }
+
+    @Override
+    public void startGraphActivity() {
+        Log.d(TAG,"startGraphActivity()");
+        try{
+            ((MainActivity)getActivity()).startGraphsActivity();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void displayBluetoothConnectionRequirePrompt(){
+        Toast.makeText(getActivity(),"Bluetooth connection required",Toast.LENGTH_LONG);
     }
 
     @Override
