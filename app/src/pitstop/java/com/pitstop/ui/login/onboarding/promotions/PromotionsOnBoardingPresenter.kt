@@ -1,9 +1,11 @@
 package com.pitstop.ui.login.onboarding.chat
 
+import com.pitstop.utils.MixpanelHelper
+
 /**
  * Created by Karol Zdebel on 6/20/2018.
  */
-class PromotionsOnBoardingPresenter{
+class PromotionsOnBoardingPresenter(private val mixpanelHelper: MixpanelHelper){
 
     private var view: PromotionsOnBoardingView? = null
 
@@ -17,5 +19,6 @@ class PromotionsOnBoardingPresenter{
 
     fun onNextClicked(){
         view?.goToMainActivity()
+        mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_ONBOARDING_PROMOTIONS, MixpanelHelper.SUCCESS)
     }
 }

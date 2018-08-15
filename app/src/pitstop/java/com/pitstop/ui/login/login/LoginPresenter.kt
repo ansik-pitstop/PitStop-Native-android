@@ -7,11 +7,13 @@ import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.FacebookLoginAuthMacroUseCase
 import com.pitstop.interactors.MacroUseCases.LoginAuthMacroUseCase
 import com.pitstop.network.RequestError
+import com.pitstop.utils.MixpanelHelper
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
+class LoginPresenter(private val useCaseComponent: UseCaseComponent
+                     , private val mixpanelHelper: MixpanelHelper) {
 
     private val TAG = LoginPresenter::class.java.simpleName
 
@@ -45,9 +47,11 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
                     Log.d(TAG,"LoginUseCase.onSuccess() activated: $activated")
                     if (view == null) return
                     if (activated){
+                        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN, MixpanelHelper.LOGIN_RESULT_SUCCESS_ACTIVATED)
                         view?.switchToMainActivity()
                     }else{
                         view?.switchToChangePassword(password)
+                        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN, MixpanelHelper.LOGIN_RESULT_SUCCESS_NOT_ACTIVATED)
                     }
                     view?.hideLoading()
                 }
@@ -66,6 +70,7 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onForgotPasswordPressed(){
         Log.d(TAG,"onForgotPasswordPressed()")
         view?.switchToResetPassword()
+        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN,MixpanelHelper.LOGIN_RESULT_RESET_PASSWORD)
     }
 
     fun onFacebookLoginPressed(){
@@ -87,6 +92,7 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
                 if (view == null) return
                 view?.hideLoading()
                 view?.switchToMainActivity()
+                mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN, MixpanelHelper.LOGIN_RESULT_SUCCESS_FACEBOOK)
             }
 
             override fun onError(err: RequestError) {
@@ -111,5 +117,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onSignupPressed(){
         Log.d(TAG,"onSignupPressed()")
         view?.switchToSignUp()
+        mixpanelHelper.trackLoginProcess(MixpanelHelper.STEP_LOGIN,MixpanelHelper.LOGIN_RESULT_SWITCHED_TO_SIGN_UP)
     }
 }
