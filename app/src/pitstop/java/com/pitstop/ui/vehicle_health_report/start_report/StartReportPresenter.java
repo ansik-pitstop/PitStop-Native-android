@@ -8,6 +8,8 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothService;
+import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -331,6 +333,14 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     }
 
     void onGraphClicked(){
-        getView().startGraphActivity();
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
+            if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+                getView().startGraphActivity();
+            }else{
+                getView().displayBluetoothConnectionRequirePrompt();
+            }
+            compositeDisposable.clear();
+        });
     }
 }

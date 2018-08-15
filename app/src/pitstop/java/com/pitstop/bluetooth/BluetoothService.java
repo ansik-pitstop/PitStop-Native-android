@@ -21,6 +21,7 @@ import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
+import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
