@@ -4,6 +4,7 @@ import android.util.Log
 import com.jjoe64.graphview.series.DataPoint
 import com.pitstop.models.PidGraphDataPoint
 import com.pitstop.repositories.PidRepository
+import com.pitstop.utils.PIDParser
 import java.sql.Date
 
 /**
@@ -25,18 +26,21 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
     }
 
     fun onViewReady(){
-        pidRepository.getAll(System.currentTimeMillis() - 1000*60)
+        pidRepository.getAll(System.currentTimeMillis() - 1000*60*2)
                 .subscribe({
                     Log.d(tag,"Got data: $it")
                     it.forEach {
-                        if (!pidTypesDisplayed.contains(it.type)){
-                            pidTypesDisplayed.add(it.type)
-                            view?.drawGraph(it.type)
+                        val title = PIDParser.getPidName(it.type)
+                        if (!pidTypesDisplayed.contains(title)){
+                            pidTypesDisplayed.add(title)
+                            view?.drawGraph(title)
                         }
                         if (!displayedData.contains(it)){
                             Log.d(tag,"undisplayed point: $it")
-                            view?.addDataPoint(it.type
+                            view?.addDataPoint(title
                                     ,DataPoint(Date(it.timestamp),it.value.toDouble()))
+                            view?.displayCurrentPidValue(title,it.value.toString())
+
                             displayedData.add(it)
                         }
                     }

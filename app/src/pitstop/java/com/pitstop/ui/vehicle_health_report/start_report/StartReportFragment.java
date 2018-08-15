@@ -220,6 +220,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
         GraphView graph = getActivity().findViewById(R.id.graph);
         graph.setOnClickListener((v) -> presenter.onGraphClicked());
         graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().scrollToEnd();
         graph.getViewport().setMinX(0);
         graph.getViewport().setMaxX(40);
         presenter.subscribe(this);

@@ -48,6 +48,14 @@
 
     </FrameLayout>
 
+    <TextView
+        android:text="RPM"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_above="@id/graph"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <com.jjoe64.graphview.GraphView
         android:layout_below="@id/start_report_button_holder"
         android:layout_above="@id/bottomlayout"

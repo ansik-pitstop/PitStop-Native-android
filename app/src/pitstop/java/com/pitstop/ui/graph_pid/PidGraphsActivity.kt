@@ -3,11 +3,10 @@ package com.pitstop.ui.graph_pid
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.Viewport
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.pitstop.R
@@ -28,14 +27,25 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
     private var presenter: PidGraphsPresenter? = null
     private lateinit var lineGraphSeriesMap: MutableMap<String, LineGraphSeries<DataPoint>>
     private lateinit var graphViewMap: MutableMap<String, GraphView>
+    private lateinit var textViewMap: MutableMap<String, TextView>
 
         override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_pids_graphs)
         presenter = PidGraphsPresenter(PidRepository(LocalPidStorage(LocalDatabaseHelper.getInstance(applicationContext))))
         lineGraphSeriesMap = mutableMapOf()
         graphViewMap = mutableMapOf()
+        textViewMap = mutableMapOf()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return if (item?.itemId == android.R.id.home) {
+            super.onBackPressed()
+            true
+        }
+        else return super.onOptionsItemSelected(item)
     }
 
     override fun onStart() {
@@ -47,10 +57,6 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
     override fun onStop() {
         super.onStop()
         presenter?.unsubscribe()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     override fun drawGraph(title: String): Boolean {
@@ -68,18 +74,7 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
 
         val graphView = GraphView(this)
         val dateFormat = SimpleDateFormat("hh:mm:ss", Locale.getDefault())
-        graphView.gridLabelRenderer.numHorizontalLabels = 4
-        graphView.gridLabelRenderer.labelFormatter = object: DefaultLabelFormatter(){
-            override fun formatLabel(value: Double, isValueX: Boolean): String {
-                if (isValueX)
-                    return dateFormat.format(value)
-                else return value.toString()
-            }
-
-            override fun setViewport(viewport: Viewport?) {
-            }
-
-        }
+        graphView.gridLabelRenderer.isHorizontalLabelsVisible = false
         graphView.viewport.isXAxisBoundsManual = true
         graphView.viewport.setMinX(0.0)
         graphView.viewport.setMaxX(80000.0)
@@ -94,13 +89,19 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
 
         lineGraphSeriesMap[title] = lineGraphSeries
         graphViewMap[title] = graphView
+        textViewMap[title] = textView
 
         return true
     }
 
     override fun addDataPoint(title: String, dataPoint: DataPoint) {
         Log.d(tag,"addDataPoints() title: $title, dataPoint: $dataPoint")
-        lineGraphSeriesMap[title]?.appendData(dataPoint,true,10)
+        lineGraphSeriesMap[title]?.appendData(dataPoint,true,12)
+    }
+
+    override fun displayCurrentPidValue(title: String, value: String) {
+        Log.d(tag,"displayCurrentPidValue() title: $title, value: $value")
+        textViewMap[title]?.text = "$title: $value"
     }
 
 }

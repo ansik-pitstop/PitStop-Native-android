@@ -8,4 +8,5 @@ import com.jjoe64.graphview.series.DataPoint
 interface PidGraphsView {
     fun drawGraph(title: String): Boolean
     fun addDataPoint(title: String, dataPoint: DataPoint)
+    fun displayCurrentPidValue(title: String, value: String)
 }
