@@ -580,7 +580,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
-        Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
+        Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent)
+                + " ignoreVerification: " + Boolean.toString(ignoreVerification));
         if (deviceManager == null) return false;
         this.ignoreVerification = ignoreVerification;
         if (urgent) deviceManager.changeScanUrgency(urgent); //Only set to more urgent to avoid automatic scans from overriding user
@@ -834,7 +835,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
-        if (deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.FOUND_DEVICES)){
+        if (deviceConnState.equals(State.SEARCHING)
+                || deviceConnState.equals(State.FOUND_DEVICES)){
             setConnectionState(State.DISCONNECTED);
             notifyDeviceDisconnected();
         }
