@@ -21,7 +21,6 @@ import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
-import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
@@ -294,27 +293,27 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         super.onCreate();
         Log.i(TAG, "BluetoothAutoConnect#OnCreate()");
 
-        final Random random = new Random();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG,"runnable running!");
-                OBD215PidPackage obd215PidPackage = new OBD215PidPackage("215B002373"
-                        ,"1000","1000",System.currentTimeMillis());
-                obd215PidPackage.addPid("210C",Integer.toString(random.nextInt(100),16));
-                obd215PidPackage.addPid("2103",Integer.toString(random.nextInt(10),16));
-                obd215PidPackage.addPid("214F",Integer.toString(random.nextInt(1000),16));
-                obd215PidPackage.addPid("2100",Integer.toString(random.nextInt(60),16));
-                obd215PidPackage.addPid("2104",Integer.toString(random.nextInt(20),16));
-                obd215PidPackage.addPid("2105",Integer.toString(random.nextInt(300),16));
-                obd215PidPackage.addPid("2106",Integer.toString(random.nextInt(10000),16));
-                obd215PidPackage.addPid("2107",Integer.toString(random.nextInt(100),16));
-                obd215PidPackage.addPid("2108",Integer.toString(random.nextInt(5),16));
-                idrPidData(obd215PidPackage);
-                backgroundHandler.postDelayed(this,8000);
-            }
-        };
-        backgroundHandler.post(runnable);
+//        final Random random = new Random();
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG,"runnable running!");
+//                OBD215PidPackage obd215PidPackage = new OBD215PidPackage("215B002373"
+//                        ,"1000","1000",System.currentTimeMillis());
+//                obd215PidPackage.addPid("210C",Integer.toString(random.nextInt(100),16));
+//                obd215PidPackage.addPid("2103",Integer.toString(random.nextInt(10),16));
+//                obd215PidPackage.addPid("214F",Integer.toString(random.nextInt(1000),16));
+//                obd215PidPackage.addPid("2100",Integer.toString(random.nextInt(60),16));
+//                obd215PidPackage.addPid("2104",Integer.toString(random.nextInt(20),16));
+//                obd215PidPackage.addPid("2105",Integer.toString(random.nextInt(300),16));
+//                obd215PidPackage.addPid("2106",Integer.toString(random.nextInt(10000),16));
+//                obd215PidPackage.addPid("2107",Integer.toString(random.nextInt(100),16));
+//                obd215PidPackage.addPid("2108",Integer.toString(random.nextInt(5),16));
+//                idrPidData(obd215PidPackage);
+//                backgroundHandler.postDelayed(this,8000);
+//            }
+//        };
+//        backgroundHandler.post(runnable);
 
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(getBaseContext()))
@@ -580,7 +579,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
-        Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
+        Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent)
+                + " ignoreVerification: " + Boolean.toString(ignoreVerification));
         if (deviceManager == null) return false;
         this.ignoreVerification = ignoreVerification;
         if (urgent) deviceManager.changeScanUrgency(urgent); //Only set to more urgent to avoid automatic scans from overriding user
@@ -834,7 +834,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
         Log.d(TAG, "scanFinished(), deviceConnState: " + deviceConnState
                 + ", deviceManager.moreDevicesLeft?" + deviceManager.moreDevicesLeft());
-        if (deviceConnState.equals(State.SEARCHING) || deviceConnState.equals(State.FOUND_DEVICES)){
+        if (deviceConnState.equals(State.SEARCHING)
+                || deviceConnState.equals(State.FOUND_DEVICES)){
             setConnectionState(State.DISCONNECTED);
             notifyDeviceDisconnected();
         }

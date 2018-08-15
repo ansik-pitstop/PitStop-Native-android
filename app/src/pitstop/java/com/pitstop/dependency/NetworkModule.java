@@ -29,6 +29,7 @@ import com.pitstop.utils.SecretUtils;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -69,9 +70,12 @@ public class NetworkModule {
                 .build();
     }
 
-    private OkHttpClient getHttpClient(Context context){
+    private OkHttpClient getHttpClient(Context context,int timeout){
         GlobalApplication application = (GlobalApplication)context.getApplicationContext();
         return new OkHttpClient.Builder()
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout,TimeUnit.SECONDS)
+                .readTimeout(timeout,TimeUnit.SECONDS)
                 .addInterceptor(chain -> {
                     Log.d(TAG,"Adding interceptor, access token: "+application.getAccessToken());
                     Request original = chain.request();
@@ -162,7 +166,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopCarApi.class);
     }
@@ -174,7 +178,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopAppointmentApi.class);
     }
@@ -204,7 +208,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopSmoochApi.class);
     }
@@ -217,7 +221,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopTripApi.class);
     }
@@ -230,7 +234,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,30))
                 .build()
                 .create(PitstopSensorDataApi.class);
     }
@@ -243,7 +247,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopUserApi.class);
     }
@@ -256,7 +260,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(PitstopServiceApi.class);
     }
@@ -268,7 +272,7 @@ public class NetworkModule {
                 .baseUrl(SecretUtils.getSnapToRoadEndpointUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getHttpClient(context))
+                .client(getHttpClient(context,12))
                 .build()
                 .create(GoogleSnapToRoadApi.class);
     }
