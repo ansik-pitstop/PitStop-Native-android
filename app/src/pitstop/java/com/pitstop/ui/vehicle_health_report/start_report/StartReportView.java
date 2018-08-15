@@ -25,5 +25,7 @@ public interface StartReportView {
     void startBluetoothService();
     boolean isBluetoothServiceRunning();
     void displaySeriesData(String series, DataPoint dataPoint);
+    void startGraphActivity();
     Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable();
+    void displayBluetoothConnectionRequirePrompt();
 }

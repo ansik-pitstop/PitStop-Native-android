@@ -84,8 +84,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    PidRepository getPidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage){
-        return new PidRepository(networkHelper,localPidStorage);
+    PidRepository getPidRepository(LocalPidStorage localPidStorage){
+        return new PidRepository(localPidStorage);
     }
 
     @Provides

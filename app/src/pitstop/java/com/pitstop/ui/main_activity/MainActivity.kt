@@ -20,6 +20,7 @@ import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
 import com.pitstop.R
+import com.pitstop.R.array.car
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothService
@@ -40,6 +41,7 @@ import com.pitstop.repositories.Repository
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
+import com.pitstop.ui.graph_pid.PidGraphsActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
@@ -441,6 +443,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
+    }
+
+    fun startGraphsActivity(){
+        Log.d(TAG,"startGraphsActivity()")
+        val intent = Intent(this, PidGraphsActivity::class.java)
+        startActivity(intent)
     }
 
     override fun showTentativeAppointmentShowcase() {
