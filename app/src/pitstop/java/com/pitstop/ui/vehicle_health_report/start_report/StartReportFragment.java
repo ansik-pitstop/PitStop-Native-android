@@ -328,7 +328,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public void displayBluetoothConnectionRequirePrompt(){
-        Toast.makeText(getActivity(),"Bluetooth connection required",Toast.LENGTH_LONG);
+        Toast.makeText(getActivity(),"Bluetooth connection required",Toast.LENGTH_LONG).show();
     }
 
     @Override
