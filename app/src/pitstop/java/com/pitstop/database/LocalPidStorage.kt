@@ -77,10 +77,13 @@ class LocalPidStorage(private val databaseHelper: LocalDatabaseHelper) {
         val pidGraphPointList = arrayListOf<PidGraphDataPoint>()
         if (cursor.moveToFirst()){
             while(!cursor.isAfterLast){
-                val timestamp = cursor.getLong(cursor.getColumnIndex(TABLES.PID.KEY_RTC_TIME))
-                val type = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_TYPE))
-                val value = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_VALUE))
-                pidGraphPointList.add(PidGraphDataPoint(timestamp,type,Integer.valueOf(value,16)))
+                try{
+                    val timestamp = cursor.getLong(cursor.getColumnIndex(TABLES.PID.KEY_RTC_TIME))
+                    val type = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_TYPE))
+                    val value = cursor.getString(cursor.getColumnIndex(TABLES.PID.KEY_VALUE))
+                    pidGraphPointList.add(PidGraphDataPoint(timestamp,type,Integer.valueOf(value,16)))
+                }catch(e: NumberFormatException){
+                }
                 cursor.moveToNext()
             }
         }
