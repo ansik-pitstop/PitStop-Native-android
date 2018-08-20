@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
@@ -31,7 +32,6 @@ import com.pitstop.ui.vehicle_health_report.health_report_progress.ReportProgres
 import com.pitstop.ui.vehicle_health_report.past_reports.PastReportsActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,9 +71,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @BindView(R.id.start_report_button)
     Button startReportButton;
-
-    @BindView(R.id.start_report_animation)
-    AVLoadingIndicatorView startAnimation;
 
     private boolean emissionsMode;
 
@@ -222,6 +219,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
         super.onViewCreated(view, savedInstanceState);
         lineGraphSeriesMap = new HashMap<>();
         GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        graph.setPadding(100,0,0,0);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().scrollToEnd();
         graph.getViewport().setMinX(0);
@@ -255,7 +254,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.highlight));
         pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_highlight));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_green_highlight));
-        startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.highlight));
         //modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.highlight), PorterDuff.Mode.MULTIPLY);
     }
 
@@ -269,7 +267,6 @@ public class StartReportFragment extends Fragment implements StartReportView {
         vehicleHealthTitle.setTextColor(ContextCompat.getColor(context,R.color.primary));
         pastReportsButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_rectangle_primary));
         startReportButton.setBackground(ContextCompat.getDrawable(context,R.drawable.color_button_primary));
-        startAnimation.setIndicatorColor(ContextCompat.getColor(context,R.color.primary));
         //modeSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(context,R.color.primary), PorterDuff.Mode.MULTIPLY);
     }
 

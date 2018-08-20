@@ -1,4 +1,4 @@
-package com.pitstop.bluetooth;
+    package com.pitstop.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

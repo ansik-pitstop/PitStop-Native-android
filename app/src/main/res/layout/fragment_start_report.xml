@@ -20,45 +20,22 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/primary" />
 
-    <FrameLayout
-        android:visibility="visible"
-        android:id="@+id/start_report_button_holder"
-        android:background="@drawable/background_transparent"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
-        android:layout_width="270dp"
-        android:layout_height="270dp">
-
-        <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/start_report_animation"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:indicatorColor="@color/primary"
-            app:indicatorName="BallScaleIndicator" />
-
-        <Button
-            android:id="@+id/start_report_button"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="60dp"
-            android:background="@drawable/p_button"
-            android:textColor="@color/white_text" />
-
-    </FrameLayout>
-
     <TextView
+        android:id="@+id/rpm_title"
+        android:layout_marginTop="30dp"
         android:text="RPM"
         style="@style/Base.TextAppearance.AppCompat.Medium"
-        android:layout_above="@id/graph"
+        android:layout_below="@id/title_vehicle_health"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <com.jjoe64.graphview.GraphView
-        android:layout_below="@id/start_report_button_holder"
+        android:layout_below="@id/rpm_title"
         android:layout_above="@id/bottomlayout"
+        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/graph" />
@@ -80,6 +57,18 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/color_button_rectangle_primary"
             android:text="View More Graphs" />
+
+        <Button
+            android:id="@+id/start_report_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="Get Vehicle Health Report"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/color_button_rectangle_primary"
+            android:textColor="@color/white_text" />
 
         <Button
             android:id="@+id/show_reports_button"
