@@ -96,14 +96,11 @@ public class GlobalApplication extends Application implements LoginManager {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
-
         FacebookSdk.sdkInitialize(this);
         Stetho.initializeWithDefaults(this);
-
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build();
-
         Fabric.with(this, crashlyticsKit);
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
@@ -125,7 +122,6 @@ public class GlobalApplication extends Application implements LoginManager {
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(this)).build();
         Smooch.init(this, settings, response -> {

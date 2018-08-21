@@ -96,6 +96,8 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                         ,TripUtils.getCarActivityType(it),it.confidence))
             })
 
+
+
             Logger.getInstance().logD(tag,"Important activities: {on foot: $onFootActivity" +
                     ", still: $stillActivity, vehicle: $vehicleActivity}",DebugMessage.TYPE_TRIP)
 
