@@ -177,7 +177,6 @@ public class BluetoothDeviceManager{
     public void bluetoothStateChanged(int state) {
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
-            dataListener.getBluetoothState(btConnectionState);
             if (deviceInterface != null){
                 deviceInterface.setCommunicatorState(state);
             }
