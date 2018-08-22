@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
@@ -222,6 +223,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
         super.onViewCreated(view, savedInstanceState);
         lineGraphSeriesMap = new HashMap<>();
         GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().scrollToEnd();
         graph.getViewport().setMinX(0);
