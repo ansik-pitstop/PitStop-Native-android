@@ -28,5 +28,6 @@ public interface StartReportView {
     void startGraphActivity();
     Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable();
     void displayBluetoothConnectionRequirePrompt();
+    void displayLiveDataNotSupportedPrompt();
     void setLiveDataButtonEnabled(boolean enabled);
 }
