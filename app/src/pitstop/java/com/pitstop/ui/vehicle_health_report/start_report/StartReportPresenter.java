@@ -50,6 +50,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     private boolean carAdded = true; //Assume car is added, but check when loading view and set to false if not
     private int pidPackageNum = 0;
     private long lastPidTime = 0;
+    private boolean isPidsSupported = false;
 
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
@@ -106,6 +107,10 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable d = view.getBluetoothConnectionObservable().take(1).subscribe((next) -> {
             next.subscribe(StartReportPresenter.this);
+            //Get supported pids so we know whether to gray out button or not
+            if (next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+                next.getSupportedPids();
+            }
             compositeDisposable.clear();
         });
 
@@ -272,7 +277,15 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady() readyDevice: "+readyDevice);
-        if (carAdded && getView() != null) getView().changeTitle(R.string.tap_to_begin,false);
+        if (carAdded && getView() != null){
+            getView().changeTitle(R.string.tap_to_begin,false);
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            Disposable disposable = getView().getBluetoothConnectionObservable().take(1).subscribe( next -> {
+                next.getSupportedPids();
+                compositeDisposable.clear();
+            });
+            compositeDisposable.add(disposable);
+        }
     }
 
     @Override
@@ -295,6 +308,9 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onGotSuportedPIDs(String value) {
         Log.d(TAG,"onGotSupportedPIDs() value: "+value);
+        if (getView() != null)
+            getView().setLiveDataButtonEnabled(!value.isEmpty());
+        isPidsSupported = !value.isEmpty();
     }
 
     @Override
@@ -313,6 +329,10 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     public void onGotPid(PidPackage pidPackage) {
         Log.d(TAG,"onGotPid() pidPackage: "+pidPackage);
         if (getView() == null) return;
+        if (pidPackage.getPids().size() > 0){
+            isPidsSupported = true;
+            getView().setLiveDataButtonEnabled(true);
+        }
         long currentTime = System.currentTimeMillis();
         //Don't display data more often than every 4 seconds, this is because historical data can stream fast
         if (currentTime - lastPidTime > 4000){
@@ -334,7 +354,11 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable disposable = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
             if (next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-                getView().startGraphActivity();
+                if (isPidsSupported){
+                    getView().startGraphActivity();
+                }else{
+                    getView().displayLiveDataNotSupportedPrompt();
+                }
             }else{
                 getView().displayBluetoothConnectionRequirePrompt();
             }

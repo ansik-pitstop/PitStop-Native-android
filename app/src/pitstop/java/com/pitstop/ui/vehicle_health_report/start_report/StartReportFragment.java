@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
@@ -222,6 +223,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
         super.onViewCreated(view, savedInstanceState);
         lineGraphSeriesMap = new HashMap<>();
         GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().scrollToEnd();
         graph.getViewport().setMinX(0);
@@ -332,8 +336,20 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
+    public void displayLiveDataNotSupportedPrompt(){
+        Toast.makeText(getActivity(),"Live data not supported for this vehicle",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable() {
         return ((MainActivity)getActivity()).getBluetoothService().map((next)-> next);
+    }
+
+    @Override
+    public void setLiveDataButtonEnabled(boolean enabled){
+        if (enabled)
+            moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.primary));
+        else moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.dark_grey));
     }
 
     @OnClick(R.id.show_reports_button)
