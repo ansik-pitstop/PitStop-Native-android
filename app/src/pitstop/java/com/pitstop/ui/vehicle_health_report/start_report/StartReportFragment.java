@@ -348,8 +348,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public void setLiveDataButtonEnabled(boolean enabled){
         if (enabled)
-            moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.dark_grey));
-        else moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.primary));
+            moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.primary));
+        else moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.dark_grey));
     }
 
     @OnClick(R.id.show_reports_button)
