@@ -52,6 +52,7 @@
         android:text="RPM"
         android:visibility="invisible"
         style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:visibility="invisible"
         android:layout_above="@id/graph"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
