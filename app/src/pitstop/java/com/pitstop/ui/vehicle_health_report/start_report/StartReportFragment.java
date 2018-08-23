@@ -336,8 +336,20 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
+    public void displayLiveDataNotSupportedPrompt(){
+        Toast.makeText(getActivity(),"Live data not supported for this vehicle",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable() {
         return ((MainActivity)getActivity()).getBluetoothService().map((next)-> next);
+    }
+
+    @Override
+    public void setLiveDataButtonEnabled(boolean enabled){
+        if (enabled)
+            moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.primary));
+        else moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.dark_grey));
     }
 
     @OnClick(R.id.show_reports_button)

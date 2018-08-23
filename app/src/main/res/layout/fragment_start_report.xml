@@ -50,8 +50,8 @@
 
     <TextView
         android:text="RPM"
-        style="@style/Base.TextAppearance.AppCompat.Medium"
         android:visibility="invisible"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
         android:layout_above="@id/graph"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/color_button_rectangle_primary"
+            android:background="@color/dark_grey"
             android:text="View Live Data" />
 
         <Button
