@@ -272,7 +272,15 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onDeviceReady(ReadyDevice readyDevice) {
         Log.d(TAG,"onDeviceReady() readyDevice: "+readyDevice);
-        if (carAdded && getView() != null) getView().changeTitle(R.string.tap_to_begin,false);
+        if (carAdded && getView() != null){
+            getView().changeTitle(R.string.tap_to_begin,false);
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            Disposable disposable = getView().getBluetoothConnectionObservable().take(1).subscribe( next -> {
+                next.getSupportedPids();
+                compositeDisposable.clear();
+            });
+            compositeDisposable.add(disposable);
+        }
     }
 
     @Override
@@ -295,6 +303,8 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onGotSuportedPIDs(String value) {
         Log.d(TAG,"onGotSupportedPIDs() value: "+value);
+        if (getView() != null)
+            getView().setLiveDataButtonEnabled(!value.isEmpty());
     }
 
     @Override

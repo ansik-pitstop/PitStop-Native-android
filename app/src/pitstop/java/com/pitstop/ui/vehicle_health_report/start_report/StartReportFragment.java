@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -334,6 +335,13 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @Override
     public Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable() {
         return ((MainActivity)getActivity()).getBluetoothService().map((next)-> next);
+    }
+
+    @Override
+    public void setLiveDataButtonEnabled(boolean enabled){
+        if (enabled)
+            moreGraphsButton.setBackgroundColor(Color.GRAY);
+        else moreGraphsButton.setBackgroundColor(Color.BLUE);
     }
 
     @OnClick(R.id.show_reports_button)
