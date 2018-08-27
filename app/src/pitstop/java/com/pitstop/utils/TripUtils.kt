@@ -134,6 +134,7 @@ class TripUtils {
             return locList
         }
 
+        //Calculate polyline length
         fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
                     .sumByDouble {
@@ -145,6 +146,7 @@ class TripUtils {
             }
         }
 
+        //Calculate distance between two points, used for calculating mileage for a trip
         fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double{
             val earthRadius = 6371000.0 //meters
             val dLat = Math.toRadians(lat2 - lat1)
