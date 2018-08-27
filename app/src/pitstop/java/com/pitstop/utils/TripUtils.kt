@@ -12,6 +12,9 @@ import com.pitstop.models.trip.*
 import com.pitstop.ui.MapView
 
 /**
+ *
+ * Contains utility methods pertaining to the trips feature
+ *
  * Created by Karol Zdebel on 3/7/2018.
  */
 class TripUtils {

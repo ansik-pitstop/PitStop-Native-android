@@ -26,6 +26,11 @@ import retrofit2.Response
 import java.io.IOException
 
 /**
+ *
+ * Stores, removes and modifies trip data. Important to make a distinction between
+ * data being stored for the purpose of recording a trip, and trip data that is already
+ * present and processed on the server side ready for display.
+ *
  * Created by David C. on 9/3/18.
  */
 open class TripRepository(private val tripApi: PitstopTripApi
@@ -39,6 +44,15 @@ open class TripRepository(private val tripApi: PitstopTripApi
     private val gson: Gson = Gson()
     private var dumping: Boolean = false
 
+    /**
+     *
+     * Returns all of the trips for a specific vehicle
+     *
+     * @param vin vin of the vehicle's trips being returned
+     * @param whatToReturn whether the data should be local, from the server or both
+     *
+     * @return Observable stream of the trip data
+     */
     fun getTripsByCarVin(vin: String, whatToReturn: String): Observable<RepositoryResponse<List<Trip>>> {
 
         Log.d(tag, "getTripsByCarVin() vin: $vin")
@@ -113,6 +127,13 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     }
 
+    /**
+     * Remove all trips cached in the local database
+     *
+     * @param carVin vin of the vehicle for which the trips should be deleted
+     * @param callback callback method which provides feedback as to whether the request succeeded
+     *
+     */
     fun deleteAllTripsFromCarVin(carVin: String, callback: Repository.Callback<Any>) {
 
         var tripList = getLocalTripsByCarVin(carVin)
@@ -131,6 +152,15 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     }
 
+    /**
+     * Remove a specific trip for a specific vehicle
+     *
+     * @param tripId id of the trip being deleted
+     * @param vin vin of the vehicle being deleted
+     *
+     * @return Observable stream of the string response from the server
+     *
+     */
     fun deleteTrip(tripId: String, vin: String): Observable<PitstopResponse<String>> {
 
         Log.d(tag, "delete() tripId: $tripId, vin: $vin")
@@ -154,8 +184,14 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
     }
 
+    //How many location data points are included in each HTTP request when sending trip data to the server
     private val SIZE_CHUNK = 30
 
+    /**
+     * Dumps all of the trip data which is stored on the phone but has not yet made its way to the server
+     * whenever a connection to the internet is established
+     *
+     */
     fun dumpDataOnConnectedToNetwork(){
         //Begins dumping data on connected to internet
         if (dumping) return
@@ -183,13 +219,27 @@ open class TripRepository(private val tripApi: PitstopTripApi
         return Observable.just(localPendingTripStorage.store(trip).toInt())
     }
 
+    /**
+     * Stores data in the local database then dumps the data to the server
+     *
+     * @param trip trip data
+     *
+     * @return how many location points have been sent to the server successfully
+     *
+     */
     fun storeTripDataAndDump(trip: TripData): Observable<Int>{
         Log.d(tag,"storeTripDataAndDump() trip.size = ${trip.locations.size}")
         localPendingTripStorage.store(trip)
         return dumpData()
     }
 
-    //Dumps data from local database to server
+    /**
+     * Dumps all of the location data present in the pending local storage to the server
+     * in chunks of SIZE_CHUNK
+     *
+     * @return how many location points were sent to the server successfully
+     *
+     */
     fun dumpData(): Observable<Int> {
         Log.d(tag,"dumpData()")
         val localPendingData = localPendingTripStorage.getAll()
@@ -239,6 +289,13 @@ open class TripRepository(private val tripApi: PitstopTripApi
         })
     }
 
+    /**
+     * Formats trip data so that it is in the format expected by the back-end
+     *
+     * @param tripData list of objects containg the data to be formatted and later sent to the server
+     *
+     * @return trip data in the format expected by the server
+     */
     private fun formatTripData(tripData: List<TripData>): Set<Set<LocationDataFormatted>>?{
 
         val allTripData = hashSetOf<Set<LocationDataFormatted>>()
@@ -246,6 +303,9 @@ open class TripRepository(private val tripApi: PitstopTripApi
         //Go through each trip
         tripData.forEach{
             val snappedPoints = arrayListOf<SnappedPoint>()
+
+            /**Split all of the location points into lists of size 100 because that is the limit
+            of points for the Snap to Road Google API, the API is used here to calculate the trip mileage or length**/
             it.locations.chunked(100).forEach{
                 //calculate mileage
                 var locString = ""
@@ -265,12 +325,11 @@ open class TripRepository(private val tripApi: PitstopTripApi
                     return null
                 }
             }
-
             val mileageTrip = if (snappedPoints.isEmpty()) DataPoint(DataPoint.ID_MILEAGE_TRIP, "0")
             else DataPoint(DataPoint.ID_MILEAGE_TRIP
                     , TripUtils.Companion.getPolylineDistance(snappedPoints).toString())
 
-            //Reverse geocode lat and long info
+            //Reverse geocode lat and long info to get the start and end address
             var startAddress: Address? = null
             var endAddress: Address? = null
             try{
