@@ -16,6 +16,13 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
+ *
+ * Use case responsible for processing user activity and location data, deriving when a trip occured
+ * ,and storing it in the trip repository.
+ *
+ * In the future we would want the code from TripUtils.getNextTripState() to calculate the next
+ * trip state to avoid duplicate logic
+ *
  * Created by Karol Zdebel on 6/4/2018.
  */
 class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocationStorage
