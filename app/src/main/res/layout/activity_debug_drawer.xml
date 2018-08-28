@@ -228,11 +228,11 @@
                 android:id="@+id/main_drawer_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <include
-                    android:id="@+id/news_view_drawer"
-                    layout="@layout/layout_news"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"/>
+                <!--<include-->
+                    <!--android:id="@+id/news_view_drawer"-->
+                    <!--layout="@layout/layout_news"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_width="match_parent"/>-->
                 <include
                     android:id="@+id/appointments_view_drawer"
                     layout="@layout/layout_appintments"
