@@ -374,6 +374,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return mBinder;
     }
 
+    /**
+     * Invoked by BluetoothDeviceManager once list of bluetooth devices in
+     * proximity has been found
+     */
     @Override
     public void onDevicesFound() {
         Log.d(TAG, "onDevicesFound()");
@@ -545,6 +549,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return null;
     }
 
+    /**
+     * Set the rtc time of the device to whatever the real time is
+     *
+     */
     @Override
     public void requestDeviceSync() {
         Log.d(TAG,"requestDeviceSync()");
@@ -552,12 +560,24 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         notifySyncingDevice();
     }
 
+    /**
+     * Specify which pids are to be returned periodically and how often
+     *
+     * @param pids which pids are to be returned
+     * @param timeInterval at what interval the pids should be returned
+     */
     @Override
     public void setPidsToBeSent(String pids, int timeInterval) {
         Log.d(TAG,"setPidsToBeSent() pids: "+pids+", timeInterval: "+timeInterval);
         deviceManager.setPidsToSend(pids, timeInterval);
     }
 
+    /**
+     * Depending on the vehicle that the device is connected to, set the
+     * communication parameters. Specifically how often data is transferred.
+     *
+     * @return whether the parameters were successfully set
+     */
     @Override
     public boolean requestPidInitialization() {
         if (deviceConnState.equals(State.CONNECTED_VERIFIED) && readyDevice != null
@@ -569,6 +589,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return false;
     }
 
+    /**
+     * Request detected trouble codes from the device
+     *
+     * @return whether the request succeeded
+     */
     @Override
     public boolean requestDtcData() {
         if (dtcRequested) return false;
@@ -582,6 +607,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    /**
+     * Request VIN from the device
+     *
+     * @return whether the request succeeded
+     */
     @Override
     public boolean requestVin() {
         if (vinRequested || deviceManager == null) return false;
@@ -595,6 +625,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    /**
+     * Request all the pids from the device (This is not IDR pids but a seperate request)
+     *
+     * @return whether the request succeeded
+     */
     @Override
     public boolean requestAllPid() {
         if (allPidRequested || deviceManager == null) return false;
@@ -607,6 +642,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    /**
+     * Request the rtc time of the device
+     *
+     * @return whether the request succeeded
+     */
     @Override
     public boolean requestDeviceTime() {
         if (rtcTimeRequested || deviceManager == null) return false;
@@ -619,7 +659,13 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
-
+    /**
+     * Request a search for devices in close proximity. This will automatically
+     * trigger a bluetooth connection to an appropriate device.
+     * @param urgent whether a connection should occur even if the device is far away
+     * @param ignoreVerification whether VIN and device id verification should occur after connecting
+     * @return whether the request was successful
+     */
     @Override
     public boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification) {
         Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent)
@@ -750,6 +796,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             }
         }
     }
+
     public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
@@ -767,7 +814,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
-
+    /**
+     * Invoked by the lower level bluetooth classes to pass idr pid data
+     *
+     * @param pidPackage pid data received from the device periodically
+     */
     @Override
     public void idrPidData(PidPackage pidPackage) {
         Logger.getInstance().logD(TAG, "IDR pid data received: " + (pidPackage == null ? "null" : pidPackage.toString())
@@ -803,6 +854,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     *
+     * @param pidPackage pid data received from the device as a result of a all pid request
+     */
     @Override
     public void pidData(PidPackage pidPackage) {
         if (pidPackage == null)return;
@@ -813,6 +868,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         notifyGotAllPid(pidPackage);
     }
 
+    /**
+     *
+     * @param dtcPackage engine trouble codes received from the device
+     */
     @Override
     public void dtcData(DtcPackage dtcPackage) {
         if (dtcPackage == null) return;
@@ -858,6 +917,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Change the device id
+     *
+     * @param deviceName device id to be set
+     */
     @Override
     public void setDeviceName(String deviceName) {
         Log.d(TAG, "setDeviceName: " +deviceName);
@@ -865,6 +929,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         currentDeviceId = deviceName;
     }
 
+    /**
+     *
+     * @param ffPackage Freeze frame data
+     */
     @Override
     public void ffData(FreezeFramePackage ffPackage) {
         Log.d(TAG,"ffData()");
@@ -877,6 +945,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         freezeFrameDataHandler.handleFreezeFrameData(ffPackage);
     }
 
+    /**
+     * Invoked when the bluetooth device search is completed
+     */
     @Override
     public void scanFinished() {
 
@@ -908,6 +979,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Vin verification succeeded
+     *
+     * @param vin vin of vehicle connected to
+     */
     @Override
     public void onVerificationSuccess(String vin) {
         Logger.getInstance().logI(TAG,"VIN verification success",
@@ -926,6 +1002,12 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     }
 
+    /**
+     * Device is broken and car does not have a scanner on the server side
+     * therefore no correct device id can be written to it
+     *
+     * @param vin vin of the device
+     */
     @Override
     public void onVerificationDeviceBrokenAndCarMissingScanner(String vin) {
         Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has no scanner",
@@ -952,6 +1034,13 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         deviceManager.getSupportedPids(); //Get supported pids once verified
     }
 
+    /**
+     * Device is broken but the server side has the device id stored so
+     * it can be written to the device so that it is fixed
+     *
+     * @param vin vin of the vehicle
+     * @param deviceId device id found on the server side, used to override broken device id currently stored
+     */
     @Override
     public void onVerificationDeviceBrokenAndCarHasScanner(String vin, String deviceId) {
         Logger.getInstance().logI(TAG,"VIN verification failed due to broken device, car has scanner",
@@ -978,6 +1067,12 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         deviceManager.getSupportedPids(); //Get supported pids once verified
     }
 
+    /**
+     * Device that was connected to failed the VIN and device id verification process
+     * and should be disconnected from
+     *
+     * @param vin vin of the vehicle
+     */
     @Override
     public void onVerificationDeviceInvalid(String vin) {
         Logger.getInstance().logI(TAG,"VIN verification failed due to invalid device",
@@ -999,6 +1094,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     }
 
+    /**
+     * Device that was connected to is already active on another vehicle
+     *
+     * @param vin vin of the vehicle
+     */
     @Override
     public void onVerificationDeviceAlreadyActive(String vin) {
         Logger.getInstance().logI(TAG,"VIN verification failed due to device being already active",
@@ -1018,6 +1118,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     }
 
+    /**
+     * Error occurred during the verification process
+     *
+     * @param vin vin of the vehicle
+     */
     @Override
     public void onVerificationError(String vin) {
 
@@ -1037,6 +1142,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         onConnectedDeviceInvalid();
     }
 
+    /**
+     * Bluetooth has been turned on
+     */
     @Override
     public void onBluetoothOn() {
         Logger.getInstance().logI(TAG,"Bluetooth OFF",
@@ -1055,6 +1163,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Bluetooth has been turned off
+     */
     @Override
     public void onBluetoothOff() {
         Logger.getInstance().logI(TAG,"Bluetooth OFF",
@@ -1070,24 +1181,39 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         mNotificationManager.cancel(BluetoothService.notifID);
     }
 
+    /**
+     * Internet connection has been established
+     */
     @Override
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
         dtcDataHandler.sendLocalDtc();
     }
 
+    /**
+     * Request freeze frame from the device
+     */
     @Override
     public void requestFreezeData() {
         Log.d(TAG,"requestFreezeData()");
         deviceManager.getFreezeFrame();
     }
 
+    /**
+     * Check if the device has been verified successfully
+     *
+     * @return whether device has been verified
+     */
     @Override
     public boolean isDeviceVerified() {
         Log.d(TAG,"isDeviceVerified()");
         return deviceIsVerified;
     }
 
+    /**
+     *
+     * @return type of device currently connected to
+     */
     @Override
     public BluetoothDeviceManager.DeviceType getDeviceType(){
         Log.d(TAG,"getDeviceType");
@@ -1095,6 +1221,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return deviceManager.getDeviceType();
     }
 
+    /**
+     *
+     * @param name the device id and device bluetooth name that the device will register
+     */
     public void setDeviceNameAndId(String name){
         Log.d(TAG,"setDeviceNameAndId() name: "+name);
         deviceManager.setDeviceNameAndId(name);
@@ -1338,6 +1468,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         readyForDeviceTime = true;
     }
 
+    /**
+     * @param interval how often idr/periodic pids are to be retrieved from device
+     * @return
+     */
     @Override
     public boolean writeRTCInterval(int interval) {
         overWriteInterval = true;
@@ -1346,6 +1480,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return false;
     }
 
+    /**
+     * Reset device memory
+     *
+     * @return true
+     */
     @Override
     public boolean resetMemory() {
         Log.d(TAG, "resetMemory()");
@@ -1353,18 +1492,32 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    /**
+     * Clear all DTC present in vehicle
+     *
+     * @return true
+     */
     @Override
     public boolean clearDTCs() {
         deviceManager.clearDtcs();
         return true;
     }
 
+    /**
+     * Sets the size of batches that the pids are partitioned into when they are sent over to the server
+     * @param size size of each batch
+     * @return false
+     */
     @Override
     public boolean setChunkSize(int size) {
         pidDataHandler.setChunkSize(size);
         return false;
     }
 
+    /**
+     * Notify all AlarmObserver's which are subscribed that an alarm has been added to the local db
+     * @param alarm
+     */
     @Override
     public void notifyAlarmAdded(Alarm alarm) {
         Log.d(TAG, "notifyAlarmAdded");
@@ -1376,20 +1529,30 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     *
+     * @param alarm Alarm received from device
+     */
     @Override
     public void alarmEvent(Alarm alarm) {
         alarmHandler.handleAlarm(alarm);
     }
 
+    /**
+     *
+     * @param scannerID Device id
+     * @param fuelConsumed Fuel consumed by vehicle read from device
+     */
     @Override
     public void idrFuelEvent(String scannerID, double fuelConsumed) {
         Log.d(TAG, "myScannerId is: " + scannerID);
         fuelHandler.handleFuelUpdate(scannerID, fuelConsumed);
-
-
-
     }
 
+    /**
+     *
+     * @param fuelConsumed Fuel consumed by vehicle read from device
+     */
     @Override
     public void notifyFuelConsumedUpdate(double fuelConsumed) {
         for (Observer o: observerList){
@@ -1400,6 +1563,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     }
 
+    /**
+     * Request which pids are available for retrieval through the device
+     */
     @Override
     public void getSupportedPids() {
         deviceManager.getSupportedPids();
@@ -1430,6 +1596,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Request the protocol currently being used by the ELM327 device for communication
+     *
+     * @return true if currently connected to ELM327 device, and false otherwise
+     */
     @Override
     public boolean requestDescribeProtocol() {
         Log.d(TAG,"requestDescribeProtocol");
@@ -1442,6 +1613,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Request 2141 pid from device (Used for emissions)
+     * @return true if a Bluetooth Device Manager is present
+     */
     @Override
     public boolean request2141PID() {
         Log.d(TAG,"request2141PID");
@@ -1453,6 +1628,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Request the stored DTCs on the vehicle through the device
+     *
+     * @return true if a Bluetooth Device Manager is present
+     */
     @Override
     public boolean requestStoredDTC() {
         Log.d(TAG,"requestStoredDTC");
@@ -1464,6 +1644,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Request pending DTCs on the vehicle through the device
+     *
+     * @return true if a Bluetooth Device Manager is present
+     */
     @Override
     public boolean requestPendingDTC() {
         Log.d(TAG,"requestPendingDTC");
@@ -1475,6 +1660,12 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
+    /**
+     * Select a protocol to be used by the ELM327 device
+     *
+     * @param p protocol to be used by the ELM327 device
+     * @return true if a verified connection with a ELM327 device is present, and false otherwise
+     */
     @Override
     public boolean requestSelectProtocol(ObdProtocols p) {
         Log.d(TAG,"requestSelectProtocol() protocol: "+p);
@@ -1496,6 +1687,5 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     @Override
     public void disconnect() {
         deviceManager.setState(IBluetoothCommunicator.DISCONNECTED);
-
     }
 }
