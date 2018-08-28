@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
@@ -36,15 +36,15 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
     TextView BTSTATUS;
     boolean pendingUpload, clicked;
     /** Callbacks for service binding, passed to bindService() */
-    private BluetoothAutoConnectService service;
+    private BluetoothService service;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service1) {
             // cast the IBinder and get MyService instance
-            BluetoothAutoConnectService.BluetoothBinder binder = (BluetoothAutoConnectService.BluetoothBinder) service1;
-            service = ((BluetoothAutoConnectService.BluetoothBinder) service1).getService();
+            BluetoothService.BluetoothBinder binder = (BluetoothService.BluetoothBinder) service1;
+            service = ((BluetoothService.BluetoothBinder) service1).getService();
             //service.addCallback(ReceiveDebugActivity.this); // register
         }
 

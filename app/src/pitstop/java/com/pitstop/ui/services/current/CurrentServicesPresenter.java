@@ -6,6 +6,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
@@ -131,9 +132,9 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
 
         useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
             @Override
-            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues) {
+            public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues, boolean local) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");
-                updating = false;
+                if (!local) updating = false;
                 if (getView() == null) return;
 
                 getView().displayBadge(currentServices.size() + customIssues.size());
@@ -182,7 +183,8 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 getView().displayRecalls(recallList, selectionMap);
                 getView().showMoveToHistory(selectionMap.values().contains(true));
 
-                getView().hideLoading();
+                if (!local)
+                    getView().hideLoading();
             }
 
             @Override
@@ -200,15 +202,17 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 updating = false;
                 if (getView() == null) return;
 
-                getView().displayBadge(0);
-                getView().hideLoading();
+                if (!getView().hasBeenPopulated()){
+                    getView().displayBadge(0);
+                }
                 if (error.getError()!=null) {
                     if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                        handleOfflineError();
+                        handleOfflineError(error.getMessage());
                     } else {
-                        getView().displayUnknownErrorView();
+                        handleUnknownError(error.getMessage());
                     }
                 }
+                getView().hideLoading();
 
             }
         });
@@ -220,13 +224,23 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
         onUpdateNeeded();
     }
 
-    private void handleOfflineError(){
+    private void handleOfflineError(String error){
         Log.d(TAG,"handleOfflineError()");
         if (getView() == null) return;
-        else if (getView().hasBeenPopulated()){
-            getView().displayOfflineErrorDialog();
-        }else{
+        else if (getView().hasBeenPopulated() && getView().isRefreshing()){
+            getView().displayToast(R.string.offline_error);
+        }else if (!getView().hasBeenPopulated()){
             getView().displayOfflineView();
+        }
+    }
+
+    private void handleUnknownError(String error){
+        Log.d(TAG,"handleUnknownError()");
+        if (getView() == null) return;
+        else if (getView().hasBeenPopulated() && getView().isRefreshing()){
+            getView().displayToast(R.string.unknown_error);
+        }else if (!getView().hasBeenPopulated()){
+            getView().displayUnknownErrorView();
         }
     }
 
@@ -311,15 +325,15 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
                 Log.d(TAG,"setServicesDoneUseCase.onError() err: "+error);
                 updating = false;
                 if (getView() == null) return;
-                getView().hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    handleOfflineError();
+                    handleOfflineError(error.getMessage());
                 }
                 else{
                     getView().displayOnlineView();
-                    getView().displayUnknownErrorDialog();
+                    handleUnknownError(error.getMessage());
                 }
+                getView().hideLoading();
             }
         });
     }

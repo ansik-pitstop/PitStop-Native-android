@@ -37,4 +37,6 @@ public interface CurrentServicesView extends ErrorHandlingView, LoadingTabView
     void showMoveToHistory(boolean show);
     boolean hasBeenPopulated();
     void startDisplayIssueActivity(List<CarIssue> issues, int position);
+    void displayToast(String error);
+    void displayToast(int error);
 }

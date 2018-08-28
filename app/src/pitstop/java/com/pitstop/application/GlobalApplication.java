@@ -30,7 +30,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.pitstop.BuildConfig;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
@@ -41,6 +41,7 @@ import com.pitstop.models.Notification;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
+import com.pitstop.ui.login.LoginActivity;
 import com.pitstop.ui.trip.TripsService;
 import com.pitstop.utils.Logger;
 import com.pitstop.utils.LoginManager;
@@ -50,9 +51,11 @@ import com.pitstop.utils.SecretUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
@@ -72,12 +75,13 @@ public class GlobalApplication extends Application implements LoginManager {
 
     private UseCaseComponent useCaseComponent;
     private Observable<Service> serviceObservable;
-    private BluetoothAutoConnectService autoConnectService;
+    private BluetoothService autoConnectService;
     private TripsService tripsService;
     private ServiceConnection serviceConnection;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
     public static RemoteInput remoteInput = null;
+    private boolean isBluetoothServiceRunning = false;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -174,9 +178,11 @@ public class GlobalApplication extends Application implements LoginManager {
 
         tripsService = null;
         autoConnectService = null;
+        List<Emitter<Service>> emitterList = new ArrayList<>();
         serviceObservable = Observable.create(emitter -> {
             Log.d(TAG,"serviceObservable.subscribe() autoconnectService null? "
                     +(autoConnectService == null) +", tripsService null? "+(tripsService == null));
+            emitterList.add(emitter);
             if (autoConnectService != null){
                 emitter.onNext(autoConnectService);
             }
@@ -191,16 +197,22 @@ public class GlobalApplication extends Application implements LoginManager {
                     public void onServiceConnected(ComponentName className, IBinder service) {
                         Log.i(TAG, String.format("connecting: onServiceConnection, className: %s, trips class: %s"
                                 ,className.getClassName(),TripsService.class.getCanonicalName()));
-                        if (className.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
-                            autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder)service).getService();
-                            emitter.onNext(autoConnectService);
+                        if (className.getClassName().equals(BluetoothService.class.getCanonicalName())){
+                            autoConnectService = ((BluetoothService.BluetoothBinder)service).getService();
+                            isBluetoothServiceRunning = true;
+                            for (Emitter e: emitterList){
+                                e.onNext(autoConnectService);
+                            }
                             Log.d(TAG,"bluetooth service set");
                         }
                         else if (className.getClassName().equals(TripsService.class.getName())) {
                             Log.d(TAG, "trips service set");
                             try {
                                 tripsService = ((TripsService.TripsBinder) service).getService();
-                                emitter.onNext(tripsService);
+                                for (Emitter e: emitterList){
+                                    e.onNext(tripsService);
+                                }
+                                Log.d(TAG,"passed trips service to emitter");
                             } catch (ClassCastException e) {
                                 e.printStackTrace();
                             }
@@ -211,7 +223,7 @@ public class GlobalApplication extends Application implements LoginManager {
                     public void onServiceDisconnected(ComponentName arg0) {
                         Log.i(TAG, "Disconnecting: onServiceConnection componentName.className: "
                                 +arg0.getClassName());
-                        if (arg0.getClassName().equals(BluetoothAutoConnectService.class.getCanonicalName())){
+                        if (arg0.getClassName().equals(BluetoothService.class.getCanonicalName())){
                             autoConnectService = null;
                         }else if (arg0.getClassName().equals(TripsService.class.getName())){
                             tripsService = null;
@@ -249,10 +261,7 @@ public class GlobalApplication extends Application implements LoginManager {
                 };
                 registerReceiver(broadcastReceiver,intentFilter);
 
-                Intent serviceIntent = new Intent(GlobalApplication.this
-                        , BluetoothAutoConnectService.class);
-                startService(serviceIntent);
-                bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+                startBluetoothService();
 
                 Intent tripsServiceIntent = new Intent(GlobalApplication.this
                         , TripsService.class);
@@ -260,6 +269,30 @@ public class GlobalApplication extends Application implements LoginManager {
                 bindService(tripsServiceIntent, serviceConnection, BIND_AUTO_CREATE);
             }
         });
+    }
+
+    public boolean isBluetoothServiceRunning(){
+        return isBluetoothServiceRunning;
+    }
+
+    public void startBluetoothService(){
+        Log.d(TAG,"startBluetoothService()");
+        if (!isBluetoothServiceRunning && serviceConnection != null){
+            Intent serviceIntent = new Intent(GlobalApplication.this
+                    , BluetoothService.class);
+            startService(serviceIntent);
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            isBluetoothServiceRunning = true;
+
+        }
+    }
+
+    public void stopBluetoothService(){
+        Log.d(TAG,"stopBluetoothService()");
+        if (autoConnectService != null){
+            isBluetoothServiceRunning = false;
+            autoConnectService.stopSelf();
+        }
     }
 
     public Observable<Service> getServices(){
@@ -401,6 +434,11 @@ public class GlobalApplication extends Application implements LoginManager {
             Log.d(TAG,"smooch logout response: "+response.getError());
         });
 
+        LocalDatabaseHelper.getInstance(this).deleteAllData();
+        Intent intent = new Intent(this,LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public void modifyMixpanelSettings(String field, Object value){

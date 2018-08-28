@@ -102,11 +102,11 @@ public class PidDataHandler {
         }
 
         pendingPidPackages.add(pidPackage);
-        if (!bluetoothDataHandlerManager.isDeviceVerified()){
-            Logger.getInstance().logD(TAG, "Pid data added to pending list, device not verified"
-                    , DebugMessage.TYPE_BLUETOOTH);
-            return;
-        }
+//        if (!bluetoothDataHandlerManager.isDeviceVerified()){
+//            Logger.getInstance().logD(TAG, "Pid data added to pending list, device not verified"
+//                    , DebugMessage.TYPE_BLUETOOTH);
+//            return;
+//        }
         for (PidPackage p: pendingPidPackages){
             useCaseComponent.addPidUseCase().execute(p,vin, new AddPidUseCase.Callback() {
                 @Override

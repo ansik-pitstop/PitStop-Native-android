@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -227,7 +227,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(false);
 
     }
 
@@ -300,6 +300,8 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         tankSize.setText(car.getTankSize());
         if (!(presenter.getDealership() == null)) {
             dealership.setText(presenter.getDealership().getName());
+        }else{
+            dealership.setText("No Shop");
         }
         presenter.getLicensePlate(car.getId());
     }
@@ -511,7 +513,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     public void startAddCarActivity() {
         Log.d(TAG, "startAddCarActivity()");
         Intent intent = new Intent(getActivity(), AddCarActivity.class);
-        startActivityForResult(intent, MainActivity.RC_ADD_CAR);
+        getActivity().startActivityForResult(intent, MainActivity.RC_ADD_CAR);
     }
 
     @Override
@@ -542,13 +544,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @OnClick(R.id.offline_try_again)
     public void onOfflineTryAgainClicked() {
         Log.d(TAG, "onOfflineTryAgainClicked()");
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(true);
     }
 
     @OnClick(R.id.unknown_error_try_again)
     public void onUnknownTryAgainClicked() {
         Log.d(TAG, "onUnknownTryAgainClicked()");
-        presenter.onUpdateNeeded();
+        presenter.onUpdateNeeded(true);
     }
 
     @OnClick(R.id.fuel_consumption_row)
@@ -565,9 +567,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @Override
-    public void onServiceBinded(@NotNull BluetoothAutoConnectService bluetoothAutoConnectService) {
+    public void onServiceBinded(@NotNull BluetoothService bluetoothService) {
         Log.d(TAG, "onServiceBinded()");
-        this.presenter.onServiceBound(bluetoothAutoConnectService);
+        this.presenter.onServiceBound(bluetoothService);
     }
 
     @OnClick(R.id.fuel_expense_row)
@@ -666,8 +668,14 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @Override
     public void displayDefaultDealershipVisuals(Dealership dealership) {
         Log.d(TAG, "displayDefaultDealershipVisual()");
-        dealershipName.setText(dealership.getName());
-        mDealerBanner.setImageResource(getDealerSpecificBanner(dealership.getName()));
+        String name = "";
+        if (dealership == null){
+            name = "No Shop";
+        }else{
+            name = dealership.getName();
+        }
+        dealershipName.setText(name);
+        mDealerBanner.setImageResource(getDealerSpecificBanner(name));
         /*drivingAlarmsIcon.setImageResource(R.drawable.car_alarms_3x);*/
         mCarLogoImage.setVisibility(View.VISIBLE);
         dealershipName.setVisibility(View.VISIBLE);

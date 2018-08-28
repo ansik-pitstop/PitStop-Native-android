@@ -48,13 +48,13 @@ public class LocalPendingTripStorageTest {
         Log.d(TAG,"running storePendingTripTest()");
         int locNum = 3;
         localPendingTripStorage.deleteAll();
-        TripData tripData = TripTestUtil.Companion.generateTripData(locNum,VIN,System.currentTimeMillis());
+        TripData tripData = TripTestUtil.Companion.generateTripData(locNum,0,VIN,System.currentTimeMillis());
         Log.d(TAG,"storePendingTripTest() tripData = "+gson.toJsonTree(tripData));
         assertTrue(localPendingTripStorage.store(tripData) > 0);
         List<TripData> tripDataRetrieved = localPendingTripStorage.getAll();
         Log.d(TAG,"tripData after retrieving: "+gson.toJsonTree(tripDataRetrieved));
-        assertEquals(tripDataRetrieved.size(),1);
-        assertEquals(tripData,tripDataRetrieved.get(0));
+        assertEquals(1,tripDataRetrieved.size());
+        assertEquals(tripDataRetrieved.get(0),tripData);
 
     }
 
@@ -62,8 +62,8 @@ public class LocalPendingTripStorageTest {
     public void getMultipleTripTest(){
         List<TripData> tripDataList = new ArrayList<>();
         localPendingTripStorage.deleteAll();
-        for (int i=0;i<3;i++){
-            TripData tripData = TripTestUtil.Companion.generateTripData(3,VIN,System.currentTimeMillis());
+        for (int i=0;i<6;i++){
+            TripData tripData = TripTestUtil.Companion.generateTripData(4,i,VIN,System.currentTimeMillis());
             tripDataList.add(tripData);
             localPendingTripStorage.store(tripData);
         }
@@ -75,7 +75,7 @@ public class LocalPendingTripStorageTest {
 
         Set<TripData> t1 = new HashSet<>(tripDataRetrieved);
         Set<TripData> t2 = new HashSet<>(tripDataList);
-        assertEquals(t1, t2);
+        assertEquals(t2, t1);
     }
 
 }

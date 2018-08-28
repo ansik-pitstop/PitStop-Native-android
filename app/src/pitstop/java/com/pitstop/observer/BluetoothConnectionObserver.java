@@ -1,5 +1,6 @@
 package com.pitstop.observer;
 
+import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.models.ReadyDevice;
 
 /**
@@ -28,4 +29,7 @@ public interface BluetoothConnectionObserver extends Observer{
     void onConnectingToDevice();
 
     void onFoundDevices();
+
+    void onGotPid(PidPackage pidPackage);
+
 }

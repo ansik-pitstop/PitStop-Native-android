@@ -27,6 +27,7 @@ import com.pitstop.retrofit.PitstopAppointmentApi;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.retrofit.PitstopCarApi;
 import com.pitstop.retrofit.PitstopSensorDataApi;
+import com.pitstop.retrofit.PitstopServiceApi;
 import com.pitstop.retrofit.PitstopTripApi;
 import com.pitstop.retrofit.PitstopUserApi;
 import com.pitstop.utils.NetworkHelper;
@@ -63,15 +64,16 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public CarRepository getCarRepository(LocalCarStorage localCarStorage
+            , LocalShopStorage localShopStorage
             , NetworkHelper networkHelper, PitstopCarApi pitstopCarApi){
-        return new CarRepository(localCarStorage,networkHelper,pitstopCarApi);
+        return new CarRepository(localCarStorage, localShopStorage, networkHelper,pitstopCarApi);
     }
 
     @Provides
     @Singleton
     public CarIssueRepository getCarIssueRepository(LocalCarIssueStorage localCarIssueStorage
-            , NetworkHelper networkHelper){
-        return new CarIssueRepository(localCarIssueStorage,networkHelper);
+            , PitstopServiceApi pitstopServiceApi, NetworkHelper networkHelper){
+        return new CarIssueRepository(localCarIssueStorage, pitstopServiceApi, networkHelper);
     }
 
     @Provides
@@ -82,8 +84,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    PidRepository getPidRepository(NetworkHelper networkHelper, LocalPidStorage localPidStorage){
-        return new PidRepository(networkHelper,localPidStorage);
+    PidRepository getPidRepository(LocalPidStorage localPidStorage){
+        return new PidRepository(localPidStorage);
     }
 
     @Provides

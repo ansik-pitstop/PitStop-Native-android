@@ -67,6 +67,7 @@ public class ServiceFormPresenter implements PresenterCallback{
     public void subscribe(ServiceFormView view ){
         Log.d(TAG,"subscribe()");
         if(view.getRequestServiceCallback() == null){return;}
+        mixpanelHelper.trackRequestServiceProcess(MixpanelHelper.STEP_REQUEST_SERVICE_OPENED);
         mixpanelHelper.trackViewAppeared("RequestServiceForm");
         dateSelected = false;
         timeSelected = false;
@@ -262,6 +263,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                     @Override
                     public void onServicesRequested() {
                         Log.d(TAG,"onServiceRequested()");
+                        mixpanelHelper.trackRequestServiceProcess(MixpanelHelper.STEP_SERVICE_REQUESTED);
                         ArrayList<CarIssue> toAdd = new ArrayList<>();
                         for (CarIssue c: issues){
                             if (c.getIssueType().equals(CarIssue.TYPE_PRESET))

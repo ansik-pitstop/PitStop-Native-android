@@ -181,7 +181,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         List<CarHealthItem> carHealthItemList = new ArrayList<>(services);
         servicesIssueAdapter = new HeathReportIssueAdapter(carHealthItemList
-                ,"No Services",presenter,context);
+                ,"No Services","",presenter,context);
         servicesList.setAdapter(servicesIssueAdapter);
         servicesList.setLayoutManager(linearLayoutManager);
         if(services.size()>0){
@@ -197,7 +197,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         List<CarHealthItem> carHealthItemList = new ArrayList<>(recalls);
         recallIssueAdapter = new HeathReportIssueAdapter(
-                carHealthItemList,"No Recalls",presenter,context);
+                carHealthItemList,"No Recalls","",presenter,context);
         recallList.setAdapter(recallIssueAdapter);
         recallList.setLayoutManager(linearLayoutManager);
         if(recalls.size()>0){
@@ -214,7 +214,8 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         List<CarHealthItem> carHealthItemList = new ArrayList<>(engine);
         engineIssueAdapter = new HeathReportIssueAdapter(
-                carHealthItemList,"No New Engine Codes",presenter,context);
+                carHealthItemList,"No New Engine Codes"
+                ,getString(R.string.engine_code_disclaimer),presenter,context);
         engineList.setAdapter(engineIssueAdapter);
         engineList.setLayoutManager(linearLayoutManager);
         if(engine.size()>0){

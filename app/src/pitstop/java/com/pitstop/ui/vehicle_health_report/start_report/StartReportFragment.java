@@ -13,7 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.dependency.ContextModule;
@@ -29,9 +34,15 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Matt on 2017-08-11.
@@ -56,6 +67,9 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @BindView(R.id.show_reports_button)
     Button pastReportsButton;
 
+    @BindView(R.id.more_graphs_button)
+    Button moreGraphsButton;
+
     @BindView(R.id.start_report_button)
     Button startReportButton;
 
@@ -71,6 +85,8 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptSearchInProgressDialog;
     private AlertDialog promptOfflineDialog;
     private AlertDialog promptAddCar;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Map<String, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,7 +104,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
-        //modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> presenter.onSwitchClicked(b));
+        moreGraphsButton.setOnClickListener(view1 -> presenter.onGraphClicked());
         return view;
     }
 
@@ -203,20 +219,26 @@ public class StartReportFragment extends Fragment implements StartReportView {
     }
 
     @Override
-    public BluetoothConnectionObservable getBluetoothConnectionObservable() {
-        BluetoothConnectionObservable bluetoothConnectionObservable
-                = ((MainActivity)getActivity()).getBluetoothConnectService();
-        Log.d(TAG,"getBluetoothConnectionObservable() null ? "
-                + (bluetoothConnectionObservable == null));
-        return bluetoothConnectionObservable;
-    }
-
-    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        lineGraphSeriesMap = new HashMap<>();
+        GraphView graph = getActivity().findViewById(R.id.graph);
+        graph.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.NONE);
+        graph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        graph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().scrollToEnd();
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
         presenter.subscribe(this);
-        if (getBluetoothConnectionObservable() != null)
-            presenter.setBluetoothConnectionObservable(getBluetoothConnectionObservable());
+        Disposable d = ((MainActivity)getActivity()).getBluetoothService()
+                .take(1)
+                .subscribe(next -> {
+                    presenter.setBluetoothConnectionObservable(next);
+                },err -> {
+                        Log.d(TAG,"error = "+err);
+                });
+        compositeDisposable.add(d);
         presenter.onViewReadyForLoad();
     }
 
@@ -224,6 +246,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     public void onDestroyView() {
         Log.d(TAG,"onDestroyView()");
         super.onDestroyView();
+        compositeDisposable.clear();
         presenter.unsubscribe();
     }
 
@@ -261,6 +284,72 @@ public class StartReportFragment extends Fragment implements StartReportView {
         }else{
             return true;
         }
+    }
+
+    @Override
+    public void startBluetoothService() {
+        Log.d(TAG,"startBluetoothService()");
+        if (getActivity() != null){
+            GlobalApplication app = ((GlobalApplication)getActivity().getApplication());
+            app.startBluetoothService();
+        }
+    }
+
+    @Override
+    public boolean isBluetoothServiceRunning() {
+        Log.d(TAG,"isBluetoothServiceRunning()");
+        if (getActivity() != null){
+            GlobalApplication app = ((GlobalApplication)getActivity().getApplication());
+            return app.isBluetoothServiceRunning();
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public void displaySeriesData(String series, DataPoint dataPoint) {
+        Log.d(TAG,"displaySeriesData() series: "+series+", coordinate:"+dataPoint);
+        LineGraphSeries<DataPoint> lineGraphSeries = lineGraphSeriesMap.get(series);
+        if (lineGraphSeries == null){
+            lineGraphSeries = new LineGraphSeries<>();
+            lineGraphSeriesMap.put(series, lineGraphSeries);
+            GraphView graph = getActivity().findViewById(R.id.graph);
+                graph.addSeries(lineGraphSeries);
+        }
+
+        lineGraphSeries.appendData(dataPoint,true,40);
+    }
+
+    @Override
+    public void startGraphActivity() {
+        Log.d(TAG,"startGraphActivity()");
+        try{
+            ((MainActivity)getActivity()).startGraphsActivity();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void displayBluetoothConnectionRequirePrompt(){
+        Toast.makeText(getActivity(),"Bluetooth connection required",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayLiveDataNotSupportedPrompt(){
+        Toast.makeText(getActivity(),"Live data not supported for this vehicle",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public Observable<BluetoothConnectionObservable> getBluetoothConnectionObservable() {
+        return ((MainActivity)getActivity()).getBluetoothService().map((next)-> next);
+    }
+
+    @Override
+    public void setLiveDataButtonEnabled(boolean enabled){
+        if (enabled)
+            moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.primary));
+        else moreGraphsButton.setBackgroundColor(getResources().getColor(R.color.dark_grey));
     }
 
     @OnClick(R.id.show_reports_button)

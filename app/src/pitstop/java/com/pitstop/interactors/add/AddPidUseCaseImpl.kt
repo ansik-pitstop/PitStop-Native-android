@@ -7,10 +7,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.sensor_data.SensorData
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.CarRepository
-import com.pitstop.repositories.Repository
-import com.pitstop.repositories.SensorDataRepository
-import com.pitstop.repositories.UserRepository
+import com.pitstop.repositories.*
 import com.pitstop.utils.Logger
 import com.pitstop.utils.SensorDataUtils
 import io.reactivex.disposables.CompositeDisposable
@@ -20,6 +17,7 @@ import io.reactivex.schedulers.Schedulers
  * Created by Karol Zdebel on 4/24/2018.
  */
 class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
+                        , private val pidRepository: PidRepository
                         , private val userRepository: UserRepository
                         , private val carRepository: CarRepository
                         , private val usecaseHandler: Handler
@@ -43,6 +41,8 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
     }
 
     override fun run() {
+        val rows = pidRepository.store(pidPackage)
+        Log.d(TAG,"stored $rows rows into Pid Repository!")
         //Get vin from car repo if empty
         if (vin.isEmpty()){
             userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
@@ -57,18 +57,18 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                                     if (car.data == null || usedLocalCar) return@subscribe
                                     if (car.isLocal) usedLocalCar = true
 
-                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data.vin))
+                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data?.vin))
 
                                 },{err ->
-                                    AddPidUseCaseImpl@onError(RequestError(err))
+                                    this@AddPidUseCaseImpl.onError(RequestError(err))
                                 })
                         compositeDisposable.add(disposable)
                     }
-                    else AddPidUseCaseImpl@onError(RequestError.getUnknownError())
+                    else this@AddPidUseCaseImpl.onError(RequestError.getUnknownError())
                 }
 
-                override fun onError(error: RequestError?) {
-                    AddPidUseCaseImpl@onError(error)
+                override fun onError(error: RequestError) {
+                    this@AddPidUseCaseImpl.onError(error)
                 }
 
             })
@@ -115,7 +115,7 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
                         onAdded(next)
                     },{err ->
                         err.printStackTrace()
-                        AddPidUseCaseImpl@onError(RequestError(err))
+                        this@AddPidUseCaseImpl.onError(RequestError(err))
                     })
             compositeDisposable.add(disposable)
         }else{

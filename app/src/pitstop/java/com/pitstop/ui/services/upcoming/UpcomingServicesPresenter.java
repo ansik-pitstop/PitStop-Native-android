@@ -6,6 +6,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.service.UpcomingService;
@@ -86,10 +87,10 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         getView().showLoading();
         useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
             @Override
-            public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap) {
-                updating = false;
+            public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap, boolean local) {
+                if (!local) updating = false;
                 if (getView() == null) return;
-                getView().hideLoading();
+                if (!local) getView().hideLoading();
                 getView().displayOnlineView();
 
                 if (!serviceMap.isEmpty()){
@@ -112,18 +113,22 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-                getView().hideLoading();
                 if (error!=null && error.getError()!=null){
                     if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                        if (getView().hasBeenPopulated()) {
+                        if (getView().hasBeenPopulated() && getView().isRefreshing()) {
                             getView().displayOfflineErrorDialog();
-                        } else {
-                            getView().displayOfflineView();
+                        } else if (!getView().hasBeenPopulated()){
+                            getView().displayToast(R.string.offline_error);
                         }
                     } else {
-                        getView().displayUnknownErrorView();
+                        if (getView().hasBeenPopulated() && getView().isRefreshing()) {
+                            getView().displayToast(R.string.unknown_error);
+                        } else if (!getView().hasBeenPopulated()){
+                            getView().displayUnknownErrorView();
+                        }
                     }
                 }
+                getView().hideLoading();
 
             }
         });

@@ -15,6 +15,7 @@ public interface HistoryServicesView extends LoadingTabView, ErrorHandlingView
         , NoCarAddedHandlingView{
     void populateDoneServices(List<CarIssue> doneServices);
     boolean hasBeenPopulated();
+    void displayToast(int error);
     void populateEmptyServices();
     void startCustomServiceActivity();
     void addDoneService(CarIssue doneService);

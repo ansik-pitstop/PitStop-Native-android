@@ -20,9 +20,10 @@ import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
 import com.pitstop.R
+import com.pitstop.R.array.car
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
-import com.pitstop.bluetooth.BluetoothAutoConnectService
+import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
@@ -40,6 +41,7 @@ import com.pitstop.repositories.Repository
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.add_car.AddCarActivity
 import com.pitstop.ui.custom_shops.CustomShopActivity
+import com.pitstop.ui.graph_pid.PidGraphsActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
 import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
@@ -48,12 +50,14 @@ import com.pitstop.ui.service_request.RequestServiceActivity
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripsFragment
+import com.pitstop.ui.trip.TripsService
 import com.pitstop.ui.vehicle_health_report.start_report.StartReportFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment
 import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment.START_CUSTOM
 import com.pitstop.utils.AnimatedDialogBuilder
 import com.pitstop.utils.MixpanelHelper
 import com.pitstop.utils.NetworkHelper
+import io.reactivex.Observable
 import io.smooch.ui.ConversationActivity
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -204,15 +208,20 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         drawerToggle?.drawerArrowDrawable?.color = getResources().getColor(R.color.white);
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        //Cannot do this since service connection is null still in onCreate(),
+        // since Global app starts the service anyway, we don't need this
+//        if (!(applicationContext as GlobalApplication).isBluetoothServiceRunning){
+//            (applicationContext as GlobalApplication).startBluetoothService()
+//        }
         (applicationContext as GlobalApplication).services
                 .subscribe({
                     Log.d(TAG,"GlobalApplication.services() onNext()")
-                    if (it is BluetoothAutoConnectService){
+                    if (it is BluetoothService){
                         Log.d(TAG,"got bluetooth service")
-                        autoConnectService = it
+                        bluetoothService = it
                         it.subscribe(this@MainActivity)
                         it.requestDeviceSearch(false, false)
-                        startReportFragment.bluetoothConnectionObservable = it
+                        startReportFragment.setBluetoothConnectionObservable(it)
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
                     }
@@ -220,6 +229,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                     Log.e(TAG,"GlobalApplication.services() onError() err= ${it.message}")
                     it.printStackTrace()
                 })
+
+        val userWasInactive = intent.getBooleanExtra(LoginActivity.USER_WAS_INACTIVE,false)
+        if (userWasInactive) presenter?.onUserWasInactiveOnCreate()
         Log.d(TAG,"end of onCreate!")
     }
 
@@ -281,9 +293,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         serviceObservers.add(autoConnectBinderObserver);
     }
 
-    fun notifyServiceBinded(bluetoothAutoConnectService: BluetoothAutoConnectService) {
+    fun notifyServiceBinded(bluetoothService: BluetoothService) {
         for (listener in serviceObservers) {
-            listener.onServiceBinded(bluetoothAutoConnectService)
+            listener.onServiceBinded(bluetoothService)
         }
     }
 
@@ -357,10 +369,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         })
     }
 
-    fun getBluetoothConnectService(): BluetoothAutoConnectService? {
-        return autoConnectService
-    }
-
     private fun displayDeviceState(state: String) {
         Log.d(TAG, "displayDeviceState(): " + state)
 
@@ -384,18 +392,20 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         Log.d(TAG, "onResume, serviceBound? " + serviceIsBound);
         supportActionBar?.title = tabFragmentManager?.currentTabTitle
-        if (autoConnectService != null) {
-            displayDeviceState(autoConnectService?.deviceState
+        if (bluetoothService != null) {
+            displayDeviceState(bluetoothService?.deviceState
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)
-            autoConnectService?.subscribe(this)
-            autoConnectService?.requestDeviceSearch(false, false)
+            bluetoothService?.subscribe(this)
+            bluetoothService?.requestDeviceSearch(false, false)
+        }else if (application?.isBluetoothServiceRunning == false){
+            application?.startBluetoothService()
         }
     }
 
     override fun onStop() {
         hideLoading()
 
-        getAutoConnectService().subscribe{ it.unsubscribe(this@MainActivity) }
+        getBluetoothService().take(1).subscribe{ it.unsubscribe(this@MainActivity) }
 
         super.onStop()
     }
@@ -433,6 +443,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         else{
             super.onActivityResult(requestCode, resultCode, intent)
         }
+    }
+
+    fun startGraphsActivity(){
+        Log.d(TAG,"startGraphsActivity()")
+        val intent = Intent(this, PidGraphsActivity::class.java)
+        startActivity(intent)
     }
 
     override fun showTentativeAppointmentShowcase() {
@@ -522,7 +538,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                             "the ID found on the front of the device so our algorithm can fix it.")
                     .setCancelable(false)
                     .setPositiveButton("Yes") { dialog, id ->
-                        getAutoConnectService().subscribe{
+                        getBluetoothService().take(1).subscribe{
                             it.setDeviceNameAndId(input.text
                                     .toString().trim { it <= ' ' }.toUpperCase())
                         }
@@ -564,9 +580,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                                             grantResults: IntArray) {
         if (requestCode == RC_LOCATION_PERM) {
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getAutoConnectService()
+                getBluetoothService()
+                        .take(1)
                         .filter{it.deviceState != BluetoothConnectionObservable.State.DISCONNECTED}
-                        .subscribe{it.requestDeviceSearch(false,false) }
+                        .subscribe{
+                            Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
+
+                            it.requestDeviceSearch(false,false)
+                        }
             }
         }
     }
@@ -680,7 +701,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onDestroy() {
-        autoConnectService = null
+        bluetoothService = null
         presenter?.unsubscribe()
         super.onDestroy()
 
@@ -725,6 +746,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onDeviceDisconnected() {
         Log.d(TAG, "onDeviceDisconnected()")
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
+        application?.stopBluetoothService()
+        bluetoothService = null
     }
 
     override fun onDeviceVerifying() {
@@ -880,10 +903,18 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             mDrawerLayout.closeDrawers()
     }
 
-    override fun getBluetoothConnectionObservable(): BluetoothConnectionObservable?
-            = autoConnectService
-
     override fun getBluetoothWriter(): BluetoothWriter?
-            = autoConnectService
+            = bluetoothService
+
+    fun getTripsService(): Observable<TripsService> {
+        Log.d(TAG,"getTripsService() called!")
+        return (applicationContext as GlobalApplication)
+                .services
+                .doOnNext({next -> Log.d(TAG,"getTripsService() doOnNext()")})
+                .filter { it -> it is TripsService }
+                .map { it ->
+                    it as TripsService
+                }
+    }
 
 }

@@ -41,18 +41,18 @@ public class BluetoothDeviceManager{
     private Context mContext;
     private GlobalApplication application;
     private MixpanelHelper mixpanelHelper;
-    private ObdManager.IBluetoothDataListener dataListener;
+    private ObdManager.IBluetoothDataListener dataListener; //Listener to bluetooth data, in this case BluetoothService
 
-    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothAdapter mBluetoothAdapter; //Android class used to start discovery process
     private Handler mHandler = new Handler();
 
-    private AbstractDevice deviceInterface;
+    private AbstractDevice deviceInterface; //Device that we are interfacing with(ELM, OBD215, OBD212)
     private UseCaseComponent useCaseComponent;
 
-    private int discoveryNum = 0;
-    private int btConnectionState = BluetoothCommunicator.DISCONNECTED;
-    private boolean nonUrgentScanInProgress = false;
-    private boolean discoveryWasStarted = false;
+    private int discoveryNum = 0;   //Discovery counter used to figure out whether a particular discovery has timed out
+    private int btConnectionState = BluetoothCommunicator.DISCONNECTED; //Current bluetooth connection state (This class doesn't distinguish between verified or non-verified connections)
+    private boolean nonUrgentScanInProgress = false;    //Whether the bluetooth signal strength should make a difference in making a connection
+    private boolean discoveryWasStarted = false;        //Prevent discovery from being started multiple times
 
     public void setState(int state) {
         Log.d(TAG,"setState() state: "+state);
@@ -118,6 +118,14 @@ public class BluetoothDeviceManager{
     //Returns false if search didn't begin again
     private boolean ignoreVerification = false;
 
+    /**
+     * Starts the search for bluetooth devices. If a search is already in progress
+     * or for some other reason the bluetooth adapter responds that it is already discovering when
+     * it really isn't(this is a known bug), then no search will be started.
+     * @param urgent whether how close the bluetooth device is should make an impact of the connection
+     * @param ignoreVerification whether VIN and device id should not be verified upon connecting
+     * @return true if the bluetooth search has started, and false otherwise
+     */
     public synchronized boolean startScan(boolean urgent, boolean ignoreVerification) {
         Log.d(TAG, "startScan() urgent: " + Boolean.toString(urgent) + " ignoreVerification: " + Boolean.toString(ignoreVerification));
         this.ignoreVerification = ignoreVerification;
@@ -139,6 +147,11 @@ public class BluetoothDeviceManager{
         return connectBluetooth(urgent);
     }
 
+    /**
+     * Invoked if the device that has just been connected to is deemed valid,
+     * and the rest of the devices found during the discovery process should
+     * be discarded
+     */
     public synchronized void onConnectDeviceValid(){
         if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.isDiscovering()){
             Log.i(TAG,"Stopping scan");
@@ -147,6 +160,10 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Closes all bluetooth device connections, cancels any bluetooth discovery,
+     * and unregisters bluetooth receivers. Sets the state to disconnected.
+     */
     public void close() {
         Log.d(TAG,"close()");
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
@@ -165,7 +182,9 @@ public class BluetoothDeviceManager{
         }
     }
 
-
+    /**
+     * Close connection with currently connected to device
+     */
     public void closeDeviceConnection(){
         Log.d(TAG,"closeDeviceConnection()");
         if (deviceInterface != null){
@@ -174,6 +193,10 @@ public class BluetoothDeviceManager{
         btConnectionState = IBluetoothCommunicator.DISCONNECTED;
     }
 
+    /**
+     * Change bluetooth state
+     * @param state bluetooth state to change to
+     */
     public void bluetoothStateChanged(int state) {
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED;
@@ -184,14 +207,27 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Change urgency of current or future scan
+     * @param urgent whether the scan is urgent and should use bluetooth proximity in deciding connection
+     */
     public void changeScanUrgency(boolean urgent){
         this.nonUrgentScanInProgress = !urgent;
     }
 
+    /**
+     *
+     * @return current bluetooth state
+     */
     public int getState() {
         return btConnectionState;
     }
 
+    /**
+     * Start the discovery process if possible and add found devices to list
+     * @param urgent
+     * @return whether the discovery process has been started successfully
+     */
     private synchronized boolean connectBluetooth(boolean urgent) {
         nonUrgentScanInProgress = !urgent; //Set the flag regardless of whether a scan is in progress
         btConnectionState = deviceInterface == null ? BluetoothCommunicator.DISCONNECTED : deviceInterface.getCommunicatorState();
@@ -257,11 +293,21 @@ public class BluetoothDeviceManager{
         deviceInterface.connectToDevice(device);
     }
 
+    /**
+     *
+     * @return true if more devices are available for potential connection
+     */
     public boolean moreDevicesLeft(){
         return foundDevices.size() > 0;
     }
 
-    //Returns whether a device qualified for connection
+    /**
+     * Connects to a device from the device list formed during the discovery process.
+     * Urgent flag dictates the minimum bluetooth signal requirements. The device
+     * which is identified to be supported by the Pitstop App with the highest signal
+     * will be the one connected to.
+     * @return whether any device qualified for connection
+     */
     public synchronized boolean connectToNextDevice(){
         Log.d(TAG,"connectToNextDevice(), foundDevices count: "+foundDevices.keySet().size());
 
@@ -323,9 +369,12 @@ public class BluetoothDeviceManager{
     }
 
     private Map<BluetoothDevice, Short> foundDevices = new HashMap<>(); //Devices found by receiver
-    private boolean rssiScan = false;
+    private boolean rssiScan = false;   //whether the rssi scan can be started
 
-    // for classic discovery
+    /**
+     * Used for classic discovery, handles adding all supported found devices to
+     * the device list and then when finished handles connecting
+     */
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -381,6 +430,10 @@ public class BluetoothDeviceManager{
             }
         }
     };
+
+    /**
+     * Request VIN from the device
+     */
     public void getVin() {
         Log.d(TAG,"getVin() btConnectionState: "+btConnectionState);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -391,6 +444,9 @@ public class BluetoothDeviceManager{
         Log.d(TAG,"get vin returned "+ret);
     }
 
+    /**
+     * Request rtc time from the device
+     */
     public void getRtc() {
         Log.d(TAG,"getRtc()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -400,6 +456,11 @@ public class BluetoothDeviceManager{
         /*writeToObd(deviceInterface.getRtc());*/
     }
 
+    /**
+     * Set the device name and id of the device
+     *
+     * @param id device name and id to be set
+     */
     public void setDeviceNameAndId(String id){
         Log.d(TAG,"setDeviceNameAndId() id: "+id);
         //Device name should never be set for 212
@@ -409,6 +470,11 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Set the device id
+     *
+     * @param id device id to be set
+     */
     public void setDeviceId(String id){
         Log.d(TAG,"setDeviceId() id: "+id);
         if (deviceInterface instanceof Device215B){
@@ -417,8 +483,9 @@ public class BluetoothDeviceManager{
         }
     }
 
-
-
+    /**
+     * Clear memory of the device
+     */
     public void clearDeviceMemory(){
         Log.d(TAG, "clearDeviceMemory() ");
         if (deviceInterface instanceof Device215B){
@@ -443,6 +510,12 @@ public class BluetoothDeviceManager{
         }
 
     }
+
+    /**
+     * Set rtc time on the device
+     *
+     * @param rtcTime time on the device to be set
+     */
     public void setRtc(long rtcTime) {
         Log.d(TAG,"setRtc() rtc: "+rtcTime);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -451,6 +524,11 @@ public class BluetoothDeviceManager{
         deviceInterface.setRtc(rtcTime);
     }
 
+    /**
+     * Request a specific list of pids from the device for return once
+     *
+     * @param pids pids to be returned once from the device
+     */
     public void getPids(String pids) {
         Log.d(TAG,"getPids() pids: "+pids);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -459,6 +537,9 @@ public class BluetoothDeviceManager{
         deviceInterface.getPids(pids);
     }
 
+    /**
+     * Clear all the stored DTC from the vehicle through the device
+     */
     public void clearDtcs(){
         Log.d(TAG, "clearDTCs");
         if (deviceInterface instanceof Device215B ||
@@ -466,6 +547,10 @@ public class BluetoothDeviceManager{
             deviceInterface.clearDtcs();
         }
     }
+
+    /**
+     * Get list of pids that can be returned from this vehicle through the device
+     */
     public void getSupportedPids() {
         Logger.getInstance().logI(TAG,"Requested supported pid", DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -474,7 +559,12 @@ public class BluetoothDeviceManager{
         deviceInterface.getSupportedPids();
     }
 
-    // sets pids to check and sets data interval
+    /**
+     * Set list of pids to returned periodically from the device
+     *
+     * @param pids pids to be returned periodically (up to 10 for OBD2 devices)
+     * @param timeInterval how often they are to be returned
+     */
     public void setPidsToSend(String pids, int timeInterval) {
         Logger.getInstance().logI(TAG,"Set pids to be sent: "+pids+", interval: "+timeInterval, DebugMessage.TYPE_BLUETOOTH);
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -483,6 +573,9 @@ public class BluetoothDeviceManager{
         deviceInterface.setPidsToSend(pids,timeInterval);
     }
 
+    /**
+     * Request both stored and pending DTCs from the device
+     */
     public void getDtcs() {
         Log.d(TAG,"getDtcs()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -493,6 +586,9 @@ public class BluetoothDeviceManager{
         deviceInterface.getPendingDtcs();
     }
 
+    /**
+     * Get freeze frame from the device
+     */
     public void getFreezeFrame() {
         Log.d(TAG,"getFreezeFrame()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -502,6 +598,9 @@ public class BluetoothDeviceManager{
         deviceInterface.getFreezeFrame();
     }
 
+    /**
+     * Request IDR data from device
+     */
     public void requestData() {
         Log.d(TAG,"requestData()");
         if (btConnectionState != BluetoothCommunicator.CONNECTED) {
@@ -511,6 +610,9 @@ public class BluetoothDeviceManager{
         deviceInterface.requestData();
     }
 
+    /**
+     * Request pid snapshot from the device
+     */
     public void requestSnapshot(){
         Log.d(TAG,"requestSnapshot()");
         if (deviceInterface!= null) {
@@ -522,6 +624,10 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     *
+     * @return type of device that app is currently connected to
+     */
     public DeviceType getDeviceType(){
         Log.d(TAG,"isConnectedTo215()");
         if (deviceInterface != null)
@@ -538,6 +644,11 @@ public class BluetoothDeviceManager{
             return null;
     }
 
+    /**
+     * Request the description of the protocol currently being used by ELM327 device
+     *
+     * @return true if connection to ELM327 device is present, and false otherwise
+     */
     public boolean requestDescribeProtocol(){
         Log.d(TAG,"requestDescribeProtocol");
         if (deviceInterface != null && deviceInterface instanceof ELM327Device){
@@ -548,6 +659,11 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Request 2141 emissions pid
+     *
+     * @return true is connection is present with appropriate device, and false otherwise
+     */
     public boolean request2141PID(){
         Log.d(TAG,"requestDescribeProtocol");
         if (deviceInterface != null && deviceInterface instanceof ELM327Device){
@@ -558,6 +674,11 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Request all stored DTC in vehicle through device
+     *
+     * @return true if currently connected to device is ELM327, and false otherwise
+     */
     public boolean requestStoredDTC(){
         Log.d(TAG,"requestDescribeProtocol");
         if (deviceInterface != null && deviceInterface instanceof ELM327Device){
@@ -568,6 +689,11 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Request all pending DTC in vehicle through device
+     *
+     * @return true if currently connected to device is ELM327, and false otherwise
+     */
     public boolean requestPendingDTC(){
         Log.d(TAG,"requestDescribeProtocol");
         if (deviceInterface != null && deviceInterface instanceof ELM327Device){
@@ -578,6 +704,11 @@ public class BluetoothDeviceManager{
         }
     }
 
+    /**
+     * Select protocol to be used to communicate with the vehicle through the ELM327 device
+     *
+     * @return true if currently connected to device is ELM327, and false otherwise
+     */
     public boolean requestSelectProtocol(ObdProtocols p){
         Log.d(TAG,"requestDescribeProtocol");
         if (deviceInterface != null && deviceInterface instanceof ELM327Device){

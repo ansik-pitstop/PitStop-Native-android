@@ -14,7 +14,6 @@ import com.pitstop.repositories.ShopRepository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -75,8 +74,8 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
             @Override
             public void onSuccess(User user) {
                 Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.BOTH)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .subscribe(response -> {
                     Log.d(TAG,"carRepository.get() car: "+response.getData());
                     carRepository.getShopId(response.getData().getId(), new Repository.Callback<Integer>() {

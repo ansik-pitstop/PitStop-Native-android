@@ -33,8 +33,8 @@ class RemoveTripUseCaseImpl(private val tripRepository: TripRepository,
     override fun run() {
         Log.d(tag, "run()")
         val disposable = tripRepository.deleteTrip(tripId, vin)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
                 .subscribe({ next ->
                     Log.d(tag, "tripRepository.onNext() data: $next")
                     this@RemoveTripUseCaseImpl.onTripRemoved()

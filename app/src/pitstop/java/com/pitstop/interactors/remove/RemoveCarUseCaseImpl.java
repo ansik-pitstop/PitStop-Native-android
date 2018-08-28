@@ -13,6 +13,7 @@ import com.pitstop.models.DebugMessage;
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
+import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.RepositoryResponse;
@@ -25,7 +26,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -46,6 +46,7 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private CarRepository carRepository;
     private UserRepository userRepository;
     private TripRepository tripRepository;
+    private CarIssueRepository carIssueRepository;
     private int carToDeleteId;
     private Callback callback;
     private Handler useCaseHandler;
@@ -55,11 +56,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     private EventSource eventSource;
 
-    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository, TripRepository tripRepository
+    public RemoveCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
+            , TripRepository tripRepository, CarIssueRepository carIssueRepository
             , NetworkHelper networkHelper, Handler useCaseHandler, Handler mainHandler){
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.tripRepository = tripRepository;
+        this.carIssueRepository = carIssueRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
         this.networkHelper = networkHelper;
@@ -103,8 +106,8 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                 // GET the VIN from the car to be deleted BEFORE it
                 else if (data.hasMainCar()){
                     Disposable disposable = carRepository.get(carToDeleteId,Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io())
                             .subscribe(carRepositoryResponse -> {
                                 if (carRepositoryResponse.getData() == null) return;
                                 else carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
@@ -126,14 +129,16 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
                                             }
                                         });
 
+                                        carIssueRepository.deleteLocalCarIssueData(carToDeleteId);
+
                                         if(data.getCarId() == carToDeleteId){// deleted the users current car
                                             userRepository.getCurrentUser(new Repository.Callback<User>() {
 
                                                 @Override
                                                 public void onSuccess(User user) {
-                                                    Disposable disposable = carRepository.getCarsByUserId(user.getId())
-                                                            .subscribeOn(Schedulers.io())
-                                                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                                    Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
+                                                            .subscribeOn(Schedulers.computation())
+                                                            .observeOn(Schedulers.io())
                                                             .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
                                                             .doOnNext(carListResponse -> {
                                                                 if (carListResponse.isLocal()) return;

@@ -71,8 +71,8 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                 if (!data.hasMainCar()) onNoCar()
                 else{
                     val disposable = carRepository.get(data.carId, Repository.DATABASE_TYPE.BOTH)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.computation(), true)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io(), true)
                             .subscribe({ car ->
                                 if (car.data == null) return@subscribe
                                 Log.d(tag, "got car vin: ${car.data.vin}, isLocal = ${car.isLocal}")
@@ -85,8 +85,8 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
                                 }
 
                                 val disposable = tripRepository.getTripsByCarVin(car.data.vin, whatToReturn)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(Schedulers.computation(), true)
+                                        .subscribeOn(Schedulers.computation())
+                                        .observeOn(Schedulers.io(), true)
                                         .subscribe({ next ->
                                             Log.d(tag, "tripRepository.onNext() data: $next , isLocal = ${next.isLocal}")
                                             this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)

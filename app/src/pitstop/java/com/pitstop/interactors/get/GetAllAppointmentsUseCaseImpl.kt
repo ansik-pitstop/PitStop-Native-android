@@ -60,8 +60,8 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
                     return
                 }
                 val disposable = appointmentRepository.getAllAppointments(data.carId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
                         .subscribe(
                         { next ->
                             Log.d(tag, "appointmentRepository.onNext() data: " + next)

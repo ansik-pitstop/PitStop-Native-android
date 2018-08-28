@@ -5,11 +5,13 @@ import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.SignUpAuthMacroUseCase
 import com.pitstop.models.User
 import com.pitstop.network.RequestError
+import com.pitstop.utils.MixpanelHelper
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
+class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent
+                                , private val mixpanelHelper: MixpanelHelper) {
 
     private val TAG = SecondStepSignUpPresenter::class.java.simpleName
     private var view: SecondStepSignUpView? = null
@@ -57,6 +59,8 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) 
                     if (view == null) return
                     view!!.switchToOnBoarding()
                     view?.hideLoading()
+                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_NAME_AND_NUMBER, MixpanelHelper.SUCCESS)
+                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_SIGNED_UP, MixpanelHelper.SIGN_UP_RESULT_SUCCESS_REGULAR)
                 }
 
                 override fun onError(err: RequestError) {

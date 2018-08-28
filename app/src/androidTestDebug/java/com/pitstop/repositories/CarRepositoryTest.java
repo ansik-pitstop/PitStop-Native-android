@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.database.LocalShopStorage;
 import com.pitstop.models.PendingUpdate;
 import com.pitstop.retrofit.PitstopAuthApi;
 import com.pitstop.utils.NetworkHelper;
@@ -33,14 +34,16 @@ public class CarRepositoryTest {
     private final String TAG = CarRepositoryTest.class.getSimpleName();
     private CarRepository carRepository;
     private LocalCarStorage localCarStorage;
+    private LocalShopStorage localShopStorage;
 
     @Before
     public void setup(){
         Context context = InstrumentationRegistry.getTargetContext();
         localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
+        localShopStorage = new LocalShopStorage(LocalDatabaseHelper.getInstance(context));
         PitstopAuthApi pitstopAuthApi = RetrofitTestUtil.Companion.getAuthApi();
         NetworkHelper networkHelper = new NetworkHelper(context,pitstopAuthApi, PreferenceManager.getDefaultSharedPreferences(context));
-        carRepository = new CarRepository(localCarStorage,networkHelper
+        carRepository = new CarRepository(localCarStorage,localShopStorage,networkHelper
                 ,RetrofitTestUtil.Companion.getCarApi());
     }
 

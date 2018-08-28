@@ -119,11 +119,11 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                 usedLocal[0] = false;
                 //Get user car
                 Disposable disposable = carRepository.get(data.getCarId(), Repository.DATABASE_TYPE.BOTH)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.computation(),true)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.io(),true)
                     .doOnError(err -> HandleVinOnConnectUseCaseImpl.this.onError(new RequestError(err)))
                     .doOnNext(response -> {
-
+                        Log.d(TAG,"response:"+response);
                         //Use local data if present and scanner id is present
                         if (usedLocal[0] && !response.isLocal() ){
                             //Don't process remote data because local has been used
@@ -138,9 +138,9 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                             //Set used local flag so the remote response isn't processed
                             usedLocal[0] = true;
                             Log.d(TAG,"using local response scanner: "+response.getData().getScannerId());
-                        }else if (response.isLocal() && response.getData() == null
+                        }else if (response.isLocal() && ( response.getData() == null
                                 || response.getData().getScannerId() == null
-                                || response.getData().getScannerId().isEmpty()){
+                                || response.getData().getScannerId().isEmpty())){
                             //Invalid local data so return
                             return;
                         }
@@ -162,6 +162,8 @@ public class HandleVinOnConnectUseCaseImpl implements HandleVinOnConnectUseCase 
                                 && !car.getScannerId().isEmpty();
                         boolean deviceIdValid = deviceId != null
                                 && !deviceId.isEmpty();
+
+                        Log.d(TAG,"device vin valid: "+deviceVinValid+", deviceIdValid: "+deviceIdValid);
 
                         //Car has a valid scanner so nothing needs to be done
                         if (carScannerValid){

@@ -6,6 +6,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
@@ -52,8 +53,8 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
         useCaseComponent.getDoneServicesUseCase().execute(
                 new GetDoneServicesUseCase.Callback() {
             @Override
-            public void onGotDoneServices(List<CarIssue> doneServices) {
-                updating = false;
+            public void onGotDoneServices(List<CarIssue> doneServices, boolean isLocal) {
+                if (!isLocal) updating = false;
                 if (getView() == null) return;
 
                 if (doneServices.isEmpty()){
@@ -61,8 +62,11 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
                 }else{
                     getView().populateDoneServices(doneServices);
                 }
-                getView().hideLoading();
                 getView().displayOnlineView();
+
+                if (!isLocal){
+                    getView().hideLoading();
+                }
             }
 
             @Override
@@ -77,19 +81,24 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
             public void onError(RequestError error) {
                 updating = false;
                 if (getView() == null) return;
-                getView().hideLoading();
 
                 if (error.getError().equals(RequestError.ERR_OFFLINE)){
-                    if (getView().hasBeenPopulated()){
-                        getView().displayOfflineErrorDialog();
+                    if (getView().hasBeenPopulated() && getView().isRefreshing()){
+                        getView().displayToast(R.string.offline_error);
                     }
-                    else{
+                    else if (!getView().hasBeenPopulated()){
                         getView().displayOfflineView();
                     }
                 }
                 else{
-                    getView().displayUnknownErrorView();
+                    if (getView().hasBeenPopulated() && getView().isRefreshing()){
+                        getView().displayToast(R.string.unknown_error);
+                    }
+                    else if (!getView().hasBeenPopulated()){
+                        getView().displayUnknownErrorView();
+                    }
                 }
+                getView().hideLoading();
             }
         });
 

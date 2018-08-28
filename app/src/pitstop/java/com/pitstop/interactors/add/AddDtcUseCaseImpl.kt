@@ -11,7 +11,6 @@ import com.pitstop.repositories.CarRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
@@ -60,8 +59,8 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
 
                 if (settings.hasMainCar()){
                     val disposable = carRepository.get(settings.carId, Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io())
                             .subscribe({response ->
                                 if (response.data == null){
                                     callback?.onError(RequestError.getUnknownError())

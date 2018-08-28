@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface GetDoneServicesUseCase extends Interactor {
     interface Callback{
-        void onGotDoneServices(List<CarIssue> doneServices);
+        void onGotDoneServices(List<CarIssue> doneServices, boolean isLocal);
         void onNoCarAdded();
         void onError(RequestError error);
     }

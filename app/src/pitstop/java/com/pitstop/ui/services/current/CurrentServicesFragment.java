@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.adapters.ServicesAdapter;
@@ -184,7 +185,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         Log.d(TAG,"startCustomServiceActivity()");
         Intent intent =  new Intent(getActivity(), CustomServiceActivity.class);
         intent.putExtra(CustomServiceActivity.HISTORICAL_EXTRA,false);
-        startActivityForResult(intent,RC_CUSTOM_ISSUE);
+        getActivity().startActivityForResult(intent,RC_CUSTOM_ISSUE);
     }
 
     @Override
@@ -523,6 +524,16 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     public void startDisplayIssueActivity(List<CarIssue> issues, int position){
         if (getActivity() == null) return;
         ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issues, position);
+    }
+
+    @Override
+    public void displayToast(String error) {
+        Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayToast(int error) {
+        Toast.makeText(getContext(),error,Toast.LENGTH_LONG).show();
     }
 
     @Override

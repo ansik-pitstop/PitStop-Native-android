@@ -16,33 +16,58 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
     private val TAG = javaClass.simpleName
 
     companion object {
-        val CREATE_PENDING_TRIP_TABLE = ("CREATE TABLE IF NOT EXISTS "
-                + TABLES.PENDING_TRIP_DATA.TABLE_NAME + "("
-                + TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID +" LONG,"
+        val CREATE_PENDING_TRIP_LOCATIONS_TABLE = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME + "("
+                + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID +" LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " LONG,"
-                + TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE+ " REAL,"
-                + TABLES.PENDING_TRIP_DATA.KEY_LATITUDE+ " REAL,"
-                + TABLES.PENDING_TRIP_DATA.KEY_TIME+ " LONG,"
+                + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LONGITUDE+ " REAL,"
+                + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LATITUDE+ " REAL,"
+                + TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_TIME+ " LONG,"
                 + TABLES.PENDING_TRIP_DATA.KEY_VIN+ " TEXT,"
+                + TABLES.COMMON.KEY_CREATED_AT + " DATETIME,"
+                + " FOREIGN KEY ("+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+") REFERENCES "
+                +TABLES.PENDING_TRIP_DATA.TABLE_NAME+"("+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+")"
+                + ")")
+
+        val CREATE_PENDING_TRIP_DATA_TABLE = ("CREATE TABLE IF NOT EXISTS "
+                + TABLES.PENDING_TRIP_DATA.TABLE_NAME + "("
+                + TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID + " LONG PRIMARY KEY,"
+                + TABLES.PENDING_TRIP_DATA.KEY_START_TIMESTAMP + " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_END_TIMESTAMP + " INTEGER,"
+                + TABLES.PENDING_TRIP_DATA.KEY_VIN +" VIN"
                 + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")")
     }
 
     //Store trip
     fun store(trip: TripData): Long {
-        Log.d(TAG,"store() trip size = ${trip.locations.size}")
+        Log.d(TAG,"store() trip size = ${trip.locations.size}, start timestamp: ${trip.startTimestamp}")
         val db = databaseHelper.writableDatabase
         var rows = 0L
 
-        trip.locations.forEach({
-            val contentValues = ContentValues()
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE, it.data.longitude)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE, it.data.latitude)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TIME, it.data.time)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID, it.id)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
-            contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
-            rows += db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,contentValues)
-        })
+        db.beginTransaction()
+
+        try{
+            val tripContentValues = ContentValues()
+            tripContentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID,trip.id)
+            tripContentValues.put(TABLES.PENDING_TRIP_DATA.KEY_START_TIMESTAMP, trip.startTimestamp)
+            tripContentValues.put(TABLES.PENDING_TRIP_DATA.KEY_END_TIMESTAMP, trip.endTimestamp)
+            tripContentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
+            db.insert(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,tripContentValues)
+
+            trip.locations.forEach({
+                val contentValues = ContentValues()
+                contentValues.put(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LONGITUDE, it.data.longitude)
+                contentValues.put(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LATITUDE, it.data.latitude)
+                contentValues.put(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_TIME, it.data.time)
+                contentValues.put(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID, it.id)
+                contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID, trip.id)
+                contentValues.put(TABLES.PENDING_TRIP_DATA.KEY_VIN, trip.vin)
+                rows += db.insert(TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME,null,contentValues)
+            })
+            db.setTransactionSuccessful()
+        }finally {
+            db.endTransaction()
+        }
 
         return rows
     }
@@ -56,8 +81,8 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
 
         try{
             locations.forEach({locationData ->
-                rows += db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME
-                        , TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID + "=${locationData.id}", null)
+                rows += db.delete(TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME
+                        , TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID + "=${locationData.id}", null)
             })
 
             db.setTransactionSuccessful()
@@ -72,7 +97,8 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
     fun deleteAll() {
         Log.d(TAG,"deleteAll()")
         val db = databaseHelper.writableDatabase
-        db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null, null)
+        db.delete(TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME, null, null)
+        db.delete(TABLES.PENDING_TRIP_DATA.TABLE_NAME,null,null)
     }
 
     //Return list of trips stored in database that are completed
@@ -82,36 +108,40 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
         val trips = mutableListOf<TripData>()
         val db = databaseHelper.readableDatabase
 
-        val c = db.query(TABLES.PENDING_TRIP_DATA.TABLE_NAME, null
-                , null, null, null, null
+        val c = db.query(TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME
+                        + " INNER JOIN "+TABLES.PENDING_TRIP_DATA.TABLE_NAME +" ON "
+                        + TABLES.PENDING_TRIP_DATA.TABLE_NAME+"."+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID
+                        +" = " + TABLES.PENDING_TRIP_DATA_LOCATIONS.TABLE_NAME+"."+TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID
+                , null, null, null, null, null
                 , TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID+
-                ","+TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID)
+                ","+ TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID)
+
+        Log.d(TAG,"cursor count: "+c.count)
 
         if (c.moveToFirst()) {
             Log.d(TAG,"c.moveToFirst()")
             var curTripId = -1L
 
-            var curTrip = mutableSetOf<LocationData>()
+            var curTrip = mutableListOf<LocationData>()
             while (!c.isAfterLast) {
+                val startTimestamp = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_START_TIMESTAMP))
+                val endTimestamp = c.getInt(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_END_TIMESTAMP))
                 val tripId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TRIP_ID))
-                val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LOCATION_ID))
+                val locationId = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LOCATION_ID))
                 val vin = c.getString(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_VIN))
-                Log.d(TAG,"got tripId: $tripId")
+                Log.d(TAG,"gots tripId: $tripId")
                 Log.d(TAG,"got locationId: $locationId")
+                Log.d(TAG,"got startTimestamp: $startTimestamp, endTimestamp: $endTimestamp")
 
-                if (curTripId != tripId && curTripId != -1L){
+                if (curTripId != tripId){
                     //New trip
-                    trips.add(TripData(curTripId, vin, curTrip))
-                    Log.d(TAG,"new trip: $curTrip")
-                    curTrip = mutableSetOf()
+                    curTripId = tripId
+                    curTrip = mutableListOf()
+                    trips.add(TripData(curTripId, vin, curTrip,startTimestamp, endTimestamp))
+                    Log.d(TAG,"new trip: $trips")
                 }
                 curTrip.add(LocationData(locationId, cursorToLocation(c)))
-                curTripId = tripId
 
-                if (c.isLast){
-                    trips.add(TripData(curTripId, vin, curTrip))
-                    Log.d(TAG,"exiting afterlast loop")
-                }
                 c.moveToNext()
 
             }
@@ -121,8 +151,8 @@ class LocalPendingTripStorage(private val databaseHelper: LocalDatabaseHelper) {
     }
 
     private fun cursorToLocation(c: Cursor): PendingLocation = PendingLocation(
-            latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LATITUDE))
-            , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_LONGITUDE))
-            , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA.KEY_TIME))
+            latitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LATITUDE))
+            , longitude = c.getDouble(c.getColumnIndex(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_LONGITUDE))
+            , time = c.getLong(c.getColumnIndex(TABLES.PENDING_TRIP_DATA_LOCATIONS.KEY_TIME))
     )
 }

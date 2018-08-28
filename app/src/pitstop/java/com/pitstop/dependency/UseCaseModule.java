@@ -108,8 +108,8 @@ import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCaseImpl;
 import com.pitstop.interactors.get.GetUserNotificationUseCase;
 import com.pitstop.interactors.get.GetUserNotificationUseCaseImpl;
-import com.pitstop.interactors.other.ChangePasswordUseCase;
-import com.pitstop.interactors.other.ChangePasswordUseCaseImpl;
+import com.pitstop.interactors.other.ChangePasswordActivateUserUseCase;
+import com.pitstop.interactors.other.ChangePasswordActivateUserUseCaseImpl;
 import com.pitstop.interactors.other.DeviceClockSyncUseCase;
 import com.pitstop.interactors.other.DeviceClockSyncUseCaseImpl;
 import com.pitstop.interactors.other.DiscoveryTimeoutUseCase;
@@ -171,6 +171,7 @@ import com.pitstop.interactors.update.UpdateUserPhoneUseCaseImpl;
 import com.pitstop.repositories.AppointmentRepository;
 import com.pitstop.repositories.CarIssueRepository;
 import com.pitstop.repositories.CarRepository;
+import com.pitstop.repositories.PidRepository;
 import com.pitstop.repositories.ReportRepository;
 import com.pitstop.repositories.ScannerRepository;
 import com.pitstop.repositories.SensorDataRepository;
@@ -419,11 +420,12 @@ public class UseCaseModule {
 
     @Provides
     RemoveCarUseCase removeCarUseCase(UserRepository userRepository, CarRepository carRepository
-            ,TripRepository tripRepository, NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
+            ,TripRepository tripRepository, CarIssueRepository carIssueRepository
+            , NetworkHelper networkHelper, @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler") Handler mainHandler){
 
         return new RemoveCarUseCaseImpl(userRepository,carRepository,tripRepository
-                ,networkHelper,useCaseHandler, mainHandler);
+                ,carIssueRepository,networkHelper,useCaseHandler, mainHandler);
     }
 
 
@@ -725,12 +727,12 @@ public class UseCaseModule {
     }
 
     @Provides
-    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository
+    AddPidUseCase addPidUseCase(SensorDataRepository sensorDataRepository, PidRepository pidRepository
             , UserRepository userRepository, CarRepository carRepository
             , @Named("useCaseHandler")Handler useCaseHandler
             , @Named("mainHandler")Handler mainHandler){
 
-        return new AddPidUseCaseImpl(sensorDataRepository, userRepository, carRepository
+        return new AddPidUseCaseImpl(sensorDataRepository, pidRepository, userRepository, carRepository
                 , useCaseHandler, mainHandler);
     }
 
@@ -815,9 +817,9 @@ public class UseCaseModule {
     }
 
     @Provides
-    ChangePasswordUseCase changePasswordUseCase(UserRepository userRepository
+    ChangePasswordActivateUserUseCase changePasswordActivateUserUseCase(UserRepository userRepository
             , @Named("mainHandler") Handler mainHandler, @Named("useCaseHandler") Handler useCaseHandler){
-        return new ChangePasswordUseCaseImpl(userRepository, mainHandler, useCaseHandler);
+        return new ChangePasswordActivateUserUseCaseImpl(userRepository, mainHandler, useCaseHandler);
     }
 
     @Provides

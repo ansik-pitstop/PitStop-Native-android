@@ -25,17 +25,10 @@ public final class TABLES {
     }
 
     public interface PID {
-        String TABLE_NAME = "pidData";
-        String TABLE_NAME_RESULT_4 = "pidResult4";
-        String KEY_DATANUM = "dataNum";
-        String KEY_DEVICE_ID = "deviceId";
-        String KEY_RTCTIME = "bluetoothDeviceTime";
-        String KEY_TIMESTAMP = "phoneTimestamp";
-        String KEY_TRIP_ID_RAW = "tripIdRaw";
-        String KEY_TRIP_ID = "tripId";
-        String KEY_PIDS = "pids";
-        String KEY_MILEAGE = "mileage";
-        String KEY_CALCULATED_MILEAGE = "calculatedMileage";
+        String TABLE_NAME = "pid_data";
+        String KEY_RTC_TIME = "rtc_time";
+        String KEY_TYPE = "type";
+        String KEY_VALUE = "value";
     }
 
     public interface CAR {
@@ -70,13 +63,19 @@ public final class TABLES {
         String KEY_SHOP_ID = "shopId";
     }
 
-    public interface PENDING_TRIP_DATA {
-        String TABLE_NAME = "pending_trip_data";
-        String KEY_TRIP_ID = "trip_id";
+    public interface PENDING_TRIP_DATA_LOCATIONS {
+        String TABLE_NAME = "pending_trip_data_locations";
         String KEY_LOCATION_ID = "location_id";
         String KEY_LONGITUDE = "longitude";
         String KEY_LATITUDE = "latitude";
         String KEY_TIME = "time";
+    }
+
+    public interface PENDING_TRIP_DATA {
+        String TABLE_NAME = "pending_trip_data";
+        String KEY_TRIP_ID = "trip_id";
+        String KEY_START_TIMESTAMP = "start_timestamp";
+        String KEY_END_TIMESTAMP = "end_timestamp";
         String KEY_VIN = "vin";
     }
 
@@ -120,6 +119,7 @@ public final class TABLES {
         String KEY_ACTION = "action";
         String KEY_SYMPTOMS = "symptoms";
         String KEY_CAUSES = "causes";
+        String KEY_UPCOMING_ISSUE_MILEAGE = "upcoming_issue_mileage";
     }
 
     public interface USER {

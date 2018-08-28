@@ -31,7 +31,7 @@ class LocalActivityStorageTest {
 
     @Test
     fun localActivityStorageTest(){
-        Log.d(tag,"running localActivityStorageTest()")
+        Log.d(tag,"running localCarIssueStorageTest()")
 
         localActivityStorage.removeAll()
 

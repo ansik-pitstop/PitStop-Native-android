@@ -16,7 +16,6 @@ import com.pitstop.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -57,11 +56,11 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
         useCaseHandler.post(this);
     }
 
-    private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues){
+    private void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues, boolean local){
         Logger.getInstance().logI(TAG, "Use case finished: currentServices="+currentServices+", customIssues="+customIssues
                 , DebugMessage.TYPE_USE_CASE);
-        compositeDisposable.clear();
-        mainHandler.post(() -> callback.onGotCurrentServices(currentServices,customIssues));
+        if (!local) compositeDisposable.clear();
+        mainHandler.post(() -> callback.onGotCurrentServices(currentServices,customIssues,local));
     }
 
     private void onNoCarAdded(){
@@ -88,9 +87,9 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
 
                 if (!data.hasMainCar()){
                     //Check user car list
-                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()),true)
+                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io(),true)
                             .subscribe(next -> {
                                 //Ignore local responses
                                 if (next.isLocal()){}
@@ -129,27 +128,36 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     }
 
     private void getCurrentCarIssues(int carId){
-        carIssueRepository.getCurrentCarIssues(carId, new CarIssueRepository.Callback<List<CarIssue>>() {
-            @Override
-            public void onSuccess(List<CarIssue> carIssueCurrent) {
-                List<CarIssue> preset = new ArrayList<CarIssue>();
-                List<CarIssue> custom = new ArrayList<CarIssue>();
-                for( CarIssue c: carIssueCurrent){
-                    if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
-                        preset.add(c);
-                    }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
-                        custom.add(c);
-                    }else{
-                        preset.add(c);
+        Disposable disposable = carIssueRepository.getCurrentCarIssues(carId, Repository.DATABASE_TYPE.BOTH)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(), true)
+                .subscribe(next -> {
+                    if (next.getData() == null && !next.isLocal()){
+                        RequestError err = RequestError.getUnknownError();
+                        err.setMessage("Null data returned from car issue repository");
+                        err.setError("Null data");
+                        err.setStatusCode(0);
+                        GetCurrentServicesUseCaseImpl.this.onError(err);
+                        return;
                     }
-                }
-                GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom);
-            }
+                    List<CarIssue> preset = new ArrayList<CarIssue>();
+                    List<CarIssue> custom = new ArrayList<CarIssue>();
+                    for( CarIssue c: next.getData()){
+                        if(c.getIssueType().equals(CarIssue.SERVICE_PRESET)){
+                            preset.add(c);
+                        }else if(c.getIssueType().equals(CarIssue.SERVICE_USER)){
+                            custom.add(c);
+                        }else{
+                            preset.add(c);
+                        }
+                    }
+                    GetCurrentServicesUseCaseImpl.this.onGotCurrentServices(preset,custom, next.isLocal());
+                }, error -> {
+                    error.printStackTrace();
+                    Log.d(TAG,"error: "+error);
+                    GetCurrentServicesUseCaseImpl.this.onError(new RequestError(error));
 
-            @Override
-            public void onError(RequestError error) {
-                GetCurrentServicesUseCaseImpl.this.onError(error);
-            }
-        });
+                });
+        compositeDisposable.add(disposable);
     }
 }

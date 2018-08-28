@@ -29,9 +29,6 @@ import com.pitstop.models.Alarm;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,6 +39,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ *
+ * Class which encapsulates functionality related to interacting with the OBD215B
+ * device type. This class knows a lot about the syntax used in order to request information
+ * from the device, and read information from the device
+ *
+ * To get a good understanding of this class I recommend reading the instruction set
+ * documantation at: https://drive.google.com/file/d/0B0i24uee3cpKa1FoMFFUelVjSE0/view?usp=sharing
+ *
  * Created by Ben Wu on 2016-08-29.
  */
 public class Device215B implements AbstractDevice {
@@ -322,10 +327,6 @@ public class Device215B implements AbstractDevice {
         return msg;
     }
 
-
-
-
-
     public static String dtcPackage(String controlEventID, String terminalSN) {
         String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
                 + Constants.INSTRUCTION_DTC + "," + controlEventID + ","
@@ -478,13 +479,6 @@ public class Device215B implements AbstractDevice {
 
         if (payload == null || payload.isEmpty()) {
             return false;
-        }
-
-        try { // get instruction string from json payload
-            String temp = new JSONObject(payload).getString("instruction");
-            payload = temp;
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         ArrayList<String> sendData = new ArrayList<>(payload.length() % 20 + 1);

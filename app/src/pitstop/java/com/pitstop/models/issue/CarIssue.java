@@ -4,18 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.castel.obd.util.JsonUtil;
-import com.google.gson.annotations.Expose;
 import com.pitstop.models.report.CarHealthItem;
 import com.pitstop.models.report.EngineIssue;
 import com.pitstop.models.report.Recall;
 import com.pitstop.models.report.Service;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +36,6 @@ public class CarIssue implements Parcelable, Issue {
     public static final String ISSUE_NEW = "new";
     public static final String ISSUE_PENDING = "pending";
 
-    @Expose(serialize = false, deserialize = false)
     private int id;
     private int carId;
     private int year;
@@ -53,12 +45,8 @@ public class CarIssue implements Parcelable, Issue {
     private String status;
     private String doneAt;
     private int priority;
+    private IssueDetail issueDetail;
     private String issueType;
-    private String item;
-    private String description;
-    private String symptoms;
-    private String causes;
-    private String action;
 
     public CarIssue() {}
 
@@ -68,6 +56,14 @@ public class CarIssue implements Parcelable, Issue {
         int daysToday = (int) TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().getTimeInMillis());
         int doneDay = (int)TimeUnit.MILLISECONDS.toDays(doneAt.getTimeInMillis());
         return daysToday-doneDay;
+    }
+
+    public IssueDetail getIssueDetail() {
+        return issueDetail;
+    }
+
+    public void setIssueDetail(IssueDetail issueDetail) {
+        this.issueDetail = issueDetail;
     }
 
     public boolean isDone() {
@@ -160,43 +156,24 @@ public class CarIssue implements Parcelable, Issue {
     }
 
     public String getItem() {
-        return item;
-    }
-
-    public void setItem(String item) {
-        this.item = item;
+        return issueDetail.getItem();
     }
 
     public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
+        if (issueDetail.getAction() == null) return "Engine trouble code";
+        else return issueDetail.getAction();
     }
 
     public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+        return issueDetail.getDescription();
     }
 
     public String getSymptoms() {
-        return symptoms;
-    }
-
-    public void setSymptoms(String symptoms) {
-        this.symptoms = symptoms;
+        return issueDetail.getSymptoms();
     }
 
     public String getCauses() {
-        return causes;
-    }
-
-    public void setCauses(String causes) {
-        this.causes = causes;
+        return issueDetail.getCauses();
     }
 
     @Override
@@ -249,59 +226,6 @@ public class CarIssue implements Parcelable, Issue {
         return carIssue;
     }
 
-    public static CarIssue createCarIssue(JSONObject issueObject, int carId) throws JSONException {
-        CarIssue carIssue = JsonUtil.json2object(issueObject.toString(), CarIssue.class);
-        carIssue.setCarId(carId);
-
-        JSONObject issueDetail = null;
-
-        if (issueObject.has("issueDetail")){
-            issueDetail = issueObject.getJSONObject("issueDetail");
-        }
-        if(issueDetail != null) {
-            if(!issueDetail.isNull("item")) {
-                carIssue.setItem(issueDetail.getString("item"));
-            }
-            if(!issueDetail.isNull("action")) {
-                carIssue.setAction(issueDetail.getString("action"));
-            } else if(carIssue.getIssueType().equals(DTC)) {
-                carIssue.setAction("Engine issue: Code");
-            } else if(carIssue.getIssueType().equals(RECALL)) {
-                carIssue.setAction("Recall:");
-            } else {
-                carIssue.setAction("");
-            }
-            if(!issueDetail.isNull("description")) {
-                carIssue.setDescription(issueDetail.getString("description"));
-            }
-            if (!issueDetail.isNull("symptoms")){
-                carIssue.setSymptoms(issueDetail.getString("symptoms"));
-            }
-            if (!issueDetail.isNull("causes")){
-                carIssue.setCauses(issueDetail.getString("causes"));
-            }
-        }
-
-        if(issueDetail != null && carIssue.getIssueType().equals(DTC)
-                && !issueObject.getJSONObject("issueDetail").isNull("isPending")
-                && issueObject.getJSONObject("issueDetail").getBoolean("isPending")) {
-            carIssue.setIssueType(PENDING_DTC);
-            carIssue.setAction("Potential Engine issue: Code");
-        }
-
-        return carIssue;
-    }
-
-    public static ArrayList<CarIssue> createCarIssues(JSONArray issueArr, int carId) throws JSONException {
-        ArrayList<CarIssue> carIssues = new ArrayList<>();
-
-        for(int i = 0 ; i < issueArr.length() ; i++) {
-            carIssues.add(createCarIssue(issueArr.getJSONObject(i), carId));
-        }
-
-        return carIssues;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -315,11 +239,11 @@ public class CarIssue implements Parcelable, Issue {
         dest.writeString(this.doneAt);
         dest.writeInt(this.priority);
         dest.writeString(this.issueType);
-        dest.writeString(this.item);
-        dest.writeString(this.description);
-        dest.writeString(this.action);
-        dest.writeString(this.symptoms);
-        dest.writeString(this.causes);
+        dest.writeString(this.issueDetail.getItem());
+        dest.writeString(this.issueDetail.getAction());
+        dest.writeString(this.issueDetail.getDescription());
+        dest.writeString(this.issueDetail.getCauses());
+        dest.writeString(this.issueDetail.getSymptoms());
     }
 
     protected CarIssue(Parcel in) {
@@ -329,11 +253,12 @@ public class CarIssue implements Parcelable, Issue {
         this.doneAt = in.readString();
         this.priority = in.readInt();
         this.issueType = in.readString();
-        this.item = in.readString();
-        this.description = in.readString();
-        this.action = in.readString();
-        this.symptoms = in.readString();
-        this.causes = in.readString();
+        String item = in.readString();
+        String action = in.readString();
+        String description = in.readString();
+        String causes = in.readString();
+        String symptoms = in.readString();
+        this.issueDetail = new IssueDetail(item,action,description,symptoms,causes);
     }
 
     public static final Creator<CarIssue> CREATOR = new Creator<CarIssue>() {
@@ -355,11 +280,12 @@ public class CarIssue implements Parcelable, Issue {
         doneAt = builder.doneAt;
         priority = builder.priority;
         issueType = builder.issueType;
-        item = builder.item;
-        description = builder.description;
-        action = builder.action;
-        symptoms = builder.symptoms;
-        causes = builder.causes;
+        String item = builder.item;
+        String description = builder.description;
+        String action = builder.action;
+        String symptoms = builder.symptoms;
+        String causes = builder.causes;
+        issueDetail = new IssueDetail(item,action,description,symptoms,causes);
     }
 
     public static class Builder{
@@ -441,9 +367,9 @@ public class CarIssue implements Parcelable, Issue {
     public String toString(){
         try{
             return String.format("id:%d, carId:%d, year:%d, month:%d, day:%d, doneMileage:%d, status:%s" +
-                            ", doneAt:%s, priority:%d, issueType:%s, item:%s, description:%s, symptoms:%s" +
-                            ", causes:%s, action:%s", id, carId, year, month, day ,doneMileage, status, doneAt
-                    , priority, issueType, item, description, symptoms, causes, action);
+                            ", doneAt:%s, priority:%d, issueType:%s" +
+                            ",issueDetail: %s", id, carId, year, month, day ,doneMileage, status, doneAt
+                    , priority, issueType, issueDetail);
         }catch(NullPointerException e){
             return "null";
         }

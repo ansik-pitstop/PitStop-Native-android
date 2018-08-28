@@ -187,6 +187,10 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }
     }
 
+    fun onUserWasInactiveOnCreate(){
+        Log.d(TAG,"onUserWasInactiveOnCreate()")
+    }
+
     fun onNotificationsClicked(){
         Log.d(TAG,"onNotificationsClicked()")
         view?.openNotifications()

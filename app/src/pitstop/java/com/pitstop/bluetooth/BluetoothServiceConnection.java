@@ -29,7 +29,7 @@ public class BluetoothServiceConnection implements ServiceConnection {
     @Override
     public void onServiceConnected(ComponentName className, IBinder service) {
 //        // cast the IBinder and get MyService instance
-//        activity.autoConnectService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
+//        activity.bluetoothService = ((BluetoothAutoConnectService.BluetoothBinder) service).getService();
 //
 //        if (BluetoothAdapter.getDefaultAdapter()!=null) {
 //
@@ -50,14 +50,14 @@ public class BluetoothServiceConnection implements ServiceConnection {
 //
 //        }
 //
-//        activity.autoConnectService.removeSyncedDevice();
+//        activity.bluetoothService.removeSyncedDevice();
     }
 
     @Override
     public void onServiceDisconnected(ComponentName arg0) {
 //        presenter.onServiceUnbind();
 //        activity.serviceIsBound = false;
-//        activity.autoConnectService = null;
+//        activity.bluetoothService = null;
 //        Log.i("Disconnecting","onServiceConnection");
     }
 }

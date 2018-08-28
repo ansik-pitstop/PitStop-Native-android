@@ -17,7 +17,6 @@ import com.pitstop.utils.Logger;
 
 import java.util.Date;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -82,8 +81,8 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
                           RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError());
                         } else if (data.hasMainCar()){
                             Disposable disposable = carRepository.get(data.getCarId(),Repository.DATABASE_TYPE.REMOTE)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.from(useCaseHandler.getLooper()))
+                                    .subscribeOn(Schedulers.computation())
+                                    .observeOn(Schedulers.io())
                                     .subscribe(response -> {
                                                 Log.d(TAG, "got car: " + response);
                                                 Log.d(TAG, "remote data, proceeding");

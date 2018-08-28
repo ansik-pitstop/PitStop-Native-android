@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
@@ -114,35 +115,13 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
     @Override
     public void displayOfflineErrorDialog() {
         Log.d(TAG, "displayOfflineErrorDialog()");
-        if (offlineAlertDialog == null) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.offline_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.offline_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            offlineAlertDialog = alertDialogBuilder.create();
-        }
-        offlineAlertDialog.show();
+        Toast.makeText(getContext(),R.string.offline_error,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void displayUnknownErrorDialog() {
         Log.d(TAG, "displayUnknownErrorDialog()");
-        if (unknownErrorDialog == null) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setTitle(R.string.unknown_error_title);
-            alertDialogBuilder
-                    .setMessage(R.string.unknown_error)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        dialog.dismiss();
-                    });
-            unknownErrorDialog = alertDialogBuilder.create();
-        }
-        unknownErrorDialog.show();
+        Toast.makeText(getContext(),R.string.unknown_error,Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -184,9 +163,10 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
         milesNum.setText(String.format("%.2f",trip.getMileageAccum()));
 
+        Log.d(TAG,"trip time start: "+trip.getTimeStart()+", trip time end: "+trip.getTimeEnd());
+
         // Calculate minutes using timestamps
-        long totalTimestamp = Long.valueOf(trip.getTimeEnd()) - Long.valueOf(trip.getTimeStart());
-        long totalMinutes = totalTimestamp / 60;
+        long totalMinutes = trip.getTripLength() / 60;
         minutesNum.setText(String.valueOf(totalMinutes));
 
 //        fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));

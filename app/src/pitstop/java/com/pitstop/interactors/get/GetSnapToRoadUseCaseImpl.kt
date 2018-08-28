@@ -85,8 +85,8 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
                     it.forEach { snappedPoints.addAll(it as Collection<SnappedPoint>) }
                    // it.forEach { (it as Collection<SnappedPoint>).forEach { Log.d(tag,"returned original index ${it.originalIndex}, coordinates: ${it.location}") } }
                     return@combineLatest snappedPoints
-                }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
+                }).subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
                 .subscribe({
                     Log.d(tag, "snapToRoadRepository.onNext() data.size: ${it.size}")
                     this@GetSnapToRoadUseCaseImpl.onSnapToRoadRetrieved(it)

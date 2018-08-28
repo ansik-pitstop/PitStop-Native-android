@@ -27,6 +27,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.trip.TripManualController;
 import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.MixpanelHelper;
@@ -38,6 +39,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnItemSelected;
+import io.reactivex.Observable;
 
 /**
  * Created by David C. on 14/3/18.
@@ -55,8 +57,8 @@ public class TripListFragment extends Fragment implements TripListView {
     @BindView(R.id.spinner_sort_by)
     protected Spinner sortSpinner;
 
-    @BindView(R.id.add_car_button)
-    protected Button addCarButton;
+    @BindView(R.id.bottom_button)
+    protected Button bottomButton;
 
     @BindView(R.id.trips_recyclerview)
     protected RecyclerView tripsRecyclerView;
@@ -122,7 +124,7 @@ public class TripListFragment extends Fragment implements TripListView {
 
         });
 
-        addCarButton.setOnClickListener(view1 -> presenter.onBottomListButtonClicked());
+        bottomButton.setOnClickListener(view1 -> presenter.onBottomListButtonClicked());
 
         return view;
     }
@@ -209,7 +211,6 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG, "displayTripList() notifList: " + listTrip);
 
         tripsRecyclerView.setVisibility(View.VISIBLE);
-        addCarButton.setVisibility(View.GONE);
         noTripsText.setVisibility(View.GONE);
         if (listTrip != null && listTrip.size() > 0) {
 
@@ -226,14 +227,13 @@ public class TripListFragment extends Fragment implements TripListView {
         Log.d(TAG,"displayNoTrips()");
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
-        addCarButton.setVisibility(View.GONE);
         noTripsText.setText(R.string.no_trips_message);
     }
 
     @Override
     public void displayNoCar(){
         Log.d(TAG,"displayNoCar()");
-        addCarButton.setVisibility(View.VISIBLE);
+        bottomButton.setVisibility(View.VISIBLE);
         noTripsText.setVisibility(View.VISIBLE);
         tripsRecyclerView.setVisibility(View.GONE);
         noTripsText.setText(R.string.add_car_trips_message);
@@ -271,6 +271,19 @@ public class TripListFragment extends Fragment implements TripListView {
     public boolean hasBeenPopulated() {
         Log.d(TAG, "hasBeenPopulated() ? " + hasBeenPopulated);
         return hasBeenPopulated;
+    }
+
+    @Override
+    public void toggleRecordingButton(boolean recording) {
+        Log.d(TAG,"toggleRecordingButton() recording: "+recording);
+        if (recording){
+            bottomButton.setBackgroundColor(getContext().getResources().getColor(R.color.red));
+            bottomButton.setText(R.string.stop_recording);
+        }else{
+            bottomButton.setBackgroundColor(getContext().getResources().getColor(R.color.facebook_blue));
+            bottomButton.setText(R.string.begin_recording);
+        }
+
     }
 
     @Override
@@ -342,5 +355,12 @@ public class TripListFragment extends Fragment implements TripListView {
             ((IBluetoothServiceActivity)getActivity()).checkPermissions();
         }
     }
+
+    @Override
+    public Observable<TripManualController> getManualTripController() {
+        return ((MainActivity)getActivity()).getTripsService().map(tripsService -> tripsService);
+    }
+
+
 
 }

@@ -8,16 +8,125 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.RoundCap
 import com.pitstop.models.snapToRoad.SnappedPoint
-import com.pitstop.models.trip.LocationPolyline
-import com.pitstop.models.trip.RecordedLocation
+import com.pitstop.models.trip.*
 import com.pitstop.ui.MapView
 
 /**
+ *
+ * Contains utility methods pertaining to the trips feature
+ *
  * Created by Karol Zdebel on 3/7/2018.
  */
 class TripUtils {
 
     companion object {
+
+        val LOW_FOOT_CONF = 40
+        val LOW_VEH_CONF = 30
+        val HIGH_VEH_CONF = 70
+        val HIGH_FOOT_CONF = 90
+        val HIGH_STILL_CONF = 99
+        val STILL_TIMEOUT = 600000
+
+        fun getCarActivityType(activity: DetectedActivity): Int{
+            return when (activity.type){
+                DetectedActivity.ON_FOOT -> CarActivity.TYPE_ON_FOOT
+                DetectedActivity.IN_VEHICLE -> CarActivity.TYPE_DRIVING
+                DetectedActivity.STILL -> CarActivity.TYPE_STILL
+                else -> CarActivity.TYPE_OTHER
+            }
+        }
+
+        //This method is used to calculate the next state of the trip given a set of recent car activities and the current trip state
+        fun getNextTripState(currentTripState: TripState, detectedActivities: List<CarActivity>): TripState{
+            //Do not let the same detected activity override the time
+
+            detectedActivities.forEach {
+
+                //If in a still state and 10 mins passed return soft end
+                if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT
+                        && it.time - currentTripState.time > STILL_TIMEOUT){
+                    return TripState(TripStateType.TRIP_END_SOFT, System.currentTimeMillis())
+                }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD
+                        && it.time - currentTripState.time > STILL_TIMEOUT){
+                    return TripState(TripStateType.TRIP_END_HARD, System.currentTimeMillis())
+                }
+
+                when (it.type){
+                    //user manually ended trip, return this state
+                    CarActivity.TYPE_MANUAL_END -> {
+                        if (currentTripState.tripStateType == TripStateType.TRIP_MANUAL
+                                || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL_END, it.time)
+                        }
+                    }
+                    //user manually started trip, return this state
+                    CarActivity.TYPE_MANUAL_START -> {
+                        if (currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_MANUAL, it.time)
+                        }
+                    }
+                    //user is still
+                    CarActivity.TYPE_STILL -> {
+                        if (it.conf >= HIGH_STILL_CONF){
+                            if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
+                                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
+                                return TripState(TripStateType.TRIP_STILL_HARD, it.time)
+                            }else if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
+                                return TripState(TripStateType.TRIP_STILL_SOFT, it.time)
+                            }
+                        }
+                    }
+                    CarActivity.TYPE_DRIVING -> {
+                        val walkingActivity = detectedActivities.find { it.type == CarActivity.TYPE_ON_FOOT }
+                        //If definitely driving but not already in a driving state(to not override time) return new state
+                        if (it.conf > HIGH_VEH_CONF
+                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
+                            return TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
+                        }
+                        //If surely not walking and not already driving(to not override time) driving soft state returned
+                        else if (it.conf > LOW_VEH_CONF
+                                && currentTripState.tripStateType != TripStateType.TRIP_MANUAL
+                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_HARD
+                                && currentTripState.tripStateType != TripStateType.TRIP_DRIVING_SOFT
+                                && (walkingActivity == null || walkingActivity.conf < LOW_FOOT_CONF) ){
+
+                            //still hard timer resumes to hard driving after low veh conf, because we are likely back to driving
+                            // and we cannot risk the trip ending
+                            return if (currentTripState.tripStateType == TripStateType.TRIP_STILL_HARD){
+                                TripState(TripStateType.TRIP_DRIVING_HARD, it.time)
+                            }
+                            //Trip started by driving soft or resumed after soft still state
+                            else{
+                                TripState(TripStateType.TRIP_DRIVING_SOFT,it.time)
+                            }
+
+                        }
+                    }
+                    CarActivity.TYPE_ON_FOOT -> {
+                        //End trip hard only if driving hard or soft
+                        if (it.conf > HIGH_FOOT_CONF){
+                            if ( currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
+                                    || currentTripState.tripStateType == TripStateType.TRIP_DRIVING_SOFT){
+                                return TripState(TripStateType.TRIP_END_HARD, it.time)
+                            }else if (currentTripState.tripStateType == TripStateType.TRIP_STILL_SOFT){
+                                    return TripState(TripStateType.TRIP_NONE, it.time)
+                            }
+                        }
+                    }
+                }
+            }
+
+            //None state with time of last end
+            if (currentTripState.tripStateType == TripStateType.TRIP_END_SOFT
+                    || currentTripState.tripStateType == TripStateType.TRIP_END_HARD
+                    || currentTripState.tripStateType == TripStateType.TRIP_MANUAL_END){
+                return TripState(TripStateType.TRIP_NONE, currentTripState.time)
+            }
+
+            return currentTripState
+        }
 
         fun polylineToLocationList(polyline: List<LocationPolyline>): List<RecordedLocation>{
             val locList = arrayListOf<RecordedLocation>()
@@ -28,6 +137,7 @@ class TripUtils {
             return locList
         }
 
+        //Calculate polyline length
         fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
                     .sumByDouble {
@@ -39,6 +149,7 @@ class TripUtils {
             }
         }
 
+        //Calculate distance between two points, used for calculating mileage for a trip
         fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double{
             val earthRadius = 6371000.0 //meters
             val dLat = Math.toRadians(lat2 - lat1)

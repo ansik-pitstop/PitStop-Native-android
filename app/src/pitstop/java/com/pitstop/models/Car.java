@@ -72,7 +72,7 @@ public class Car implements Parcelable {
     }
 
     public void setShop(Dealership shop) {
-        this.shopId = shop.getId();
+        if (shop != null) this.shopId = shop.getId();
         this.shop = shop;
     }
 

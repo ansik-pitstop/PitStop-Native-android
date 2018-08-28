@@ -6,11 +6,13 @@ import com.pitstop.R
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.MacroUseCases.FacebookSignUpAuthMacroUseCase
 import com.pitstop.network.RequestError
+import com.pitstop.utils.MixpanelHelper
 
 /**
  * Created by Karol Zdebel on 6/14/2018.
  */
-class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
+class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent
+                               , private val mixpanelHelper: MixpanelHelper) {
 
     private val TAG = FirstStepSignUpPresenter::class.java.simpleName
 
@@ -18,6 +20,7 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
 
     fun subscribe(view: FirstStepSignUpView){
         this.view = view
+        mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_OPENED,MixpanelHelper.SUCCESS)
     }
 
     fun unsubscribe(){
@@ -46,6 +49,7 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
             view!!.displayErrorDialog(R.string.passwords_do_not_match)
         }else{
             view!!.switchToNextStep(email,password)
+            mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_EMAIL_AND_PASSWORD,MixpanelHelper.SUCCESS)
         }
     }
 
@@ -61,6 +65,8 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
                 if (view == null) return
                 view?.hideLoading()
                 view?.switchToOnBoarding()
+                mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_SIGNED_UP
+                        ,MixpanelHelper.SIGN_UP_RESULT_SUCCESS_FACEBOOK)
             }
 
             override fun onError(err: RequestError) {
@@ -81,7 +87,6 @@ class FirstStepSignUpPresenter(private val useCaseComponent: UseCaseComponent) {
     fun onFacebookLoginError(){
         Log.d(TAG,"onFacebookLoginError()")
         view?.displayToast("Please connect to the internet")
-
     }
 
     fun onFacebookSignUpPressed(){

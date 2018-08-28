@@ -9,7 +9,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
-import com.pitstop.bluetooth.BluetoothAutoConnectService;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
@@ -74,7 +74,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     @Override
     public void onAppStateChanged() {
-        onUpdateNeeded();
+        onUpdateNeeded(false);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                onUpdateNeeded();
+                onUpdateNeeded(false);
 
             }
 
@@ -147,7 +147,11 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                getView().displayOfflineErrorDialog();
+                if (error.getError().equals(RequestError.ERR_OFFLINE)){
+                    getView().displayOfflineErrorDialog();
+                }else{
+                    getView().displayUnknownErrorDialog();
+                }
             }
         });
     }
@@ -171,7 +175,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         getView().showPairScannerDialog();
     }
 
-    public void onUpdateNeeded() {
+    public void onUpdateNeeded(boolean refreshing) {
         Log.d(TAG, "onUdateNeeded()");
         if (getView() == null || updating) return;
         updating = true;
@@ -235,14 +239,14 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                    if (getView().hasBeenPopulated())
+                    if (getView().hasBeenPopulated() && refreshing)
                         getView().displayOfflineErrorDialog();
-                    else
+                    else if (!refreshing && !getView().hasBeenPopulated())
                         getView().showOfflineErrorView();
                 } else {
-                    if (getView().hasBeenPopulated())
+                    if (getView().hasBeenPopulated() && refreshing)
                         getView().displayUnknownErrorDialog();
-                    else
+                    else if (!refreshing && !getView().hasBeenPopulated())
                         getView().showUnknownErrorView();
                 }
                 getView().hideLoading();
@@ -252,7 +256,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     public void onRefresh() {
         Log.d(TAG, "onRefresh()");
-        onUpdateNeeded();
+        onUpdateNeeded(true);
     }
 
     private void getAmountSpent(String scannerId) {
@@ -404,10 +408,10 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     }
 
-    public void onServiceBound(BluetoothAutoConnectService bluetoothAutoConnectService) {
-        this.fuelObservable = (FuelObservable) bluetoothAutoConnectService;
+    public void onServiceBound(BluetoothService bluetoothService) {
+        this.fuelObservable = (FuelObservable) bluetoothService;
         fuelObservable.subscribe(this);
-        this.alarmObservable = (AlarmObservable) bluetoothAutoConnectService;
+        this.alarmObservable = (AlarmObservable) bluetoothService;
         alarmObservable.subscribe(this);
     }
 

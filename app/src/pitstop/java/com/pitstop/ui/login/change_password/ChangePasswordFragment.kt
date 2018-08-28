@@ -88,6 +88,15 @@ class ChangePasswordFragment: Fragment(), ChangePasswordView {
         }
     }
 
+    override fun setUserWasInactiveFlag() {
+        Log.d(TAG,"setUserWasInactiveFlag()")
+        try{
+            (activity as LoginActivity).setUserWasInactive(true)
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
     override fun showLoading() {
         load_view.visibility = View.VISIBLE
         load_view?.bringToFront()
