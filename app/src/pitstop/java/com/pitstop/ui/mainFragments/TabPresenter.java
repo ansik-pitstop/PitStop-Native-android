@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ * Abstract class which provides core logic for the classes responsible for
+ * Presenting information in the tabs. EventBus is used to listen for events
+ * which represent changes in the state of the model, therefore requiring
+ * a refresh of the UI.
+ *
  * Created by Karol Zdebel on 9/5/2017.
  */
 
@@ -24,6 +30,12 @@ public abstract class TabPresenter<T> implements Presenter<T> {
     private List<EventType> updateConstraints = new ArrayList<>();
     private T view;
 
+    /**
+     * Invoked when an event is received representing a change in the state of information/model
+     * of the app
+     *
+     * @param event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCarDataChangedEvent(CarDataChangedEvent event){
         Log.d(TAG,"onCarDataChangedEvent() event: "+event);
@@ -35,7 +47,12 @@ public abstract class TabPresenter<T> implements Presenter<T> {
             onAppStateChanged();
         }
     }
-    //These event types will not trigger an update in the UI
+
+    /**
+     *
+     * @param eventTypes events to be ignored when received through the event bus therefore, not
+     *                   triggering the onAppStateChanged() method call
+     */
     public void setNoUpdateOnEventTypes(EventType[] eventTypes){
         for (EventType e: eventTypes){
             if (!updateConstraints.contains(e)){
@@ -44,10 +61,18 @@ public abstract class TabPresenter<T> implements Presenter<T> {
         }
     }
 
+    /**
+     *
+     * @return view associated with the presenter
+     */
     protected T getView(){
         return view;
     }
 
+    /**
+     *
+     * @param view view that is subscribing for updates
+     */
     @Override
     public void subscribe(T view) {
         this.view = view;
@@ -57,14 +82,32 @@ public abstract class TabPresenter<T> implements Presenter<T> {
         }
     }
 
+    /**
+     * unsubscribe from updates from the presenter
+     */
     @Override
     public void unsubscribe() {
         this.view = null;
         EventBus.getDefault().unregister(this);
     }
 
+    /**
+     *
+     * @return list of events that are supposed to be ignored upon return from the event bus
+     */
     public abstract EventType[] getIgnoredEventTypes();
+
+    /**
+     * Logic to execute if an event is received from the EventBus which isn't being ignored, typically
+     * this will include updating the view
+     */
     public abstract void onAppStateChanged();
+
+    /**
+     *
+     * @return the source listening to events, this is used to make sure events sent by the source
+     * aren't also captured by it triggering onAppStateChanged()
+     */
     public abstract EventSource getSourceType();
 
 }
