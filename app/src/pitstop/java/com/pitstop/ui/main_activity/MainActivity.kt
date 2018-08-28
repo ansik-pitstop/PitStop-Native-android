@@ -20,7 +20,6 @@ import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
 import com.pitstop.R
-import com.pitstop.R.array.car
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothService
@@ -86,7 +85,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var findDirectionsBtn: View? = null
     private var contactView: View? = null
     private var appointmentsView: View? = null
-    private lateinit var notificationsButton: View
     private var progressView: View? = null
     private var textAboveCars: LinearLayout? = null
     private var drawerRefreshLayout: SwipeRefreshLayout? = null
@@ -257,10 +255,6 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             presenter?.onAddCarClicked()
         }
 
-        notificationsButton = findViewById(R.id.news)
-        notificationsButton.setOnClickListener({
-            this.presenter?.onNotificationsClicked()
-        })
         this.appointmentsButton = findViewById(R.id.my_appointments_garage)
         appointmentsButton?.setOnClickListener {
             Log.d(TAG, "MyAppointmentsClicked()")
@@ -822,15 +816,15 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
-    override fun openNotifications() {
-        Log.d(TAG,"openNotifications()")
-        mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
-        closeDrawer()
-        showLoading("Loading...")
-        val intent = Intent(this, NotificationsActivity::class.java)
-        startActivityForResult(intent, RC_NOTIFICATIONS)
-        hideLoading()
-    }
+//    override fun openNotifications() {
+//        Log.d(TAG,"openNotifications()")
+//        mixpanelHelper!!.trackButtonTapped("Notifications", "Dashboard")
+//        closeDrawer()
+//        showLoading("Loading...")
+//        val intent = Intent(this, NotificationsActivity::class.java)
+//        startActivityForResult(intent, RC_NOTIFICATIONS)
+//        hideLoading()
+//    }
 
     override fun openAppointments() {
         closeDrawer()

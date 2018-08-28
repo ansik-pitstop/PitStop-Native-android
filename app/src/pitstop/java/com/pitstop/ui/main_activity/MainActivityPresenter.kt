@@ -191,11 +191,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         Log.d(TAG,"onUserWasInactiveOnCreate()")
     }
 
-    fun onNotificationsClicked(){
-        Log.d(TAG,"onNotificationsClicked()")
-        view?.openNotifications()
-    }
-
     fun onMyAppointmentsClicked() {
         Log.d(TAG, "onMyAppointmentsClicked()")
         if (this.view == null) return
