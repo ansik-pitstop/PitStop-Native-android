@@ -16,6 +16,13 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
+ *
+ * Use case responsible for processing user activity and location data, deriving when a trip occured
+ * ,and storing it in the trip repository.
+ *
+ * In the future we would want the code from TripUtils.getNextTripState() to calculate the next
+ * trip state to avoid duplicate logic
+ *
  * Created by Karol Zdebel on 6/4/2018.
  */
 class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocationStorage
@@ -38,12 +45,12 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val BEFORE_START_TIME_OFFSET = 1000 * 60 * 15 //Time before a trip starts that a location still qualifies as within the trip
     }
 
-    private var hardStart = -1L
-    private var softStart = -1L
-    private var hardEnd = -1L
-    private var softEnd = -1L
-    private lateinit var startTimestampsList: MutableList<Long>
-    private lateinit var endTimestampsList: MutableList<Long>
+    private var hardStart = -1L //When a "hard start" occurred or when we began being very sure about a vehicle trip being in progress
+    private var softStart = -1L //When a "soft start" occurred or when we began being only slightly sure about a vehicle trip being in progress
+    private var hardEnd = -1L   //When a "hard end" occurred or when we began being very sure about a vehicle trip being finished
+    private var softEnd = -1L   //When a "soft end" occurred or when we began being only slightly sure about a vehicle trip ending
+    private lateinit var startTimestampsList: MutableList<Long> //Ordered list of trip start timestamps
+    private lateinit var endTimestampsList: MutableList<Long>   //Ordered list of trip end timestamps
 
     override fun execute(callback: ProcessTripDataUseCase.Callback) {
         this.callback = callback
@@ -60,9 +67,12 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         val processedTrips = arrayListOf<List<CarLocation>>()
 
+        //Iterate through all of the users activities to find the start and end timestamps of all the trips
+        //being stored locally. We need to do this to know which locations from the local db to include in each trip
         activities.forEach loop@{
 
-            //See how long we've been still for, if at all
+            //See how long we've been still for, if at all, if we've been still longer than the STILL_TIMEOUT value
+            // then end the trip
             if ( (hardStart != -1L || softStart != -1L)
                     && softEnd != -1L && it.time - softEnd > STILL_TIMEOUT){
                 Logger.getInstance().logD(tag,"soft end end time=${it.time}"
@@ -90,18 +100,23 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
             }
 
             when(it.type){
+                //Check for user manually starting trip which triggers a hard start
                 (CarActivity.TYPE_MANUAL_START) -> {
                     if (hardStart == -1L) hardStart = it.time
                     if (softStart == -1L) softStart = it.time
                     softEnd = -1
                     Log.d(tag,"manual trip start found, time = ${it.time}")
                 }
+                //Check for user manually ending trip which triggers a hard end
                 (CarActivity.TYPE_MANUAL_END) -> {
                     Log.d(tag,"manual end found, time = ${it.time}, hardstart = ${it.time}")
                     hardEnd = it.time
+
+                    //Process trip data points
                     processedTrips.add(filterLocations(softStart,hardEnd,locations))
                     startTimestampsList.add(softStart)
                     endTimestampsList.add(hardEnd)
+
                     //Remove all processed data points
                     val removedLocs = localLocationStorage.remove(locations.filter { it.time <= hardEnd })
                     val removedActivities = localActivityStorage.remove(activities.filter {it.time <= hardEnd})
@@ -115,8 +130,9 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                     hardStart = -1L
                     hardEnd = -1L
                 }
+                //Check for driving event, if its confidence is at least HIGH_VEH_CONF then trigger hard start
+                //Instead if its less than HIGH_VEH_CONF but at least LOW_VEH_CONF then trigger soft start
                 (CarActivity.TYPE_DRIVING) -> {
-
                     //Hard start
                     if (it.conf >= HIGH_VEH_CONF
                             && (hardStart == -1L || softStart == -1L || softEnd != -1L)){
@@ -144,6 +160,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
+                //Check for walking or running event, if its confidence is at least HIGH_FOOT_CONF then trigger hard end
                 (CarActivity.TYPE_ON_FOOT) -> {
                     if (hardStart != -1L && it.conf > HIGH_FOOT_CONF){
                         hardEnd = it.time
@@ -173,6 +190,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
                         }
                     }
                 }
+                //Check for STILL event, if its confidence is at least HIGH_STILL_CONF then trigger soft end
                 (CarActivity.TYPE_STILL) -> {
                     if (it.conf >= HIGH_STILL_CONF && softEnd == -1L
                             && (softStart != -1L || hardStart != -1L)){
@@ -188,6 +206,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
 
         Log.d(tag,"processedTrips: size=${processedTrips.size} data=$processedTrips")
 
+        //Go through all the processed trips, format the trip data so that it can be stored in the trip repository and do so
         processedTrips.filter { !it.isEmpty() }.forEachIndexed({ i, it ->
             val recordedLocationList = mutableListOf<LocationData>()
             it.forEachIndexed { i,carLocation ->
@@ -207,6 +226,8 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         Logger.getInstance().logD(tag,"observable list size: ${observableList.size}"
                 ,DebugMessage.TYPE_USE_CASE)
 
+        //Provide callback response and clear database data depending on trip repository response
+        // in the code above
         if (observableList.isEmpty()){
 
             //Remove all data before soft start, if none exists then remove all data
@@ -250,7 +271,7 @@ class ProcessTripDataUseCaseImpl(private val localLocationStorage: LocalLocation
         val trip = arrayListOf<CarLocation>()
         var includedPriorLoc = false
         var includedAfterLoc = false
-        //Locations sorte by time
+        //Locations sort by time
         locations.forEach {
             if (it.time in start-BEFORE_START_TIME_OFFSET..end+HARD_END_TIME_OFFSET){
                 //Closest location after trip start

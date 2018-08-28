@@ -35,6 +35,13 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
+ *
+ * Class which encapsulates functionality related to interacting with the OBD212B
+ * device type. This class knows a lot about the syntax used in order to request information
+ * from the device, and read information from the device
+ *
+ * This code is no longer updated and the 212B device isn't fully supported anymore
+ *
  * Created by Ben Wu on 2016-08-29.
  */
 public class Device212B implements AbstractDevice {
