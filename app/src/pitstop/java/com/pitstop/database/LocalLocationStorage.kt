@@ -5,6 +5,7 @@ import android.util.Log
 import com.pitstop.models.trip.CarLocation
 
 /**
+ *
  * Created by Karol Zdebel on 6/4/2018.
  */
 class LocalLocationStorage(private val databaseHelper: LocalDatabaseHelper) {
