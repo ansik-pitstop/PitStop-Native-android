@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.SDKIntentService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.bleDevice.AbstractDevice;
 import com.pitstop.bluetooth.bleDevice.Device212B;
@@ -15,6 +16,7 @@ import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
+import com.pitstop.bluetooth.searcher.RVDBLuetoothDeviceSearcherStatusListener;
 import com.pitstop.bluetooth.searcher.RVDBluetoothDeviceSearcher;
 import com.pitstop.bluetooth.searcher.RegularBluetoothDeviceSearcher;
 import com.pitstop.dependency.ContextModule;
@@ -23,10 +25,12 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.utils.Logger;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by Ben!
  */
-public class BluetoothDeviceManager{
+public class BluetoothDeviceManager implements RVDBLuetoothDeviceSearcherStatusListener{
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
@@ -49,7 +53,7 @@ public class BluetoothDeviceManager{
         ELM327, OBD215, OBD212
     }
 
-    public BluetoothDeviceManager(Context context) {
+    public BluetoothDeviceManager(Context context, SDKIntentService sdkIntentService) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
@@ -60,8 +64,48 @@ public class BluetoothDeviceManager{
 
         regularBluetoothDeviceSearcher
                 = new RegularBluetoothDeviceSearcher(useCaseComponent,dataListener,context,this);
-        rvdBluetoothDeviceSearcher = new RVDBluetoothDeviceSearcher();
+        rvdBluetoothDeviceSearcher = new RVDBluetoothDeviceSearcher(sdkIntentService,this);
     }
+
+    /*
+     * Callback methods for RVD SDK device searcher interface
+     */
+
+
+    @Override
+    public void onBindingRequired() {
+        Log.d(TAG,"onBindingRequired()");
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(@NotNull String question) {
+        Log.d(TAG,"onBindingQuestionPrompted() question: "+question);
+
+    }
+
+    @Override
+    public void onFirmwareUpdateRequired() {
+        Log.d(TAG,"onFirmwareUpdateRequired()");
+    }
+
+    @Override
+    public void onFirmwareUpdateStatus(int status) {
+        Log.d(TAG,"onFirmwareUpdateStatus() status:"+status);
+    }
+
+    @Override
+    public void onError(@NotNull String err) {
+        Log.d(TAG,"onError() err: "+err);
+    }
+
+    @Override
+    public void onConnectionCompleted(@NotNull AbstractDevice device) {
+
+    }
+
+    /*
+     * End of callback methods for RVD SDK
+     */
 
     public void setState(int state) {
         Log.d(TAG,"setState() state: "+state);
