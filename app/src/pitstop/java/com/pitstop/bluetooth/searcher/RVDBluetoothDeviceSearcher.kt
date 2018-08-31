@@ -14,7 +14,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
     private val TAG = RVDBluetoothDeviceSearcher::class.java.simpleName
     private var sdk: ISDKApi? = null
 
-    fun start(){
+    fun start(): Boolean{
         Log.d(TAG,"start()")
         sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
             override fun onSuccess(sdk: ISDKApi?) {
@@ -29,6 +29,8 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
             }
 
         }, false)
+        return true
+
     }
 
     fun answerBindingQuestion(question: String, response: String){
