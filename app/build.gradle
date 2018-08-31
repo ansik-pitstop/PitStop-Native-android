@@ -202,13 +202,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('../libs/gelfclient.jar')
     implementation 'com.jjoe64:graphview:4.2.2'
-
     implementation project(':mobile_sdk-1.6.0_1600-release')
     implementation 'io.swagger:swagger-annotations:1.5.12'
     implementation 'joda-time:joda-time:2.9.7'
     implementation 'io.realm:realm-android-library:3.7.2'
-    implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2") { exclude module: 'org.apache.oltu.oauth2.common' }
-
+    implementation('org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2') {
+        exclude module: 'org.apache.oltu.oauth2.common'
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -15,6 +15,7 @@ import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
+import com.pitstop.bluetooth.searcher.RVDBluetoothDeviceSearcher;
 import com.pitstop.bluetooth.searcher.RegularBluetoothDeviceSearcher;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -33,6 +34,7 @@ public class BluetoothDeviceManager{
     private GlobalApplication application;
     private ObdManager.IBluetoothDataListener dataListener;
     private RegularBluetoothDeviceSearcher regularBluetoothDeviceSearcher;
+    private RVDBluetoothDeviceSearcher rvdBluetoothDeviceSearcher;
 
     private AbstractDevice deviceInterface;
     private UseCaseComponent useCaseComponent;
@@ -58,6 +60,7 @@ public class BluetoothDeviceManager{
 
         regularBluetoothDeviceSearcher
                 = new RegularBluetoothDeviceSearcher(useCaseComponent,dataListener,context,this);
+        rvdBluetoothDeviceSearcher = new RVDBluetoothDeviceSearcher();
     }
 
     public void setState(int state) {
