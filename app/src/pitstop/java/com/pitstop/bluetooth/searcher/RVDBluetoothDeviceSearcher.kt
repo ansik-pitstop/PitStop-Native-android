@@ -20,7 +20,8 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
             override fun onSuccess(sdk: ISDKApi?) {
                 Log.d(TAG,"successfully initialized RVD SDK!")
                 this@RVDBluetoothDeviceSearcher.sdk = sdk
-                sdk.addNotificationListener(IEventsInterface.EventType.ALL,this,false)
+                sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
+                        ,IEventsInterface.EventType.ALL)
             }
 
             override fun onError(p0: Throwable?) {
