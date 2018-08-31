@@ -2,13 +2,14 @@ package com.pitstop.bluetooth.searcher
 
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 
 /**
  * Created by Karol Zdebel on 8/31/2018.
  */
 class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
                                  , private val rvdBluetoothListener
-                                 : RVDBLuetoothDeviceSearcherStatusListener)
+                                 : RVDBluetoothDeviceSearcherStatusListener)
     : IEventsInterface.IEventListener {
 
     private val TAG = RVDBluetoothDeviceSearcher::class.java.simpleName
@@ -56,19 +57,20 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.BINDING_PROGRESS_CHANGED -> {
-                val progress = event as Float
+                rvdBluetoothListener.onBindingStatusUpdate(retObject as Float)
             }
             IEventsInterface.Event.BINDING_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
             IEventsInterface.Event.BINDING_FINISHED -> {
 
             }
             IEventsInterface.Event.BINDING_STOPPED -> {
-
+                rvdBluetoothListener.onStopped()
             }
             IEventsInterface.Event.BINDING_USER_INPUT -> {
                 val question = retObject as BindingQuestion
+                rvdBluetoothListener.onBindingQuestionPrompted(question.question)
             }
 
             //AUTHENTICATION EVENTS
@@ -76,10 +78,10 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.AUTHENTICATION_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
             IEventsInterface.Event.AUTHENTICATION_FAILURE -> {
-
+                rvdBluetoothListener.onStopped()
             }
 
             IEventsInterface.Event.BLUETOOTH_CONNECT_TO -> {
@@ -95,27 +97,27 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
 
             //UPDATE EVENTS
             IEventsInterface.Event.UPDATE_AVAILABLE -> {
-
+                rvdBluetoothListener.onFirmwareUpdateRequired()
             }
             IEventsInterface.Event.UPDATE_DOWNLOAD_STARTED-> {
 
             }
             IEventsInterface.Event.UPDATE_DOWNLOAD_PROGRESS_CHANGED-> {
-
+                rvdBluetoothListener.onFirmwareUpdateStatus(retObject as Float)
             }
             IEventsInterface.Event.UPDATE_DOWNLOAD_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
             IEventsInterface.Event.UPDATE_FINISHED -> {
 
             }
             IEventsInterface.Event.UPDATE_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
             IEventsInterface.Event.UPDATE_VERIFICATION_RESULT -> {
 
@@ -129,13 +131,13 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.FIRMWARE_INSTALLATION_PROGRESS_CHANGED -> {
-
+                rvdBluetoothListener.onFirmwareUpdateStatus(retObject as Float)
             }
             IEventsInterface.Event.FIRMWARE_INSTALLATION_FINISHED -> {
 
             }
             IEventsInterface.Event.FIRMWARE_INSTALLATION_ERROR -> {
-
+                rvdBluetoothListener.onError(retObject as Error)
             }
 
             //DONGLE EVENTS
@@ -151,6 +153,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             //CAR EVENTS
             IEventsInterface.Event.CAR_CONNECTED -> {
+                //rvdBluetoothListener.onConnectionCompleted()
 
             }
             IEventsInterface.Event.CAR_DISCONNECTED -> {

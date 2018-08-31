@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
 import com.continental.rvd.mobile_sdk.SDKIntentService
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.bleDevice.AbstractDevice
 import com.pitstop.bluetooth.bleDevice.Device212B
@@ -15,8 +16,8 @@ import com.pitstop.bluetooth.communicator.ObdManager
 import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.bluetooth.elm.enums.ObdProtocols
-import com.pitstop.bluetooth.searcher.RVDBLuetoothDeviceSearcherStatusListener
 import com.pitstop.bluetooth.searcher.RVDBluetoothDeviceSearcher
+import com.pitstop.bluetooth.searcher.RVDBluetoothDeviceSearcherStatusListener
 import com.pitstop.bluetooth.searcher.RegularBluetoothDeviceSearcher
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -25,11 +26,12 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.utils.Logger
 
 /**
+ *
  * Created by Ben!
  */
 class BluetoothDeviceManager(private val mContext: Context
                              , sdkIntentService: SDKIntentService)
-    : RVDBLuetoothDeviceSearcherStatusListener {
+    : RVDBluetoothDeviceSearcherStatusListener {
 
     private val TAG = BluetoothDeviceManager::class.java.simpleName
 
@@ -76,17 +78,27 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "onFirmwareUpdateRequired()")
     }
 
-    override fun onFirmwareUpdateStatus(status: Int) {
+    override fun onFirmwareUpdateStatus(status: Float) {
         Log.d(TAG, "onFirmwareUpdateStatus() status:$status")
     }
 
-    override fun onError(err: String) {
+    override fun onError(err: Error) {
         Log.d(TAG, "onError() err: $err")
     }
 
     override fun onConnectionCompleted(device: AbstractDevice) {
+        Log.d(TAG, "onConnectionCompleted()")
 
     }
+
+    override fun onBindingStatusUpdate(status: Float) {
+        Log.d(TAG,"onBindingStatusUpdate() status: $status")
+    }
+
+    override fun onStopped() {
+        Log.d(TAG,"onStopped()")
+    }
+
     /*
      * End of callback methods for RVD SDK
      */
@@ -212,12 +224,10 @@ class BluetoothDeviceManager(private val mContext: Context
     }
 
     fun resetDeviceToDefaults() {
-
         Log.d(TAG, "resetToDefualts() ")
         if (deviceInterface is Device215B) {
             deviceInterface.resetDeviceToDefaults()
         }
-
     }
 
     fun resetDevice() {
