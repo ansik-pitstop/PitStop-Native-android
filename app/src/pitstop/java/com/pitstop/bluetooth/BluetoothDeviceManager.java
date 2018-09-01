@@ -35,7 +35,7 @@ import java.util.Map;
  * Created by Ben!
  */
 public class BluetoothDeviceManager{
-
+    //adding code
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
     private Context mContext;
