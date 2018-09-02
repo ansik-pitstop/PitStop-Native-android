@@ -7,12 +7,19 @@ import com.pitstop.bluetooth.bleDevice.AbstractDevice
  * Created by Karol Zdebel on 8/31/2018.
  */
 interface RVDBluetoothDeviceSearcherStatusListener {
+    fun onConnectionFailure(err: Error)
+    fun onConnectionCompleted()
+
     fun onBindingRequired()
     fun onBindingQuestionPrompted(question: String)
-    fun onBindingStatusUpdate(status: Float)
-    fun onFirmwareUpdateRequired()
-    fun onFirmwareUpdateStatus(status: Float)
-    fun onStopped()
-    fun onError(err: Error)
-    fun onConnectionCompleted(device: AbstractDevice)
+    fun onBindingProgress(progress: Float)
+    fun onBindingFinished()
+    fun onBindingError(err: Error)
+
+    fun onFirmwareInstallationRequired()
+    fun onFirmwareInstallationProgress(progress: Float)
+    fun onFirmwareInstallationFinished()
+    fun onFirmwareInstallationError(err: Error)
+
+    fun onCompleted(device: AbstractDevice)
 }

@@ -58,7 +58,8 @@ class BluetoothDeviceManager(private val mContext: Context
                 .contextModule(ContextModule(mContext))
                 .build()
 
-        regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent, dataListener!!, mContext, this)
+        regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent
+                , dataListener!!, mContext, this)
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this)
     }
 
@@ -71,15 +72,22 @@ class BluetoothDeviceManager(private val mContext: Context
 
     override fun onBindingQuestionPrompted(question: String) {
         Log.d(TAG, "onBindingQuestionPrompted() question: $question")
-
     }
 
-    override fun onFirmwareUpdateRequired() {
-        Log.d(TAG, "onFirmwareUpdateRequired()")
+    override fun onFirmwareDownloadRequired() {
+        Log.d(TAG, "onFirmwareDownloadRequired()")
     }
 
-    override fun onFirmwareUpdateStatus(status: Float) {
-        Log.d(TAG, "onFirmwareUpdateStatus() status:$status")
+    override fun onFirmwareDownloadProgress(progress: Float) {
+        Log.d(TAG, "onFirmwareUpdateStatus() status:$progress")
+    }
+
+    override fun onFirmwareInstallationRequired() {
+        Log.d(TAG, "onFirmwareInstallationRequired()")
+    }
+
+    override fun onFirmwareInstallationProgress(progress: Float) {
+        Log.d(TAG, "onFirmwareInstallationProgress() progress:$progress")
     }
 
     override fun onError(err: Error) {
@@ -88,7 +96,6 @@ class BluetoothDeviceManager(private val mContext: Context
 
     override fun onConnectionCompleted(device: AbstractDevice) {
         Log.d(TAG, "onConnectionCompleted()")
-
     }
 
     override fun onBindingStatusUpdate(status: Float) {

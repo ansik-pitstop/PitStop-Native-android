@@ -3,6 +3,7 @@ package com.pitstop.bluetooth.searcher
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.pitstop.bluetooth.bleDevice.RVDDevice
 
 /**
  * Created by Karol Zdebel on 8/31/2018.
@@ -52,38 +53,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
         Log.d(TAG,"onNotification() event: $event")
         when (event){
 
-            //BINDING EVENTS
-            IEventsInterface.Event.BINDING_STARTED -> {
-
-            }
-            IEventsInterface.Event.BINDING_PROGRESS_CHANGED -> {
-                rvdBluetoothListener.onBindingStatusUpdate(retObject as Float)
-            }
-            IEventsInterface.Event.BINDING_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
-            }
-            IEventsInterface.Event.BINDING_FINISHED -> {
-
-            }
-            IEventsInterface.Event.BINDING_STOPPED -> {
-                rvdBluetoothListener.onStopped()
-            }
-            IEventsInterface.Event.BINDING_USER_INPUT -> {
-                val question = retObject as BindingQuestion
-                rvdBluetoothListener.onBindingQuestionPrompted(question.question)
-            }
-
-            //AUTHENTICATION EVENTS
-            IEventsInterface.Event.AUTHENTICATION_SUCCESS -> {
-
-            }
-            IEventsInterface.Event.AUTHENTICATION_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
-            }
-            IEventsInterface.Event.AUTHENTICATION_FAILURE -> {
-                rvdBluetoothListener.onStopped()
-            }
-
+            //BLUETOOTH
             IEventsInterface.Event.BLUETOOTH_CONNECT_TO -> {
 
             }
@@ -97,47 +67,18 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
+                rvdBluetoothListener.onConnectionFailure(retObject as Error)
             }
 
-            //UPDATE EVENTS
-            IEventsInterface.Event.UPDATE_AVAILABLE -> {
-                rvdBluetoothListener.onFirmwareUpdateRequired()
-            }
-            IEventsInterface.Event.UPDATE_DOWNLOAD_STARTED-> {
+            //NETWORK
+            IEventsInterface.Event.NETWORK_AVAILABLE -> {
 
             }
-            IEventsInterface.Event.UPDATE_DOWNLOAD_PROGRESS_CHANGED-> {
-                rvdBluetoothListener.onFirmwareUpdateStatus(retObject as Float)
-            }
-            IEventsInterface.Event.UPDATE_DOWNLOAD_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
-            }
-            IEventsInterface.Event.UPDATE_FINISHED -> {
+            IEventsInterface.Event.NETWORK_UNAVAILABLE-> {
 
             }
-            IEventsInterface.Event.UPDATE_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
-            }
-            IEventsInterface.Event.UPDATE_VERIFICATION_RESULT -> {
-
-            }
-            IEventsInterface.Event.UPDATE_STARTED -> {
-
-            }
-
-            //FIRMWARE EVENT
-            IEventsInterface.Event.FIRMWARE_INSTALLATION_STARTED -> {
-
-            }
-            IEventsInterface.Event.FIRMWARE_INSTALLATION_PROGRESS_CHANGED -> {
-                rvdBluetoothListener.onFirmwareUpdateStatus(retObject as Float)
-            }
-            IEventsInterface.Event.FIRMWARE_INSTALLATION_FINISHED -> {
-
-            }
-            IEventsInterface.Event.FIRMWARE_INSTALLATION_ERROR -> {
-                rvdBluetoothListener.onError(retObject as Error)
+            IEventsInterface.Event.INTERNET_CONNECTION_REQUIRED -> {
+                rvdBluetoothListener.onConnectionFailure(retObject as Error)
             }
 
             //DONGLE EVENTS
@@ -150,14 +91,11 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
             IEventsInterface.Event.DONGLE_STATE_CONNECTED -> {
 
             }
-
-            //CAR EVENTS
-            IEventsInterface.Event.CAR_CONNECTED -> {
-                //rvdBluetoothListener.onConnectionCompleted()
-
+            IEventsInterface.Event.DONGLE_CONFIGURED -> {
+                //No binding needed, already done
             }
-            IEventsInterface.Event.CAR_DISCONNECTED -> {
-
+            IEventsInterface.Event.DONGLE_NOT_CONFIGURED -> {
+                rvdBluetoothListener.onBindingRequired()
             }
 
             //LICENSE EVENTS
@@ -165,6 +103,88 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.LICENSE_UNVERIFIABLE -> {
+                rvdBluetoothListener.onConnectionFailure(retObject as Error)
+            }
+
+            //AUTHENTICATION EVENTS
+            IEventsInterface.Event.AUTHENTICATION_SUCCESS -> {
+                rvdBluetoothListener.onConnectionCompleted()
+            }
+            IEventsInterface.Event.AUTHENTICATION_ERROR -> {
+                rvdBluetoothListener.onConnectionFailure(retObject as Error)
+            }
+            IEventsInterface.Event.AUTHENTICATION_FAILURE -> {
+                rvdBluetoothListener.onConnectionFailure(retObject as Error)
+            }
+
+            //BINDING EVENTS
+            IEventsInterface.Event.BINDING_STARTED -> {
+
+            }
+            IEventsInterface.Event.BINDING_PROGRESS_CHANGED -> {
+                rvdBluetoothListener.onBindingProgress(retObject as Float)
+            }
+            IEventsInterface.Event.BINDING_ERROR -> {
+                rvdBluetoothListener.onBindingError(retObject as Error)
+            }
+            IEventsInterface.Event.BINDING_FINISHED -> {
+                rvdBluetoothListener.onBindingFinished()
+            }
+            IEventsInterface.Event.BINDING_STOPPED -> {
+                rvdBluetoothListener.onBindingError(retObject as Error)
+            }
+            IEventsInterface.Event.BINDING_USER_INPUT -> {
+                val question = retObject as BindingQuestion
+                rvdBluetoothListener.onBindingQuestionPrompted(question.question)
+            }
+
+            //UPDATE EVENTS
+            IEventsInterface.Event.UPDATE_AVAILABLE -> {
+                rvdBluetoothListener.onFirmwareInstallationRequired()
+            }
+            IEventsInterface.Event.UPDATE_DOWNLOAD_STARTED-> {
+
+            }
+            IEventsInterface.Event.UPDATE_DOWNLOAD_PROGRESS_CHANGED-> {
+
+            }
+            IEventsInterface.Event.UPDATE_DOWNLOAD_ERROR -> {
+                rvdBluetoothListener.onFirmwareInstallationError(retObject as Error)
+            }
+            IEventsInterface.Event.UPDATE_FINISHED -> {
+            }
+            IEventsInterface.Event.UPDATE_ERROR -> {
+                rvdBluetoothListener.onFirmwareInstallationError(retObject as Error)
+            }
+            IEventsInterface.Event.UPDATE_VERIFICATION_RESULT -> {
+                val result = retObject as FirmwareCheckResults
+                if (result == FirmwareCheckResults.OK) {
+                    sdk?.startFirmwareInstallation()
+                }
+            }
+            IEventsInterface.Event.UPDATE_STARTED -> {
+
+            }
+
+            //FIRMWARE EVENT
+            IEventsInterface.Event.FIRMWARE_INSTALLATION_STARTED -> {
+
+            }
+            IEventsInterface.Event.FIRMWARE_INSTALLATION_PROGRESS_CHANGED -> {
+                rvdBluetoothListener.onFirmwareInstallationProgress(retObject as Float)
+            }
+            IEventsInterface.Event.FIRMWARE_INSTALLATION_FINISHED -> {
+                rvdBluetoothListener.onFirmwareInstallationFinished()
+            }
+            IEventsInterface.Event.FIRMWARE_INSTALLATION_ERROR -> {
+                rvdBluetoothListener.onFirmwareInstallationError(retObject as Error)
+            }
+
+            //CAR EVENTS
+            IEventsInterface.Event.CAR_CONNECTED -> {
+                rvdBluetoothListener.onCompleted(RVDDevice())
+            }
+            IEventsInterface.Event.CAR_DISCONNECTED -> {
 
             }
         }
