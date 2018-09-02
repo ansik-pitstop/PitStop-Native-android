@@ -1,94 +1,50 @@
 package com.pitstop.bluetooth.bleDevice
 
-import android.bluetooth.BluetoothDevice
-import java.util.*
-
 /**
  * Created by Karol Zdebel on 8/31/2018.
  */
 class RVDDevice: AbstractDevice {
-
-    //Remove
-    override fun getServiceUuid(): UUID {
-    }
-
-    //Remove
-    override fun getReadChar(): UUID {
-    }
-
-    //Remove
-    override fun getWriteChar(): UUID {
-    }
-
-    //Remove
-    override fun getBytes(payload: String?): ByteArray {
-    }
-
-    //Remove
-    override fun parseData(data: ByteArray?) {
-    }
-
-
-    override fun onConnectionStateChange(state: Int) {
-    }
-
-    //Remove
-    override fun requestData() {
-    }
-
     override fun getVin(): Boolean {
-        return false
-    }
-
-    override fun getRtc(): Boolean {
-        return false
-    }
-
-    override fun setRtc(rtcTime: Long): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getPids(pids: String?): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getSupportedPids(): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun setPidsToSend(pids: String?, timeInterval: Int): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun requestSnapshot(): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun clearDtcs(): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getDtcs(): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getPendingDtcs(): Boolean {
-        return false
-    }
-
-    override fun getFreezeFrame(): Boolean {
-        return false
-    }
-
-    override fun connectToDevice(device: BluetoothDevice?): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun closeConnection(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun setCommunicatorState(state: Int): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getCommunicatorState(): Int {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

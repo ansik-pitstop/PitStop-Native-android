@@ -41,7 +41,7 @@ import java.util.UUID;
 /**
  * Created by Ben Wu on 2016-08-29.
  */
-public class Device215B implements AbstractDevice {
+public class Device215B implements CastelDevice {
 
     private static final String TAG = Device215B.class.getSimpleName();
 
@@ -92,7 +92,6 @@ public class Device215B implements AbstractDevice {
         return payload.getBytes();
     }
 
-    @Override
     public void requestData() {
         writeToObd(replyIDRPackage());
     }

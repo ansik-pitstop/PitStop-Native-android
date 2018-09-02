@@ -45,7 +45,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
     }
 
-    fun respondFirmwareUpdateRequest(start: Boolean){
+    fun respondFirmwareInstallationRequest(start: Boolean){
         Log.d(TAG,"respondFirmwareUpdateRequest() start: $start")
     }
 

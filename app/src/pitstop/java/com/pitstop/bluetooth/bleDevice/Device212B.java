@@ -37,7 +37,7 @@ import java.util.UUID;
 /**
  * Created by Ben Wu on 2016-08-29.
  */
-public class Device212B implements AbstractDevice {
+public class Device212B implements CastelDevice {
 
     private static final String TAG = Device212B.class.getSimpleName();
 
