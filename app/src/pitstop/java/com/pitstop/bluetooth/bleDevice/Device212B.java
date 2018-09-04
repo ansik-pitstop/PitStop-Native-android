@@ -91,13 +91,6 @@ public class Device212B implements CastelDevice {
         return Utils.hexStringToBytes(payload);
     }
 
-
-
-    @Override
-    public void requestData() {
-
-    }
-
     @Override
     public boolean getVin() {
         return writeToObd(OBD.getParameter(VIN_TAG));

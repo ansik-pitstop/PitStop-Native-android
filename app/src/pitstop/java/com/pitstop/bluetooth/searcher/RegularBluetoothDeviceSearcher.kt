@@ -231,14 +231,14 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         Log.d(TAG, "connectTo212Device() device: " + device.name)
         deviceInterface = Device212B(context, dataListener, device.name, manager)
 
-        deviceInterface?.connectToDevice(device)
+        (deviceInterface as Device212B).connectToDevice(device)
     }
 
     private fun connectTo215Device(device: BluetoothDevice) {
         Log.d(TAG, "connectTo215Device() device: " + device.name)
         deviceInterface = Device215B(context, dataListener, device.name, manager)
 
-        deviceInterface?.connectToDevice(device)
+        (deviceInterface as Device215B).connectToDevice(device)
 
     }
 
@@ -246,7 +246,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         Log.d(TAG, "connectToELM327Device() device: " + device.name)
         deviceInterface = ELM327Device(context, manager)
         dataListener.setDeviceName(device.address)
-        deviceInterface?.connectToDevice(device)
+        (deviceInterface as ELM327Device).connectToDevice(device)
     }
 
     fun moreDevicesLeft(): Boolean {

@@ -5,11 +5,9 @@ import android.content.Context
 import android.util.Log
 import com.continental.rvd.mobile_sdk.SDKIntentService
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.pitstop.R.drawable.device
 import com.pitstop.application.GlobalApplication
-import com.pitstop.bluetooth.bleDevice.AbstractDevice
-import com.pitstop.bluetooth.bleDevice.Device212B
-import com.pitstop.bluetooth.bleDevice.Device215B
-import com.pitstop.bluetooth.bleDevice.ELM327Device
+import com.pitstop.bluetooth.bleDevice.*
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator
 import com.pitstop.bluetooth.communicator.ObdManager
@@ -74,14 +72,6 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "onBindingQuestionPrompted() question: $question")
     }
 
-    override fun onFirmwareDownloadRequired() {
-        Log.d(TAG, "onFirmwareDownloadRequired()")
-    }
-
-    override fun onFirmwareDownloadProgress(progress: Float) {
-        Log.d(TAG, "onFirmwareUpdateStatus() status:$progress")
-    }
-
     override fun onFirmwareInstallationRequired() {
         Log.d(TAG, "onFirmwareInstallationRequired()")
     }
@@ -90,20 +80,36 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "onFirmwareInstallationProgress() progress:$progress")
     }
 
-    override fun onError(err: Error) {
-        Log.d(TAG, "onError() err: $err")
+    override fun onConnectionFailure(err: Error) {
+        Log.d(TAG,"onConnectionFailure() err: $err")
     }
 
-    override fun onConnectionCompleted(device: AbstractDevice) {
-        Log.d(TAG, "onConnectionCompleted()")
+    override fun onConnectionCompleted() {
+        Log.d(TAG,"onConnectionCompleted()")
     }
 
-    override fun onBindingStatusUpdate(status: Float) {
-        Log.d(TAG,"onBindingStatusUpdate() status: $status")
+    override fun onBindingProgress(progress: Float) {
+        Log.d(TAG,"onBindingProgress() progress: $progress")
     }
 
-    override fun onStopped() {
-        Log.d(TAG,"onStopped()")
+    override fun onBindingFinished() {
+        Log.d(TAG,"onBindingFinished()")
+    }
+
+    override fun onBindingError(err: Error) {
+        Log.d(TAG,"onBindingError() err: $err")
+    }
+
+    override fun onFirmwareInstallationFinished() {
+        Log.d(TAG,"onFirmwareInstallationFinished()")
+    }
+
+    override fun onFirmwareInstallationError(err: Error) {
+        Log.d(TAG,"onFirmwareInstallationError() err: $err")
+    }
+
+    override fun onCompleted(device: AbstractDevice) {
+        Log.d(TAG,"onCompleted()")
     }
 
     /*
@@ -245,132 +251,159 @@ class BluetoothDeviceManager(private val mContext: Context
 
     }
 
-    fun setRtc(rtcTime: Long) {
+    fun setRtc(rtcTime: Long): Boolean {
         Log.d(TAG, "setRtc() rtc: $rtcTime")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+            false
+        }else if (deviceInterface != null && deviceInterface is CastelDevice){
+            deviceInterface.setRtc(rtcTime)
+            true
+        }else{
+            false
         }
-        deviceInterface!!.setRtc(rtcTime)
     }
 
-    fun getPids(pids: String) {
+    fun getPids(pids: String): Boolean {
         Log.d(TAG, "getPids() pids: $pids")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+            false
+        }else if (deviceInterface != null && deviceInterface is LowLevelDevice){
+            deviceInterface.getPids(pids)
+            true
+        }else {
+            false
         }
-        deviceInterface!!.getPids(pids)
     }
 
-    fun clearDtcs() {
+    fun clearDtcs(): Boolean {
         Log.d(TAG, "clearDTCs")
-        if (deviceInterface is Device215B || deviceInterface is ELM327Device) {
+        return if (deviceInterface != null
+                && (deviceInterface is Device215B || deviceInterface is ELM327Device)) {
             deviceInterface.clearDtcs()
+            true
+        }else{
+            false
         }
     }
 
-    fun getSupportedPids() {
+    fun getSupportedPids(): Boolean {
         Logger.getInstance()!!.logI(TAG, "Requested supported pid", DebugMessage.TYPE_BLUETOOTH)
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (btConnectionState != BluetoothCommunicator.CONNECTED || deviceInterface == null) {
+            false
+        }else{
+            deviceInterface.getSupportedPids()
+            true
         }
-        deviceInterface!!.supportedPids
     }
 
     // sets pids to check and sets data interval
-    fun setPidsToSend(pids: String, timeInterval: Int) {
+    fun setPidsToSend(pids: String, timeInterval: Int): Boolean {
         Logger.getInstance()!!.logI(TAG, "Set pids to be sent: $pids, interval: $timeInterval", DebugMessage.TYPE_BLUETOOTH)
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (deviceInterface == null || btConnectionState != BluetoothCommunicator.CONNECTED) {
+            false
+        }else{
+            deviceInterface.setPidsToSend(pids, timeInterval)
+            true
         }
-        deviceInterface!!.setPidsToSend(pids, timeInterval)
     }
 
-    fun getDtcs() {
+    fun getDtcs(): Boolean {
         Log.d(TAG, "getDtcs()")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+        return if (deviceInterface == null || btConnectionState != BluetoothCommunicator.CONNECTED) {
             Log.d(TAG, " can't get Dtcs because my sate is not connected")
-            return
+            false
+        }else{
+            deviceInterface.getDtcs()
+            deviceInterface.getPendingDtcs()
+            true
         }
-        deviceInterface!!.dtcs
-        deviceInterface.pendingDtcs
     }
 
-    fun getFreezeFrame() {
+    fun getFreezeFrame(): Boolean {
         Log.d(TAG, "getFreezeFrame()")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (deviceInterface == null || deviceInterface !is CastelDevice || btConnectionState != BluetoothCommunicator.CONNECTED) {
+            false
+        }else {
+            deviceInterface.getFreezeFrame()
+            true
         }
-
-        deviceInterface!!.freezeFrame
     }
 
-    fun requestData() {
+    fun requestData(): Boolean {
         Log.d(TAG, "requestData()")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        return if (deviceInterface == null || deviceInterface !is Device215B || btConnectionState != BluetoothCommunicator.CONNECTED ) {
+            false
+        }else{
+            deviceInterface.requestData()
+            true
         }
 
-        deviceInterface!!.requestData()
     }
 
-    fun requestSnapshot() {
+    fun requestSnapshot(): Boolean {
         Log.d(TAG, "requestSnapshot()")
         if (deviceInterface != null) {
             if ((deviceInterface is Device215B || deviceInterface is ELM327Device) && btConnectionState == BluetoothCommunicator.CONNECTED) {
                 Log.d(TAG, "executing writeToOBD requestSnapshot()")
                 deviceInterface.requestSnapshot()
+                return true
             }
         }
+        return false
     }
 
     fun requestDescribeProtocol(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
-        if (deviceInterface != null && deviceInterface is ELM327Device) {
+        return if (deviceInterface != null && deviceInterface is ELM327Device) {
             deviceInterface.requestDescribeProtocol()
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     fun request2141PID(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
-        if (deviceInterface != null && deviceInterface is ELM327Device) {
+        return if (deviceInterface != null && deviceInterface is ELM327Device) {
             deviceInterface.request2141PID()
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     fun requestStoredDTC(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
-        if (deviceInterface != null && deviceInterface is ELM327Device) {
+        return if (deviceInterface != null && deviceInterface is ELM327Device) {
             deviceInterface.requestStoredTroubleCodes()
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     fun requestPendingDTC(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
-        if (deviceInterface != null && deviceInterface is ELM327Device) {
+        return if (deviceInterface != null && deviceInterface is ELM327Device) {
             deviceInterface.requestPendingTroubleCodes()
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     fun requestSelectProtocol(p: ObdProtocols): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
-        if (deviceInterface != null && deviceInterface is ELM327Device) {
+        return if (deviceInterface != null && deviceInterface is ELM327Device) {
             deviceInterface.requestSelectProtocol(p)
-            return true
+            true
         } else {
-            return false
+            false
         }
+    }
+
+    fun getState(): Int {
+        return btConnectionState
     }
 
     fun getDeviceType(): DeviceType?{
