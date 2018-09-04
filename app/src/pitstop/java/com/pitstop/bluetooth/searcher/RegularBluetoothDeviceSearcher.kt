@@ -131,7 +131,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
     @Synchronized
     private fun connectBluetooth(urgent: Boolean): Boolean {
         nonUrgentScanInProgress = !urgent //Set the flag regardless of whether a scan is in progress
-        btConnectionState = if (deviceInterface == null) BluetoothCommunicator.DISCONNECTED else deviceInterface!!.communicatorState
+        btConnectionState = if (deviceInterface == null) BluetoothCommunicator.DISCONNECTED else deviceInterface!!.getCommunicatorState()
 
         if (btConnectionState == BluetoothCommunicator.CONNECTED) {
             Log.i(TAG, "Bluetooth connected")

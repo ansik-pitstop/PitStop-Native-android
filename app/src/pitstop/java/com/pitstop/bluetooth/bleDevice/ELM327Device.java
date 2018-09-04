@@ -48,6 +48,7 @@ import com.pitstop.utils.TimeoutTimer;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -169,7 +170,7 @@ public class ELM327Device implements LowLevelDevice {
     }
 
     @Override
-    public boolean getPids(String pids) {
+    public boolean getPids(List<String> pids) {
         Log.d(TAG,"getPids() pids: "+pids);
         //IMPLEMENT THIS
         return false;
@@ -183,7 +184,7 @@ public class ELM327Device implements LowLevelDevice {
     }
 
     @Override
-    public boolean setPidsToSend(String pids, int timeInterval) {
+    public boolean setPidsToSend(List<String>  pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend() pids: "+pids+", timeInterval: "+timeInterval);
         //IMPLEMENT THIS
         return false;

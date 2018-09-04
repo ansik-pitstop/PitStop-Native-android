@@ -92,8 +92,6 @@ public class ObdManager {
 
         void handleVinData(String vin, String deviceId);
 
-        void handleVinData(String vin);
-
         void onGotRtc(long l);
 
         void setDeviceName(String address);

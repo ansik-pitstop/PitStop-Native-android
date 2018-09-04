@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -107,7 +108,7 @@ public class Device212B implements CastelDevice {
     }
 
     @Override
-    public boolean getPids(String pids) {
+    public boolean getPids(List<String> pids) {
         //Todo: this doesn't belong here
         // 212 does not need to explicitly get pids
         return false;
@@ -119,8 +120,13 @@ public class Device212B implements CastelDevice {
     }
 
     @Override
-    public boolean setPidsToSend(String pids, int timeInterval) {
-        return writeToObd(OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids));
+    public boolean setPidsToSend(List<String> pids, int timeInterval) {
+        StringBuilder pidString = new StringBuilder();
+        for (String p: pids){
+            pidString.append(p);
+            if (pids.indexOf(p) != pids.size()-1) pidString.append(",");
+        }
+        return writeToObd(OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pidString.toString()));
     }
 
     @Override

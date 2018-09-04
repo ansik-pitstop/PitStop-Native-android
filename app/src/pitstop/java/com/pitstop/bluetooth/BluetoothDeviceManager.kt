@@ -11,6 +11,7 @@ import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator
 import com.pitstop.bluetooth.communicator.ObdManager
 import com.pitstop.bluetooth.dataPackages.DtcPackage
+import com.pitstop.bluetooth.dataPackages.ParameterPackage
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.bluetooth.elm.enums.ObdProtocols
 import com.pitstop.bluetooth.searcher.RVDBluetoothDeviceSearcher
@@ -132,9 +133,25 @@ class BluetoothDeviceManager(private val mContext: Context
         dataListener!!.handleVinData(VIN, deviceID)
     }
 
-    fun onGotVin(VIN: String) {
-        Log.d(TAG, "onGotVin: $VIN")
-        dataListener!!.handleVinData(VIN)
+    fun onGotDTC(dtcPackage: DtcPackage){
+        Log.d(TAG,"onGotDTC() dtcPackage: $dtcPackage")
+        dataListener?.dtcData(dtcPackage)
+    }
+
+    fun onGotSupportedPids(supportedPids: List<String>, deviceId: String){
+        Log.d(TAG,"onGotSupportedPids() supportedPids: $supportedPids")
+        val parameterPackage = ParameterPackage()
+        parameterPackage.deviceId = deviceId
+        parameterPackage.paramType = ParameterPackage.ParamType.SUPPORTED_PIDS
+        parameterPackage.success = true
+        parameterPackage.value = supportedPids.reduceIndexed { index, acc, s ->
+            if(supportedPids.lastIndex != index){
+                "$s,"
+            }else{
+                s
+            }
+        }
+        dataListener!!.parameterData(parameterPackage)
     }
 
     fun gotDtcData(dtcPackage: DtcPackage) {
@@ -186,8 +203,8 @@ class BluetoothDeviceManager(private val mContext: Context
     fun bluetoothStateChanged(state: Int) {
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED
-            if (deviceInterface != null) {
-                deviceInterface.communicatorState = state
+            if (deviceInterface != null && deviceInterface is LowLevelDevice) {
+                deviceInterface.setCommunicatorState(state)
             }
         }
     }
@@ -202,7 +219,7 @@ class BluetoothDeviceManager(private val mContext: Context
             return
         }
         Log.d(TAG, "deviceInterface.getVin()")
-        val ret = deviceInterface!!.vin
+        val ret = deviceInterface!!.getVin()
         Log.d(TAG, "get vin returned $ret")
     }
 
@@ -242,6 +259,10 @@ class BluetoothDeviceManager(private val mContext: Context
         }
     }
 
+    fun moreDevicesLeft(): Boolean {
+        return regularBluetoothDeviceSearcher.moreDevicesLeft()
+    }
+
     fun resetDeviceToDefaults() {
         Log.d(TAG, "resetToDefualts() ")
         if (deviceInterface is Device215B) {
@@ -274,17 +295,22 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else if (deviceInterface != null && deviceInterface is LowLevelDevice){
-            deviceInterface.getPids(pids)
+            deviceInterface.getPids(pids.split(","))
             true
         }else {
             false
         }
     }
 
+    fun onGotPids(pidPackage: PidPackage){
+        Log.d(TAG,"onGotPids() pidPackage: $pidPackage")
+        dataListener?.pidData(pidPackage)
+    }
+
     fun clearDtcs(): Boolean {
         Log.d(TAG, "clearDTCs")
         return if (deviceInterface != null
-                && (deviceInterface is Device215B || deviceInterface is ELM327Device)) {
+                && (deviceInterface is LowLevelDevice)) {
             deviceInterface.clearDtcs()
             true
         }else{
@@ -297,7 +323,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED || deviceInterface == null) {
             false
         }else{
-            deviceInterface.supportedPids
+            deviceInterface.getSupportedPids()
             true
         }
     }
@@ -308,7 +334,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (deviceInterface == null || btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else{
-            deviceInterface.setPidsToSend(pids, timeInterval)
+            deviceInterface.setPidsToSend(pids.split(","), timeInterval)
             true
         }
     }
@@ -319,8 +345,8 @@ class BluetoothDeviceManager(private val mContext: Context
             Log.d(TAG, " can't get Dtcs because my sate is not connected")
             false
         }else{
-            deviceInterface.dtcs
-            deviceInterface.pendingDtcs
+            deviceInterface.getDtcs()
+            deviceInterface.getPendingDtcs()
             true
         }
     }

@@ -11,9 +11,7 @@ interface CastelDevice: LowLevelDevice {
     fun getWriteChar(): UUID         //215B, 212B
     fun getBytes(payload: String): ByteArray    //215B, 212B
     fun parseData(data: ByteArray)        //215B, 212B
-
     fun getRtc(): Boolean                                //215B, 212B
     fun setRtc(rtcTime: Long): Boolean                    //215B, 212B
-
     fun getFreezeFrame(): Boolean
 }

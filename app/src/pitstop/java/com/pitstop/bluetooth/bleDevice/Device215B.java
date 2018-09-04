@@ -137,9 +137,16 @@ public class Device215B implements CastelDevice {
     }
 
     @Override
-    public boolean getPids(String pids) {
-        int count = pids.split(",").length;
-        String command =  pidPackage("0", count, pids, "0");
+    public boolean getPids(List<String> pids) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String p: pids){
+            stringBuilder.append(p);
+            if (pids.indexOf(p) != pids.size()-1){
+                stringBuilder.append(",");
+            }
+        }
+        int count = pids.size();
+        String command =  pidPackage("0", count, stringBuilder.toString(), "0");
         return writeToObd(command);
     }
 
@@ -151,10 +158,15 @@ public class Device215B implements CastelDevice {
     }
 
     @Override
-    public boolean setPidsToSend(String pids, int timeInterval) {
+    public boolean setPidsToSend(List<String> pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend: "+pids  + " time interval : " + Integer.toString(timeInterval));
+        StringBuilder pidString = new StringBuilder();
+        for (String pid: pids){
+            pidString.append(pid);
+            if (pids.indexOf(pid) != pids.size()-1) pidString.append("/");
+        }
         String command = siMulti(SAMPLED_PID_PARAM + "," + IDR_INTERVAL_PARAM
-                ,  pids.replace(",", "/") + ","+timeInterval);
+                ,  pidString.toString() + ","+timeInterval);
         return writeToObd(command);
     }
 
