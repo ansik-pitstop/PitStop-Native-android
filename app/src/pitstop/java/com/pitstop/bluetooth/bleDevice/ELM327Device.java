@@ -55,7 +55,7 @@ import java.util.UUID;
  * Created by ishan on 2017-12-08.
  */
 
-public class ELM327Device implements AbstractDevice {
+public class ELM327Device implements LowLevelDevice {
 
     public static String NAME = "obdELM327";
 
@@ -138,33 +138,6 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public UUID getServiceUuid() {
-        return MY_UUID;
-
-    }
-
-    @Override
-    public UUID getReadChar() {
-        return MY_UUID;
-
-    }
-
-    @Override
-    public UUID getWriteChar(){return MY_UUID;}
-
-
-    @Override
-    public byte[] getBytes(String payload) {
-        return payload.getBytes();
-    }
-
-    @Override
-    public void parseData(byte[] data) {
-        Log.d(TAG, data.toString());
-
-    }
-
-    @Override
     public void onConnectionStateChange(int state) {
         Log.d(TAG,"onConnectionStateChange() state: "+state);
         this.manager.setState(state);
@@ -188,29 +161,10 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public void requestData() {
-        Log.d(TAG,"requestData()");
-    }
-
-    @Override
     public boolean getVin() {
         Log.d(TAG, "getVin()");
         if (communicator == null) return false;
         ((BluetoothCommunicatorELM327)communicator).writeData(new VinCommand(false));
-        return true;
-    }
-
-    @Override
-    public boolean getRtc() { //Todo: this method doesn't belong here
-        Log.d(TAG,"getRtc()");
-        //ELM devices dont have internal clock or memore so the rtc tome returned should just be current time
-        manager.onGotRtc(System.currentTimeMillis() / 1000);
-        return true;
-    }
-
-    @Override
-    public boolean setRtc(long rtcTime) { //Todo: this method doesn't belong here
-        Log.d(TAG,"setRtc() bluetoothDeviceTime: "+rtcTime);
         return true;
     }
 
@@ -300,11 +254,6 @@ public class ELM327Device implements AbstractDevice {
         ((BluetoothCommunicatorELM327)communicator).writeData(new PendingTroubleCodesCommand(obdProtocol,headersEnabled));
         return true;
 
-    }
-
-    @Override
-    public boolean getFreezeFrame() {
-        return false; //Implement this
     }
 
     @Override
