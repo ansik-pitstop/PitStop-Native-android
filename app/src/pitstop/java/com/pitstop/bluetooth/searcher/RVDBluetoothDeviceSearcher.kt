@@ -182,7 +182,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             //CAR EVENTS
             IEventsInterface.Event.CAR_CONNECTED -> {
-                rvdBluetoothListener.onCompleted(RVDDevice())
+                rvdBluetoothListener.onCompleted(RVDDevice(sdk!!))
             }
             IEventsInterface.Event.CAR_DISCONNECTED -> {
 

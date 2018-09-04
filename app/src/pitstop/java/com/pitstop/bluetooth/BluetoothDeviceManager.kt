@@ -132,6 +132,11 @@ class BluetoothDeviceManager(private val mContext: Context
         dataListener!!.handleVinData(VIN, deviceID)
     }
 
+    fun onGotVin(VIN: String) {
+        Log.d(TAG, "onGotVin: $VIN")
+        dataListener!!.handleVinData(VIN)
+    }
+
     fun gotDtcData(dtcPackage: DtcPackage) {
         Log.d(TAG, "gotDtcData")
         dataListener!!.dtcData(dtcPackage)
@@ -292,7 +297,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED || deviceInterface == null) {
             false
         }else{
-            deviceInterface.getSupportedPids()
+            deviceInterface.supportedPids
             true
         }
     }
@@ -314,8 +319,8 @@ class BluetoothDeviceManager(private val mContext: Context
             Log.d(TAG, " can't get Dtcs because my sate is not connected")
             false
         }else{
-            deviceInterface.getDtcs()
-            deviceInterface.getPendingDtcs()
+            deviceInterface.dtcs
+            deviceInterface.pendingDtcs
             true
         }
     }
