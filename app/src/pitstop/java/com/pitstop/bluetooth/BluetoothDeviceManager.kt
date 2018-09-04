@@ -5,7 +5,6 @@ import android.content.Context
 import android.util.Log
 import com.continental.rvd.mobile_sdk.SDKIntentService
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
-import com.pitstop.R.drawable.device
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.bleDevice.*
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
@@ -204,11 +203,13 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun getRtc() {
         Log.d(TAG, "getRtc()")
-        if (btConnectionState != BluetoothCommunicator.CONNECTED) {
-            return
+        if (deviceInterface != null || deviceInterface !is CastelDevice
+                ||  btConnectionState != BluetoothCommunicator.CONNECTED) {
+            false
+        }else{
+            deviceInterface.getRtc()
+            true
         }
-        deviceInterface!!.rtc
-        /*writeToObd(deviceInterface.getRtc());*/
     }
 
     fun setDeviceNameAndId(id: String) {
