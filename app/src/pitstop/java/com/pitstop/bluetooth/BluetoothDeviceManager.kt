@@ -3,6 +3,7 @@ package com.pitstop.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
+import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.SDKIntentService
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.application.GlobalApplication
@@ -68,8 +69,9 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "onBindingRequired()")
     }
 
-    override fun onBindingQuestionPrompted(question: String) {
+    override fun onBindingQuestionPrompted(question: BindingQuestion) {
         Log.d(TAG, "onBindingQuestionPrompted() question: $question")
+        dataListener?.onBindingQuestionPrompted(question)
     }
 
     override fun onFirmwareInstallationRequired() {
@@ -179,7 +181,8 @@ class BluetoothDeviceManager(private val mContext: Context
 
     @Synchronized
     fun startScan(urgent: Boolean, ignoreVerification: Boolean, deviceType: DeviceType): Boolean {
-        Log.d(TAG, "startScan() urgent: " + java.lang.Boolean.toString(urgent) + " ignoreVerification: " + java.lang.Boolean.toString(ignoreVerification))
+        Log.d(TAG, "startScan() deviceType: " +deviceType+ ", urgent: " + java.lang.Boolean.toString(urgent)
+                + " ignoreVerification: " + java.lang.Boolean.toString(ignoreVerification))
         return if (deviceType == DeviceType.ELM327 || deviceType == DeviceType.OBD212
                 || deviceType == DeviceType.OBD215)
             regularBluetoothDeviceSearcher.startScan(urgent, ignoreVerification)

@@ -4,16 +4,22 @@
     android:layout_height="match_parent"
     android:background="@color/primary">
 
+
+    <Spinner
+        android:id="@+id/spinner1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="20dp"
+        android:layout_below="@id/spinner1"
         android:layout_above="@+id/bt_search_car">
 
         <LinearLayout
-            android:paddingTop="40dp"
-            android:paddingBottom="40dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,6 +29,7 @@
             android:layout_marginRight="40dp"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
+            android:paddingTop="16dp"
             android:focusable="false">
 
             <LinearLayout
@@ -31,19 +38,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp">
-
-                <TextView
-                    android:text="Select the kind of device you're using"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Spinner
-                    android:id="@+id/device_selection_spinner"
-                    android:tooltipText="Select device"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"/>
-
 
                 <TextView
                     android:text="@string/enter_mileage"

@@ -135,8 +135,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
                 rvdBluetoothListener.onBindingError(retObject as Error)
             }
             IEventsInterface.Event.BINDING_USER_INPUT -> {
-                val question = retObject as BindingQuestion
-                rvdBluetoothListener.onBindingQuestionPrompted(question.question)
+                rvdBluetoothListener.onBindingQuestionPrompted(retObject as BindingQuestion)
             }
 
             //UPDATE EVENTS

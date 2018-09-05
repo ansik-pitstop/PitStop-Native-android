@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.continental.rvd.mobile_sdk.SDKIntentService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
@@ -719,11 +720,103 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             }
         }
     }
+
+    @Override
     public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
         vinDataHandler.handleVinData(Vin
                 ,deviceID,ignoreVerification);
+    }
+
+
+
+    @Override
+    public void onBindingQuestionPrompted(BindingQuestion bindingQuestion){
+        Log.d(TAG,"onBindingQuestionPrompted() question: "+bindingQuestion.question);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onBindingQuestionPrompted(bindingQuestion));
+            }
+        }
+    }
+
+    @Override
+    public void onBindingProgress(Float progress) {
+        Log.d(TAG,"onBindingProgress() progress: "+progress);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onBindingProgress(progress));
+            }
+        }
+    }
+
+    @Override
+    public void onBindingFinished() {
+        Log.d(TAG,"onBindingFinished()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onBindingFinished());
+            }
+        }
+    }
+
+    @Override
+    public void onBindingError(Error error) {
+        Log.d(TAG,"onBindingError() error: "+error);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onBindingError(error));
+            }
+        }
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+        Log.d(TAG,"onFirmwareInstallationRequired()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onFirmwareInstallationRequired());
+            }
+        }
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(Float progress) {
+        Log.d(TAG,"onFirmwareInstallationProgress() progress: "+progress);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onFirmwareInstallationProgress(progress));
+            }
+        }
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+        Log.d(TAG,"onFirmwareInstallationFinished()");
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onFirmwareInstallationFinished());
+            }
+        }
+    }
+
+    @Override
+    public void onFirmwareInstallationError(Error error) {
+        Log.d(TAG,"onFirmwareInstallationError() error: "+error);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o)
+                        .onFirmwareInstallationError(error));
+            }
+        }
     }
 
     private void notifyGotSupportedPids(String value) {
@@ -833,6 +926,11 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         Log.d(TAG, "setDeviceName: " +deviceName);
         this.ElmMacAddress =deviceName;
         currentDeviceId = deviceName;
+    }
+
+    @Override
+    public void onBindingRequired() {
+
     }
 
     @Override
@@ -1489,6 +1587,5 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         if (deviceManager != null){
             deviceManager.setState(IBluetoothCommunicator.DISCONNECTED);
         }
-
     }
 }

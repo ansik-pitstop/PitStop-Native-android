@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -21,6 +22,8 @@ import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -342,5 +345,50 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
             compositeDisposable.clear();
         });
         compositeDisposable.add(disposable);
+    }
+
+    @Override
+    public void onBindingRequired() {
+
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
+
+    }
+
+    @Override
+    public void onBindingProgress(float progress) {
+
+    }
+
+    @Override
+    public void onBindingFinished() {
+
+    }
+
+    @Override
+    public void onBindingError(@NotNull Error err) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(float progress) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationError(@NotNull Error err) {
+
     }
 }

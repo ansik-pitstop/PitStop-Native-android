@@ -5,6 +5,7 @@ import android.content.Context;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
@@ -95,6 +96,18 @@ public class ObdManager {
         void onGotRtc(long l);
 
         void setDeviceName(String address);
+
+        void onBindingRequired();
+        void onBindingQuestionPrompted(BindingQuestion question);
+        void onBindingProgress(Float progress);
+        void onBindingFinished();
+        void onBindingError(Error error);
+
+        void onFirmwareInstallationRequired();
+        void onFirmwareInstallationProgress(Float progress);
+        void onFirmwareInstallationFinished();
+        void onFirmwareInstallationError(Error error);
+
     }
 
 }

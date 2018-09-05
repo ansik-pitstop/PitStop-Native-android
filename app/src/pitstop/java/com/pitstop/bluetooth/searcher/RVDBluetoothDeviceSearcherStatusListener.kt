@@ -1,5 +1,6 @@
 package com.pitstop.bluetooth.searcher
 
+import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.bluetooth.bleDevice.AbstractDevice
 
@@ -11,7 +12,7 @@ interface RVDBluetoothDeviceSearcherStatusListener {
     fun onConnectionCompleted()
 
     fun onBindingRequired()
-    fun onBindingQuestionPrompted(question: String)
+    fun onBindingQuestionPrompted(question: BindingQuestion)
     fun onBindingProgress(progress: Float)
     fun onBindingFinished()
     fun onBindingError(err: Error)

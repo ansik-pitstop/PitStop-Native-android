@@ -30,4 +30,5 @@ public interface DeviceSearchView extends LoadingView{
     void endBluetoothService();
     Observable<BluetoothService> getBluetoothService();
     boolean checkPermissions();
+    String getDeviceType();
 }

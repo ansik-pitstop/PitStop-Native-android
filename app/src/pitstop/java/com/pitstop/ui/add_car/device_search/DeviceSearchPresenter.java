@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -20,6 +21,8 @@ import com.pitstop.observer.BluetoothVinObserver;
 import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
+
+import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.Disposable;
 
@@ -39,6 +42,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private boolean searchingForDevice;
     private boolean addingCar = false;
     private boolean connectingToDevice = false;
+    private BluetoothDeviceManager.DeviceType deviceType = BluetoothDeviceManager.DeviceType.OBD215;
 
     //Try to get VIN 2 times, every 6 seconds
     private final int GET_VIN_RETRY_TIME = 6;
@@ -135,7 +139,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             if (view != null) {
                 Disposable d = view.getBluetoothService().take(1)
                         .subscribe((next) -> next.requestDeviceSearch(true, true
-                                , BluetoothDeviceManager.DeviceType.OBD215));
+                                , deviceType));
             }
         }
 
@@ -208,6 +212,23 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.startBluetoothService();
         }
 
+        switch(view.getDeviceType()){
+            case "215B":
+                deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+                break;
+            case "212B":
+                deviceType = BluetoothDeviceManager.DeviceType.OBD212;
+                break;
+            case "ELM327":
+                deviceType = BluetoothDeviceManager.DeviceType.ELM327;
+                break;
+            case "RVD Continental":
+                deviceType = BluetoothDeviceManager.DeviceType.RVD;
+                break;
+            default:
+                deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+        }
+
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
 
@@ -249,7 +270,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             //Otherwise request search and wait for callback
             else{
                 //Try to start search or check if state isn't disconnected and therefore already searching
-                if (next.requestDeviceSearch(true, true, BluetoothDeviceManager.DeviceType.OBD215)
+                if (next.requestDeviceSearch(true, true, deviceType)
                         || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
                     view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;
@@ -296,7 +317,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
         }
         else{
-
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.PENDING);
 
@@ -513,12 +533,53 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     }
 
-
-
-
     @Override
     public void onGotSuportedPIDs(String value) {
 
     }
 
+    @Override
+    public void onBindingRequired() {
+
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
+
+    }
+
+    @Override
+    public void onBindingProgress(float progress) {
+
+    }
+
+    @Override
+    public void onBindingFinished() {
+
+    }
+
+    @Override
+    public void onBindingError(@NotNull Error err) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(float progress) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationError(@NotNull Error err) {
+
+    }
 }
