@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.pitstop.R;
@@ -46,6 +48,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
 
     @BindView(R.id.input_mileage)
     EditText mileageInputEditText;
+
+    @BindView(R.id.device_selection_spinner)
+    Spinner deviceSelectionSpinner;
 
     private ViewGroup rootView;
     private DeviceSearchPresenter presenter;
@@ -114,6 +119,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         }
 
         presenter.subscribe(this);
+
+        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,spinnerSelection);
+        deviceSelectionSpinner.setAdapter(arrayAdapter);
+
         return rootView;
     }
 

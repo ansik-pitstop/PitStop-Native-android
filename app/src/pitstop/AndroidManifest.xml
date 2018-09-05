@@ -54,7 +54,6 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.ansik.pitstop.permission.C2D_MESSAGE" />
-    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PROFILE" />

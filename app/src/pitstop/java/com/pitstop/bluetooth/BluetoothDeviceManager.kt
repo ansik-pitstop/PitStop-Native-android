@@ -58,7 +58,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
         regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent
                 , dataListener!!, mContext, this)
-        rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this)
+        rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
     }
 
     /*

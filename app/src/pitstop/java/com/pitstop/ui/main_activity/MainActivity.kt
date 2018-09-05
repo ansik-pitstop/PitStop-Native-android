@@ -20,9 +20,9 @@ import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
 import com.pitstop.R
-import com.pitstop.R.array.car
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
+import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.bluetooth.BluetoothWriter
 import com.pitstop.dependency.ContextModule
@@ -220,7 +220,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         Log.d(TAG,"got bluetooth service")
                         bluetoothService = it
                         it.subscribe(this@MainActivity)
-                        it.requestDeviceSearch(false, false)
+                        it.requestDeviceSearch(false, false, BluetoothDeviceManager.DeviceType.OBD215)
                         startReportFragment.setBluetoothConnectionObservable(it)
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
@@ -396,7 +396,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             displayDeviceState(bluetoothService?.deviceState
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)
             bluetoothService?.subscribe(this)
-            bluetoothService?.requestDeviceSearch(false, false)
+            bluetoothService?.requestDeviceSearch(false, false, BluetoothDeviceManager.DeviceType.OBD215)
         }else if (application?.isBluetoothServiceRunning == false){
             application?.startBluetoothService()
         }
@@ -586,7 +586,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         .subscribe{
                             Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
 
-                            it.requestDeviceSearch(false,false)
+                            it.requestDeviceSearch(false,false,BluetoothDeviceManager.DeviceType.OBD215)
                         }
             }
         }

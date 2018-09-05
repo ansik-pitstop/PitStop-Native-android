@@ -3,14 +3,15 @@ package com.pitstop.bluetooth.searcher
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.bleDevice.RVDDevice
 
 /**
  * Created by Karol Zdebel on 8/31/2018.
  */
 class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
-                                 , private val rvdBluetoothListener
-                                 : RVDBluetoothDeviceSearcherStatusListener)
+                                 , private val rvdBluetoothListener: RVDBluetoothDeviceSearcherStatusListener
+                                 , private val deviceManager: BluetoothDeviceManager)
     : IEventsInterface.IEventListener {
 
     private val TAG = RVDBluetoothDeviceSearcher::class.java.simpleName
@@ -182,7 +183,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             //CAR EVENTS
             IEventsInterface.Event.CAR_CONNECTED -> {
-                rvdBluetoothListener.onCompleted(RVDDevice(sdk!!))
+                rvdBluetoothListener.onCompleted(RVDDevice(sdk!!,deviceManager))
             }
             IEventsInterface.Event.CAR_DISCONNECTED -> {
 

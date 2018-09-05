@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
@@ -133,7 +134,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
             if (view != null) {
                 Disposable d = view.getBluetoothService().take(1)
-                        .subscribe((next) -> next.requestDeviceSearch(true, true));
+                        .subscribe((next) -> next.requestDeviceSearch(true, true
+                                , BluetoothDeviceManager.DeviceType.OBD215));
             }
         }
 
@@ -247,7 +249,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             //Otherwise request search and wait for callback
             else{
                 //Try to start search or check if state isn't disconnected and therefore already searching
-                if (next.requestDeviceSearch(true, true)
+                if (next.requestDeviceSearch(true, true, BluetoothDeviceManager.DeviceType.OBD215)
                         || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
                     view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;

@@ -8,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -158,7 +159,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         if (getView() == null) return;
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
-          next.requestDeviceSearch(true,false);
+          next.requestDeviceSearch(true,false, BluetoothDeviceManager.DeviceType.OBD215);
             compositeDisposable.clear();
         });
         compositeDisposable.add(d);

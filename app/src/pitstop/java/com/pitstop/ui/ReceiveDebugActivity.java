@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
@@ -269,8 +270,8 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
     }
 
     public void getDTC(View view) {
-        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false);
+        if (!service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
+            service.requestDeviceSearch(false,false, BluetoothDeviceManager.DeviceType.OBD215);
         }else {
             service.requestDtcData();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -279,8 +280,8 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
 
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false);
+        if (!service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
+            service.requestDeviceSearch(false,false, BluetoothDeviceManager.DeviceType.OBD215);
         }else {
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
