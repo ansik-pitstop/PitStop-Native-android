@@ -30,13 +30,13 @@ import com.pitstop.utils.Logger
  * Created by Ben!
  */
 class BluetoothDeviceManager(private val mContext: Context
-                             , sdkIntentService: SDKIntentService)
+                             , sdkIntentService: SDKIntentService
+                             , private val dataListener: ObdManager.IBluetoothDataListener)
     : RVDBluetoothDeviceSearcherStatusListener {
 
     private val TAG = BluetoothDeviceManager::class.java.simpleName
 
     private val application: GlobalApplication = mContext.applicationContext as GlobalApplication
-    private var dataListener: ObdManager.IBluetoothDataListener? = null
     private val regularBluetoothDeviceSearcher: RegularBluetoothDeviceSearcher
     private val rvdBluetoothDeviceSearcher: RVDBluetoothDeviceSearcher
 
@@ -59,7 +59,7 @@ class BluetoothDeviceManager(private val mContext: Context
                 .build()
 
         regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent
-                , dataListener!!, mContext, this)
+                , dataListener, mContext, this)
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
     }
 
@@ -183,10 +183,6 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun onGotRtc(l: Long) {
         dataListener!!.onGotRtc(l)
-    }
-
-    fun setBluetoothDataListener(dataListener: ObdManager.IBluetoothDataListener) {
-        this.dataListener = dataListener
     }
 
     @Synchronized

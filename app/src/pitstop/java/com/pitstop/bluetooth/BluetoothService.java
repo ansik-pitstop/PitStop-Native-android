@@ -333,8 +333,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             Disposable d = ((GlobalApplication)getApplication()).getServices()
                     .filter(next -> next instanceof SDKIntentService)
                     . subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next);
-                    deviceManager.setBluetoothDataListener(this);
+                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
             });
 
         }
@@ -1129,8 +1128,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         Disposable d = ((GlobalApplication)getApplication()).getServices()
                 .filter(next -> next instanceof SDKIntentService)
                 .subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next);
-                    deviceManager.setBluetoothDataListener(this);
+                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
 
