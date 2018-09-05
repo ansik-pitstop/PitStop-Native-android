@@ -17,6 +17,7 @@ import android.util.Log;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.EBindingQuestionType;
 import com.continental.rvd.mobile_sdk.SDKIntentService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
@@ -729,7 +730,12 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                 ,deviceID,ignoreVerification);
     }
 
-
+    @Override
+    public boolean answerBindingQuestion(EBindingQuestionType questionType, String answer){
+        if (deviceManager != null)
+            return deviceManager.answerBindingQuestion(questionType,answer);
+        else return false;
+    }
 
     @Override
     public void onBindingQuestionPrompted(BindingQuestion bindingQuestion){

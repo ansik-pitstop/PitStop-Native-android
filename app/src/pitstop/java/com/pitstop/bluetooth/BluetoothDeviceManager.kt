@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
 import com.continental.rvd.mobile_sdk.BindingQuestion
+import com.continental.rvd.mobile_sdk.EBindingQuestionType
 import com.continental.rvd.mobile_sdk.SDKIntentService
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.application.GlobalApplication
@@ -132,6 +133,15 @@ class BluetoothDeviceManager(private val mContext: Context
         this.btConnectionState = state
         dataListener!!.getBluetoothState(state)
 
+    }
+
+    fun answerBindingQuestion(questionType: EBindingQuestionType, answer: String): Boolean{
+        return if (deviceInterface != null && deviceInterface is RVDDevice){
+            deviceInterface.answerBindingQuestion(questionType,answer)
+            true
+        }else{
+            false
+        }
     }
 
     fun onGotVin(VIN: String, deviceID: String) {
