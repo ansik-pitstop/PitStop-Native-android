@@ -121,6 +121,10 @@ class BluetoothDeviceManager(private val mContext: Context
         return btConnectionState
     }
 
+    fun connectToNextDevice(): Boolean{
+        return regularBluetoothDeviceSearcher.connectToNextDevice()
+    }
+
     fun setState(state: Int) {
         Log.d(TAG, "setState() state: $state")
         this.btConnectionState = state

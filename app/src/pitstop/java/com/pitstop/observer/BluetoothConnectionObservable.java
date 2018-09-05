@@ -1,5 +1,6 @@
 package com.pitstop.observer;
 
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.ReadyDevice;
 
@@ -58,7 +59,8 @@ public interface BluetoothConnectionObservable extends Subject{
     void getSupportedPids();
 
     //Request scan for device
-    boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification);
+    boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification
+            , BluetoothDeviceManager.DeviceType deviceType);
 
     //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();
