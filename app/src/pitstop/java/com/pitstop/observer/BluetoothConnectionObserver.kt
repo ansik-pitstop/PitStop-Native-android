@@ -1,6 +1,7 @@
 package com.pitstop.observer
 
 import com.continental.rvd.mobile_sdk.BindingQuestion
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.ReadyDevice
 

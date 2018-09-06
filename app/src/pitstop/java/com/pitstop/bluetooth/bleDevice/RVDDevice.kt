@@ -310,6 +310,6 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
     }
 
     fun cancelBinding(){
-        rvdSDK.forceBindingProcess(false)
+        //Not supported atm until command for this is found
     }
 }

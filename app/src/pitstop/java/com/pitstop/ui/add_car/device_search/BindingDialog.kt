@@ -51,15 +51,16 @@ class BindingDialog: DialogFragment() {
                         ,question!!
                 )
 
+                back_button.setOnClickListener {
+                    answerListener?.onBackPressed(question!!)
+                }
+                cancel_button.setOnClickListener {
+                    answerListener?.onCancelPressed(question!!)
+                }
+
                 //Hide input fields till next question arrives
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
-        }
-        back_button.setOnClickListener {
-            answerListener?.onBackPressed()
-        }
-        cancel_button.setOnClickListener {
-            answerListener?.onCancelPressed()
         }
     }
 

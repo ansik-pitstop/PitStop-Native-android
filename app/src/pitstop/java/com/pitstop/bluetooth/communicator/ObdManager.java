@@ -103,7 +103,6 @@ public class ObdManager {
         void onBindingProgress(Float progress);
         void onBindingFinished();
         void onBindingError(Error error);
-        void cancelBinding();
 
         void onFirmwareInstallationRequired();
         void onFirmwareInstallationProgress(Float progress);

@@ -19,6 +19,7 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.continental.rvd.mobile_sdk.EBindingQuestionType;
 import com.continental.rvd.mobile_sdk.SDKIntentService;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
@@ -747,7 +748,6 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
     }
 
-    @Override
     public void cancelBinding(){
         Log.d(TAG,"cancelBinding()");
         if (deviceManager != null)
