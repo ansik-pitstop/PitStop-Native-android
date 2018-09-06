@@ -25,8 +25,8 @@ class BindingDialog: DialogFragment() {
 
     interface AnswerListener{
         fun onAnswerProvided(answer: String, question: BindingQuestion)
-        fun onBackPressed()
-        fun onCancelPressed()
+        fun onBackPressed(question: BindingQuestion)
+        fun onCancelPressed(question: BindingQuestion)
     }
 
     private var answerListener: AnswerListener? = null

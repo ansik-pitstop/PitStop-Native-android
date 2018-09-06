@@ -6,6 +6,7 @@ import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.ParameterPackage;
@@ -102,6 +103,7 @@ public class ObdManager {
         void onBindingProgress(Float progress);
         void onBindingFinished();
         void onBindingError(Error error);
+        void cancelBinding();
 
         void onFirmwareInstallationRequired();
         void onFirmwareInstallationProgress(Float progress);

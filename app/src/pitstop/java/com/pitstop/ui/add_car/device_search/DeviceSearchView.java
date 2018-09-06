@@ -1,5 +1,6 @@
 package com.pitstop.ui.add_car.device_search;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.Car;
 import com.pitstop.ui.LoadingView;
@@ -31,4 +32,7 @@ public interface DeviceSearchView extends LoadingView{
     Observable<BluetoothService> getBluetoothService();
     boolean checkPermissions();
     String getDeviceType();
+    void displayBindingDialog(BindingDialog.AnswerListener answerListener);
+    void displayBindingQuestion(BindingQuestion bindingQuestion);
+    void displayBindingProgress(float progress);
 }

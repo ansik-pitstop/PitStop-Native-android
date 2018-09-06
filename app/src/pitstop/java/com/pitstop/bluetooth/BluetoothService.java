@@ -748,6 +748,13 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     }
 
     @Override
+    public void cancelBinding(){
+        Log.d(TAG,"cancelBinding()");
+        if (deviceManager != null)
+            deviceManager.cancelBinding();
+    }
+
+    @Override
     public void onBindingProgress(Float progress) {
         Log.d(TAG,"onBindingProgress() progress: "+progress);
         for (Observer o: observerList ){

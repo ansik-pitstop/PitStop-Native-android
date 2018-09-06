@@ -63,11 +63,18 @@ class BluetoothDeviceManager(private val mContext: Context
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
     }
 
+    fun cancelBinding(){
+        if (deviceInterface is RVDDevice){
+            deviceInterface.cancelBinding()
+        }
+    }
+
     /*
      * Callback methods for RVD SDK device searcher interface
      */
     override fun onBindingRequired() {
         Log.d(TAG, "onBindingRequired()")
+        dataListener?.onBindingRequired()
     }
 
     override fun onBindingQuestionPrompted(question: BindingQuestion) {
@@ -77,10 +84,12 @@ class BluetoothDeviceManager(private val mContext: Context
 
     override fun onFirmwareInstallationRequired() {
         Log.d(TAG, "onFirmwareInstallationRequired()")
+        dataListener?.onFirmwareInstallationRequired()
     }
 
     override fun onFirmwareInstallationProgress(progress: Float) {
         Log.d(TAG, "onFirmwareInstallationProgress() progress:$progress")
+        dataListener?.onFirmwareInstallationProgress(progress)
     }
 
     override fun onConnectionFailure(err: Error) {
@@ -93,22 +102,27 @@ class BluetoothDeviceManager(private val mContext: Context
 
     override fun onBindingProgress(progress: Float) {
         Log.d(TAG,"onBindingProgress() progress: $progress")
+        dataListener?.onBindingProgress(progress)
     }
 
     override fun onBindingFinished() {
         Log.d(TAG,"onBindingFinished()")
+        dataListener?.onBindingFinished()
     }
 
     override fun onBindingError(err: Error) {
         Log.d(TAG,"onBindingError() err: $err")
+        dataListener?.onBindingError(err)
     }
 
     override fun onFirmwareInstallationFinished() {
         Log.d(TAG,"onFirmwareInstallationFinished()")
+        dataListener?.onFirmwareInstallationFinished()
     }
 
     override fun onFirmwareInstallationError(err: Error) {
         Log.d(TAG,"onFirmwareInstallationError() err: $err")
+        dataListener?.onFirmwareInstallationError(err)
     }
 
     override fun onCompleted(device: AbstractDevice) {

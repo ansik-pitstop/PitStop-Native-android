@@ -308,4 +308,8 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
         Log.d(TAG,"answerBindingQuestion() questionType: $questionType, answer: $answer")
         rvdSDK.answerBindingUserInput(questionType,answer)
     }
+
+    fun cancelBinding(){
+        rvdSDK.forceBindingProcess(false)
+    }
 }

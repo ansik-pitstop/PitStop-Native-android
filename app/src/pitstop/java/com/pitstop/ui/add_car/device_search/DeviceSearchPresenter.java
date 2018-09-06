@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.EBindingQuestionType;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -227,6 +228,35 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 break;
             default:
                 deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+        }
+
+        if (deviceType == BluetoothDeviceManager.DeviceType.RVD){
+            view.displayBindingDialog(new BindingDialog.AnswerListener() {
+                @Override
+                public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
+                    Log.d(TAG,"onAnswerProvided() answer: "+answer+", question: "+question);
+                    Disposable d = view.getBluetoothService().take(1)
+                            .subscribe(next -> next.answerBindingQuestion(question.questionType,answer));
+                }
+
+                @Override
+                public void onBackPressed(@NotNull BindingQuestion question) {
+                    Log.d(TAG,"onBackPressed()");
+                    Disposable d = view.getBluetoothService().take(1)
+                            .subscribe(next -> next.answerBindingQuestion(question.questionType,BindingQuestion.BIDING_ANSWER_BACK));
+                }
+
+                @Override
+                public void onCancelPressed(@NotNull BindingQuestion question) {
+                    Log.d(TAG,"onCancelPressed()");
+                    Disposable d = view.getBluetoothService().take(1)
+                            .subscribe(next -> next.cancelBinding());
+                }
+            });
+
+            view.displayBindingQuestion(new BindingQuestion(EBindingQuestionType.VIN,"Please enter your car's VIN"));
+            view.displayBindingProgress(0.4f);
+            return;
         }
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
