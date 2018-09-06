@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 import android.util.Log;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;

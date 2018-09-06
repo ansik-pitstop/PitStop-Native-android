@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -511,7 +512,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     }
 
     @Override
-    public void onFirmwareInstallationError(@NotNull Error err) {
+    public void onFirmwareInstallationError(@NotNull Error error) {
 
     }
 

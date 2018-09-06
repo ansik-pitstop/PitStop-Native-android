@@ -1,12 +1,13 @@
 package com.pitstop.ui.add_car.device_search
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.*
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.EBindingQuestionType
 import com.pitstop.R
@@ -32,20 +33,44 @@ class BindingDialog: DialogFragment() {
     private var answerListener: AnswerListener? = null
     private var currentAnswerType = AnswerType.INPUT
     private var question: BindingQuestion? = null
+    private var progressBar: ProgressBar? = null
+    private var answerButton: Button? = null
+    private var cancelButton: Button? = null
+    private var backButton: Button? = null
+    private var answerSpinner: Spinner? = null
+    private var instruction: TextView? = null
+    private var answerEditText: EditText? = null
+
+    private var pendingQuestion: BindingQuestion? = null
+    private var pendingProgress = 0.0f
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.layout_binding_dialog,container)
+        return inflater.inflate(R.layout.layout_binding_dialog,container,false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        answer_button.setOnClickListener {
+        answerButton = view.findViewById(R.id.answer_button)
+        backButton = view.findViewById(R.id.back_button)
+        cancelButton = view.findViewById(R.id.cancel_button)
+        answerSpinner = view.findViewById(R.id.answer_spinner)
+        progressBar = view.findViewById(R.id.progress_bar)
+        instruction = view.findViewById(R.id.instruction)
+        answerEditText = view.findViewById(R.id.answer_edit_text)
+
+        progressBar?.progress = (pendingProgress * 100).toInt()
+        if (pendingQuestion != null){
+            showQuestion(pendingQuestion!!)
+        }
+
+        answerButton?.setOnClickListener {
             if (question != null){
                 answerListener?.onAnswerProvided(
                         when (currentAnswerType) {
-                            AnswerType.INPUT -> answer_edit_text.text.toString()
-                            AnswerType.SELECT -> answer_spinner.selectedItem.toString()
+                            AnswerType.INPUT -> answerEditText?.text.toString()
+                            AnswerType.SELECT -> answerSpinner?.selectedItem.toString()
                             else -> ""
                         }
                         ,question!!
@@ -59,20 +84,31 @@ class BindingDialog: DialogFragment() {
                 }
 
                 //Hide input fields till next question arrives
-                toggleAnswer(AnswerType.INSTRUCTION)
+                waitForNextQuestion()
             }
         }
     }
 
     fun showProgress(progress: Float){
         Log.d(TAG,"showProgress() progress: $progress")
-        progress_bar.progress = (progress * 100).toInt()
+        if (progressBar == null) pendingProgress = progress
+        progressBar?.progress = (progress * 100).toInt()
     }
 
     fun showQuestion(question: BindingQuestion){
         Log.d(TAG,"showQuestion() question: $question")
         this.question = question
-        instruction.text = question.question
+
+        if (instruction == null) this.pendingQuestion = question
+
+        answerButton?.isClickable = true
+        answerButton?.setTextColor(Color.BLACK)
+        cancelButton?.isClickable = true
+        cancelButton?.setTextColor(Color.BLACK)
+        backButton?.isClickable = true
+        backButton?.setTextColor(Color.BLACK)
+
+        instruction?.text = question.question
 
         when (question.questionType){
 
@@ -132,6 +168,17 @@ class BindingDialog: DialogFragment() {
         this.answerListener = answerListener
     }
 
+    private fun waitForNextQuestion(){
+        instruction?.text = "Please wait..."
+        answerButton?.isClickable = false
+        answerButton?.setTextColor(Color.GRAY)
+        cancelButton?.isClickable = false
+        cancelButton?.setTextColor(Color.GRAY)
+        backButton?.isClickable = false
+        backButton?.setTextColor(Color.GRAY)
+
+    }
+
     private fun populateSpinner(answers: Map<String,String>){
         val arrayAdapter = ArrayAdapter(activity!!
                 , android.R.layout.simple_spinner_dropdown_item
@@ -143,16 +190,16 @@ class BindingDialog: DialogFragment() {
         currentAnswerType = answerType
         when (answerType){
             BindingDialog.AnswerType.INSTRUCTION -> {
-                answer_edit_text.visibility = View.GONE
-                answer_spinner.visibility = View.GONE
+                answerEditText?.visibility = View.GONE
+                answerSpinner?.visibility = View.GONE
             }
             BindingDialog.AnswerType.INPUT -> {
-                answer_edit_text.visibility = View.VISIBLE
-                answer_spinner.visibility = View.GONE
+                answerEditText?.visibility = View.VISIBLE
+                answerSpinner?.visibility = View.GONE
             }
             BindingDialog.AnswerType.SELECT -> {
-                answer_edit_text.visibility = View.GONE
-                answer_spinner.visibility = View.VISIBLE
+                answerEditText?.visibility = View.GONE
+                answerSpinner?.visibility = View.VISIBLE
             }
         }
     }

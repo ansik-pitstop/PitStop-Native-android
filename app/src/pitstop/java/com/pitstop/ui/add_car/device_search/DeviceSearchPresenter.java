@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.continental.rvd.mobile_sdk.EBindingQuestionType;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -253,7 +254,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                             .subscribe(next -> next.cancelBinding());
                 }
             });
-
             view.displayBindingQuestion(new BindingQuestion(EBindingQuestionType.VIN,"Please enter your car's VIN"));
             view.displayBindingProgress(0.4f);
             return;
@@ -609,7 +609,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     @Override
-    public void onFirmwareInstallationError(@NotNull Error err) {
+    public void onFirmwareInstallationError(@NotNull Error error) {
 
     }
 }
