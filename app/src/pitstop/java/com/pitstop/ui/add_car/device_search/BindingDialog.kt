@@ -25,6 +25,8 @@ class BindingDialog: DialogFragment() {
 
     interface AnswerListener{
         fun onAnswerProvided(answer: String, question: BindingQuestion)
+        fun onBackPressed()
+        fun onCancelPressed()
     }
 
     private var answerListener: AnswerListener? = null
@@ -37,6 +39,7 @@ class BindingDialog: DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         answer_button.setOnClickListener {
             if (question != null){
                 answerListener?.onAnswerProvided(
@@ -47,7 +50,16 @@ class BindingDialog: DialogFragment() {
                         }
                         ,question!!
                 )
+
+                //Hide input fields till next question arrives
+                toggleAnswer(AnswerType.INSTRUCTION)
             }
+        }
+        back_button.setOnClickListener {
+            answerListener?.onBackPressed()
+        }
+        cancel_button.setOnClickListener {
+            answerListener?.onCancelPressed()
         }
     }
 
