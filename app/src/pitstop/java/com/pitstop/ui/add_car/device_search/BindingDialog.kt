@@ -14,6 +14,10 @@ import com.pitstop.R
 import kotlinx.android.synthetic.main.layout_binding_dialog.*
 
 /**
+ *
+ * Meant to be a debugging and testing solution, not user experience oriented
+ * Not meant to be used in production
+ *
  * Created by Karol Zdebel on 9/5/2018.
  */
 class BindingDialog: DialogFragment() {
