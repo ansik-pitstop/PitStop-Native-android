@@ -18,7 +18,9 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.ISDKApi;
 import com.continental.rvd.mobile_sdk.SDKIntentService;
+import com.continental.rvd.mobile_sdk.TApiCallback;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
@@ -218,6 +220,18 @@ public class GlobalApplication extends Application implements LoginManager {
                             Log.d(TAG,"RVD service set");
                             try{
                                 rvdService = ((SDKIntentService.LocalBinder)service).getService();
+                                Log.d(TAG,"Calling initSDK!");
+                                rvdService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, new TApiCallback<ISDKApi>() {
+                                    @Override
+                                    public void onSuccess(ISDKApi isdkApi) {
+                                       Log.d(TAG,"Init call success!");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable throwable) {
+                                        Log.d(TAG,"Init call error!");
+                                    }
+                                },false);
                                 for (Emitter e: emitterList){
                                     e.onNext(rvdService);
                                 }

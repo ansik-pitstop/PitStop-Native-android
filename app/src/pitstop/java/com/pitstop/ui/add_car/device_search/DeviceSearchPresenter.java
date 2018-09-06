@@ -570,27 +570,42 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onBindingRequired() {
+        view.displayBindingDialog(new BindingDialog.AnswerListener() {
+            @Override
+            public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
 
+            }
+
+            @Override
+            public void onBackPressed(@NotNull BindingQuestion question) {
+
+            }
+
+            @Override
+            public void onCancelPressed(@NotNull BindingQuestion question) {
+
+            }
+        });
     }
 
     @Override
     public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
-
+        view.displayBindingQuestion(question);
     }
 
     @Override
     public void onBindingProgress(float progress) {
-
+        view.displayBindingProgress(progress);
     }
 
     @Override
     public void onBindingFinished() {
-
+        view.displayBindingFinished();
     }
 
     @Override
     public void onBindingError(@NotNull Error err) {
-
+        view.displayBindingError(err);
     }
 
     @Override

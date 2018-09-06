@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.EBindingQuestionType
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.pitstop.R
 import kotlinx.android.synthetic.main.layout_binding_dialog.*
 
@@ -165,6 +166,28 @@ class BindingDialog: DialogFragment() {
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
         }
+    }
+
+    fun showFinished(){
+        Log.d(TAG,"showFinished()")
+        instruction?.text = "Binding process completed!"
+        answerButton?.isClickable = true
+        answerButton?.setTextColor(Color.BLACK)
+        cancelButton?.isClickable = false
+        cancelButton?.setTextColor(Color.GRAY)
+        backButton?.isClickable = false
+        backButton?.setTextColor(Color.GRAY)
+    }
+
+    fun showError(error: Error){
+        Log.d(TAG,"showError() error: $error")
+        instruction?.text = "Error while binding: ${error.message}"
+        answerButton?.isClickable = true
+        answerButton?.setTextColor(Color.BLACK)
+        cancelButton?.isClickable = false
+        cancelButton?.setTextColor(Color.GRAY)
+        backButton?.isClickable = false
+        backButton?.setTextColor(Color.GRAY)
     }
 
     fun registerAnswerListener(answerListener: AnswerListener){

@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
@@ -442,6 +443,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void displayBindingDialog(BindingDialog.AnswerListener answerListener) {
         Log.d(TAG,"displayBindingDialog()");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
+        bindingDialog.setCancelable(false);
         bindingDialog.registerAnswerListener(answerListener);
     }
 
@@ -455,5 +457,17 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void displayBindingProgress(float progress) {
         Log.d(TAG,"displayBindingProgress() progress: "+progress);
         bindingDialog.showProgress(progress);
+    }
+
+    @Override
+    public void displayBindingFinished() {
+        Log.d(TAG,"displayBindingFinished()");
+        bindingDialog.showFinished();
+    }
+
+    @Override
+    public void displayBindingError(Error error) {
+        Log.d(TAG,"displayBindingError() error: "+error);
+        bindingDialog.showError(error);
     }
 }
