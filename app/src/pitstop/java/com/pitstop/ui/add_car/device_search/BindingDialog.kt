@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.EBindingQuestionType
 import com.pitstop.R
@@ -18,12 +19,16 @@ class BindingDialog: DialogFragment() {
 
     private val TAG = BindingDialog::class.java.simpleName
 
+    enum class AnswerType {
+        INSTRUCTION, INPUT, SELECT
+    }
+
     interface AnswerListener{
         fun onAnswerProvided(answer: String, question: BindingQuestion)
     }
 
     private var answerListener: AnswerListener? = null
-    private var usingEditText = false
+    private var currentAnswerType = AnswerType.INPUT
     private var question: BindingQuestion? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -35,8 +40,11 @@ class BindingDialog: DialogFragment() {
         answer_button.setOnClickListener {
             if (question != null){
                 answerListener?.onAnswerProvided(
-                        if (usingEditText) answer_edit_text.text.toString()
-                        else answer_spinner.selectedItem.toString()
+                        when (currentAnswerType) {
+                            AnswerType.INPUT -> answer_edit_text.text.toString()
+                            AnswerType.SELECT -> answer_spinner.selectedItem.toString()
+                            else -> ""
+                        }
                         ,question!!
                 )
             }
@@ -55,27 +63,85 @@ class BindingDialog: DialogFragment() {
 
         when (question.questionType){
 
-            EBindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION -> TODO()
-            EBindingQuestionType.VIN -> TODO()
-            EBindingQuestionType.CAR_MANUFACTURER -> TODO()
-            EBindingQuestionType.CAR_MODEL -> TODO()
-            EBindingQuestionType.CAR_ENGINE -> TODO()
-            EBindingQuestionType.REGIONAL_RESTRICTION -> TODO()
-            EBindingQuestionType.OBSERVE_DASHBOARD_LIGHTS -> TODO()
-            EBindingQuestionType.CHECK_DASHBOARD_LIGHT -> TODO()
-            EBindingQuestionType.LOOKUP -> TODO()
-            EBindingQuestionType.ODOMETER -> TODO()
-            EBindingQuestionType.BINDING_FEEDBACK -> TODO()
-            EBindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF -> TODO()
-            EBindingQuestionType.IGNITION_OFF -> TODO()
-            EBindingQuestionType.ENGINE_ON -> TODO()
-            EBindingQuestionType.COUNTRY_OF_INSTALLATION -> TODO()
+            EBindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION ->{
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.VIN -> {
+                toggleAnswer(AnswerType.INPUT)
+            }
+            EBindingQuestionType.CAR_MANUFACTURER -> {
+                toggleAnswer(AnswerType.SELECT)
+                populateSpinner(question.answers)
+            }
+            EBindingQuestionType.CAR_MODEL -> {
+                toggleAnswer(AnswerType.SELECT)
+                populateSpinner(question.answers)
+            }
+            EBindingQuestionType.CAR_ENGINE ->{
+                toggleAnswer(AnswerType.SELECT)
+                populateSpinner(question.answers)
+            }
+            EBindingQuestionType.REGIONAL_RESTRICTION -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.OBSERVE_DASHBOARD_LIGHTS ->{
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.CHECK_DASHBOARD_LIGHT ->{
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.LOOKUP -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.ODOMETER ->{
+                toggleAnswer(AnswerType.INPUT)
+            }
+            EBindingQuestionType.BINDING_FEEDBACK -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.IGNITION_OFF -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.ENGINE_ON -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
+            EBindingQuestionType.COUNTRY_OF_INSTALLATION -> {
+                toggleAnswer(AnswerType.INSTRUCTION)
+            }
         }
     }
 
     fun registerAnswerListener(answerListener: AnswerListener){
         Log.d(TAG,"registerAnswerListener() answerListener: $answerListener")
         this.answerListener = answerListener
+    }
+
+    private fun populateSpinner(answers: Map<String,String>){
+        val arrayAdapter = ArrayAdapter(activity!!
+                , android.R.layout.simple_spinner_dropdown_item
+                , answers.keys.toTypedArray())
+        answer_spinner.adapter = arrayAdapter
+    }
+
+    private fun toggleAnswer(answerType: AnswerType){
+        currentAnswerType = answerType
+        when (answerType){
+            BindingDialog.AnswerType.INSTRUCTION -> {
+                answer_edit_text.visibility = View.GONE
+                answer_spinner.visibility = View.GONE
+            }
+            BindingDialog.AnswerType.INPUT -> {
+                answer_edit_text.visibility = View.VISIBLE
+                answer_spinner.visibility = View.GONE
+            }
+            BindingDialog.AnswerType.SELECT -> {
+                answer_edit_text.visibility = View.GONE
+                answer_spinner.visibility = View.VISIBLE
+            }
+        }
     }
 
 
