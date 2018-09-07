@@ -55,10 +55,9 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     return@get
                 }
                 //Create car
+                //DO NOT save car to local db here since it may not belong to the user
                 try {
                     val car = Car.createCar(response)
-                    localCarStorage.deleteCar(car.id)
-                    localCarStorage.storeCarData(car)
                     callback.onSuccess(car)
 
                 } catch (e: Exception) {
