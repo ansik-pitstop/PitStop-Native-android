@@ -25,8 +25,8 @@ import java.util.*
  * Created by Karol Zdebel on 8/31/2018.
  */
 class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseComponent
-                                     , private val dataListener: ObdManager.IBluetoothDataListener
                                      , private val context: Context
+                                     , private val dataListener: ObdManager.IBluetoothDataListener
                                      , private val manager: BluetoothDeviceManager) {
 
     private val TAG = RegularBluetoothDeviceSearcher::class.java.simpleName
@@ -71,7 +71,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
                 //Connect to device with strongest signal if scan has been requested
                 if (rssiScan) {
                     rssiScan = false
-                    dataListener.onDevicesFound()
+                    manager.onDevicesFound()
                     var foundDevicesString = "{"
                     for ((key, value) in foundDevices) {
                         foundDevicesString += key.name + "=" + value + ","
@@ -81,11 +81,11 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
                     Logger.getInstance()!!.logI(TAG, "Found devices: $foundDevicesString", DebugMessage.TYPE_BLUETOOTH)
                     if (foundDevices.size > 0) {
                         //Try to connect to available device, if none qualify then finish scan
-                        if (!connectToNextDevice()) dataListener.scanFinished()
+                        if (!connectToNextDevice()) manager.scanFinished()
                     } else {
                         //Notify scan finished after 0.5 seconds due to delay
                         // in receiving CONNECTING notification
-                        dataListener.scanFinished()
+                        manager.scanFinished()
                     }
                 }
 
@@ -126,13 +126,6 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
 
     fun changeScanUrgency(urgent: Boolean) {
         this.nonUrgentScanInProgress = !urgent
-    }
-
-    fun onDeviceConnectionStateChange(state: Int){
-        btConnectionState = state
-        if (btConnectionState == BluetoothCommunicator.CONNECTED){
-            manager.onCompleted(deviceInterface!!)
-        }
     }
 
     @Synchronized
@@ -254,7 +247,6 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
     private fun connectToELMDevice(device: BluetoothDevice) {
         Log.d(TAG, "connectToELM327Device() device: " + device.name)
         deviceInterface = ELM327Device(context, manager)
-        dataListener.setDeviceName(device.address)
         (deviceInterface as ELM327Device).connectToDevice(device)
         manager.onCompleted(deviceInterface!!)
     }
@@ -268,7 +260,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         if (bluetoothAdapter.isEnabled && bluetoothAdapter.isDiscovering) {
             Log.i(TAG, "Stopping scan")
             bluetoothAdapter.cancelDiscovery()
-            dataListener.scanFinished()
+            manager.scanFinished()
         }
     }
 
@@ -277,7 +269,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         btConnectionState = IBluetoothCommunicator.DISCONNECTED
         if (bluetoothAdapter != null && bluetoothAdapter.isDiscovering) {
             bluetoothAdapter.cancelDiscovery()
-            dataListener.scanFinished()
+            manager.scanFinished()
         }
 
         if (deviceInterface != null) {

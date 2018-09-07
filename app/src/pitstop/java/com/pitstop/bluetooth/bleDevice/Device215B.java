@@ -62,7 +62,8 @@ public class Device215B implements CastelDevice {
     private Context context;
     private final String deviceName;
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
+    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener
+            , String deviceName, BluetoothDeviceManager manager) {
 
         this.dataListener = dataListener;
         this.context = context;
@@ -424,8 +425,6 @@ public class Device215B implements CastelDevice {
     public void onConnectionStateChange(int state) {
         this.manager.setState(state);
     }
-
-
 
     @Override
     public synchronized boolean connectToDevice(BluetoothDevice device) {

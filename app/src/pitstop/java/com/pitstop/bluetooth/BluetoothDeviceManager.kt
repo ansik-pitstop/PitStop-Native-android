@@ -59,7 +59,7 @@ class BluetoothDeviceManager(private val mContext: Context
                 .build()
 
         regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent
-                , dataListener, mContext, this)
+                , mContext, dataListener, this)
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
     }
 
@@ -198,6 +198,16 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun onGotRtc(l: Long) {
         dataListener!!.onGotRtc(l)
+    }
+
+    fun scanFinished(){
+        Log.d(TAG,"scanFinished()")
+        dataListener.scanFinished()
+    }
+
+    fun onDevicesFound(){
+        Log.d(TAG,"onFoundDevices()")
+        dataListener.onDevicesFound()
     }
 
     @Synchronized
