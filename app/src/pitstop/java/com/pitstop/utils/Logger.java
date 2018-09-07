@@ -33,6 +33,13 @@ import java.util.List;
 
 import rx.schedulers.Schedulers;
 
+/**
+ *
+ * More on the formatting of logs can be found
+ * at: https://docs.google.com/spreadsheets/d/1R95PWU6Q6R5_FfHKLSIhRbxWf_Eq2ylvGM3vqKkRMyU/edit#gid=0
+ *
+ * Created by Karol Zdebel
+ */
 public class Logger {
 
     private final static String TAG = Logger.class.getSimpleName();
@@ -47,6 +54,7 @@ public class Logger {
     private Context context;
     private int userId = -1;
 
+    //Sends messages if a connection to the internet is established
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -93,17 +101,17 @@ public class Logger {
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         context.registerReceiver(broadcastReceiver, intentFilter);
 
-        //Background handler creation
+        //Background handler creation (not really background)
         HandlerThread handlerThread = new HandlerThread("LOG_HANDLER");
         handlerThread.start();
         this.handler = new Handler(handlerThread.getLooper());
 
         handler.post(() -> {
             InetSocketAddress inetSocketAddress
-                    = new InetSocketAddress("graylog-lx.backend-service.getpitstop.io",12900);
+                    = new InetSocketAddress("graylog-lx.backend-service.getpitstop.io",12900); //Port for UDP is different
             gelfConfiguration = new GelfConfiguration(inetSocketAddress)
                     .transport(GelfTransports.TCP)
-                    .tcpKeepAlive(false)
+                    .tcpKeepAlive(false) //Kill TCP connection after every message
                     .queueSize(512)
                     .connectTimeout(1000)
                     .reconnectDelay(500)
@@ -168,6 +176,9 @@ public class Logger {
 
     }
 
+
+    //Format message and send through the network if a connection is available
+    //mark the message as sent after it is, so that it is NOT re-sent again
     private boolean sendMessage(DebugMessage d) {
 
         GelfMessageLevel gelfLevel;
@@ -235,6 +246,7 @@ public class Logger {
             build = "release";
         }
 
+        //Fields added on to every log message
         final GelfMessage gelfMessage = new GelfMessageBuilder(d.getMessage(), "com.pitstop.android")
                 .timestamp(d.getTimestamp())
                 .additionalField("tag", d.getTag())
