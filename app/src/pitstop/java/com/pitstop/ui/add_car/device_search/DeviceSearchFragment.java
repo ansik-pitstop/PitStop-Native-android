@@ -438,6 +438,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     }
 
     BindingDialog bindingDialog = new BindingDialog();
+    FirmwareInstallationDialog firmwareInstallationDialog = new FirmwareInstallationDialog();
 
     @Override
     public void displayBindingDialog(BindingDialog.AnswerListener answerListener) {
@@ -469,5 +470,41 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void displayBindingError(Error error) {
         Log.d(TAG,"displayBindingError() error: "+error);
         bindingDialog.showError(error);
+    }
+
+    @Override
+    public void displayFirmwareInstallationDialog(View.OnClickListener onClickListener) {
+        Log.d(TAG,"displayFirmwareInstallationDialog()");
+        firmwareInstallationDialog.show(getFragmentManager(),"FirmwareInstallationDialog");
+        firmwareInstallationDialog.setCancelable(false);
+        firmwareInstallationDialog.registerOkButtonListener(onClickListener);
+        firmwareInstallationDialog.setNotClickable();
+    }
+
+    @Override
+    public void displayFirmwareInstallationInstruction(String instruction) {
+        Log.d(TAG,"displayFirmwareInstallationInstruction() instruction: "+instruction);
+        firmwareInstallationDialog.showMessage(instruction);
+    }
+
+    @Override
+    public void displayFirmwareInstallationProgress(float progress) {
+        Log.d(TAG,"displayFirmwareInstallationProgress() progress: "+progress);
+        firmwareInstallationDialog.showProgress(progress);
+    }
+
+    @Override
+    public void displayFirmwareInstallationFinished() {
+        Log.d(TAG,"displayFirmwareInstallationFinished()");
+        firmwareInstallationDialog.showMessage("Finished installing firmware!");
+        firmwareInstallationDialog.setClickable();
+        firmwareInstallationDialog.closeNextButtonClick();
+    }
+
+    @Override
+    public void displayFirmwareInstallationError(String err) {
+        Log.d(TAG,"displayFirmwareInstallationError()");
+        firmwareInstallationDialog.showError(err);
+        firmwareInstallationDialog.setClickable();
     }
 }

@@ -610,21 +610,25 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onFirmwareInstallationRequired() {
+        view.displayFirmwareInstallationDialog(view -> {
+            DeviceSearchPresenter.this.view.displayFirmwareInstallationDialog(view1 -> {
 
+            });
+        });
     }
 
     @Override
     public void onFirmwareInstallationProgress(float progress) {
-
+        view.displayFirmwareInstallationProgress(progress);
     }
 
     @Override
     public void onFirmwareInstallationFinished() {
-
+        view.displayFirmwareInstallationFinished();
     }
 
     @Override
     public void onFirmwareInstallationError(@NotNull Error error) {
-
+        view.displayFirmwareInstallationError(error.getMessage());
     }
 }
