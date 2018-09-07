@@ -634,7 +634,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             , BluetoothDeviceManager.DeviceType deviceType) {
         Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent)
                 + " ignoreVerification: " + Boolean.toString(ignoreVerification)
-                +", deviceType: "+deviceType);
+                +", deviceType: "+deviceType+", device manager null? "+(deviceManager==null));
         if (deviceManager == null) return false;
         this.ignoreVerification = ignoreVerification;
         if (urgent) deviceManager.changeScanUrgency(urgent); //Only set to more urgent to avoid automatic scans from overriding user

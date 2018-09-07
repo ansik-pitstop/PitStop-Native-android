@@ -56,7 +56,7 @@ public class Device212B implements CastelDevice {
     private ObdManager.IBluetoothDataListener dataListener;
     private Context context;
     private final String deviceName;
-    private BluetoothDeviceManager manager;
+    private BluetoothDeviceManager manager;zz
 
     public Device212B(Context context, ObdManager.IBluetoothDataListener dataListener, String deviceName, BluetoothDeviceManager manager) {
         this.dataListener = dataListener;

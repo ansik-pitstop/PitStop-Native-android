@@ -2,7 +2,6 @@ package com.pitstop.bluetooth.searcher
 
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
-import com.pitstop.bluetooth.bleDevice.AbstractDevice
 
 /**
  * Created by Karol Zdebel on 8/31/2018.
@@ -21,6 +20,4 @@ interface RVDBluetoothDeviceSearcherStatusListener {
     fun onFirmwareInstallationProgress(progress: Float)
     fun onFirmwareInstallationFinished()
     fun onFirmwareInstallationError(err: Error)
-
-    fun onCompleted(device: AbstractDevice)
 }

@@ -40,8 +40,8 @@ class BluetoothDeviceManager(private val mContext: Context
     private val regularBluetoothDeviceSearcher: RegularBluetoothDeviceSearcher
     private val rvdBluetoothDeviceSearcher: RVDBluetoothDeviceSearcher
 
-    private val deviceInterface: AbstractDevice? = null
-    private val useCaseComponent: UseCaseComponent
+    private var deviceInterface: AbstractDevice? = null
+    private var useCaseComponent: UseCaseComponent
 
     private var btConnectionState = BluetoothCommunicator.DISCONNECTED
 
@@ -65,7 +65,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun cancelBinding(){
         if (deviceInterface is RVDDevice){
-            deviceInterface.cancelBinding()
+            (deviceInterface as RVDDevice).cancelBinding()
         }
     }
 
@@ -125,8 +125,9 @@ class BluetoothDeviceManager(private val mContext: Context
         dataListener?.onFirmwareInstallationError(err)
     }
 
-    override fun onCompleted(device: AbstractDevice) {
+    fun onCompleted(device: AbstractDevice) {
         Log.d(TAG,"onCompleted()")
+        deviceInterface = device
     }
 
     /*
@@ -151,7 +152,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun answerBindingQuestion(questionType: EBindingQuestionType, answer: String): Boolean{
         return if (deviceInterface != null && deviceInterface is RVDDevice){
-            deviceInterface.answerBindingQuestion(questionType,answer)
+            (deviceInterface as RVDDevice).answerBindingQuestion(questionType,answer)
             true
         }else{
             false
@@ -231,7 +232,7 @@ class BluetoothDeviceManager(private val mContext: Context
         if (state == BluetoothAdapter.STATE_OFF) {
             btConnectionState = BluetoothCommunicator.DISCONNECTED
             if (deviceInterface != null && deviceInterface is LowLevelDevice) {
-                deviceInterface.setCommunicatorState(state)
+                (deviceInterface as LowLevelDevice).setCommunicatorState(state)
             }
         }
     }
@@ -246,7 +247,7 @@ class BluetoothDeviceManager(private val mContext: Context
             return
         }
         Log.d(TAG, "deviceInterface.getVin()")
-        val ret = deviceInterface!!.getVin()
+        val ret = deviceInterface?.getVin()
         Log.d(TAG, "get vin returned $ret")
     }
 
@@ -256,7 +257,7 @@ class BluetoothDeviceManager(private val mContext: Context
                 ||  btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else{
-            deviceInterface.getRtc()
+            (deviceInterface as CastelDevice).getRtc()
             true
         }
     }
@@ -281,7 +282,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun clearDeviceMemory() {
         Log.d(TAG, "clearDeviceMemory() ")
         if (deviceInterface is Device215B) {
-            deviceInterface.clearDeviceMemory()
+            (deviceInterface as Device215B).clearDeviceMemory()
 
         }
     }
@@ -293,14 +294,14 @@ class BluetoothDeviceManager(private val mContext: Context
     fun resetDeviceToDefaults() {
         Log.d(TAG, "resetToDefualts() ")
         if (deviceInterface is Device215B) {
-            deviceInterface.resetDeviceToDefaults()
+            (deviceInterface as Device215B).resetDeviceToDefaults()
         }
     }
 
     fun resetDevice() {
         Log.d(TAG, "resetDevice() ")
         if (deviceInterface is Device215B) {
-            deviceInterface.resetDevice()
+            (deviceInterface as Device215B).resetDevice()
         }
 
     }
@@ -310,7 +311,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else if (deviceInterface != null && deviceInterface is CastelDevice){
-            deviceInterface.setRtc(rtcTime)
+            (deviceInterface as CastelDevice).setRtc(rtcTime)
             true
         }else{
             false
@@ -322,7 +323,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else if (deviceInterface != null && deviceInterface is LowLevelDevice){
-            deviceInterface.getPids(pids.split(","))
+            (deviceInterface as LowLevelDevice).getPids(pids.split(","))
             true
         }else {
             false
@@ -338,7 +339,7 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "clearDTCs")
         return if (deviceInterface != null
                 && (deviceInterface is LowLevelDevice)) {
-            deviceInterface.clearDtcs()
+            (deviceInterface as LowLevelDevice).clearDtcs()
             true
         }else{
             false
@@ -350,7 +351,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (btConnectionState != BluetoothCommunicator.CONNECTED || deviceInterface == null) {
             false
         }else{
-            deviceInterface.getSupportedPids()
+            deviceInterface!!.getSupportedPids()
             true
         }
     }
@@ -361,7 +362,7 @@ class BluetoothDeviceManager(private val mContext: Context
         return if (deviceInterface == null || btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else{
-            deviceInterface.setPidsToSend(pids.split(","), timeInterval)
+            deviceInterface!!.setPidsToSend(pids.split(","), timeInterval)
             true
         }
     }
@@ -372,28 +373,30 @@ class BluetoothDeviceManager(private val mContext: Context
             Log.d(TAG, " can't get Dtcs because my sate is not connected")
             false
         }else{
-            deviceInterface.getDtcs()
-            deviceInterface.getPendingDtcs()
+            deviceInterface!!.getDtcs()
+            deviceInterface!!.getPendingDtcs()
             true
         }
     }
 
     fun getFreezeFrame(): Boolean {
         Log.d(TAG, "getFreezeFrame()")
-        return if (deviceInterface == null || deviceInterface !is CastelDevice || btConnectionState != BluetoothCommunicator.CONNECTED) {
+        return if (deviceInterface == null || deviceInterface !is CastelDevice
+                || btConnectionState != BluetoothCommunicator.CONNECTED) {
             false
         }else {
-            deviceInterface.getFreezeFrame()
+            (deviceInterface as CastelDevice).getFreezeFrame()
             true
         }
     }
 
     fun requestData(): Boolean {
         Log.d(TAG, "requestData()")
-        return if (deviceInterface == null || deviceInterface !is Device215B || btConnectionState != BluetoothCommunicator.CONNECTED ) {
+        return if (deviceInterface == null || deviceInterface !is Device215B
+                || btConnectionState != BluetoothCommunicator.CONNECTED ) {
             false
         }else{
-            deviceInterface.requestData()
+            (deviceInterface as Device215B).requestData()
             true
         }
 
@@ -404,7 +407,7 @@ class BluetoothDeviceManager(private val mContext: Context
         if (deviceInterface != null) {
             if ((deviceInterface is Device215B || deviceInterface is ELM327Device) && btConnectionState == BluetoothCommunicator.CONNECTED) {
                 Log.d(TAG, "executing writeToOBD requestSnapshot()")
-                deviceInterface.requestSnapshot()
+                (deviceInterface as Device215B).requestSnapshot()
                 return true
             }
         }
@@ -414,7 +417,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun requestDescribeProtocol(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
         return if (deviceInterface != null && deviceInterface is ELM327Device) {
-            deviceInterface.requestDescribeProtocol()
+            (deviceInterface as ELM327Device).requestDescribeProtocol()
             true
         } else {
             false
@@ -424,7 +427,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun request2141PID(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
         return if (deviceInterface != null && deviceInterface is ELM327Device) {
-            deviceInterface.request2141PID()
+            (deviceInterface as ELM327Device).request2141PID()
             true
         } else {
             false
@@ -434,7 +437,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun requestStoredDTC(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
         return if (deviceInterface != null && deviceInterface is ELM327Device) {
-            deviceInterface.requestStoredTroubleCodes()
+            (deviceInterface as ELM327Device).requestStoredTroubleCodes()
             true
         } else {
             false
@@ -444,7 +447,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun requestPendingDTC(): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
         return if (deviceInterface != null && deviceInterface is ELM327Device) {
-            deviceInterface.requestPendingTroubleCodes()
+            (deviceInterface as ELM327Device).requestPendingTroubleCodes()
             true
         } else {
             false
@@ -454,7 +457,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun requestSelectProtocol(p: ObdProtocols): Boolean {
         Log.d(TAG, "requestDescribeProtocol")
         return if (deviceInterface != null && deviceInterface is ELM327Device) {
-            deviceInterface.requestSelectProtocol(p)
+            (deviceInterface as ELM327Device).requestSelectProtocol(p)
             true
         } else {
             false

@@ -128,6 +128,13 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         this.nonUrgentScanInProgress = !urgent
     }
 
+    fun onDeviceConnectionStateChange(state: Int){
+        btConnectionState = state
+        if (btConnectionState == BluetoothCommunicator.CONNECTED){
+            manager.onCompleted(deviceInterface!!)
+        }
+    }
+
     @Synchronized
     private fun connectBluetooth(urgent: Boolean): Boolean {
         nonUrgentScanInProgress = !urgent //Set the flag regardless of whether a scan is in progress
@@ -143,7 +150,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
             return false
         }
 
-        if (bluetoothAdapter.isEnabled) {
+        if (!bluetoothAdapter.isEnabled) {
             Log.i(TAG, "Bluetooth not enabled or BluetoothAdapt is null")
             return false
         }
@@ -232,6 +239,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         deviceInterface = Device212B(context, dataListener, device.name, manager)
 
         (deviceInterface as Device212B).connectToDevice(device)
+        manager.onCompleted(deviceInterface!!)
     }
 
     private fun connectTo215Device(device: BluetoothDevice) {
@@ -239,6 +247,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         deviceInterface = Device215B(context, dataListener, device.name, manager)
 
         (deviceInterface as Device215B).connectToDevice(device)
+        manager.onCompleted(deviceInterface!!)
 
     }
 
@@ -247,6 +256,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
         deviceInterface = ELM327Device(context, manager)
         dataListener.setDeviceName(device.address)
         (deviceInterface as ELM327Device).connectToDevice(device)
+        manager.onCompleted(deviceInterface!!)
     }
 
     fun moreDevicesLeft(): Boolean {
