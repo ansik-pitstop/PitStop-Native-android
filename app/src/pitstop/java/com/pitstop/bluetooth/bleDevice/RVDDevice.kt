@@ -33,6 +33,12 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
             IEventsInterface.Event.DONGLE_STATE_DISCONNECTED -> {
                 deviceManager?.setState(BluetoothCommunicator.DISCONNECTED)
             }
+            IEventsInterface.Event.DONGLE_STATE_CONNECTED -> {
+                deviceManager?.setState(BluetoothCommunicator.CONNECTED)
+            }
+            IEventsInterface.Event.DONGLE_STATE_CONNECTING -> {
+                deviceManager?.setState(BluetoothCommunicator.CONNECTING)
+            }
             IEventsInterface.Event.LIVE_READINGS_ERROR -> {
                 Log.e(TAG,"Live reading error!")
             }

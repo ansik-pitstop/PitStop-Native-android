@@ -497,7 +497,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     public void displayFirmwareInstallationFinished() {
         Log.d(TAG,"displayFirmwareInstallationFinished()");
         firmwareInstallationDialog.showMessage("Finished installing firmware!");
-        firmwareInstallationDialog.setClickable();
         firmwareInstallationDialog.closeNextButtonClick();
     }
 
@@ -506,5 +505,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         Log.d(TAG,"displayFirmwareInstallationError()");
         firmwareInstallationDialog.showError(err);
         firmwareInstallationDialog.setClickable();
+        firmwareInstallationDialog.closeNextButtonClick();
     }
 }

@@ -146,7 +146,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.UPDATE_DOWNLOAD_PROGRESS_CHANGED-> {
-
+                rvdBluetoothListener.onFirmwareInstallationProgress(retObject as Float)
             }
             IEventsInterface.Event.UPDATE_DOWNLOAD_ERROR -> {
                 rvdBluetoothListener.onFirmwareInstallationError(retObject as Error)

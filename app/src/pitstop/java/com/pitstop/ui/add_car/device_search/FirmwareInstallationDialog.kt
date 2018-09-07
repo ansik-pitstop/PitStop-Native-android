@@ -16,6 +16,10 @@ class FirmwareInstallationDialog: DialogFragment() {
 
     private var pendingProgress = 0.0f
     private var pendingInstruction = ""
+    private var okButtonListener: View.OnClickListener? = null
+    private var notClickablePending = false
+    private var clickablePending = false
+    private var pendingCloseNextClick = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.layout_firmware_installation_dialog,container)
@@ -24,7 +28,16 @@ class FirmwareInstallationDialog: DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         progress_bar.progress = (pendingProgress*100).toInt()
-        instruction.text = pendingInstruction   }
+        instruction.text = pendingInstruction
+        if (okButtonListener != null)
+            answer_button.setOnClickListener(okButtonListener)
+        if (notClickablePending)
+            setNotClickable()
+        else if (clickablePending)
+            setClickable()
+        if (pendingCloseNextClick)
+            closeNextButtonClick()
+    }
 
     fun showProgress(progress: Float){
         if (progress_bar == null){
@@ -51,21 +64,41 @@ class FirmwareInstallationDialog: DialogFragment() {
     }
 
     fun closeNextButtonClick(){
-        answer_button.setOnClickListener { dismiss() }
+        if (answer_button == null){
+            pendingCloseNextClick = true
+        }else{
+            pendingCloseNextClick = false
+            setClickable()
+            answer_button.setOnClickListener { dismiss() }
+        }
     }
 
     fun setNotClickable(){
-        answer_button.setTextColor(Color.GRAY)
-        answer_button.isClickable = false
+        if (answer_button == null){
+            notClickablePending = true
+        }else{
+            notClickablePending = false
+            answer_button.setTextColor(Color.LTGRAY)
+            answer_button.isClickable = false
+        }
     }
 
     fun setClickable(){
-        answer_button.setTextColor(Color.BLACK)
-        answer_button.isClickable = true
+        if (answer_button == null){
+            clickablePending = true
+        }else{
+            clickablePending = false
+            answer_button.setTextColor(Color.BLACK)
+            answer_button.isClickable = true
+        }
     }
 
     fun registerOkButtonListener(listener: View.OnClickListener){
-        answer_button.setOnClickListener(listener)
+        if (answer_button == null){
+            okButtonListener = listener
+        }else{
+            answer_button.setOnClickListener(listener)
+        }
     }
 
 }

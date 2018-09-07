@@ -3,6 +3,7 @@ package com.pitstop.ui.add_car.device_search;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.continental.rvd.mobile_sdk.EBindingQuestionType;
@@ -231,6 +232,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 deviceType = BluetoothDeviceManager.DeviceType.OBD215;
         }
 
+
+        //TEST CODE
         if (deviceType == BluetoothDeviceManager.DeviceType.RVD){
             view.displayBindingDialog(new BindingDialog.AnswerListener() {
                 @Override
@@ -257,7 +260,18 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.displayBindingQuestion(new BindingQuestion(EBindingQuestionType.VIN,"Please enter your car's VIN"));
             view.displayBindingProgress(0.4f);
             return;
+        }else if (deviceType == BluetoothDeviceManager.DeviceType.OBD215){
+            view.displayFirmwareInstallationDialog(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+            view.displayFirmwareInstallationProgress(0.3f);
+            view.displayFirmwareInstallationError("Error installing firmware. Contact Support!");
+            return;
         }
+        //END OF TEST CODE
 
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
