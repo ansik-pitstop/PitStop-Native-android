@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.utils.AnimatedDialogBuilder;
@@ -73,7 +72,9 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
                 getBluetoothService()
                         .take(1)
                         .filter((it)-> it.getDeviceState() != BluetoothConnectionObservable.State.DISCONNECTED)
-                        .subscribe((it)-> it.requestDeviceSearch(false,false, BluetoothDeviceManager.DeviceType.OBD215));
+                        .subscribe((it)-> it.requestDeviceSearch(false, false, success -> {
+
+                        }));
             }
         }
     }

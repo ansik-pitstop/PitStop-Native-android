@@ -220,7 +220,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         Log.d(TAG,"got bluetooth service")
                         bluetoothService = it
                         it.subscribe(this@MainActivity)
-                        it.requestDeviceSearch(false, false, BluetoothDeviceManager.DeviceType.OBD215)
+                        it.requestDeviceSearch(false, false, {
+
+                        })
                         startReportFragment.setBluetoothConnectionObservable(it)
                         displayDeviceState(it.deviceState)
                         notifyServiceBinded(it)
@@ -396,7 +398,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             displayDeviceState(bluetoothService?.deviceState
                     ?: BluetoothConnectionObservable.State.DISCONNECTED)
             bluetoothService?.subscribe(this)
-            bluetoothService?.requestDeviceSearch(false, false, BluetoothDeviceManager.DeviceType.OBD215)
+            bluetoothService?.requestDeviceSearch(false, false) {
+                Log.d(TAG,"Success with device search? $it")
+
+            }
         }else if (application?.isBluetoothServiceRunning == false){
             application?.startBluetoothService()
         }
@@ -586,7 +591,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
                         .subscribe{
                             Log.d(TAG,"onRequestPermissionResult() getbluetoth service response got!")
 
-                            it.requestDeviceSearch(false,false,BluetoothDeviceManager.DeviceType.OBD215)
+                            it.requestDeviceSearch(false,false,{
+
+                            })
                         }
             }
         }

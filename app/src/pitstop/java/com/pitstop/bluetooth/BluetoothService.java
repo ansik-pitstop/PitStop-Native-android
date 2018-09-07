@@ -595,7 +595,8 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     }
 
     @Override
-    public void requestDeviceSearch(boolean urgent, boolean ignoreVerification, DeviceSearchCallback callback){
+    public void requestDeviceSearch(boolean urgent, boolean ignoreVerification
+            , DeviceSearchCallback callback){
         Log.d(TAG,"requestDeviceSearch() urgent: "+Boolean.toString(urgent)
                 +", ignoreVerification: "+Boolean.toString(ignoreVerification));
         useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
@@ -1166,6 +1167,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         if (deviceManager != null) {
             deviceManager.close();
         }
+
         Disposable d = ((GlobalApplication)getApplication()).getServices()
                 .filter(next -> next instanceof SDKIntentService)
                 .subscribe(next -> {
@@ -1173,7 +1175,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
 
-                        requestDeviceSearch(true,false, BluetoothDeviceManager.DeviceType.OBD215); // start search when turning bluetooth on
+                        requestDeviceSearch(true, false, success -> {
+
+                        }); // start search when turning bluetooth on
                     }
                 });
     }

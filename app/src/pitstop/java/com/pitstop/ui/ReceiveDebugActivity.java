@@ -17,7 +17,6 @@ import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
@@ -316,7 +315,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
 
     public void getDTC(View view) {
         if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false, BluetoothDeviceManager.DeviceType.OBD215);
+            service.requestDeviceSearch(false,false,(status) ->  {
+
+            });
         }else {
             service.requestDtcData();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -326,7 +327,9 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
         if (!service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false, BluetoothDeviceManager.DeviceType.OBD215);
+            service.requestDeviceSearch(false,false, (status) -> {
+
+            });
         }else {
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }
