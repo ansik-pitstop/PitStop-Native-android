@@ -65,7 +65,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_FINISHED -> {
-
+                deviceManager.scanFinished()
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_ERROR -> {
                 rvdBluetoothListener.onConnectionFailure(retObject as Error)
@@ -82,12 +82,17 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
                 rvdBluetoothListener.onConnectionFailure(retObject as Error)
             }
 
+            //Discovery finished according to their docs
+            IEventsInterface.Event.BLUETOOTH_PAIRING_FINISHED -> {
+
+            }
+
             //DONGLE EVENTS
             IEventsInterface.Event.DONGLE_STATE_DISCONNECTED -> {
 
             }
             IEventsInterface.Event.DONGLE_STATE_CONNECTING -> {
-
+                deviceManager.scanFinished()
             }
             IEventsInterface.Event.DONGLE_STATE_CONNECTED -> {
 
