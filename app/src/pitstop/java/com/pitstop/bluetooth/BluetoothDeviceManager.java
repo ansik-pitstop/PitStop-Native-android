@@ -55,6 +55,7 @@ public class BluetoothDeviceManager{
     private boolean discoveryWasStarted = false;        //Prevent discovery from being started multiple times
 
     public void setState(int state) {
+
         Log.d(TAG,"setState() state: "+state);
         this.btConnectionState = state;
         dataListener.getBluetoothState(state);

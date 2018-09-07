@@ -23,6 +23,13 @@ import com.pitstop.utils.TimeoutTimer;
 import io.reactivex.disposables.Disposable;
 
 /**
+ *
+ * Deals with the bluetooth connection process, retrieving VIN
+ * and handling errors. A lot of code found in this class may be considered
+ * confusing and require an in-depth understanding of how the bluetooth devices function.
+ * Please gather this understanding prior to making significant changes to this code as
+ * assumptions about their workins will cause bugs to be introduced.
+ *
  * Created by Karol Zdebel on 8/1/2017.
  */
 
@@ -60,6 +67,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
             if (view == null || !searchingForVin) return;
 
+            //If the VIN hasn't been returned than show the user an error and ask if they want to search it again
+            //They can also choose to enter it manually if that option ins't suitable
+
             searchingForVin = false;
             int mileage = 0;
             try{
@@ -89,6 +99,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
 
 
+    //This timer deals with connecting to the bluetooth device, the maximum length of time we wait
+    //is 30 seconds because there's several steps involved
     private final int CONNECTING_TIMER_RETRY_TIMEOUT = 30;
     private final int CONNECTING_RETRY_AMOUNT = 0;
     private final TimeoutTimer connectionTimer = new TimeoutTimer(CONNECTING_TIMER_RETRY_TIMEOUT,CONNECTING_RETRY_AMOUNT ) {
@@ -122,6 +134,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     }
 
+    //Look for the device, go through a maximum of 2 discoveries. So 2 x 12 seconds, = 24 seconds
+    // The reason why we wait 12 seconds is because that's approximately how long a discovery lasts
+    // until it finishes
     private final int FIND_DEVICE_RETRY_TIME = 12;
     private final int FIND_DEVICE_RETRY_AMOUNT = 1;
     private final TimeoutTimer findDeviceTimer = new TimeoutTimer(FIND_DEVICE_RETRY_TIME
@@ -193,6 +208,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         this.view = null;
     }
 
+    //Start the bluetooth search, if a connection already exists than begin pulling VIN right away
+    //
     public void startSearch(){
         Log.d(TAG,"startSearch()");
 
@@ -270,7 +287,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         Log.d(TAG,"onDeviceReady()");
         if (view == null) return;
 
-
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.SUCCESS);
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
@@ -289,12 +305,11 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.SUCCESS);
 
             searchingForVin = false;
+
             //Begin  adding car
             addCar(readyDevice);
-
         }
         else{
-
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.PENDING);
 
