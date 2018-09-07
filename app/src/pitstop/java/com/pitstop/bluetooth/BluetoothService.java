@@ -594,12 +594,46 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    @Override
+    public void requestDeviceSearch(boolean urgent, boolean ignoreVerification, DeviceSearchCallback callback){
+        Log.d(TAG,"requestDeviceSearch() urgent: "+Boolean.toString(urgent)
+                +", ignoreVerification: "+Boolean.toString(ignoreVerification));
+        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
+                BluetoothDeviceManager.DeviceType deviceType;
+                if (car.getScannerId().contains("RVD")){
+                    deviceType = BluetoothDeviceManager.DeviceType.RVD;
+                }else if (car.getScannerId().contains("215B")){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+                }else if (car.getScannerId().contains("212B")){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD212;
+                }else if (!car.getScannerId().isEmpty()){
+                    deviceType = BluetoothDeviceManager.DeviceType.ELM327;
+                }else{
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+                }
+                callback.onSearchStatus(requestDeviceSearch(urgent,ignoreVerification,deviceType));
+            }
+
+            @Override
+            public void onNoCarSet(boolean isLocal) {
+                callback.onSearchStatus(true);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                callback.onSearchStatus(false);
+            }
+        });
+    }
 
     @Override
     public boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification
             , BluetoothDeviceManager.DeviceType deviceType) {
         Log.d(TAG, "requestDeviceSearch() urgent : " + Boolean.toString(urgent)
-                + " ignoreVerification: " + Boolean.toString(ignoreVerification));
+                + " ignoreVerification: " + Boolean.toString(ignoreVerification)
+                +", deviceType: "+deviceType);
         if (deviceManager == null) return false;
         this.ignoreVerification = ignoreVerification;
         if (urgent) deviceManager.changeScanUrgency(urgent); //Only set to more urgent to avoid automatic scans from overriding user

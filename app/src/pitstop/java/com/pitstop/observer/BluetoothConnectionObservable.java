@@ -61,9 +61,19 @@ public interface BluetoothConnectionObservable extends Subject{
 
     void getSupportedPids();
 
-    //Request scan for device
+    //Request scan for device explicitly specifying the device type
+    //This can be used for something like the add car process
     boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification
             , BluetoothDeviceManager.DeviceType deviceType);
+
+    interface DeviceSearchCallback{
+        void onSearchStatus(boolean success);
+    }
+
+    //Request scan for device, this method will look at the users currently
+    //selected vehicle and use the attached device type to search
+    //Requires callback since a use case needs to be executed in order to retrieve vehicle
+    void requestDeviceSearch(boolean urgent, boolean ignoreVerification,DeviceSearchCallback callback);
 
     //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();
