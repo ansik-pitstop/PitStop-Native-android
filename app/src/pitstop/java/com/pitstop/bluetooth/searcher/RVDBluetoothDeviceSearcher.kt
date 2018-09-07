@@ -36,18 +36,22 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
     }
 
-    fun answerBindingQuestion(question: String, response: String){
-        Log.d(TAG,"answerBindingQuestion() question:$question, response:$response")
-
+    fun answerBindingQuestion(questionType: EBindingQuestionType, response: String): Boolean{
+        Log.d(TAG,"answerBindingQuestion() question:$questionType, response:$response")
+        sdk?.answerBindingUserInput(questionType,response)
+        return true
     }
 
-    fun respondBindingRequest(start: Boolean){
+    fun respondBindingRequest(start: Boolean): Boolean{
         Log.d(TAG,"respondBindingRequest() start: $start")
-
+        if (start) sdk?.startBindingProcess()
+        return true
     }
 
-    fun respondFirmwareInstallationRequest(start: Boolean){
+    fun respondFirmwareInstallationRequest(start: Boolean): Boolean{
         Log.d(TAG,"respondFirmwareUpdateRequest() start: $start")
+        if (start) sdk?.startDownloadUpdate()
+        return true
     }
 
     override fun onNotification(event: IEventsInterface.Event, retObject: Any?) {

@@ -778,15 +778,24 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         for (Observer o: observerList ){
             if (o instanceof BluetoothConnectionObserver){
                 mainHandler.post(() -> ((BluetoothConnectionObserver)o)
-                        .onBindingQuestionPrompted(bindingQuestion));
+                        .   onBindingQuestionPrompted(bindingQuestion));
             }
         }
     }
 
-    public void cancelBinding(){
-        Log.d(TAG,"cancelBinding()");
-        if (deviceManager != null)
-            deviceManager.cancelBinding();
+    public boolean cancelBinding() {
+        Log.d(TAG, "cancelBinding()");
+        return deviceManager != null && deviceManager.cancelBinding();
+    }
+
+    public boolean startBindingProcess() {
+        Log.d(TAG, "startBindingProcess()");
+        return deviceManager != null && deviceManager.startBinding();
+    }
+
+    public boolean startFirmwareInstallation() {
+        Log.d(TAG, "startFirmwareInstallation()");
+        return deviceManager != null && deviceManager.startFirmwareInstallation();
     }
 
     @Override

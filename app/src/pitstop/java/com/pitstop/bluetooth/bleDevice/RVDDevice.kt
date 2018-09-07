@@ -309,13 +309,4 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
         return if (rvdSDK.dongleConnectionStatus) BluetoothCommunicator.CONNECTED
         else BluetoothCommunicator.DISCONNECTED
     }
-
-    fun answerBindingQuestion(questionType: EBindingQuestionType, answer: String){
-        Log.d(TAG,"answerBindingQuestion() questionType: $questionType, answer: $answer")
-        rvdSDK.answerBindingUserInput(questionType,answer)
-    }
-
-    fun cancelBinding(){
-        //Not supported atm until command for this is found
-    }
 }

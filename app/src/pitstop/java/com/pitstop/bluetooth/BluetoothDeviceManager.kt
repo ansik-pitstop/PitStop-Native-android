@@ -63,10 +63,19 @@ class BluetoothDeviceManager(private val mContext: Context
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
     }
 
-    fun cancelBinding(){
-        if (deviceInterface is RVDDevice){
-            (deviceInterface as RVDDevice).cancelBinding()
-        }
+    fun startBinding(): Boolean{
+        Log.d(TAG,"startBinding()")
+        return rvdBluetoothDeviceSearcher.respondBindingRequest(true)
+    }
+
+    fun startFirmwareInstallation(): Boolean{
+        Log.d(TAG,"startFirmwareInstallation()")
+        return rvdBluetoothDeviceSearcher.respondFirmwareInstallationRequest(true)
+    }
+
+    fun cancelBinding(): Boolean{
+        Log.d(TAG,"cancelBinding()")
+        return rvdBluetoothDeviceSearcher.respondBindingRequest(false)
     }
 
     /*
@@ -151,12 +160,8 @@ class BluetoothDeviceManager(private val mContext: Context
     }
 
     fun answerBindingQuestion(questionType: EBindingQuestionType, answer: String): Boolean{
-        return if (deviceInterface != null && deviceInterface is RVDDevice){
-            (deviceInterface as RVDDevice).answerBindingQuestion(questionType,answer)
-            true
-        }else{
-            false
-        }
+        rvdBluetoothDeviceSearcher.answerBindingQuestion(questionType,answer)
+        return true
     }
 
     fun onGotVin(VIN: String, deviceID: String) {
