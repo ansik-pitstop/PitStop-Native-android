@@ -237,7 +237,7 @@ class RegularBluetoothDeviceSearcher(private val useCaseComponent: UseCaseCompon
 
     private fun connectTo215Device(device: BluetoothDevice) {
         Log.d(TAG, "connectTo215Device() device: " + device.name)
-        deviceInterface = Device215B(context, dataListener, device.name, manager)
+        deviceInterface = Device215B(context, device.name, manager)
 
         (deviceInterface as Device215B).connectToDevice(device)
         manager.onCompleted(deviceInterface!!)

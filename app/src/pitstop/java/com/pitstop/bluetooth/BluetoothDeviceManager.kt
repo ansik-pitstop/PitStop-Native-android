@@ -13,6 +13,7 @@ import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator
 import com.pitstop.bluetooth.communicator.ObdManager
 import com.pitstop.bluetooth.dataPackages.DtcPackage
+import com.pitstop.bluetooth.dataPackages.FreezeFramePackage
 import com.pitstop.bluetooth.dataPackages.ParameterPackage
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.bluetooth.elm.enums.ObdProtocols
@@ -22,6 +23,7 @@ import com.pitstop.bluetooth.searcher.RegularBluetoothDeviceSearcher
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.models.Alarm
 import com.pitstop.models.DebugMessage
 import com.pitstop.utils.Logger
 
@@ -143,6 +145,30 @@ class BluetoothDeviceManager(private val mContext: Context
      * End of callback methods for RVD SDK
      */
 
+    fun idrFuelEvent(scannerID: String, fuelConsumed: Double) {
+        dataListener?.idrFuelEvent(scannerID, fuelConsumed)
+    }
+
+    fun alarmEvent(alarm: Alarm) {
+        dataListener.alarmEvent(alarm)
+    }
+
+    fun idrPidData(pidPackage: PidPackage) {
+        dataListener.idrPidData(pidPackage)
+    }
+
+    fun ffData(ffPackage: FreezeFramePackage) {
+        dataListener.ffData(ffPackage)
+    }
+
+    fun pidData(pidPackage: PidPackage) {
+        dataListener.pidData(pidPackage)
+    }
+
+    fun parameterData(parameterPackage: ParameterPackage) {
+        dataListener.parameterData(parameterPackage)
+    }
+
     fun getConnectionState(): Int{
         Log.d(TAG, "getConnectionState()")
         return btConnectionState
@@ -169,11 +195,6 @@ class BluetoothDeviceManager(private val mContext: Context
         dataListener!!.handleVinData(VIN, deviceID)
     }
 
-    fun onGotDTC(dtcPackage: DtcPackage){
-        Log.d(TAG,"onGotDTC() dtcPackage: $dtcPackage")
-        dataListener?.dtcData(dtcPackage)
-    }
-
     fun onGotSupportedPids(supportedPids: List<String>, deviceId: String){
         Log.d(TAG,"onGotSupportedPids() supportedPids: $supportedPids")
         val parameterPackage = ParameterPackage()
@@ -190,7 +211,7 @@ class BluetoothDeviceManager(private val mContext: Context
         dataListener!!.parameterData(parameterPackage)
     }
 
-    fun gotDtcData(dtcPackage: DtcPackage) {
+    fun onGotDtcData(dtcPackage: DtcPackage) {
         Log.d(TAG, "gotDtcData")
         dataListener!!.dtcData(dtcPackage)
     }

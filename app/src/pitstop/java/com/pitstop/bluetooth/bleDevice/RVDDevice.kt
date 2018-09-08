@@ -234,7 +234,7 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
 //                                it.value.forEach { allEngineCodes.add(it.faultCode,true) }
 //                            })
 
-                            deviceManager.onGotDTC(DtcPackage(deviceInfo.name
+                            deviceManager.onGotDtcData(DtcPackage(deviceInfo.name
                                     , System.currentTimeMillis().toString(), allEngineCodes))
                         }
 
@@ -269,7 +269,7 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                                     allEngineCodes[it.code.toString()] = false
                                 }
                             }
-                            deviceManager.onGotDTC(DtcPackage(deviceInfo.name
+                            deviceManager.onGotDtcData(DtcPackage(deviceInfo.name
                                     , System.currentTimeMillis().toString(), allEngineCodes))
                         }
 
