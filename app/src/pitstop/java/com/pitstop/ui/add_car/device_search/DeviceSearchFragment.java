@@ -441,11 +441,12 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     FirmwareInstallationDialog firmwareInstallationDialog = new FirmwareInstallationDialog();
 
     @Override
-    public void displayBindingDialog(BindingDialog.AnswerListener answerListener) {
+    public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
         Log.d(TAG,"displayBindingDialog()");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
         bindingDialog.setCancelable(false);
         bindingDialog.registerAnswerListener(answerListener);
+        bindingDialog.setInstruction(startingInstruction);
     }
 
     @Override

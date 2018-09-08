@@ -582,7 +582,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onBindingRequired() {
-        view.displayBindingDialog(new BindingDialog.AnswerListener() {
+        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
+        view.displayBindingDialog("Binding required, a set of questions needs to be answered"
+                ,new BindingDialog.AnswerListener() {
             @Override
             public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
 
@@ -622,11 +624,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onFirmwareInstallationRequired() {
+        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startFirmwareInstallation);
         view.displayFirmwareInstallationDialog(view -> {
             DeviceSearchPresenter.this.view.displayFirmwareInstallationDialog(view1 -> {
 
             });
         });
+        view.displayFirmwareInstallationInstruction("Firmware installation required. " +
+                "This may take up to 20 minutes. Please stay connected to the internet.");
     }
 
     @Override

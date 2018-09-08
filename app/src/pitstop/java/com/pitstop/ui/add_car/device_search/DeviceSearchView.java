@@ -35,7 +35,7 @@ public interface DeviceSearchView extends LoadingView{
     Observable<BluetoothService> getBluetoothService();
     boolean checkPermissions();
     String getDeviceType();
-    void displayBindingDialog(BindingDialog.AnswerListener answerListener);
+    void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener);
     void displayBindingQuestion(BindingQuestion bindingQuestion);
     void displayBindingProgress(float progress);
     void displayBindingFinished();

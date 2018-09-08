@@ -45,6 +45,7 @@ class BindingDialog: DialogFragment() {
     private var answerSpinner: Spinner? = null
     private var instruction: TextView? = null
     private var answerEditText: EditText? = null
+    private var pendingMessage: String = ""
 
     private var pendingQuestion: BindingQuestion? = null
     private var pendingProgress = 0.0f
@@ -69,6 +70,9 @@ class BindingDialog: DialogFragment() {
         if (pendingQuestion != null){
             showQuestion(pendingQuestion!!)
         }
+        if (!pendingMessage.isEmpty()){
+            instruction?.text = pendingMessage
+        }
 
         answerButton?.setOnClickListener {
             if (question != null){
@@ -91,6 +95,15 @@ class BindingDialog: DialogFragment() {
                 //Hide input fields till next question arrives
                 waitForNextQuestion()
             }
+        }
+    }
+
+    fun setInstruction(message: String){
+        Log.d(TAG,"setInstruction() instruction: $message")
+        if (instruction == null){
+            pendingMessage = message
+        }else{
+            instruction?.text = message
         }
     }
 
