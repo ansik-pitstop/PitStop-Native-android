@@ -7,7 +7,9 @@ apply plugin: 'kotlin-kapt'
 buildscript {
     repositories {
         google()
-        maven { url 'https://maven.fabric.io/public' }
+        maven {
+            url 'https://maven.fabric.io/public'
+        }
     }
 
     dependencies {
@@ -20,6 +22,7 @@ apply plugin: 'io.fabric'
 repositories {
     maven { url 'https://maven.fabric.io/public' }
     mavenCentral()
+    maven{ url 'https://oss.sonatype.org/content/repositories/snapshots' }
     google()
 }
 
@@ -210,6 +213,7 @@ dependencies {
         exclude module: 'org.apache.oltu.oauth2.common'
     }
     implementation 'io.paperdb:paperdb:2.6'
+    implementation 'com.squareup.tape2:tape:2.0.0-SNAPSHOT'
 }
 
 apply plugin: 'com.google.gms.google-services'

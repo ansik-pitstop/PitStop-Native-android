@@ -219,6 +219,7 @@ public class GlobalApplication extends Application implements LoginManager {
                         }else if (className.getClassName().equals(SDKIntentService.class.getName())){
                             Log.d(TAG,"RVD service set");
                             try{
+
                                 rvdService = ((SDKIntentService.LocalBinder)service).getService();
                                 Log.d(TAG,"Calling initSDK!");
                                 rvdService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, new TApiCallback<ISDKApi>() {

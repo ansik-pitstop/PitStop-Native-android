@@ -603,7 +603,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 BluetoothDeviceManager.DeviceType deviceType;
-                if (car.getScannerId().contains("RVD")){
+                if (car.getScannerId() == null){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+                }
+                else if (car.getScannerId().contains("RVD")){
                     deviceType = BluetoothDeviceManager.DeviceType.RVD;
                 }else if (car.getScannerId().contains("215B")){
                     deviceType = BluetoothDeviceManager.DeviceType.OBD215;
