@@ -310,7 +310,7 @@ public class ELM327Device implements LowLevelDevice {
             for (String dtc : codesCommand.getCodes()) {
                 dtcPackage.dtcs.put(dtc, false);
             }
-            manager.gotDtcData(dtcPackage);
+            manager.onGotDtcData(dtcPackage);
             currentDtcsRequested = false;
             getPendingDtcs();
         }
@@ -321,7 +321,7 @@ public class ELM327Device implements LowLevelDevice {
             for (String dtc: codesCommand.getCodes()) {
                 dtcPackage.dtcs.put(dtc, true);
             }
-            manager.gotDtcData(dtcPackage);
+            manager.onGotDtcData(dtcPackage);
         }
         else if (obdCommand instanceof DescribeProtocolCommand){
             Log.d(TAG, "Describe Protocol: " + obdCommand.getFormattedResult());
@@ -388,12 +388,12 @@ public class ELM327Device implements LowLevelDevice {
         Log.d(TAG,"noData() obd command: "+obdCommand.getName());
         if (obdCommand instanceof TroubleCodesCommand){
             //We need to do this otherwise timeout will occur and error will be prompted to the user
-            manager.gotDtcData(new DtcPackage(deviceName
+            manager.onGotDtcData(new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
-            manager.gotDtcData(new DtcPackage(deviceName
+            manager.onGotDtcData(new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
         }
         if (snapshotRequest){

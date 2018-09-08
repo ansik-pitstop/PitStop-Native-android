@@ -58,20 +58,20 @@ public class Device215B implements CastelDevice {
     private BluetoothCommunicator communicator;
     private BluetoothDeviceManager manager;
 
-    ObdManager.IBluetoothDataListener dataListener;
+//    ObdManager.IBluetoothDataListener dataListener;
     private Context context;
     private final String deviceName;
 
-    public Device215B(Context context, ObdManager.IBluetoothDataListener dataListener
-            , String deviceName, BluetoothDeviceManager manager) {
-
-        this.dataListener = dataListener;
+    public Device215B(Context context, String deviceName, BluetoothDeviceManager manager) {
         this.context = context;
         this.deviceName = deviceName;
         this.manager = manager;
         if (this.communicator == null){
             this.communicator = new BluetoothLeComm(context, this); }
     }
+
+//    private val rvdSDK: ISDKApi, private val deviceManager: BluetoothDeviceManager)
+//            : AbstractDevice, IEventsInterface.IEventListener
 
     @Override
     public UUID getServiceUuid() {
@@ -434,7 +434,6 @@ public class Device215B implements CastelDevice {
             return false;
         }
         manager.setState(BluetoothCommunicator.CONNECTING);
-        dataListener.getBluetoothState(manager.getState());
         Log.i(TAG, "Connecting to LE device");
         Log.d(TAG, "connectToDevice: " + device.getName());
         ((BluetoothLeComm) communicator)
@@ -554,7 +553,7 @@ public class Device215B implements CastelDevice {
                 idrInfo.time = dateStr;
                 try{
                     Log.d(TAG, idrInfo.terminalSN);
-                    dataListener.idrFuelEvent(idrInfo.terminalSN, Double.valueOf(idrInfo.fuelConsumption));
+                    manager.idrFuelEvent(idrInfo.terminalSN, Double.valueOf(idrInfo.fuelConsumption));
                     Log.d(TAG, "fuelCOnsumedUpdate: " + Double.valueOf(idrInfo.fuelConsumption));
                 }
                 catch (NumberFormatException e){
@@ -582,7 +581,8 @@ public class Device215B implements CastelDevice {
                         else {
                             alarmValue = Float.valueOf(idrInfo.alarmValues);
                         }
-                        dataListener.alarmEvent(new Alarm(Integer.valueOf(idrInfo.alarmEvents),
+
+                        manager.alarmEvent(new Alarm(Integer.valueOf(idrInfo.alarmEvents),
                                 alarmValue,
                                 String.valueOf(Long.valueOf(idrInfo.runTime) +parseRtcTime(Long.toString(ignitionTime)))
                                 , null));
@@ -600,10 +600,10 @@ public class Device215B implements CastelDevice {
                     OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
                             , idrInfo.mileage, System.currentTimeMillis());
                     pidPackage.setPids(parsePids(idrInfo.pid));
-                    dataListener.idrPidData(pidPackage);
+                    manager.idrPidData(pidPackage);
                 }
                 else{
-                    dataListener.idrPidData(null);
+                    manager.idrPidData(null);
                 }
 
                 if(idrInfo.dtc != null && !idrInfo.dtc.isEmpty()) {
@@ -641,7 +641,8 @@ public class Device215B implements CastelDevice {
 
                         dtcPackage.deviceId = idrInfo.terminalSN;
 
-                        dataListener.dtcData(dtcPackage);
+                        manager.onGotDtcData(dtcPackage);
+//                        dataListener.dtcData(dtcPackage);
                     }
                 }
 
@@ -658,7 +659,8 @@ public class Device215B implements CastelDevice {
                             ffPackage.rtcTime = parseRtcTime(idrInfo.ignitionTime) + Long.parseLong(idrInfo.runTime);
                             ffPackage.deviceId = idrInfo.terminalSN;
                             ffPackage.freezeData = parseFreezeFrame(unparsedFFCodes);
-                            dataListener.ffData(ffPackage);
+
+                            manager.ffData(ffPackage);
                         } catch (Exception e){
                             e.printStackTrace();
                             Log.e(TAG, "Parsing freeze frame error! " + idrInfo.freezeFrame);
@@ -693,7 +695,7 @@ public class Device215B implements CastelDevice {
                     parameterPackage.mParamsValueMap.put(ParameterPackage.ParamType.RTC_TIME, String.valueOf(parseRtcTime(settingInfo.terminalRTCTime)));
                     String mileageKM = String.valueOf(Double.valueOf(settingInfo.totalMileage) / 1000);
                     parameterPackage.mParamsValueMap.put(ParameterPackage.ParamType.MILEAGE, mileageKM);
-                    dataListener.parameterData(parameterPackage);
+                    manager.parameterData(parameterPackage);
 
                 } else {
                     // assumes only one parameter queried per command
@@ -719,7 +721,7 @@ public class Device215B implements CastelDevice {
 
                     Log.d(TAG,"sending through parameterPackage: "+parameterPackage);
 
-                    dataListener.parameterData(parameterPackage);
+                    manager.parameterData(parameterPackage);
                 }
             } else if (Constants.INSTRUCTION_PIDT
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
@@ -742,7 +744,7 @@ public class Device215B implements CastelDevice {
                     parameterPackage.success = false;
                 }
 
-                dataListener.parameterData(parameterPackage);
+                manager.parameterData(parameterPackage);
             } else if (Constants.INSTRUCTION_PID
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 // PIDs are never explicitly requested except in debug activity
@@ -753,7 +755,7 @@ public class Device215B implements CastelDevice {
                     pidPackage.addPid(pidInfo.pids.get(i), pidInfo.pidValues.get(i));
                 }
 
-                dataListener.pidData(pidPackage);
+                manager.pidData(pidPackage);
             } else if (Constants.INSTRUCTION_DTC
                     .equals(DataParseUtil.parseMsgType(msgInfo))) {
                 Log.i(TAG, msgInfo);
@@ -789,7 +791,7 @@ public class Device215B implements CastelDevice {
 
                 dtcPackage.deviceId = dtcInfo.terminalId;
 
-                dataListener.dtcData(dtcPackage);
+                manager.onGotDtcData(dtcPackage);
             }
         }
     }
