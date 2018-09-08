@@ -87,7 +87,7 @@ class LocalCarStorage(private val databaseHelper: LocalDatabaseHelper) {
                 , arrayOf(pendingUpdate.timestamp.toString()))
     }
 
-    fun getAllCars(): List<Car> {
+    fun getAllCars(userId: Int): List<Car> {
         val cars = ArrayList<Car>()
 
         val db = databaseHelper.readableDatabase
@@ -173,7 +173,8 @@ class LocalCarStorage(private val databaseHelper: LocalDatabaseHelper) {
     fun getCarsByUserId(userId: Int): List<Car> {
         val cars = ArrayList<Car>()
         val db = databaseHelper.readableDatabase
-        val c = db.query(TABLES.CAR.TABLE_NAME, null, null, null
+        val c = db.query(TABLES.CAR.TABLE_NAME, null
+                , TABLES.CAR.KEY_USER_ID +"=?", arrayOf(userId.toString())
                 , null, null, null)
 
         if (c.moveToFirst()) {

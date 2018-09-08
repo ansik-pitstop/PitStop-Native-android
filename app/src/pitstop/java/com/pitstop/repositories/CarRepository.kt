@@ -55,6 +55,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     return@get
                 }
                 //Create car
+                //DO NOT save car to local db here since it may not belong to the user
                 try {
                     val car = Car.createCar(response)
                     localCarStorage.deleteCar(car.id)
@@ -173,14 +174,16 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     )})
     }
 
+    //User id is needed here since cars that were cached during the VIN verification process or car adding process may be in the local db
+    // which do not belong to this user
     fun getCarsByUserId(userId: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<List<Car>>> {
         Log.d(tag,"getCarsByUserId() userId: $userId")
         return when (type) {
-            Repository.DATABASE_TYPE.LOCAL -> getAllLocal()
+            Repository.DATABASE_TYPE.LOCAL -> getAllLocal(userId)
             Repository.DATABASE_TYPE.REMOTE -> getAllRemote(userId)
             Repository.DATABASE_TYPE.BOTH -> {
                 val list: MutableList<Observable<RepositoryResponse<List<Car>>>> = mutableListOf()
-                list.add(getAllLocal())
+                list.add(getAllLocal(userId))
                 list.add(getAllRemote(userId))
                 Observable.concatDelayError(list)
             }
@@ -235,8 +238,8 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         else Observable.combineLatestDelayError(observables, { it.asList() as List<PendingUpdate> })
     }
 
-    private fun getAllLocal(): Observable<RepositoryResponse<List<Car>>> {
-        return Observable.just(RepositoryResponse(localCarStorage.getAllCars(),true)).doOnNext({ next ->
+    private fun getAllLocal(userId: Int): Observable<RepositoryResponse<List<Car>>> {
+        return Observable.just(RepositoryResponse(localCarStorage.getAllCars(userId),true)).doOnNext({ next ->
             Log.d(tag,"remote.replay() next: $next")
             next.data.orEmpty()
                     .forEach {
