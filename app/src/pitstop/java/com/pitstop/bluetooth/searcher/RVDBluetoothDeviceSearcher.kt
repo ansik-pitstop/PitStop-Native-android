@@ -19,19 +19,19 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
     fun start(): Boolean{
         Log.d(TAG,"start()")
-//        sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
-//            override fun onSuccess(sdk: ISDKApi?) {
-//                Log.d(TAG,"successfully initialized RVD SDK!")
-//                this@RVDBluetoothDeviceSearcher.sdk = sdk
-//                sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
-//                        ,IEventsInterface.EventType.ALL)
-//            }
-//
-//            override fun onError(p0: Throwable?) {
-//                Log.d(TAG,"error while initializing RVD SDK!")
-//            }
-//
-//        }, false)
+        sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
+            override fun onSuccess(sdk: ISDKApi?) {
+                Log.d(TAG,"successfully initialized RVD SDK!")
+                this@RVDBluetoothDeviceSearcher.sdk = sdk
+                sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
+                        ,IEventsInterface.EventType.ALL)
+            }
+
+            override fun onError(p0: Throwable?) {
+                Log.d(TAG,"error while initializing RVD SDK!")
+            }
+
+        }, false)
         return true
 
     }

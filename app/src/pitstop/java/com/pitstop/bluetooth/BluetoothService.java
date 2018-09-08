@@ -599,37 +599,40 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             , DeviceSearchCallback callback){
         Log.d(TAG,"requestDeviceSearch() urgent: "+Boolean.toString(urgent)
                 +", ignoreVerification: "+Boolean.toString(ignoreVerification));
-        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
-            @Override
-            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
-                BluetoothDeviceManager.DeviceType deviceType;
-                if (car.getScannerId() == null){
-                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
-                }
-                else if (car.getScannerId().contains("RVD")){
-                    deviceType = BluetoothDeviceManager.DeviceType.RVD;
-                }else if (car.getScannerId().contains("215B")){
-                    deviceType = BluetoothDeviceManager.DeviceType.OBD215;
-                }else if (car.getScannerId().contains("212B")){
-                    deviceType = BluetoothDeviceManager.DeviceType.OBD212;
-                }else if (!car.getScannerId().isEmpty()){
-                    deviceType = BluetoothDeviceManager.DeviceType.ELM327;
-                }else{
-                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
-                }
-                callback.onSearchStatus(requestDeviceSearch(urgent,ignoreVerification,deviceType));
-            }
-
-            @Override
-            public void onNoCarSet(boolean isLocal) {
-                callback.onSearchStatus(true);
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                callback.onSearchStatus(false);
-            }
-        });
+//        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
+//            @Override
+        //Todo("Uncomment whatever is below, was commented for testing")
+//            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
+//                BluetoothDeviceManager.DeviceType deviceType;
+//                if (car.getScannerId() == null){
+//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+//                }
+//                else if (car.getScannerId().contains("RVD")){
+//                    deviceType = BluetoothDeviceManager.DeviceType.RVD;
+//                }else if (car.getScannerId().contains("215B")){
+//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+//                }else if (car.getScannerId().contains("212B")){
+//                    deviceType = BluetoothDeviceManager.DeviceType.OBD212;
+//                }else if (!car.getScannerId().isEmpty()){
+//                    deviceType = BluetoothDeviceManager.DeviceType.ELM327;
+//                }else{
+//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+//                }
+//                callback.onSearchStatus(requestDeviceSearch(urgent,ignoreVerification,deviceType));
+//            }
+//
+//            @Override
+//            public void onNoCarSet(boolean isLocal) {
+//                callback.onSearchStatus(true);
+//            }
+//
+//            @Override
+//            public void onError(RequestError error) {
+//                callback.onSearchStatus(false);
+//            }
+//        });
+        //Comment the line below
+        callback.onSearchStatus(true);
     }
 
     @Override
@@ -908,7 +911,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         //Broadcast to all observers
         for (Observer o: observerList){
             if (o instanceof BluetoothConnectionObserver){
-                ((BluetoothConnectionObserver)o).onGotPid(pidPackage);
+                mainHandler.post(() -> {
+                    ((BluetoothConnectionObserver)o).onGotPid(pidPackage);
+                });
             }
         }
 
@@ -989,6 +994,13 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     @Override
     public void onBindingRequired() {
+        for (Observer o: observerList){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> {
+                    ((BluetoothConnectionObserver) o).onBindingRequired();
+                });
+            }
+        }
 
     }
 
@@ -1522,7 +1534,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         for (Observer o: observerList){
             if (o instanceof AlarmObserver){
                 Log.d(TAG, "alarm alarmobserver");
-                ((AlarmObserver) o).onAlarmAdded(alarm);
+                mainHandler.post(() -> {
+                    ((AlarmObserver) o).onAlarmAdded(alarm);
+                });
             }
         }
     }
@@ -1542,7 +1556,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     public void notifyFuelConsumedUpdate(double fuelConsumed) {
         for (Observer o: observerList){
             if (o instanceof FuelObserver){
-                ((FuelObserver) o).onFuelConsumedUpdated();
+                mainHandler.post(() -> {
+                    ((FuelObserver) o).onFuelConsumedUpdated();
+                });
+
             }
         }
 
