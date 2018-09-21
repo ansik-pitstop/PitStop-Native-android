@@ -586,7 +586,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 ,new BindingDialog.AnswerListener() {
             @Override
             public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
-
+                view.getBluetoothService().take(1).subscribe((next) -> {
+                    next.answerBindingQuestion(question.questionType, answer);
+                });
             }
 
             @Override

@@ -238,13 +238,18 @@ class BluetoothDeviceManager(private val mContext: Context
 
     @Synchronized
     fun startScan(urgent: Boolean, ignoreVerification: Boolean, deviceType: DeviceType): Boolean {
-        Log.d(TAG, "startScan() deviceType: " +deviceType+ ", urgent: " + java.lang.Boolean.toString(urgent)
+        Log.d(TAG, "startScan() deviceType: " + deviceType + ", urgent: " + java.lang.Boolean.toString(urgent)
                 + " ignoreVerification: " + java.lang.Boolean.toString(ignoreVerification))
-        return if (deviceType == DeviceType.ELM327 || deviceType == DeviceType.OBD212
-                || deviceType == DeviceType.OBD215)
-            regularBluetoothDeviceSearcher.startScan(urgent, ignoreVerification)
-        else
-            rvdBluetoothDeviceSearcher.start()
+
+        return when (deviceType) {
+            DeviceType.ELM327, DeviceType.OBD212, DeviceType.OBD215 -> {
+                regularBluetoothDeviceSearcher.startScan(urgent, ignoreVerification)
+            }
+
+            DeviceType.RVD -> {
+                rvdBluetoothDeviceSearcher.start()
+            }
+        }
     }
 
     @Synchronized

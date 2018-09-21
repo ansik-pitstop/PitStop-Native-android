@@ -85,10 +85,10 @@ class BindingDialog: DialogFragment() {
                         ,question!!
                 )
 
-                back_button.setOnClickListener {
+                backButton?.setOnClickListener {
                     answerListener?.onBackPressed(question!!)
                 }
-                cancel_button.setOnClickListener {
+                cancelButton?.setOnClickListener {
                     answerListener?.onCancelPressed(question!!)
                 }
 
