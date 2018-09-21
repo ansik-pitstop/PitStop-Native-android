@@ -226,8 +226,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             case "RVD Continental":
                 deviceType = BluetoothDeviceManager.DeviceType.RVD;
                 break;
-            default:
-                deviceType = BluetoothDeviceManager.DeviceType.OBD215;
         }
 
 
@@ -586,7 +584,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 ,new BindingDialog.AnswerListener() {
             @Override
             public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
-                view.getBluetoothService().take(1).subscribe((next) -> {
+                Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
                     next.answerBindingQuestion(question.questionType, answer);
                 });
             }

@@ -63,7 +63,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
     }
 
     override fun onNotification(event: IEventsInterface.Event, retObject: Any?) {
-        Log.d(TAG,"onNotification() event: $event")
+        Log.d(TAG,"onNotification() event: $event ")
 
         when (event){
 
@@ -76,6 +76,9 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             }
             IEventsInterface.Event.BLUETOOTH_PAIR_TO -> {
+
+            }
+            IEventsInterface.Event.BLUETOOTH_OFF -> {
 
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_STARTED -> {

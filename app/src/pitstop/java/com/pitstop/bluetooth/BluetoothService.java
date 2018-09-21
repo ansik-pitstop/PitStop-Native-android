@@ -594,45 +594,46 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return true;
     }
 
+    // This method is called 4 or 5 times after the app started
     @Override
     public void requestDeviceSearch(boolean urgent, boolean ignoreVerification
             , DeviceSearchCallback callback){
         Log.d(TAG,"requestDeviceSearch() urgent: "+Boolean.toString(urgent)
                 +", ignoreVerification: "+Boolean.toString(ignoreVerification));
-//        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
-//            @Override
-        //Todo("Uncomment whatever is below, was commented for testing")
-//            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
-//                BluetoothDeviceManager.DeviceType deviceType;
-//                if (car.getScannerId() == null){
-//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
-//                }
-//                else if (car.getScannerId().contains("RVD")){
-//                    deviceType = BluetoothDeviceManager.DeviceType.RVD;
-//                }else if (car.getScannerId().contains("215B")){
-//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215;
-//                }else if (car.getScannerId().contains("212B")){
-//                    deviceType = BluetoothDeviceManager.DeviceType.OBD212;
-//                }else if (!car.getScannerId().isEmpty()){
-//                    deviceType = BluetoothDeviceManager.DeviceType.ELM327;
-//                }else{
-//                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
-//                }
-//                callback.onSearchStatus(requestDeviceSearch(urgent,ignoreVerification,deviceType));
-//            }
-//
-//            @Override
-//            public void onNoCarSet(boolean isLocal) {
-//                callback.onSearchStatus(true);
-//            }
-//
-//            @Override
-//            public void onError(RequestError error) {
-//                callback.onSearchStatus(false);
-//            }
-//        });
+
+        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
+            @Override
+            public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
+                BluetoothDeviceManager.DeviceType deviceType;
+                if (car.getScannerId() == null){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+                }
+                else if (car.getScannerId().contains("RVD")){
+                    deviceType = BluetoothDeviceManager.DeviceType.RVD;
+                }else if (car.getScannerId().contains("215B")){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+                }else if (car.getScannerId().contains("212B")){
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD212;
+                }else if (!car.getScannerId().isEmpty()){
+                    deviceType = BluetoothDeviceManager.DeviceType.ELM327;
+                }else{
+                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+                }
+                callback.onSearchStatus(requestDeviceSearch(urgent,ignoreVerification,deviceType));
+            }
+
+            @Override
+            public void onNoCarSet(boolean isLocal) {
+                callback.onSearchStatus(true);
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                callback.onSearchStatus(false);
+            }
+        });
         //Comment the line below
-        callback.onSearchStatus(true);
+//        callback.onSearchStatus(true);
     }
 
     @Override
