@@ -3,6 +3,7 @@ package com.pitstop.bluetooth.searcher
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.continental.rvd.mobile_sdk.internal.logs.logging.domain.LogEntity
 import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.bleDevice.RVDDevice
 
@@ -19,20 +20,24 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
     fun start(): Boolean{
         Log.d(TAG,"start()")
-        sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
-            override fun onSuccess(sdk: ISDKApi?) {
-                Log.d(TAG,"successfully initialized RVD SDK!")
-                this@RVDBluetoothDeviceSearcher.sdk = sdk
-                sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
-                        ,IEventsInterface.EventType.ALL)
-            }
+        if (sdk == null){
+            sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
+                override fun onSuccess(sdk: ISDKApi?) {
+                    Log.d(TAG,"successfully initialized RVD SDK!")
+                    this@RVDBluetoothDeviceSearcher.sdk = sdk
+                    sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
+                            ,IEventsInterface.EventType.ALL)
+                }
 
-            override fun onError(p0: Throwable?) {
-                Log.d(TAG,"error while initializing RVD SDK!")
-            }
+                override fun onError(p0: Throwable?) {
+                    Log.d(TAG,"error while initializing RVD SDK!")
+                }
 
-        }, false)
-        return true
+            }, false)
+            return true
+        }else{
+            return false
+        }
 
     }
 
@@ -56,7 +61,12 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
     override fun onNotification(event: IEventsInterface.Event, retObject: Any?) {
         Log.d(TAG,"onNotification() event: $event")
+
         when (event){
+
+            IEventsInterface.Event.LOG -> {
+                Log.d(TAG,"log: ${(retObject as LogEntity).message}")
+            }
 
             //BLUETOOTH
             IEventsInterface.Event.BLUETOOTH_CONNECT_TO -> {

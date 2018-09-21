@@ -175,7 +175,7 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                     rvdSDK.getAvailableLiveReading(object: TApiCallback<Map<DonglePID,Boolean>>{
                         override fun onSuccess(availableLiveReading: Map<DonglePID, Boolean>?) {
                             if (availableLiveReading != null)
-                                availableLiveReading.filter{true}.forEach({
+                                availableLiveReading.filter{true}.forEach {
                                     rvdSDK.sampleLiveReading(it.key, object: TApiCallback<LiveReadingSample>{
                                         override fun onSuccess(liveReadingSample: LiveReadingSample?) {
                                             if (liveReadingSample != null){
@@ -191,7 +191,7 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                                         }
 
                                     })
-                                })
+                                }
                         }
 
                         override fun onError(error: Throwable?) {
