@@ -85,22 +85,22 @@ class BluetoothDeviceManager(private val mContext: Context
      */
     override fun onBindingRequired() {
         Log.d(TAG, "onBindingRequired()")
-        dataListener?.onBindingRequired()
+        dataListener.onBindingRequired()
     }
 
     override fun onBindingQuestionPrompted(question: BindingQuestion) {
         Log.d(TAG, "onBindingQuestionPrompted() question: $question")
-        dataListener?.onBindingQuestionPrompted(question)
+        dataListener.onBindingQuestionPrompted(question)
     }
 
     override fun onFirmwareInstallationRequired() {
         Log.d(TAG, "onFirmwareInstallationRequired()")
-        dataListener?.onFirmwareInstallationRequired()
+        dataListener.onFirmwareInstallationRequired()
     }
 
     override fun onFirmwareInstallationProgress(progress: Float) {
         Log.d(TAG, "onFirmwareInstallationProgress() progress:$progress")
-        dataListener?.onFirmwareInstallationProgress(progress)
+        dataListener.onFirmwareInstallationProgress(progress)
     }
 
     override fun onConnectionFailure(err: Error) {
@@ -113,27 +113,27 @@ class BluetoothDeviceManager(private val mContext: Context
 
     override fun onBindingProgress(progress: Float) {
         Log.d(TAG,"onBindingProgress() progress: $progress")
-        dataListener?.onBindingProgress(progress)
+        dataListener.onBindingProgress(progress)
     }
 
     override fun onBindingFinished() {
         Log.d(TAG,"onBindingFinished()")
-        dataListener?.onBindingFinished()
+        dataListener.onBindingFinished()
     }
 
     override fun onBindingError(err: Error) {
         Log.d(TAG,"onBindingError() err: $err")
-        dataListener?.onBindingError(err)
+        dataListener.onBindingError(err)
     }
 
     override fun onFirmwareInstallationFinished() {
         Log.d(TAG,"onFirmwareInstallationFinished()")
-        dataListener?.onFirmwareInstallationFinished()
+        dataListener.onFirmwareInstallationFinished()
     }
 
     override fun onFirmwareInstallationError(err: Error) {
         Log.d(TAG,"onFirmwareInstallationError() err: $err")
-        dataListener?.onFirmwareInstallationError(err)
+        dataListener.onFirmwareInstallationError(err)
     }
 
     fun onCompleted(device: AbstractDevice) {
@@ -146,7 +146,7 @@ class BluetoothDeviceManager(private val mContext: Context
      */
 
     fun idrFuelEvent(scannerID: String, fuelConsumed: Double) {
-        dataListener?.idrFuelEvent(scannerID, fuelConsumed)
+        dataListener.idrFuelEvent(scannerID, fuelConsumed)
     }
 
     fun alarmEvent(alarm: Alarm) {
@@ -181,7 +181,7 @@ class BluetoothDeviceManager(private val mContext: Context
     fun setState(state: Int) {
         Log.d(TAG, "setState() state: $state")
         this.btConnectionState = state
-        dataListener!!.getBluetoothState(state)
+        dataListener.getBluetoothState(state)
 
     }
 

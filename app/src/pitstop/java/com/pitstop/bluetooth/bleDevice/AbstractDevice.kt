@@ -1,5 +1,7 @@
 package com.pitstop.bluetooth.bleDevice
 
+import com.pitstop.bluetooth.communicator.BluetoothCommunicator
+
 /**
  * Created by Ben Wu on 2016-08-29.
  */

@@ -572,7 +572,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.showAskHasDeviceView();
             view.hideLoading("");
         }
-
     }
 
     @Override
