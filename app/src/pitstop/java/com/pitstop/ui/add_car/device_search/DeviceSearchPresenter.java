@@ -316,7 +316,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     searchingForDevice = true;
                     findDeviceTimer.start();
 
-                } else{
+                }
+                else{
                     view.displayToast(R.string.request_search_failed_add_car_message);
                 }
             }
