@@ -361,6 +361,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     }
 
     @Override
+
     public void onDestroy() {
         Log.i(TAG, "Destroying auto-connect service");
 

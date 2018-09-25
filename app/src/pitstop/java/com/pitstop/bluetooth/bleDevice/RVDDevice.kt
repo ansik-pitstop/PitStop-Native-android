@@ -43,9 +43,9 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                 Log.e(TAG,"Live reading error!")
             }
             IEventsInterface.Event.LIVE_READINGS_RECEIVED -> {
-                rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
+                rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo> {
                     override fun onSuccess(deviceInfo: DeviceInfo?) {
-                        if (deviceInfo != null){
+                        if (deviceInfo != null) {
                             if (currentPidPackage == null) currentPidPackage = RVDPidPackage(deviceInfo.name, System.currentTimeMillis())
                             val liveReadingSample = retObject as LiveReadingSample
                             currentPidPackage!!.addPid(liveReadingSample.pid?.id.toString()
@@ -143,9 +143,9 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                         override fun onSuccess(supportedPids: Map<DonglePID, Boolean>?) {
                             if (supportedPids != null){
                                 val supportedList = mutableListOf<String>()
-                                supportedPids.filter { it.value }.forEach({
+                                supportedPids.filter { it.value }.forEach {
                                     supportedList.add(it.key.id.toString())
-                                })
+                                }
                                 deviceManager.onGotSupportedPids(supportedList,deviceInfo.name)
                             }
                         }

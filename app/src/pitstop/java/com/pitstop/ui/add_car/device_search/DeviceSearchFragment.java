@@ -43,7 +43,7 @@ import io.reactivex.Observable;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
+public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
     private final String TAG = getClass().getSimpleName();
     public static final int RC_PENDING_ADD_CAR = 1043;
@@ -61,6 +61,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
     private AlertDialog connectErrorDialog;
+    private AlertDialog shouldStartBindingDialog;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -109,7 +110,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 R.layout.fragment_device_search, container, false);
         ButterKnife.bind(this, rootView);
 
-        if (presenter == null){
+        if (presenter == null) {
             presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper);
         }
 
@@ -441,12 +442,35 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     FirmwareInstallationDialog firmwareInstallationDialog = new FirmwareInstallationDialog();
 
     @Override
+    public void displayShouldStartBinding(BindingDialog.ShouldStartBindingListener startBindingListener) {
+        if (shouldStartBindingDialog == null) {
+            shouldStartBindingDialog = new AnimatedDialogBuilder(getActivity())
+                    .setTitle(getString(R.string.binding_process_title))
+                    .setCancelable(true)
+                    .setMessage(getString(R.string.binding_should_start))
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
+                        startBindingListener.onStart();
+                    })
+                    .setNegativeButton(getString(R.string.no_button_text), (dialogInterface, i) -> {
+                        startBindingListener.onCancel();
+                        dialogInterface.cancel();
+                    }).create();
+        }
+        shouldStartBindingDialog.show();
+    }
+
+    @Override
     public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
         Log.d(TAG,"displayBindingDialog()");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
         bindingDialog.setCancelable(false);
         bindingDialog.registerAnswerListener(answerListener);
         bindingDialog.setInstruction(startingInstruction);
+    }
+
+    @Override
+    public void dismissBindingDialog() {
+        bindingDialog.dismiss();
     }
 
     @Override

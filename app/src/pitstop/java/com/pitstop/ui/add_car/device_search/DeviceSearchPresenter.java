@@ -225,8 +225,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 break;
             case "RVD Continental":
                 deviceType = BluetoothDeviceManager.DeviceType.RVD;
+                onBindingRequired();
                 break;
         }
+
 
 
         //TEST CODE
@@ -269,59 +271,59 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 //        }
         //END OF TEST CODE
 
-        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
-                , MixpanelHelper.PENDING);
-
-        //Check if mileage is valid
-        if (!AddCarUtils.isMileageValid(view.getMileage())){
-            view.onMileageInvalid();
-            return;
-        }
-        //Check if permissions are granted
-        if (!view.checkPermissions()){
-            Log.d(TAG,"Permissions not granted, cannot start search");
-            return;
-        }
-
-        //Check if already connected to device
-        Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
-            if (next.getDeviceState()
-                    .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
-
-                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
-                        , MixpanelHelper.SUCCESS);
-
-                readyDevice = next.getReadyDevice();
-
-                //Check if retrieved VIN is valid, otherwise begin timer
-                if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
-                    searchingForVin = true;
-                    next.requestVin();
-                    getVinTimer.start();
-                }
-
-                //Add the car
-                else{
-                    addCar(readyDevice);
-                }
-
-            }
-            //Otherwise request search and wait for callback
-            else{
-                //Try to start search or check if state isn't disconnected and therefore already searching
-                if (next.requestDeviceSearch(true, true, deviceType)
-                        || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
-                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
-                    searchingForDevice = true;
-                    findDeviceTimer.start();
-
-                }
-                else{
-                    view.displayToast(R.string.request_search_failed_add_car_message);
-                }
-            }
-        });
+//        mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+//                , MixpanelHelper.PENDING);
+//
+//        //Check if mileage is valid
+//        if (!AddCarUtils.isMileageValid(view.getMileage())){
+//            view.onMileageInvalid();
+//            return;
+//        }
+//        //Check if permissions are granted
+//        if (!view.checkPermissions()){
+//            Log.d(TAG,"Permissions not granted, cannot start search");
+//            return;
+//        }
+//
+//        //Check if already connected to device
+//        Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+//            if (next.getDeviceState()
+//                    .equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
+//
+//                mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
+//                        , MixpanelHelper.SUCCESS);
+//
+//                readyDevice = next.getReadyDevice();
+//
+//                //Check if retrieved VIN is valid, otherwise begin timer
+//                if (!AddCarUtils.isVinValid(readyDevice.getVin())){
+//                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
+//                    searchingForVin = true;
+//                    next.requestVin();
+//                    getVinTimer.start();
+//                }
+//
+//                //Add the car
+//                else{
+//                    addCar(readyDevice);
+//                }
+//
+//            }
+//            //Otherwise request search and wait for callback
+//            else{
+//                //Try to start search or check if state isn't disconnected and therefore already searching
+//                if (next.requestDeviceSearch(true, true, deviceType)
+//                        || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
+//                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
+//                    searchingForDevice = true;
+//                    findDeviceTimer.start();
+//
+//                }
+//                else{
+//                    view.displayToast(R.string.request_search_failed_add_car_message);
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -580,26 +582,43 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onBindingRequired() {
-        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
-        view.displayBindingDialog("Binding required, a set of questions needs to be answered"
-                ,new BindingDialog.AnswerListener() {
+        Log.d(TAG, "onBindingRequired");
+
+        view.displayShouldStartBinding(new BindingDialog.ShouldStartBindingListener() {
             @Override
-            public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
+            public void onStart() {
+                Log.d(TAG, "onBindingRequired, onStart");
                 Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
-                    next.answerBindingQuestion(question.questionType, answer);
+                    next.startBindingProcess();
                 });
             }
 
             @Override
-            public void onBackPressed(@NotNull BindingQuestion question) {
-
-            }
-
-            @Override
-            public void onCancelPressed(@NotNull BindingQuestion question) {
-
+            public void onCancel() {
+                Log.d(TAG, "onBindingRequired, onCancel");
             }
         });
+
+//        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
+//        view.displayBindingDialog("Binding required, a set of questions needs to be answered"
+//                ,new BindingDialog.AnswerListener() {
+//            @Override
+//            public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
+//                Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+//                    next.answerBindingQuestion(question.questionType, answer);
+//                });
+//            }
+//
+//            @Override
+//            public void onBackPressed(@NotNull BindingQuestion question) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelPressed(@NotNull BindingQuestion question) {
+//
+//            }
+//        });
     }
 
     @Override

@@ -32,7 +32,12 @@ class BindingDialog: DialogFragment() {
     interface AnswerListener{
         fun onAnswerProvided(answer: String, question: BindingQuestion)
         fun onBackPressed(question: BindingQuestion)
-        fun onCancelPressed(question: BindingQuestion)
+        fun onCancelPressed(question: BindingQuestion?)
+    }
+
+    interface ShouldStartBindingListener {
+        fun onStart()
+        fun onCancel()
     }
 
     private var answerListener: AnswerListener? = null
@@ -70,12 +75,12 @@ class BindingDialog: DialogFragment() {
         if (pendingQuestion != null){
             showQuestion(pendingQuestion!!)
         }
-        if (!pendingMessage.isEmpty()){
+        if (!pendingMessage.isEmpty()) {
             instruction?.text = pendingMessage
         }
 
         answerButton?.setOnClickListener {
-            if (question != null){
+            if (question != null) {
                 answerListener?.onAnswerProvided(
                         when (currentAnswerType) {
                             AnswerType.INPUT -> answerEditText?.text.toString()
@@ -85,16 +90,20 @@ class BindingDialog: DialogFragment() {
                         ,question!!
                 )
 
-                backButton?.setOnClickListener {
-                    answerListener?.onBackPressed(question!!)
-                }
-                cancelButton?.setOnClickListener {
-                    answerListener?.onCancelPressed(question!!)
-                }
+//                backButton?.setOnClickListener {
+//                    answerListener?.onBackPressed(question!!)
+//                }
+//                cancelButton?.setOnClickListener {
+//                    answerListener?.onCancelPressed(question!!)
+//                }
 
                 //Hide input fields till next question arrives
                 waitForNextQuestion()
             }
+        }
+
+        cancelButton?.setOnClickListener {
+            answerListener?.onCancelPressed(question)
         }
     }
 
