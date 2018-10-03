@@ -438,7 +438,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
         return deviceSelectionSpinner.getSelectedItem().toString();
     }
 
-    BindingDialog bindingDialog = new BindingDialog();
+    BindingDialog bindingDialog;
     FirmwareInstallationDialog firmwareInstallationDialog = new FirmwareInstallationDialog();
 
     @Override
@@ -461,10 +461,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
     @Override
     public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
-        if (!bindingDialog.isHidden()) {
+        if (bindingDialog != null) {
             return;
         }
-        Log.d(TAG,"displayBindingDialog()");
+        bindingDialog = new BindingDialog();
+        Log.d(TAG,"displayBindingDialog");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
         bindingDialog.setCancelable(false);
         bindingDialog.registerAnswerListener(answerListener);
@@ -474,6 +475,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
     @Override
     public void dismissBindingDialog() {
         bindingDialog.dismiss();
+        bindingDialog = null;
     }
 
     @Override

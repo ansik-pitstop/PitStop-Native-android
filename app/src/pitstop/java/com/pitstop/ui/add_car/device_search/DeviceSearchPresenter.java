@@ -225,6 +225,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 break;
             case "RVD Continental":
                 deviceType = BluetoothDeviceManager.DeviceType.RVD;
+                displayBindingDialog();
                 break;
         }
 
@@ -619,7 +620,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
                     @Override
                     public void onCancelPressed(@NotNull BindingQuestion question) {
-
+                        // TODO: Cancel binding process on the RVD SDK
+                        view.dismissBindingDialog();
                     }
                 });
     }
