@@ -461,6 +461,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
     @Override
     public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
+        if (!bindingDialog.isHidden()) {
+            return;
+        }
         Log.d(TAG,"displayBindingDialog()");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
         bindingDialog.setCancelable(false);
