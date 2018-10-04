@@ -615,7 +615,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
                     @Override
                     public void onBackPressed(@NotNull BindingQuestion question) {
-
                     }
 
                     @Override
@@ -628,8 +627,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     @Override
     public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
-
-
         view.displayBindingQuestion(question);
     }
 

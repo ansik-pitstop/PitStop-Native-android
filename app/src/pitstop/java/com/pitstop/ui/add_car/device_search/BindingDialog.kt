@@ -21,10 +21,10 @@ import kotlinx.android.synthetic.main.layout_binding_dialog.*
  *
  * Created by Karol Zdebel on 9/5/2018.
  */
+
 class BindingDialog: DialogFragment() {
 
     private val TAG = BindingDialog::class.java.simpleName
-
     enum class AnswerType {
         INSTRUCTION, INPUT, SELECT
     }
@@ -54,7 +54,6 @@ class BindingDialog: DialogFragment() {
 
     private var pendingQuestion: BindingQuestion? = null
     private var pendingProgress = 0.0f
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.layout_binding_dialog,container,false)
@@ -139,53 +138,35 @@ class BindingDialog: DialogFragment() {
 
         when (question.questionType){
 
-            EBindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION ->{
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.VIN -> {
+            EBindingQuestionType.VIN,
+            EBindingQuestionType.ODOMETER -> {
                 toggleAnswer(AnswerType.INPUT)
             }
-            EBindingQuestionType.CAR_MANUFACTURER -> {
+            EBindingQuestionType.CAR_MANUFACTURER,
+            EBindingQuestionType.CAR_MODEL,
+            EBindingQuestionType.CAR_ENGINE -> {
                 toggleAnswer(AnswerType.SELECT)
                 populateSpinner(question.answers)
             }
-            EBindingQuestionType.CAR_MODEL -> {
-                toggleAnswer(AnswerType.SELECT)
-                populateSpinner(question.answers)
-            }
-            EBindingQuestionType.CAR_ENGINE ->{
-                toggleAnswer(AnswerType.SELECT)
-                populateSpinner(question.answers)
-            }
+
+            EBindingQuestionType.OBSERVE_DASHBOARD_LIGHTS,
+            EBindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION,
+            EBindingQuestionType.IGNITION_OFF,
+            EBindingQuestionType.ENGINE_ON,
+            EBindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF,
+            EBindingQuestionType.BINDING_FEEDBACK,
+            EBindingQuestionType.LOOKUP,
+            EBindingQuestionType.CHECK_DASHBOARD_LIGHT,
             EBindingQuestionType.REGIONAL_RESTRICTION -> {
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
-            EBindingQuestionType.OBSERVE_DASHBOARD_LIGHTS ->{
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.CHECK_DASHBOARD_LIGHT ->{
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.LOOKUP -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.ODOMETER ->{
-                toggleAnswer(AnswerType.INPUT)
-            }
-            EBindingQuestionType.BINDING_FEEDBACK -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.IGNITION_OFF -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-            EBindingQuestionType.ENGINE_ON -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
+
             EBindingQuestionType.COUNTRY_OF_INSTALLATION -> {
                 toggleAnswer(AnswerType.INSTRUCTION)
+            }
+
+            else -> {
+                Log.d(TAG, "Invalid question type.")
             }
         }
     }
