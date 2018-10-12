@@ -480,13 +480,13 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
     @Override
     public void displayBindingQuestion(BindingQuestion bindingQuestion) {
-        Log.d(TAG,"displayBindingQuestion() question: "+bindingQuestion);
+        Log.d(TAG,"displayBindingQuestion() question: " + bindingQuestion);
         bindingDialog.showQuestion(bindingQuestion);
     }
 
     @Override
     public void displayBindingProgress(float progress) {
-        Log.d(TAG,"displayBindingProgress() progress: "+progress);
+        Log.d(TAG,"displayBindingProgress() progress: " + progress);
         bindingDialog.showProgress(progress);
     }
 

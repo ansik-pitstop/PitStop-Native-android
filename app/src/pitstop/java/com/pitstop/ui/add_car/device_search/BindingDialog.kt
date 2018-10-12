@@ -84,11 +84,12 @@ class BindingDialog: DialogFragment() {
                         when (currentAnswerType) {
                             AnswerType.INPUT -> answerEditText?.text.toString()
                             AnswerType.SELECT -> answerSpinner?.selectedItem.toString()
-                            else -> ""
+                            AnswerType.INSTRUCTION -> {
+                                ""
+                            }
                         }
                         ,question!!
                 )
-
 //                backButton?.setOnClickListener {
 //                    answerListener?.onBackPressed(question!!)
 //                }

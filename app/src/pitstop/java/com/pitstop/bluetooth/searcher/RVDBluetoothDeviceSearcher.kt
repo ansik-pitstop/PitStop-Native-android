@@ -41,19 +41,19 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
         }
     }
 
-    fun respondBindingRequest(start: Boolean): Boolean{
+    fun respondBindingRequest(start: Boolean): Boolean {
         Log.d(TAG,"respondBindingRequest() start: $start")
         if (start) sdk?.startBindingProcess(false)
         return start
     }
 
-    fun answerBindingQuestion(questionType: EBindingQuestionType, response: String): Boolean{
+    fun answerBindingQuestion(questionType: EBindingQuestionType, response: String): Boolean {
         Log.d(TAG,"answerBindingQuestion() question:$questionType, response:$response")
         sdk?.answerBindingUserInput(questionType,response)
         return true
     }
 
-    fun respondFirmwareInstallationRequest(start: Boolean): Boolean{
+    fun respondFirmwareInstallationRequest(start: Boolean): Boolean {
         Log.d(TAG,"respondFirmwareUpdateRequest() start: $start")
         if (start) sdk?.startDownloadUpdate()
         return start
@@ -70,24 +70,18 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
 
             //BLUETOOTH
             IEventsInterface.Event.BLUETOOTH_CONNECT_TO -> {
-                Log.d(TAG, "RVD_${event.toString()}")
             }
             IEventsInterface.Event.BLUETOOTH_PAIR_TO -> {
-                Log.d(TAG, "RVD_${event.toString()}")
             }
             IEventsInterface.Event.BLUETOOTH_OFF -> {
-                Log.d(TAG, "RVD_${event.toString()}")
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_STARTED -> {
-                Log.d(TAG, "RVD_${event.toString()}")
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_FINISHED -> {
-                Log.d(TAG, "RVD_${event.toString()}")
                 deviceManager.scanFinished()
             }
             IEventsInterface.Event.BLUETOOTH_PAIRING_ERROR -> {
-                Log.d(TAG, "RVD_${event.toString()}")
-//                Param object should be instance of Throwable
+                // Param object should be instance of Throwable
                 rvdBluetoothListener.onConnectionFailure(retObject as Error)
             }
 
