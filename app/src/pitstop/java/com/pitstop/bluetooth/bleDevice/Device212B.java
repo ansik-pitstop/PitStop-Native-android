@@ -334,8 +334,8 @@ public class Device212B implements CastelDevice {
             final String tripFlag = dataPackageInfo.tripFlag != null ? dataPackageInfo.tripFlag : "-1";
 
             // process dtc data
-            if ((dataPackageInfo.dtcData != null && dataPackageInfo.result == 6) ||
-                    (tripFlag.equals("6") || tripFlag.equals("5")) && dataPackageInfo.dtcData != null) {
+            if ((dataPackageInfo.dtcData != null &&
+                    dataPackageInfo.result == 6) || (tripFlag.equals("6") || tripFlag.equals("5"))) {
 
                 Log.i(TAG, "Parsing DTC data");
 
@@ -361,13 +361,16 @@ public class Device212B implements CastelDevice {
                         }
                     }
                 }
-
-                dataListener.dtcData(dtcPackage);
+                if (dataListener != null) {
+                    dataListener.dtcData(dtcPackage);
+                }
             }
 
             if(dataPackageInfo.result == 5) {
                 Log.d(TAG, "Result 5 PIDs");
-                dataListener.pidData(null);
+                if (dataListener != null) {
+                    dataListener.pidData(null);
+                }
             }
 
             // fixed upload pids
@@ -407,7 +410,9 @@ public class Device212B implements CastelDevice {
                 for (int i = 0; i < pidMapList.size(); i++) {
                     OBD212PidPackage pidPackage = new OBD212PidPackage(templatePidPackage);
                     pidPackage.setPids(pidMapList.get(i));
-                    dataListener.idrPidData(pidPackage);
+                    if (dataListener != null) {
+                        dataListener.idrPidData(pidPackage);
+                    }
                 }
             }
 
@@ -421,7 +426,9 @@ public class Device212B implements CastelDevice {
                     for (PIDInfo pidInfo: dataPackageInfo.freezeData){
                         ffPackage.freezeData.put(pidInfo.pidType, pidInfo.value);
                     }
-                    dataListener.ffData(ffPackage);
+                    if (dataListener != null) {
+                        dataListener.ffData(ffPackage);
+                    }
                 }
             }
         }
