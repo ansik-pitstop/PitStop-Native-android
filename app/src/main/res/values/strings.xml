@@ -564,7 +564,7 @@
     <string name="message">Message</string>
     <string name="my_garage">My Garage</string>
     <string name="no_associated_shop">No Associated Shop</string>
-    <string name="purchase_device_message">It appears you do not have a Pitstop device paired to this car. With the device we can track you car's mileage, fuel consumption, trips, engine codes, and driving alarms. If you would like all these features please purchase a device and connect it to your car.</string>
+    <string name="purchase_device_message">It appears you do not have a Pitstop device paired to this car. With the device we can track you car\'s mileage, fuel consumption, trips, engine codes, and driving alarms. If you would like all these features please purchase a device and connect it to your car.</string>
     <string name="no_paired_device">No Paired Device</string>
     <string name="no_matching_shops_text">No Shop</string>
     <string name="purchase_pitstop_device">Purchase Pitstop Device</string>
@@ -588,8 +588,8 @@
     <string name="update_license_plate">Update License Plate</string>
     <string name="car_delete">Delete Car</string>
     <string name="change_dealerhsip_confirmation">Are you sure you want to change the dealership of this car?</string>
-    <string name="pitstop_proposal">Pitstop's Proposal</string>
-    <string name="your_device_threshhold">Your device's threshold</string>
+    <string name="pitstop_proposal">Pitstop\'s Proposal</string>
+    <string name="your_device_threshhold">Your device\'s threshold</string>
     <string name="generating_reoprt_error">Error  generating report, check your network connection</string>
     <string name="retreiving_engine_codes">Retrieving engine codes</string>
     <string name="request_service_title">Request Service</string>
