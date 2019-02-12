@@ -113,7 +113,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             Logger.getInstance()!!.logException(tag, e, DebugMessage.TYPE_REPO)
         }
 
-        networkHelper.post("car", { response, requestError ->
+        networkHelper.post("v1/car", { response, requestError ->
             try {
                 if (requestError == null) {
                     var car: Car? = null
