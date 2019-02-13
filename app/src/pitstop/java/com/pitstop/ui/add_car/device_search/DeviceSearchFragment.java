@@ -123,7 +123,8 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
         presenter.subscribe(this);
 
-        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
+//        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
+        String[] spinnerSelection = new String[]{"212B","215B","ELM327"};
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,spinnerSelection);
         deviceSelectionSpinner.setAdapter(arrayAdapter);
 

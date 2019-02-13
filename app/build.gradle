@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.27.1'
     }
 }
 
@@ -33,6 +33,14 @@ allprojects {
 }
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'pitstopandroidkey'
+            keyPassword 'Ansik.23'
+            storeFile file('/Users/brenoxavierpinto/Projetos/Pitstop/pitstopkeystore.jks')
+            storePassword 'Ansik.23'
+        }
+    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -174,7 +182,7 @@ dependencies {
     implementation 'com.goebl:david-webb:1.3.0'
     implementation 'com.parse:parse-android:1.17.3'
     implementation 'com.parse:parse-gcm-android:1.17.3'
-    implementation 'com.facebook.android:facebook-login:[4,5)'
+    implementation 'com.facebook.android:facebook-login:4.40.0'
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-urlconnection:1.5.0'
     implementation 'io.smooch:core:5.13.3'
