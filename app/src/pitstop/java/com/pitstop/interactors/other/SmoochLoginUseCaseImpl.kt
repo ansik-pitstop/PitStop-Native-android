@@ -46,6 +46,23 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                 Log.d(tag,"got current user: "+user)
                 val userId = user.id
 
+                //Set user so that when this use case finishes the user is set and ready for messaging
+                SmoochUtil.setSmoochProperties(user)
+                if (user.settings.hasMainCar()){
+                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io())
+                            .subscribe({next->
+                                val car: Car = next.data!!
+                                //Set car
+                                SmoochUtil.setSmoochProperties(car)
+                                Log.d(tag,"set smooch user proerties! user: $user")
+                            }, {error ->
+                                Log.e(tag,"error storing custom properties! err: $error")
+                            })
+                    compositeDisposable.add(disposable)
+                }
+
                 try {
                     val call = smoochApi.getSmoochToken(userId).execute()
                     if (call.isSuccessful) {
