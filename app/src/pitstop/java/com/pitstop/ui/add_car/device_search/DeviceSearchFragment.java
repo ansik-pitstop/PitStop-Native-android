@@ -82,7 +82,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
             progressDialog.setCancelable(false);
             progressDialog.setIndeterminate(true);
             /*Has to be handled because when the ProgressDialog
-            **is open onBackPressed() is not invoked*/
+             **is open onBackPressed() is not invoked*/
             progressDialog.setOnKeyListener((dialog, keyCode, event) -> {
                 if (presenter != null){
                     presenter.onProgressDialogKeyPressed(keyCode);
@@ -123,8 +123,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
         presenter.subscribe(this);
 
-//        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
-        String[] spinnerSelection = new String[]{"212B","215B","ELM327"};
+        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,spinnerSelection);
         deviceSelectionSpinner.setAdapter(arrayAdapter);
 
@@ -373,7 +372,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
                     .setCancelable(true)
                     .setMessage(getString(R.string.connection_try_again))
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
-                            presenter.startSearch();
+                        presenter.startSearch();
                     })
                     .setNegativeButton(getString(R.string.no_button_text), (dialogInterface, i) -> {
                         dialogInterface.cancel();
