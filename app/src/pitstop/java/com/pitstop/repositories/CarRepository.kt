@@ -164,6 +164,11 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }, body)
     }
 
+    fun setCurrent(car: Car) {
+        car.isCurrentCar = true
+        localCarStorage.deleteAndStoreCar(car)
+    }
+
     fun updateMileage(carId: Int, mileage: Double): Observable<Boolean>{
         return carApi.updateMileage(TotalMileage(mileage,carId))
                 .doOnNext({localCarStorage.updateCarMileage(carId, mileage)})
@@ -260,17 +265,20 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 val listType = object : TypeToken<List<Car>>() {}.type
                 val carList: List<Car> = gson.fromJson(carListResponse.body(),listType)
                 return@map RepositoryResponse(carList,false)
-            }}.doOnNext({
+            }}.doOnNext {
+                it.data?.forEach {
+                    if (it.shop != null) {
+                        localShopStorage.removeById(it.shopId)
+                        localShopStorage.storeDealership(it.shop)
+                    }
 
-            it.data?.forEach {
-                if (it.shop != null){
-                    localShopStorage.removeById(it.shopId)
-                    localShopStorage.storeDealership(it.shop)
+                    val localCar = localCarStorage.getCar(it.id)
+                    if (localCar != null && localCar.isCurrentCar) {
+                        it.isCurrentCar = true
+                    }
+                    localCarStorage.deleteAndStoreCar(it)
                 }
-
             }
-            localCarStorage.deleteAndStoreCars(it.data ?: arrayListOf())
-        })
     }
 
     private fun getLocal(id: Int): Observable<RepositoryResponse<Car>>{
@@ -289,7 +297,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         val remote = carApi.getCar(id)
 
         return remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
-                .doOnNext({next ->
+                .doOnNext { next ->
                     if (next.data == null ) return@doOnNext
 
                     Log.d(tag,"remote.cache() local store update cars: "+next.data)
@@ -298,9 +306,11 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                         localShopStorage.removeById(next.data.shopId)
                         localShopStorage.storeDealership(next.data.shop)
                     }
-
+                    val localCar = localCarStorage.getCar(next.data!!.id)
+                    if (localCar != null && localCar.isCurrentCar) {
+                        next.data.isCurrentCar = true
+                    }
                     localCarStorage.deleteAndStoreCar(next.data)
-                })
+                }
     }
-
 }

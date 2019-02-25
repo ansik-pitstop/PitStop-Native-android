@@ -107,7 +107,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                 }else if (response.getData() == null && response.isLocal()){
                                     return;
                                 }
-                                response.getData().setCurrentCar(true);
+                                carRepository.setCurrent(response.getData());
 
                                 GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
                                         , response.getData().getShop()
