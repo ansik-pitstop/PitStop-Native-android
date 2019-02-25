@@ -70,6 +70,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
         useCaseHandler.post(this);
     }
 
+
     private void onCarAddedWithBackendShop(Car car){
         Logger.getInstance().logI(TAG,"Use case finished: car added with backend shop, car= "+car
                 , DebugMessage.TYPE_USE_CASE);
@@ -101,7 +102,7 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
             @Override
             public void onSuccess(User user) {
                 Log.d(TAG,"getCurrentUser().onSuccess() user: "+user);
-                addCar(vin,baseMileage,user,scannerId,callback);
+                addCar(vin, baseMileage, user, scannerId, callback);
             }
             @Override
             public void onError(RequestError error) {

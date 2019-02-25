@@ -47,10 +47,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     @Override
     public void onBindViewHolder(CarsAdapter.CarViewHolder holder, int position) {
-        holder.bind(carList.get(position),dealershipList.get(position));
+        holder.bind(carList.get(position));
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -72,7 +70,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             this.scanner = itemView.findViewById(R.id.device_paired_id);
             this.dealershipName = itemView.findViewById(R.id.car_dealership_id);
         }
-        public void bind(Car car, Dealership dealership){
+
+        public void bind(Car car) {
             boolean isCarCurrent  = car.isCurrentCar();
             Log.d(TAG, car.getModel() + isCarCurrent);
             carNameView.setText(car.getYear() + " " + car.getMake() + " " + car.getModel());
@@ -85,18 +84,28 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 scanner.setTextColor(Color.GRAY);
                 dealershipName.setTextColor(Color.GRAY);
             }
-            if(car.getScannerId() == null){
+
+            String scannerId = car.getScannerId();
+            if (scannerId == null) {
                 scanner.setText("No Paired Device");
+            } else {
+                scanner.setText(scannerId);
             }
-            else {
-                scanner.setText(car.getScannerId());
+
+            Dealership carShop = car.getShop();
+            String noShop = "No Associated Shop";
+
+            if (carShop == null) {
+                dealershipName.setText(noShop);
+                return;
             }
-            if (dealership.getName().equalsIgnoreCase("No Dealership")
-                    || !dealership.getName().equalsIgnoreCase("No Shop") ) {
-                dealershipName.setText(dealership.getName());
-            }
-            else {
-                dealershipName.setText("No Associated Shop");
+
+            String carShopName = carShop.getName();
+            if (carShopName.equalsIgnoreCase("No Dealership")
+                    || carShopName.equalsIgnoreCase("No Shop")) {
+                dealershipName.setText(noShop);
+            } else {
+                dealershipName.setText(carShopName);
             }
         }
     }

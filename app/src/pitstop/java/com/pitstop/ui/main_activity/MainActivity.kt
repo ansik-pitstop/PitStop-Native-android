@@ -330,6 +330,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         carRecyclerView?.visibility = View.VISIBLE
         errorLoadingCars?.visibility = View.GONE
         carsTapDescription?.visibility = View.VISIBLE
+
         carsAdapter?.notifyDataSetChanged()
         if (carList.size == 0) {
             noCarsView()
