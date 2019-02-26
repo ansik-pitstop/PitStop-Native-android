@@ -48,6 +48,7 @@ import com.pitstop.utils.TimeoutTimer;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ import java.util.UUID;
  * Created by ishan on 2017-12-08.
  */
 
-public class ELM327Device implements AbstractDevice {
+public class ELM327Device implements LowLevelDevice {
 
     public static String NAME = "obdELM327";
 
@@ -147,33 +148,6 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public UUID getServiceUuid() {
-        return MY_UUID;
-
-    }
-
-    @Override
-    public UUID getReadChar() {
-        return MY_UUID;
-
-    }
-
-    @Override
-    public UUID getWriteChar(){return MY_UUID;}
-
-
-    @Override
-    public byte[] getBytes(String payload) {
-        return payload.getBytes();
-    }
-
-    @Override
-    public void parseData(byte[] data) {
-        Log.d(TAG, data.toString());
-
-    }
-
-    @Override
     public void onConnectionStateChange(int state) {
         Log.d(TAG,"onConnectionStateChange() state: "+state);
         this.manager.setState(state);
@@ -197,11 +171,6 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public void requestData() {
-        Log.d(TAG,"requestData()");
-    }
-
-    @Override
     public boolean getVin() {
         Log.d(TAG, "getVin()");
         if (communicator == null) return false;
@@ -210,21 +179,7 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public boolean getRtc() { //Todo: this method doesn't belong here
-        Log.d(TAG,"getRtc()");
-        //ELM devices dont have internal clock or memore so the rtc tome returned should just be current time
-        manager.onGotRtc(System.currentTimeMillis() / 1000);
-        return true;
-    }
-
-    @Override
-    public boolean setRtc(long rtcTime) { //Todo: this method doesn't belong here
-        Log.d(TAG,"setRtc() bluetoothDeviceTime: "+rtcTime);
-        return true;
-    }
-
-    @Override
-    public boolean getPids(String pids) {
+    public boolean getPids(List<String> pids) {
         Log.d(TAG,"getPids() pids: "+pids);
         //IMPLEMENT THIS
         return false;
@@ -238,7 +193,7 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public boolean setPidsToSend(String pids, int timeInterval) {
+    public boolean setPidsToSend(List<String>  pids, int timeInterval) {
         Log.d(TAG,"setPidsToSend() pids: "+pids+", timeInterval: "+timeInterval);
         //IMPLEMENT THIS
         return false;
@@ -312,11 +267,6 @@ public class ELM327Device implements AbstractDevice {
     }
 
     @Override
-    public boolean getFreezeFrame() {
-        return false; //Implement this
-    }
-
-    @Override
     public synchronized boolean connectToDevice(BluetoothDevice device) {
 
         Log.d(TAG, "connectToDevice: " + device.getName());
@@ -369,7 +319,7 @@ public class ELM327Device implements AbstractDevice {
             for (String dtc : codesCommand.getCodes()) {
                 dtcPackage.dtcs.put(dtc, false);
             }
-            manager.gotDtcData(dtcPackage);
+            manager.onGotDtcData(dtcPackage);
             currentDtcsRequested = false;
             getPendingDtcs();
         }
@@ -380,7 +330,7 @@ public class ELM327Device implements AbstractDevice {
             for (String dtc: codesCommand.getCodes()) {
                 dtcPackage.dtcs.put(dtc, true);
             }
-            manager.gotDtcData(dtcPackage);
+            manager.onGotDtcData(dtcPackage);
         }
         else if (obdCommand instanceof DescribeProtocolCommand){
             Log.d(TAG, "Describe Protocol: " + obdCommand.getFormattedResult());
@@ -447,12 +397,12 @@ public class ELM327Device implements AbstractDevice {
         Log.d(TAG,"noData() obd command: "+obdCommand.getName());
         if (obdCommand instanceof TroubleCodesCommand){
             //We need to do this otherwise timeout will occur and error will be prompted to the user
-            manager.gotDtcData(new DtcPackage(deviceName
+            manager.onGotDtcData(new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
             getPendingDtcs();
         }
         else if (obdCommand instanceof PendingTroubleCodesCommand){
-            manager.gotDtcData(new DtcPackage(deviceName
+            manager.onGotDtcData(new DtcPackage(deviceName
                     ,String.valueOf(System.currentTimeMillis()/1000), new HashMap<>()));
         }
         if (snapshotRequest){

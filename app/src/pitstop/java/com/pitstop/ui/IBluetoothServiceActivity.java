@@ -72,7 +72,9 @@ public abstract class IBluetoothServiceActivity extends DebugDrawerActivity{
                 getBluetoothService()
                         .take(1)
                         .filter((it)-> it.getDeviceState() != BluetoothConnectionObservable.State.DISCONNECTED)
-                        .subscribe((it)-> it.requestDeviceSearch(false,false));
+                        .subscribe((it)-> it.requestDeviceSearch(false, false, success -> {
+
+                        }));
             }
         }
     }

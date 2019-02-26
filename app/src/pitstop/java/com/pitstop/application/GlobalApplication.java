@@ -18,6 +18,7 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.SDKIntentService;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
@@ -77,6 +78,7 @@ public class GlobalApplication extends Application implements LoginManager {
     private Observable<Service> serviceObservable;
     private BluetoothService autoConnectService;
     private TripsService tripsService;
+    private SDKIntentService rvdService;
     private ServiceConnection serviceConnection;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
@@ -96,14 +98,11 @@ public class GlobalApplication extends Application implements LoginManager {
         super.onCreate();
 
         Log.d(TAG, "onCreate");
-
         FacebookSdk.sdkInitialize(this);
         Stetho.initializeWithDefaults(this);
-
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                 .build();
-
         Fabric.with(this, crashlyticsKit);
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
@@ -125,7 +124,6 @@ public class GlobalApplication extends Application implements LoginManager {
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-
         useCaseComponent = DaggerUseCaseComponent.builder()
                 .contextModule(new ContextModule(this)).build();
         Smooch.init(this, settings, response -> {
@@ -216,6 +214,18 @@ public class GlobalApplication extends Application implements LoginManager {
                             } catch (ClassCastException e) {
                                 e.printStackTrace();
                             }
+                        }else if (className.getClassName().equals(SDKIntentService.class.getName())){
+                            Log.d(TAG,"RVD service set");
+                            try{
+
+                                rvdService = ((SDKIntentService.LocalBinder)service).getService();
+                                Log.d(TAG,"Calling initSDK!");
+                                for (Emitter e: emitterList){
+                                    e.onNext(rvdService);
+                                }
+                            }catch(ClassCastException e){
+                                e.printStackTrace();
+                            }
                         }
                     }
 
@@ -282,8 +292,11 @@ public class GlobalApplication extends Application implements LoginManager {
                     , BluetoothService.class);
             startService(serviceIntent);
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-            isBluetoothServiceRunning = true;
 
+            Intent rvdServiceIntent = new Intent(GlobalApplication.this, SDKIntentService.class);
+            bindService(rvdServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+
+            isBluetoothServiceRunning = true;
         }
     }
 
@@ -292,6 +305,7 @@ public class GlobalApplication extends Application implements LoginManager {
         if (autoConnectService != null){
             isBluetoothServiceRunning = false;
             autoConnectService.stopSelf();
+            rvdService.stopSelf();
         }
     }
 

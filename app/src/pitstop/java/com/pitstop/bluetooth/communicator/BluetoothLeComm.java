@@ -15,9 +15,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
-import com.pitstop.bluetooth.bleDevice.AbstractDevice;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
+import com.pitstop.bluetooth.bleDevice.Device215B;
 import com.pitstop.utils.MixpanelHelper;
 
 import java.io.UnsupportedEncodingException;
@@ -54,11 +54,11 @@ public class BluetoothLeComm implements BluetoothCommunicator {
     private UUID serviceUuid;
     private UUID writeChar;
     private UUID readChar;
-    private AbstractDevice device;
+    private Device215B device;
 
     private int btConnectionState = DISCONNECTED;
 
-    public BluetoothLeComm(Context context, AbstractDevice device) {
+    public BluetoothLeComm(Context context, Device215B device) {
 
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();

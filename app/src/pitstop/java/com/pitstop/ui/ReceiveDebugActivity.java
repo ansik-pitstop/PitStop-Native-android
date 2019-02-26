@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
@@ -27,9 +29,7 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 
 import java.util.Map;
 
-public
-
-class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
+public class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBluetoothDataListener {
 
     private static final String TAG = ReceiveDebugActivity.class.getSimpleName();
 
@@ -74,6 +74,51 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
 
     @Override
     public void setDeviceName(String deviceName) {
+
+    }
+
+    @Override
+    public void onBindingRequired() {
+
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(BindingQuestion question) {
+
+    }
+
+    @Override
+    public void onBindingProgress(Float progress) {
+
+    }
+
+    @Override
+    public void onBindingFinished() {
+
+    }
+
+    @Override
+    public void onBindingError(Error error) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(Float progress) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationError(Error error) {
 
     }
 
@@ -270,7 +315,9 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
 
     public void getDTC(View view) {
         if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false);
+            service.requestDeviceSearch(false,false,(status) ->  {
+
+            });
         }else {
             service.requestDtcData();
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
@@ -279,8 +326,10 @@ class ReceiveDebugActivity extends AppCompatActivity implements ObdManager.IBlue
 
     public void getPIDS(View view) {
         findViewById(R.id.loading).setVisibility(View.VISIBLE);
-        if (service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
-            service.requestDeviceSearch(false,false);
+        if (!service.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)) {
+            service.requestDeviceSearch(false,false, (status) -> {
+
+            });
         }else {
             ((TextView) findViewById(R.id.debug_log)).setText("Waiting for response");
         }

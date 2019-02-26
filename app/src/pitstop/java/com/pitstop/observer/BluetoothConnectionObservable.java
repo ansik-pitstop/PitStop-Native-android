@@ -1,5 +1,7 @@
 package com.pitstop.observer;
 
+import com.continental.rvd.mobile_sdk.EBindingQuestionType;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.ReadyDevice;
 
@@ -31,6 +33,8 @@ public interface BluetoothConnectionObservable extends Subject{
         String CONNECTED_VERIFIED = "state_connected_verified"; //Established trusted connection with device
     }
 
+    boolean answerBindingQuestion(EBindingQuestionType questionType, String answer);
+
     boolean requestPidInitialization();
 
     //Invoked when a observer needs the dtc data
@@ -57,8 +61,19 @@ public interface BluetoothConnectionObservable extends Subject{
 
     void getSupportedPids();
 
-    //Request scan for device
-    boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification);
+    //Request scan for device explicitly specifying the device type
+    //This can be used for something like the add car process
+    boolean requestDeviceSearch(boolean urgent, boolean ignoreVerification
+            , BluetoothDeviceManager.DeviceType deviceType);
+
+    interface DeviceSearchCallback{
+        void onSearchStatus(boolean success);
+    }
+
+    //Request scan for device, this method will look at the users currently
+    //selected vehicle and use the attached device type to search
+    //Requires callback since a use case needs to be executed in order to retrieve vehicle
+    void requestDeviceSearch(boolean urgent, boolean ignoreVerification,DeviceSearchCallback callback);
 
     //Returns the current state of connection with a device, DISCONNECTED if none
     String getDeviceState();

@@ -1,57 +1,13 @@
 package com.pitstop.ui.my_garage;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
-import com.pitstop.R;
-import com.pitstop.adapters.CarsAdapter;
-import com.pitstop.adapters.DealershipListAdapter;
-import com.pitstop.application.GlobalApplication;
-import com.pitstop.dependency.ContextModule;
-import com.pitstop.dependency.DaggerUseCaseComponent;
-import com.pitstop.dependency.UseCaseComponent;
-import com.pitstop.models.Car;
-import com.pitstop.models.Dealership;
-import com.pitstop.ui.add_car.AddCarActivity;
-import com.pitstop.ui.main_activity.MainActivity;
-import com.pitstop.ui.vehicle_specs.VehicleSpecsFragment;
-import com.pitstop.utils.AnimatedDialogBuilder;
-import com.pitstop.utils.MixpanelHelper;
-
-import java.util.List;
-import java.util.Locale;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import io.smooch.ui.ConversationActivity;
-
-import static com.pitstop.ui.main_activity.MainActivity.RC_ADD_CAR;
 
 /**
  * Created by ishan on 2017-09-19.
  */
 
-public class MyGarageFragment extends Fragment implements MyGarageView {
+public class
+MyGarageFragment extends Fragment implements MyGarageView {
 /*
     private static final String TAG = MyGarageFragment.class.getSimpleName();
     @BindView(R.id.appointments_view)

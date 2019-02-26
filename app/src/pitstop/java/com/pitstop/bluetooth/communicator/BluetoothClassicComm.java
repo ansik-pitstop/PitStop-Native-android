@@ -11,6 +11,7 @@ import com.pitstop.bluetooth.bleDevice.AbstractDevice;
 import com.castel.obd.data.OBDInfoSP;
 import com.castel.obd.util.LogUtil;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.bleDevice.Device212B;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
     private Context mContext;
     private GlobalApplication application;
     private ObdManager mObdManager;
-    private AbstractDevice device;
+    private Device212B device;
     private BluetoothChat mBluetoothChat;
     private BluetoothAdapter mBluetoothAdapter;
     private boolean isMacAddress = false;
@@ -39,7 +40,7 @@ public class BluetoothClassicComm implements BluetoothCommunicator {
         mContext = context;
         application = (GlobalApplication) context.getApplicationContext();
         mObdManager = new ObdManager(context);
-        this.device = device;
+        this.device = (Device212B) device;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothChat = new BluetoothChat(mHandler);
         mHandler.postDelayed(runnable, 500);

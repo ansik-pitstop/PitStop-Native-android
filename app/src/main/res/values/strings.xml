@@ -611,6 +611,8 @@
     <string name="connection_error">Connection Error</string>
     <string name="connection_try_again">We couldn\'t connect to your device. Try again?</string>
     <string name="device_id_input_hint">Enter the ID located on the back of the device</string>
+    <string name="binding_process_title">Binding process</string>
+    <string name="binding_should_start">The binding process with Continental devices takes up to 20 minutes, do you want to proceed now?</string>>
 
     <!-- recorded Trips -->
     <string name="unknown">Unknown</string>
@@ -627,7 +629,7 @@
     <string name="polyline_error_offline_message">No connection, cannot load route on map</string>
     <string name="no_trips_message">You have not recorded any trips yet, our application will record them automatically for you</string>
     <string name="add_car_trips_message">In order to begin tracking your trips you first need to add a car. Click the button below to do so</string>
-    <string name="request_search_failed_add_car_message">Unable to start add car process with a device, please make sure your locations permissions are enabled.</string>
+    <string name="request_search_failed_add_car_message">Unable to start add car process with a device, please make sure your bluetooth is enabled.</string>
     <string name="sign_in_with_facebook">Sign In With Facebook</string>
     <string name="email">Email</string>
     <string name="password">Password</string>

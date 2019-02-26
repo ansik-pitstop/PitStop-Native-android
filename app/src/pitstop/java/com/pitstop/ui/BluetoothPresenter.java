@@ -2,8 +2,8 @@ package com.pitstop.ui;
 
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.observer.BluetoothDtcObserver;
-import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.observer.Device215BreakingObserver;
+import com.pitstop.observer.BluetoothConnectionObserver;
 
 /**
  * BluetoothPresenter is for Activities that need Bluetooth data. <br>

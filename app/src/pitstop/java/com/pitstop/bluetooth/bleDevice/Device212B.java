@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,7 +45,7 @@ import java.util.UUID;
  *
  * Created by Ben Wu on 2016-08-29.
  */
-public class Device212B implements AbstractDevice {
+public class Device212B implements CastelDevice {
 
     private static final String TAG = Device212B.class.getSimpleName();
 
@@ -98,13 +99,6 @@ public class Device212B implements AbstractDevice {
         return Utils.hexStringToBytes(payload);
     }
 
-
-
-    @Override
-    public void requestData() {
-
-    }
-
     @Override
     public boolean getVin() {
         return writeToObd(OBD.getParameter(VIN_TAG));
@@ -121,7 +115,7 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public boolean getPids(String pids) {
+    public boolean getPids(List<String> pids) {
         //Todo: this doesn't belong here
         // 212 does not need to explicitly get pids
         return false;
@@ -133,8 +127,13 @@ public class Device212B implements AbstractDevice {
     }
 
     @Override
-    public boolean setPidsToSend(String pids, int timeInterval) {
-        return writeToObd(OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pids));
+    public boolean setPidsToSend(List<String> pids, int timeInterval) {
+        StringBuilder pidString = new StringBuilder();
+        for (String p: pids){
+            pidString.append(p);
+            if (pids.indexOf(p) != pids.size()-1) pidString.append(",");
+        }
+        return writeToObd(OBD.setParameter(FIXED_UPLOAD_TAG, "01;01;01;10;2;" + pidString.toString()));
     }
 
     @Override
@@ -342,8 +341,8 @@ public class Device212B implements AbstractDevice {
             final String tripFlag = dataPackageInfo.tripFlag != null ? dataPackageInfo.tripFlag : "-1";
 
             // process dtc data
-            if ((dataPackageInfo.dtcData != null && dataPackageInfo.result == 6) ||
-                    (tripFlag.equals("6") || tripFlag.equals("5")) && dataPackageInfo.dtcData != null) {
+            if ((dataPackageInfo.dtcData != null &&
+                    dataPackageInfo.result == 6) || (tripFlag.equals("6") || tripFlag.equals("5"))) {
 
                 Log.i(TAG, "Parsing DTC data");
 
@@ -369,13 +368,16 @@ public class Device212B implements AbstractDevice {
                         }
                     }
                 }
-
-                dataListener.dtcData(dtcPackage);
+                if (dataListener != null) {
+                    dataListener.dtcData(dtcPackage);
+                }
             }
 
             if(dataPackageInfo.result == 5) {
                 Log.d(TAG, "Result 5 PIDs");
-                dataListener.pidData(null);
+                if (dataListener != null) {
+                    dataListener.pidData(null);
+                }
             }
 
             // fixed upload pids
@@ -415,7 +417,9 @@ public class Device212B implements AbstractDevice {
                 for (int i = 0; i < pidMapList.size(); i++) {
                     OBD212PidPackage pidPackage = new OBD212PidPackage(templatePidPackage);
                     pidPackage.setPids(pidMapList.get(i));
-                    dataListener.idrPidData(pidPackage);
+                    if (dataListener != null) {
+                        dataListener.idrPidData(pidPackage);
+                    }
                 }
             }
 
@@ -429,7 +433,9 @@ public class Device212B implements AbstractDevice {
                     for (PIDInfo pidInfo: dataPackageInfo.freezeData){
                         ffPackage.freezeData.put(pidInfo.pidType, pidInfo.value);
                     }
-                    dataListener.ffData(ffPackage);
+                    if (dataListener != null) {
+                        dataListener.ffData(ffPackage);
+                    }
                 }
             }
         }

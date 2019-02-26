@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -48,12 +50,14 @@ import com.pitstop.utils.NetworkHelper;
 import com.pitstop.utils.ViewUtils;
 import com.squareup.sqlbrite.QueryObservable;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Calendar;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-public abstract class DebugDrawerActivity extends AppCompatActivity implements BluetoothConnectionObserver{
+public abstract class DebugDrawerActivity extends AppCompatActivity implements BluetoothConnectionObserver {
     public static final String TAG = DebugDrawerActivity.class.getSimpleName();
 
     private NetworkHelper mNetworkHelper;
@@ -503,6 +507,56 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     @Override
     public void onGotPid(PidPackage pidPackage){
         Log.d(TAG,"onGotPid");
+    }
+
+    @Override
+    public void onFirmwareInstallationError(@NotNull Error error) {
+
+    }
+
+    @Override
+    public void onFoundDevices() {
+
+    }
+
+    @Override
+    public void onBindingRequired() {
+
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
+
+    }
+
+    @Override
+    public void onBindingProgress(float progress) {
+
+    }
+
+    @Override
+    public void onBindingFinished() {
+
+    }
+
+    @Override
+    public void onBindingError(@NotNull Error err) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(float progress) {
+
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+
     }
 
     public abstract BluetoothConnectionObservable getBluetoothConnectionObservable();

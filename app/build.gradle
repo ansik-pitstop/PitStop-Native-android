@@ -7,7 +7,9 @@ apply plugin: 'kotlin-kapt'
 buildscript {
     repositories {
         google()
-        maven { url 'https://maven.fabric.io/public' }
+        maven {
+            url 'https://maven.fabric.io/public'
+        }
     }
 
     dependencies {
@@ -20,6 +22,7 @@ apply plugin: 'io.fabric'
 repositories {
     maven { url 'https://maven.fabric.io/public' }
     mavenCentral()
+    maven{ url 'https://oss.sonatype.org/content/repositories/snapshots' }
     google()
 }
 
@@ -121,7 +124,7 @@ android {
     productFlavors {
         pitstop {
             dimension "mode"
-            minSdkVersion 18
+            minSdkVersion 19
         }
     }
     externalNativeBuild {
@@ -160,6 +163,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
     implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
@@ -211,6 +215,16 @@ dependencies {
     implementation 'com.prolificinteractive:material-calendarview:1.4.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('../libs/gelfclient.jar')
+
+    implementation project(':mobile_sdk-1.6.0_1600-release')
+    implementation 'io.swagger:swagger-annotations:1.5.12'
+    implementation 'joda-time:joda-time:2.9.7'
+    implementation 'io.realm:realm-android-library:3.7.2'
+    implementation('org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2') {
+        exclude module: 'org.apache.oltu.oauth2.common'
+    }
+    implementation 'io.paperdb:paperdb:2.6'
+    implementation 'com.squareup.tape2:tape:2.0.0-SNAPSHOT'
 }
 
 apply plugin: 'com.google.gms.google-services'

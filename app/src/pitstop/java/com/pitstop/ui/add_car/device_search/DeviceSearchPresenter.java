@@ -4,8 +4,11 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
@@ -20,6 +23,8 @@ import com.pitstop.utils.AddCarUtils;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.TimeoutTimer;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -33,7 +38,7 @@ import io.reactivex.disposables.Disposable;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public class DeviceSearchPresenter implements BluetoothConnectionObserver, BluetoothVinObserver{
+public class DeviceSearchPresenter implements BluetoothConnectionObserver, BluetoothVinObserver {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -45,6 +50,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     private boolean searchingForDevice;
     private boolean addingCar = false;
     private boolean connectingToDevice = false;
+    private BluetoothDeviceManager.DeviceType deviceType = BluetoothDeviceManager.DeviceType.OBD215;
 
     //Try to get VIN 2 times, every 6 seconds
     private final int GET_VIN_RETRY_TIME = 6;
@@ -148,7 +154,8 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     , MixpanelHelper.ADD_CAR_BLUETOOTH_RETRY);
             if (view != null) {
                 Disposable d = view.getBluetoothService().take(1)
-                        .subscribe((next) -> next.requestDeviceSearch(true, true));
+                        .subscribe((next) -> next.requestDeviceSearch(true, true
+                                , deviceType));
             }
         }
 
@@ -223,6 +230,64 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.startBluetoothService();
         }
 
+//        switch(view.getDeviceType()){
+//            case "215B":
+//                deviceType = BluetoothDeviceManager.DeviceType.OBD215;
+//                break;
+//            case "212B":
+//                deviceType = BluetoothDeviceManager.DeviceType.OBD212;
+//                break;
+//            case "ELM327":
+//                deviceType = BluetoothDeviceManager.DeviceType.ELM327;
+//                break;
+//            case "RVD Continental":
+//                deviceType = BluetoothDeviceManager.DeviceType.RVD;
+//                displayBindingDialog();
+//                break;
+//        }
+
+
+
+        //TEST CODE
+//        if (deviceType == BluetoothDeviceManager.DeviceType.RVD){
+//            view.displayBindingDialog(new BindingDialog.AnswerListener() {
+//                @Override
+//                public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
+//                    Log.d(TAG,"onAnswerProvided() answer: "+answer+", question: "+question);
+//                    Disposable d = view.getBluetoothService().take(1)
+//                            .subscribe(next -> next.answerBindingQuestion(question.questionType,answer));
+//                }
+//
+//                @Override
+//                public void onBackPressed(@NotNull BindingQuestion question) {
+//                    Log.d(TAG,"onBackPressed()");
+//                    Disposable d = view.getBluetoothService().take(1)
+//                            .subscribe(next -> next.answerBindingQuestion(question.questionType,BindingQuestion.BIDING_ANSWER_BACK));
+//                }
+//
+//                @Override
+//                public void onCancelPressed(@NotNull BindingQuestion question) {
+//                    Log.d(TAG,"onCancelPressed()");
+//                    Disposable d = view.getBluetoothService().take(1)
+//                            .subscribe(next -> next.cancelBinding());
+//                }
+//            });
+//            view.displayBindingQuestion(new BindingQuestion(EBindingQuestionType.VIN,"Please enter your car's VIN"));
+//            view.displayBindingProgress(0.4f);
+//            return;
+//        }else if (deviceType == BluetoothDeviceManager.DeviceType.OBD215){
+//            view.displayFirmwareInstallationDialog(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//                }
+//            });
+//            view.displayFirmwareInstallationProgress(0.3f);
+//            view.displayFirmwareInstallationError("Error installing firmware. Contact Support!");
+//            return;
+//        }
+        //END OF TEST CODE
+
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
 
@@ -264,13 +329,14 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             //Otherwise request search and wait for callback
             else{
                 //Try to start search or check if state isn't disconnected and therefore already searching
-                if (next.requestDeviceSearch(true, true)
+                if (next.requestDeviceSearch(true, true, deviceType)
                         || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
                     view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;
                     findDeviceTimer.start();
 
-                } else{
+                }
+                else{
                     view.displayToast(R.string.request_search_failed_add_car_message);
                 }
             }
@@ -523,15 +589,102 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.showAskHasDeviceView();
             view.hideLoading("");
         }
-
     }
-
-
-
 
     @Override
     public void onGotSuportedPIDs(String value) {
 
     }
 
+   @Override
+    public void onBindingRequired() {
+        Log.d(TAG, "Binding log: onBindingRequired");
+
+        view.displayShouldStartBinding(new BindingDialog.ShouldStartBindingListener() {
+            @Override
+            public void onStart() {
+                Log.d(TAG, "Binding log: onBindingRequired, onStart");
+                Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+                    next.startBindingProcess();
+                    displayBindingDialog();
+                });
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "Binding log: onBindingRequired, onCancel");
+            }
+        });
+    }
+
+    private void displayBindingDialog() {
+        Log.d(TAG, "Binding log: displayBindingDialog()");
+        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
+        view.displayBindingDialog("Binding log: Binding required, a set of questions needs to be answered"
+                ,new BindingDialog.AnswerListener() {
+                    @Override
+                    public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
+                        Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+                            next.answerBindingQuestion(question.questionType, answer);
+                        });
+                    }
+
+                    @Override
+                    public void onBackPressed(@NotNull BindingQuestion question) {
+                    }
+
+                    @Override
+                    public void onCancelPressed(@NotNull BindingQuestion question) {
+                        // TODO: Cancel binding process on the RVD SDK
+                        view.dismissBindingDialog();
+                    }
+                });
+    }
+
+    @Override
+    public void onBindingQuestionPrompted(@NotNull BindingQuestion question) {
+        view.displayBindingQuestion(question);
+    }
+
+    @Override
+    public void onBindingProgress(float progress) {
+        view.displayBindingProgress(progress);
+    }
+
+    @Override
+    public void onBindingFinished() {
+        view.displayBindingFinished();
+    }
+
+    @Override
+    public void onBindingError(@NotNull Error err) {
+        view.displayBindingError(err);
+    }
+
+    @Override
+    public void onFirmwareInstallationRequired() {
+        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startFirmwareInstallation);
+        view.displayFirmwareInstallationDialog(view -> {
+            DeviceSearchPresenter.this.view.displayFirmwareInstallationDialog(view1 -> {
+
+            });
+        });
+        view.displayFirmwareInstallationInstruction("Firmware installation required. " +
+                "This may take up to 20 minutes. Please stay connected to the internet.");
+    }
+
+    @Override
+    public void onFirmwareInstallationProgress(float progress) {
+        view.displayFirmwareInstallationProgress(progress);
+    }
+
+    @Override
+    public void onFirmwareInstallationFinished() {
+        view.displayFirmwareInstallationFinished();
+    }
+
+    @Override
+    public void onFirmwareInstallationError(@NotNull Error error) {
+        view.displayFirmwareInstallationError(error.getMessage());
+    }
 }

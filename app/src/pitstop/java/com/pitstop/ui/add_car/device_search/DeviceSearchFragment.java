@@ -12,9 +12,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
@@ -39,13 +43,16 @@ import io.reactivex.Observable;
  * Created by Karol Zdebel on 8/1/2017.
  */
 
-public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
+public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
     private final String TAG = getClass().getSimpleName();
     public static final int RC_PENDING_ADD_CAR = 1043;
 
     @BindView(R.id.input_mileage)
     EditText mileageInputEditText;
+
+    @BindView(R.id.device_selection_spinner)
+    Spinner deviceSelectionSpinner;
 
     private ViewGroup rootView;
     private DeviceSearchPresenter presenter;
@@ -54,6 +61,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
     private ProgressDialog progressDialog;
     private UseCaseComponent useCaseComponent;
     private AlertDialog connectErrorDialog;
+    private AlertDialog shouldStartBindingDialog;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -74,7 +82,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
             progressDialog.setCancelable(false);
             progressDialog.setIndeterminate(true);
             /*Has to be handled because when the ProgressDialog
-            **is open onBackPressed() is not invoked*/
+             **is open onBackPressed() is not invoked*/
             progressDialog.setOnKeyListener((dialog, keyCode, event) -> {
                 if (presenter != null){
                     presenter.onProgressDialogKeyPressed(keyCode);
@@ -102,7 +110,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                 R.layout.fragment_device_search, container, false);
         ButterKnife.bind(this, rootView);
 
-        if (presenter == null){
+        if (presenter == null) {
             presenter = new DeviceSearchPresenter(useCaseComponent, mixpanelHelper);
         }
 
@@ -114,6 +122,11 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         }
 
         presenter.subscribe(this);
+
+        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,spinnerSelection);
+        deviceSelectionSpinner.setAdapter(arrayAdapter);
+
         return rootView;
     }
 
@@ -359,7 +372,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
                     .setCancelable(true)
                     .setMessage(getString(R.string.connection_try_again))
                     .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
-                            presenter.startSearch();
+                        presenter.startSearch();
                     })
                     .setNegativeButton(getString(R.string.no_button_text), (dialogInterface, i) -> {
                         dialogInterface.cancel();
@@ -418,5 +431,110 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
         }else{
             return false;
         }
+    }
+
+    @Override
+    public String getDeviceType(){
+        return deviceSelectionSpinner.getSelectedItem().toString();
+    }
+
+    BindingDialog bindingDialog;
+    FirmwareInstallationDialog firmwareInstallationDialog = new FirmwareInstallationDialog();
+
+    @Override
+    public void displayShouldStartBinding(BindingDialog.ShouldStartBindingListener startBindingListener) {
+        if (shouldStartBindingDialog == null) {
+            shouldStartBindingDialog = new AnimatedDialogBuilder(getActivity())
+                    .setTitle(getString(R.string.binding_process_title))
+                    .setCancelable(true)
+                    .setMessage(getString(R.string.binding_should_start))
+                    .setPositiveButton(getString(R.string.yes_button_text), (dialog1, which) -> {
+                        startBindingListener.onStart();
+                    })
+                    .setNegativeButton(getString(R.string.no_button_text), (dialogInterface, i) -> {
+                        startBindingListener.onCancel();
+                        dialogInterface.cancel();
+                    }).create();
+        }
+        shouldStartBindingDialog.show();
+    }
+
+    @Override
+    public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
+        if (bindingDialog != null) {
+            return;
+        }
+        bindingDialog = new BindingDialog();
+        Log.d(TAG,"displayBindingDialog");
+        bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
+        bindingDialog.setCancelable(false);
+        bindingDialog.registerAnswerListener(answerListener);
+        bindingDialog.setInstruction(startingInstruction);
+    }
+
+    @Override
+    public void dismissBindingDialog() {
+        bindingDialog.dismiss();
+        bindingDialog = null;
+    }
+
+    @Override
+    public void displayBindingQuestion(BindingQuestion bindingQuestion) {
+        Log.d(TAG,"displayBindingQuestion() question: " + bindingQuestion);
+        bindingDialog.showQuestion(bindingQuestion);
+    }
+
+    @Override
+    public void displayBindingProgress(float progress) {
+        Log.d(TAG,"displayBindingProgress() progress: " + progress);
+        bindingDialog.showProgress(progress);
+    }
+
+    @Override
+    public void displayBindingFinished() {
+        Log.d(TAG,"displayBindingFinished()");
+        bindingDialog.showFinished();
+    }
+
+    @Override
+    public void displayBindingError(Error error) {
+        Log.d(TAG,"displayBindingError() error: "+error);
+        bindingDialog.showError(error);
+    }
+
+    @Override
+    public void displayFirmwareInstallationDialog(View.OnClickListener onClickListener) {
+        Log.d(TAG,"displayFirmwareInstallationDialog()");
+        firmwareInstallationDialog.show(getFragmentManager(),"FirmwareInstallationDialog");
+        firmwareInstallationDialog.setCancelable(false);
+        firmwareInstallationDialog.registerOkButtonListener(onClickListener);
+        firmwareInstallationDialog.setNotClickable();
+    }
+
+    @Override
+    public void displayFirmwareInstallationInstruction(String instruction) {
+        Log.d(TAG,"displayFirmwareInstallationInstruction() instruction: "+instruction);
+        firmwareInstallationDialog.showMessage(instruction);
+    }
+
+    @Override
+    public void displayFirmwareInstallationProgress(float progress) {
+        Log.d(TAG,"displayFirmwareInstallationProgress() progress: "+progress);
+        firmwareInstallationDialog.showProgress(progress);
+    }
+
+    @Override
+    public void displayFirmwareInstallationFinished() {
+        Log.d(TAG,"displayFirmwareInstallationFinished()");
+        firmwareInstallationDialog.showMessage("Finished installing firmware!");
+        firmwareInstallationDialog.closeNextButtonClick();
+    }
+
+    @Override
+    public void displayFirmwareInstallationError(String err) {
+        Log.d(TAG,"displayFirmwareInstallationError()");
+        firmwareInstallationDialog.showError(err);
+        firmwareInstallationDialog.setClickable();
+        firmwareInstallationDialog.closeNextButtonClick();
     }
 }
