@@ -13,3 +13,6 @@
 app/app-release.apk
 app/app.iml
 /projectFilesBackup/
+
+app/.externalNativeBuild/
+app/pitstop/
