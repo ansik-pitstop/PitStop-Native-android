@@ -18,7 +18,7 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
-import com.continental.rvd.mobile_sdk.SDKIntentService;
+import com.continental.rvd.mobile_sdk.RvdIntentService;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.AccessToken;
@@ -78,7 +78,7 @@ public class GlobalApplication extends Application implements LoginManager {
     private Observable<Service> serviceObservable;
     private BluetoothService autoConnectService;
     private TripsService tripsService;
-    private SDKIntentService rvdService;
+    private RvdIntentService rvdService;
     private ServiceConnection serviceConnection;
 
     // Build a RemoteInput for receiving voice input in a Car Notification
@@ -214,11 +214,11 @@ public class GlobalApplication extends Application implements LoginManager {
                             } catch (ClassCastException e) {
                                 e.printStackTrace();
                             }
-                        }else if (className.getClassName().equals(SDKIntentService.class.getName())){
+                        }else if (className.getClassName().equals(RvdIntentService.class.getName())){
                             Log.d(TAG,"RVD service set");
                             try{
 
-                                rvdService = ((SDKIntentService.LocalBinder)service).getService();
+                                rvdService = ((RvdIntentService.LocalBinder)service).getService();
                                 Log.d(TAG,"Calling initSDK!");
                                 for (Emitter e: emitterList){
                                     e.onNext(rvdService);
@@ -293,7 +293,7 @@ public class GlobalApplication extends Application implements LoginManager {
             startService(serviceIntent);
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-            Intent rvdServiceIntent = new Intent(GlobalApplication.this, SDKIntentService.class);
+            Intent rvdServiceIntent = new Intent(GlobalApplication.this, RvdIntentService.class);
             bindService(rvdServiceIntent, serviceConnection, BIND_AUTO_CREATE);
 
             isBluetoothServiceRunning = true;

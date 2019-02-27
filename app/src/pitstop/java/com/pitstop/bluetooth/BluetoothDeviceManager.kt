@@ -4,9 +4,8 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
 import com.continental.rvd.mobile_sdk.BindingQuestion
-import com.continental.rvd.mobile_sdk.EBindingQuestionType
-import com.continental.rvd.mobile_sdk.SDKIntentService
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.continental.rvd.mobile_sdk.BindingQuestionType
+import com.continental.rvd.mobile_sdk.RvdIntentService
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.bleDevice.*
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
@@ -32,7 +31,7 @@ import com.pitstop.utils.Logger
  * Created by Ben!
  */
 class BluetoothDeviceManager(private val mContext: Context
-                             , sdkIntentService: SDKIntentService
+                             , rvdIntentService: RvdIntentService
                              , private val dataListener: ObdManager.IBluetoothDataListener)
     : RVDBluetoothDeviceSearcherStatusListener {
 
@@ -62,7 +61,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
         regularBluetoothDeviceSearcher = RegularBluetoothDeviceSearcher(useCaseComponent
                 , mContext, dataListener, this)
-        rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(sdkIntentService, this,this)
+        rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(rvdIntentService, this,this)
     }
 
     fun startBinding(): Boolean{
@@ -185,7 +184,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
     }
 
-    fun answerBindingQuestion(questionType: EBindingQuestionType, answer: String): Boolean{
+    fun answerBindingQuestion(questionType: BindingQuestionType, answer: String): Boolean{
         rvdBluetoothDeviceSearcher.answerBindingQuestion(questionType,answer)
         return true
     }

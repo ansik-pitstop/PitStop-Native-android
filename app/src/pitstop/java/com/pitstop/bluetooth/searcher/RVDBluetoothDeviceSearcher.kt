@@ -1,7 +1,10 @@
 package com.pitstop.bluetooth.searcher
 
+import android.media.MediaDrm
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
+import com.continental.rvd.mobile_sdk.errors.SDKException
+import com.continental.rvd.mobile_sdk.events.*
 import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 import com.continental.rvd.mobile_sdk.internal.logs.logging.domain.LogEntity
 import com.pitstop.bluetooth.BluetoothDeviceManager
@@ -10,17 +13,37 @@ import com.pitstop.bluetooth.bleDevice.RVDDevice
 /**
  * Created by Karol Zdebel on 8/31/2018.
  */
-class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
+class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                                  , private val rvdBluetoothListener: RVDBluetoothDeviceSearcherStatusListener
                                  , private val deviceManager: BluetoothDeviceManager)
-    : IEventsInterface.IEventListener {
+    : IEventsInterface.IEventListener, OnBluetoothEvents, OnNetworkEvents, OnDongleEvents, OnLicenseEvents
+                                , OnAuthenticationEvents {
 
     private val TAG = RVDBluetoothDeviceSearcher::class.java.simpleName
-    private var sdk: ISDKApi? = null
+    private var sdk: RvdApi? = null
 
     fun start(): Boolean{
         Log.d(TAG,"start()")
         if (sdk == null){
+
+            sdkIntentService.initializeRvdApi(CollectionMode.APPLICATION_CONTROLLED, object: Callback<RvdApi>() {
+                override fun onSuccess(sdk: RvdApi?) {
+                    Log.d(TAG,"successfully initialized RVD SDK!")
+                    this@RVDBluetoothDeviceSearcher.sdk = sdk
+
+//                    sdk?.addNotificationListener(this@RVDBluetoothDeviceSearcher
+//                            ,IEventsInterface.EventType.ALL)
+                    sdk?.addEventListener().on
+
+
+                }
+
+                override fun onError(p0: Throwable?) {
+                    Log.d(TAG,"Failed to initialize RVD SDK")
+                }
+            })
+
+
             sdkIntentService.initSDK(ISDKApi.VDCMode.APPLICATION_CONTROLLED, object: TApiCallback<ISDKApi>{
                 override fun onSuccess(sdk: ISDKApi?) {
                     Log.d(TAG,"successfully initialized RVD SDK!")
@@ -59,67 +82,42 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
         return start
     }
 
+    override fun onBluetoothPairingFinished() {
+        deviceManager.scanFinished()
+    }
+
+    override fun onBluetoothPairingError(error: SDKException?) {
+        // Param object should be instance of Throwable
+        // TODO: Send connection failure to rvdBluetoothListener
+//        rvdBluetoothListener.onConnectionFailure()
+    }
+
+    override fun onInternetConnectionRequired() {
+        // TODO: Send failure to rvdBluetoothListener
+//        rvdBluetoothListener.onConnectionFailure(retObject as Error)
+    }
+
+    override fun onDongleConnecting(toBluetoothDevice: BluetoothDongle?) {
+        deviceManager.scanFinished()
+    }
+
+    override fun onDongleNotConfigured(notFirstBinding: Boolean?) {
+        rvdBluetoothListener.onBindingRequired()
+    }
+
+    override fun onLicenseUnverifiable() {
+        // TODO: Send failure to rvdBluetoothListener
+//        rvdBluetoothListener.onConnectionFailure()
+    }
+
+
+
+
+
     override fun onNotification(event: IEventsInterface.Event, retObject: Any?) {
 //        Log.d(TAG,"onNotification() event: $event ")
 
-        when (event){
-
-            IEventsInterface.Event.LOG -> {
-                Log.d(TAG,"log: ${(retObject as LogEntity).message}")
-            }
-
-            //BLUETOOTH
-            IEventsInterface.Event.BLUETOOTH_CONNECT_TO -> {
-            }
-            IEventsInterface.Event.BLUETOOTH_PAIR_TO -> {
-            }
-            IEventsInterface.Event.BLUETOOTH_OFF -> {
-            }
-            IEventsInterface.Event.BLUETOOTH_PAIRING_STARTED -> {
-            }
-            IEventsInterface.Event.BLUETOOTH_PAIRING_FINISHED -> {
-                deviceManager.scanFinished()
-            }
-            IEventsInterface.Event.BLUETOOTH_PAIRING_ERROR -> {
-                // Param object should be instance of Throwable
-                rvdBluetoothListener.onConnectionFailure(retObject as Error)
-            }
-
-            //NETWORK
-            IEventsInterface.Event.NETWORK_AVAILABLE -> {
-
-            }
-            IEventsInterface.Event.NETWORK_UNAVAILABLE-> {
-
-            }
-            IEventsInterface.Event.INTERNET_CONNECTION_REQUIRED -> {
-                rvdBluetoothListener.onConnectionFailure(retObject as Error)
-            }
-
-            //DONGLE EVENTS
-            IEventsInterface.Event.DONGLE_STATE_DISCONNECTED -> {
-
-            }
-            IEventsInterface.Event.DONGLE_STATE_CONNECTING -> {
-                deviceManager.scanFinished()
-            }
-            IEventsInterface.Event.DONGLE_STATE_CONNECTED -> {
-
-            }
-            IEventsInterface.Event.DONGLE_CONFIGURED -> {
-                //No binding needed, already done
-            }
-            IEventsInterface.Event.DONGLE_NOT_CONFIGURED -> {
-                rvdBluetoothListener.onBindingRequired()
-            }
-
-            //LICENSE EVENTS
-            IEventsInterface.Event.LICENSE_INVALID -> {
-
-            }
-            IEventsInterface.Event.LICENSE_UNVERIFIABLE -> {
-                rvdBluetoothListener.onConnectionFailure(retObject as Error)
-            }
+        when (event) {
 
             //AUTHENTICATION EVENTS
             IEventsInterface.Event.AUTHENTICATION_SUCCESS -> {
@@ -176,9 +174,9 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: SDKIntentService
                     sdk?.startFirmwareInstallation()
                 }
             }
-            IEventsInterface.Event.UPDATE_STARTED -> {
-
-            }
+//            IEventsInterface.Event.UPDATE_STARTED -> {
+//
+//            }
 
             //FIRMWARE EVENT
             IEventsInterface.Event.FIRMWARE_INSTALLATION_STARTED -> {

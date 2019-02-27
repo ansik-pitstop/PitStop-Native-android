@@ -21,9 +21,7 @@ import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.EBindingQuestionType;
-import com.continental.rvd.mobile_sdk.SDKIntentService;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
+import com.continental.rvd.mobile_sdk.BindingQuestionType;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
@@ -868,7 +866,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     }
 
     @Override
-    public boolean answerBindingQuestion(EBindingQuestionType questionType, String answer){
+    public boolean answerBindingQuestion(BindingQuestionType questionType, String answer){
         if (deviceManager != null)
             return deviceManager.answerBindingQuestion(questionType,answer);
         else return false;
@@ -1105,10 +1103,6 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         currentDeviceId = deviceName;
     }
 
-    /**
-     *
-     * @param ffPackage Freeze frame data
-     */
     @Override
     public void onBindingRequired() {
         for (Observer o: observerList){
