@@ -166,7 +166,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                         if (car.isCurrentCar) {
                             Log.d(TAG, "Found current car")
                             mCar = car
-//                            mDealership = data[mCar!!]
+                            mDealership = car.shop
                             view?.showNormalLAyout()
                         }
                     }
@@ -284,6 +284,11 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }else{
             view?.openDealershipDirections(mDealership)
         }
+    }
+
+    fun updateCurrentCarFromUserSettings(car: Car) {
+        mCar = car
+        mDealership = car.shop
     }
 
     fun makeCarCurrent(car: Car) {

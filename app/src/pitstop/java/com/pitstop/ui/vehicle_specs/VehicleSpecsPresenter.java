@@ -29,6 +29,7 @@ import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
+import com.pitstop.ui.main_activity.MainActivityPresenter;
 import com.pitstop.utils.MixpanelHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -204,6 +205,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 mCar = car;
                 mdealership = car.getShop();
+                getView().updateMainActivityCar(car);
+
                 if (!isLocal)
                     updating = false;
                 if (getView() != null) {

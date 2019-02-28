@@ -16,6 +16,7 @@ public interface VehicleSpecsView {
     void showLoadingDialog(String message);
     void hideLoadingDialog();
     void setCarView(Car car);
+    void updateMainActivityCar(Car car);
     void showBuyDeviceDialog();
     void showNoCarView();
     void showOfflineErrorView();
