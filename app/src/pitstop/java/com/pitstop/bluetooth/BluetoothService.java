@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.RvdIntentService;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.models.Alarm;
 import com.castel.obd.info.LoginPackageInfo;
@@ -334,9 +335,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                 deviceManager = null;
             }
             Disposable d = ((GlobalApplication)getApplication()).getServices()
-                    .filter(next -> next instanceof SDKIntentService)
+                    .filter(next -> next instanceof RvdIntentService)
                     . subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
+                    deviceManager = new BluetoothDeviceManager(this,(RvdIntentService) next,this);
             });
 
         }
@@ -1343,9 +1344,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
 
         Disposable d = ((GlobalApplication)getApplication()).getServices()
-                .filter(next -> next instanceof SDKIntentService)
+                .filter(next -> next instanceof RvdIntentService)
                 .subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
+                    deviceManager = new BluetoothDeviceManager(this,(RvdIntentService) next,this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
 

@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;

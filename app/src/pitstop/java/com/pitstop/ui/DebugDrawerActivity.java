@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
