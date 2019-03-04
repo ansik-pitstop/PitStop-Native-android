@@ -12,6 +12,9 @@ import com.pitstop.models.trip.*
 import com.pitstop.ui.MapView
 
 /**
+ *
+ * Contains utility methods pertaining to the trips feature
+ *
  * Created by Karol Zdebel on 3/7/2018.
  */
 class TripUtils {
@@ -34,6 +37,7 @@ class TripUtils {
             }
         }
 
+        //This method is used to calculate the next state of the trip given a set of recent car activities and the current trip state
         fun getNextTripState(currentTripState: TripState, detectedActivities: List<CarActivity>): TripState{
             //Do not let the same detected activity override the time
 
@@ -49,19 +53,21 @@ class TripUtils {
                 }
 
                 when (it.type){
+                    //user manually ended trip, return this state
                     CarActivity.TYPE_MANUAL_END -> {
                         if (currentTripState.tripStateType == TripStateType.TRIP_MANUAL
                                 || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
                             return TripState(TripStateType.TRIP_MANUAL_END, it.time)
                         }
                     }
+                    //user manually started trip, return this state
                     CarActivity.TYPE_MANUAL_START -> {
                         if (currentTripState.tripStateType != TripStateType.TRIP_MANUAL){
                             return TripState(TripStateType.TRIP_MANUAL, it.time)
                         }
                     }
+                    //user is still
                     CarActivity.TYPE_STILL -> {
-                        //If driving and still for sure, then return still state
                         if (it.conf >= HIGH_STILL_CONF){
                             if (currentTripState.tripStateType == TripStateType.TRIP_DRIVING_HARD
                                     || currentTripState.tripStateType == TripStateType.TRIP_MANUAL){
@@ -131,6 +137,7 @@ class TripUtils {
             return locList
         }
 
+        //Calculate polyline length
         fun getPolylineDistance(polyline: List<SnappedPoint>): Double{
             return polyline.filterIndexed({ index, _ -> polyline.lastIndex != index})
                     .sumByDouble {
@@ -142,6 +149,7 @@ class TripUtils {
             }
         }
 
+        //Calculate distance between two points, used for calculating mileage for a trip
         fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double{
             val earthRadius = 6371000.0 //meters
             val dLat = Math.toRadians(lat2 - lat1)

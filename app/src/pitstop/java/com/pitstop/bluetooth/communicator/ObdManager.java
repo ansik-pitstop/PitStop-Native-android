@@ -65,7 +65,7 @@ public class ObdManager {
     /**
      *  Callbacks for obd functions
      */
-    public interface IBluetoothDataListener {  // TODO: Remove unnecessary functions
+    public interface IBluetoothDataListener {
         void getBluetoothState(int state);
 
         void setCtrlResponse(ResponsePackageInfo responsePackageInfo);

@@ -53,6 +53,15 @@ import java.util.Queue;
 import java.util.UUID;
 
 /**
+ *
+ * Class which encapsulates functionality related to interacting with the ELM327
+ * device type. This class knows a lot about the syntax used in order to request information
+ * from the device, and read information from the device.
+ *
+ * Get familiar with the documentation here to grasp a better understanding of the functionality
+ * located here: https://drive.google.com/file/d/0B0i24uee3cpKMHIydE9RTnZGYms/view?usp=sharing
+ * The STN1100 protocol is used to communicate with the car's bus
+ *
  * Created by ishan on 2017-12-08.
  */
 

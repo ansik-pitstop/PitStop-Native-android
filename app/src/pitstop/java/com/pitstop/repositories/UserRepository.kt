@@ -49,7 +49,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
             }
             json.addProperty("isSocial", isSocial)
             json.addProperty("installationId"
-                    , ParseInstallation.getCurrentInstallation().installationId)
+                        , ParseInstallation.getCurrentInstallation().installationId)
         } catch (e: JSONException) {
             e.printStackTrace()
         }

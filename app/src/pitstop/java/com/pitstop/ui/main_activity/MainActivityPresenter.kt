@@ -5,6 +5,7 @@ import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
+import com.pitstop.interactors.get.GetCarsByUserIdUseCase
 import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
@@ -140,37 +141,44 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         if (!carListLoaded){
             view?.showCarsLoading()
             isLoading  = true
-            useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
 
-                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
-                    Log.d(TAG, "onCarsRetrieved() local? $local, map: $data")
-                    if (!local) isLoading = false
-                    if(view == null)return
-                    if (!local){
-                        view?.hideCarsLoading()
+
+            useCaseCompnent.carsByUserIdUseCase.execute(object: GetCarsByUserIdUseCase.Callback {
+                override fun onCarsRetrieved(cars: MutableList<Car>?) {
+                    Log.d(TAG, "onCarsRetrieved()")
+
+                    isLoading = false
+                    view?.hideCarsLoading()
+
+                    if (view == null) {
+                        return
                     }
-                    if (data.keys.size == 0){
+
+                    if (cars == null || cars.size == 0) {
+                        Log.d(TAG, "No cars retrieved")
                         view?.noCarsView()
+                        return
                     }
-                    for(car in data.keys){
-                        if (car.isCurrentCar) {
-                            mCar = car
-                            mDealership = data[mCar!!]
-                            view?.showNormalLAyout();
-                        }
-                        isCarLoaded = true
-                    }
-                    mergeSetWithCarList(data.keys)
-                    mergeSetWithDealershipList(data.values)
-                    if (!local){
-                        dealershipListLoaded = true
-                        carListLoaded = true
-                    }
-                    view?.showCars(carList)
 
+                    isCarLoaded = true
+
+                    for (car in cars) {
+                        if (car.isCurrentCar) {
+                            Log.d(TAG, "Found current car")
+                            mCar = car
+                            mDealership = car.shop
+                            view?.showNormalLAyout()
+                        }
+                    }
+
+                    dealershipListLoaded = true
+                    carListLoaded = true
+                    mergeSetWithCarList(cars.toSet())
+                    view?.showCars(cars)
                 }
 
-                override fun onError(error: RequestError) {
+                override fun onError(error: RequestError?) {
+
                     isLoading = false
                     if (view == null) return
                     view?.hideCarsLoading()
@@ -179,6 +187,13 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
                     }
                 }
             })
+
+//            useCaseCompnent.carsWithDealershipsUseCase.execute(object : GetCarsWithDealershipsUseCase.Callback{
+//                override fun onGotCarsWithDealerships(data: LinkedHashMap<Car, Dealership>, local: Boolean) {
+//                }
+//                override fun onError(error: RequestError) {
+//                }
+//            })
         }
         else {
             if(view == null)return
@@ -189,11 +204,6 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onUserWasInactiveOnCreate(){
         Log.d(TAG,"onUserWasInactiveOnCreate()")
-    }
-
-    fun onNotificationsClicked(){
-        Log.d(TAG,"onNotificationsClicked()")
-        view?.openNotifications()
     }
 
     fun onMyAppointmentsClicked() {
@@ -274,6 +284,11 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         }else{
             view?.openDealershipDirections(mDealership)
         }
+    }
+
+    fun updateCurrentCarFromUserSettings(car: Car) {
+        mCar = car
+        mDealership = car.shop
     }
 
     fun makeCarCurrent(car: Car) {

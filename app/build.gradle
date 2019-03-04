@@ -64,8 +64,8 @@ android {
         abortOnError false
     }
     compileOptions.encoding = 'ISO-8859-1'
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '27.0.3'
     def endpointTypeStaging = '\"staging\"'
     def endpointTypeSnapshot = '\"snapshot\"'
     def endpointTypeRelease = '\"release\"'
@@ -78,23 +78,23 @@ android {
             disable 'MissingTranslation'
         }
         applicationId "com.ansik.pitstop"
-        minSdkVersion 19
-        targetSdkVersion 27
+        minSdkVersion 18
+        targetSdkVersion 28
         // Change versioning in productFlavors instead of here
-        versionCode 317
-        versionName "5.3.1"
+        versionCode 321
+        versionName "5.3.5"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
-        buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
-        buildConfigField "String", "BUILD_TYPE_RELEASE", buildTypeRelease
-        buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
-        buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
-        buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
-        ndk {
-            abiFilters 'armeabi-v7a', 'x86', 'x86_64'
-        }
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
+    buildConfigField "String", "BUILD_TYPE_RELEASE", buildTypeRelease
+    buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
+    buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
+    buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
+    ndk {
+        abiFilters 'armeabi-v7a', 'x86', 'x86_64'
     }
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+}
     buildTypes {
         debug { // for development, dev backend, no mixpanel
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? endpointTypeStaging : endpointTypeSnapshot
@@ -109,10 +109,14 @@ android {
         }
         release { // for release to production, prod backend, mixpanel
             debuggable false
+//            ndk {
+//                debuggable = true
+//            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
             resValue "string", "parse_server_url", "http://parseserverpush-production.us-west-2.elasticbeanstalk.com/parse"
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -195,6 +199,7 @@ dependencies {
     implementation 'com.github.brnunes:swipeablerecyclerview:1.0.1'
     implementation 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.jjoe64:graphview:4.2.2'
     implementation 'com.squareup.sqlbrite:sqlbrite:1.1.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'de.hdodenhof:circleimageview:2.1.0'
