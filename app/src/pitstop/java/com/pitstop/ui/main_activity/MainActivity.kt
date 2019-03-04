@@ -296,6 +296,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         }
     }
 
+    fun updateCurrentCarFromUserSettings(car: Car) {
+        presenter?.updateCurrentCarFromUserSettings(car)
+    }
+
     override fun callDealership(dealership: Dealership?) {
         Log.d(TAG, "callDealership()")
         val intent = Intent(Intent.ACTION_DIAL,

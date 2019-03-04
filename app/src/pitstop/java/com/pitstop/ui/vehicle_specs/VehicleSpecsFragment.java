@@ -658,6 +658,10 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         isPoppulated = true;
     }
 
+    public void updateMainActivityCar(Car car) {
+        ((MainActivity)getContext()).updateCurrentCarFromUserSettings(car);
+    }
+
     @Override
     public void showScannerID(String s) {
         Log.d(TAG, "showScannerID");

@@ -81,7 +81,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         // Change versioning in productFlavors instead of here
-        versionCode 320
+        versionCode 321
         versionName "5.3.5"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
@@ -109,6 +109,9 @@ android {
         }
         release { // for release to production, prod backend, mixpanel
             debuggable false
+//            ndk {
+//                debuggable = true
+//            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "ENDPOINT_TYPE", endpointTypeRelease
