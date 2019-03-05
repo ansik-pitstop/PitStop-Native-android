@@ -394,13 +394,11 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun getPids(pids: String): Boolean {
         Log.d(TAG, "getPids() pids: $pids")
-        return if (btConnectionState != BluetoothCommunicator.CONNECTED) {
+        return if (btConnectionState != BluetoothCommunicator.CONNECTED || deviceInterface == null) {
             false
-        }else if (deviceInterface != null && deviceInterface is LowLevelDevice){
-            (deviceInterface as LowLevelDevice).getPids(pids.split(","))
-            true
         }else {
-            false
+            deviceInterface?.getPids(pids.split(","))
+            true
         }
     }
 
@@ -478,13 +476,19 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun requestSnapshot(): Boolean {
         Log.d(TAG, "requestSnapshot()")
-        if (deviceInterface != null) {
-            if ((deviceInterface is Device215B || deviceInterface is ELM327Device) && btConnectionState == BluetoothCommunicator.CONNECTED) {
-                Log.d(TAG, "executing writeToOBD requestSnapshot()")
-                (deviceInterface as Device215B).requestSnapshot()
-                return true
-            }
+//        if (deviceInterface != null) {
+//            if ((deviceInterface is Device215B || deviceInterface is ELM327Device) && btConnectionState == BluetoothCommunicator.CONNECTED) {
+//                Log.d(TAG, "executing writeToOBD requestSnapshot()")
+//                (deviceInterface as Device215B).requestSnapshot()
+//                return true
+//            }
+//        }
+
+        if (deviceInterface != null && btConnectionState == BluetoothCommunicator.CONNECTED) {
+            deviceInterface?.requestSnapshot()
+            return true
         }
+
         return false
     }
 

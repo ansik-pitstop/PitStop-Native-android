@@ -422,7 +422,6 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
             SubscriptionSelectionViewAdapter adapter = new SubscriptionSelectionViewAdapter(context, subscriptions);
             subscriptionDialog.setAdapter(adapter);
         }
-
     }
 
 

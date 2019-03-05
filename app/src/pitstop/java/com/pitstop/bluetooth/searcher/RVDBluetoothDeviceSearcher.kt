@@ -2,6 +2,7 @@ package com.pitstop.bluetooth.searcher
 
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
+import com.continental.rvd.mobile_sdk.errors.NetworkError
 import com.continental.rvd.mobile_sdk.errors.SDKException
 import com.continental.rvd.mobile_sdk.events.*
 import com.continental.rvd.mobile_sdk.internal.license.domain.LicenseEntity
@@ -40,15 +41,16 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                         override fun onBluetoothConnectTo(devicesAvailableForConnection: Array<out BluetoothDongle>?) {
                             Log.d(TAG,"onBluetoothConnectTo(devicesAvailableForConnection: Array<out BluetoothDongle>?)")
                             val dongle = devicesAvailableForConnection?.getOrNull(0)
-                            sdk.connectManuallyToDongle(dongle, object: Callback<Void>() {
-                                override fun onSuccess(p0: Void?) {
-                                    Log.d(TAG,"sdk.connectManuallyToDongle() - success")
-                                    rvdBluetoothListener.onConnectionCompleted()
-                                }
-                                override fun onError(error: Throwable?) {
-                                    rvdBluetoothListener.onConnectionFailure(Error(error?.localizedMessage))
-                                }
-                            })
+                            sdk.setDongleToConnectTo(dongle)
+//                            sdk.connectManuallyToDongle(dongle, object: Callback<Void>() {
+//                                override fun onSuccess(p0: Void?) {
+//                                    Log.d(TAG,"sdk.connectManuallyToDongle() - success")
+//                                    rvdBluetoothListener.onConnectionCompleted()
+//                                }
+//                                override fun onError(error: Throwable?) {
+//                                    rvdBluetoothListener.onConnectionFailure(Error(error?.localizedMessage))
+//                                }
+//                            })
                         }
 
                         override fun onBluetoothPairTo(devices: Array<out BluetoothDongle>?) {
@@ -93,12 +95,17 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                             // TODO: Send failure to rvdBluetoothListener
 //                          rvdBluetoothListener.onConnectionFailure(retObject as Error)
                             print("onInternetConnectionRequired()")
+                            rvdBluetoothListener.onMessageFromDevice("onInternetConnectionRequired()")
+                        }
+
+                        override fun onRvdBackendConnectionProblem(error: NetworkError?) {
+                            rvdBluetoothListener.onMessageFromDevice("onRvdBackendConnectionProblem error: ${error.toString()}")
                         }
                     })
 
                     sdk.addEventListener()?.onDongleEvents(object: OnDongleEvents {
                         override fun onDongleConnecting(toBluetoothDevice: BluetoothDongle?) {
-                            deviceManager.scanFinished()
+//                            deviceManager.scanFinished()
                         }
 
                         override fun onDongleNotConfigured(notFirstBinding: Boolean?) {
@@ -140,11 +147,22 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                     sdk.addEventListener()?.onAuthenticationEvents(object: OnAuthenticationEvents {
                         override fun onAuthenticationSuccess() {
+                            rvdBluetoothListener.onMessageFromDevice("onAuthenticationSuccess()")
+                        }
+
+                        override fun onAuthenticationError(error: SDKException?) {
+                            rvdBluetoothListener.onMessageFromDevice("onAuthenticationError error: ${error.toString()}")
                         }
                     })
 
                     sdk.addEventListener()?.onCarEvents(object: OnCarEvents {
                         override fun onCarConnected() {
+                            rvdBluetoothListener.onConnectionCompleted()
+                            deviceManager.onCompleted(RVDDevice(sdk!!, deviceManager))
+                        }
+
+                        override fun onCarDisconnected() {
+                            rvdBluetoothListener.onMessageFromDevice("onCarDisconnected()")
                         }
                     })
                 }
