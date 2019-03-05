@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
@@ -18,6 +19,8 @@ import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.vehicle_health_report.health_report_progress.report_in_progress_view.HealthReportProgressFragment;
 import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;
 import com.pitstop.ui.vehicle_health_report.show_report.health_report.HealthReportFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by Matt on 2017-08-14.
@@ -65,6 +68,13 @@ public class ReportProgressActivity extends IBluetoothServiceActivity
 
     }
 
+    @Override
+    public void onMessageFromDevice(@NotNull String message) {
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(@NotNull AvailableSubscriptions subscriptions) {
+    }
 
     @Override
     public void onFoundDevices() {

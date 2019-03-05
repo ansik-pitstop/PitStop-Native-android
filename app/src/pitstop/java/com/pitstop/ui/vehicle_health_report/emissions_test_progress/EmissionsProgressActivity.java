@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
@@ -19,6 +20,7 @@ import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.vehicle_health_report.emissions_test_progress.in_progress_view.InProgressFragment;
 import com.pitstop.ui.vehicle_health_report.show_report.emissions_report.EmissionsReportFragment;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 /**
@@ -61,6 +63,13 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
                 });
     }
 
+    @Override
+    public void onGotAvailableSubscriptions(@NotNull AvailableSubscriptions subscriptions) {
+    }
+
+    @Override
+    public void onMessageFromDevice(@NotNull String message) {
+    }
 
     @Override
     public void onFoundDevices() {

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothService;
@@ -119,6 +120,14 @@ public class ReceiveDebugActivity extends AppCompatActivity implements ObdManage
     @Override
     public void onFirmwareInstallationError(Error error) {
 
+    }
+
+    @Override
+    public void onMessageFromDevice(String message) {
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(AvailableSubscriptions subscriptions) {
     }
 
     @Override

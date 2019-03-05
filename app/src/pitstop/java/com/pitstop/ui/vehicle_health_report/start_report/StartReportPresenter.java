@@ -2,6 +2,7 @@ package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
@@ -100,6 +101,16 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
                 getView().changeTitle(R.string.device_not_connected_action_bar,false);
                 break;
         }
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(@NotNull AvailableSubscriptions subscriptions) {
+
+    }
+
+    @Override
+    public void onMessageFromDevice(@NotNull String message) {
+
     }
 
     @Override

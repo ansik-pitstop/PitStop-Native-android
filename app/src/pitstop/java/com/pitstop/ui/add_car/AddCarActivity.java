@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.BluetoothService;
@@ -20,6 +21,8 @@ import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.
@@ -71,6 +74,14 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
                 });
 
         setViewAskHasDevice();
+    }
+
+    @Override
+    public void onMessageFromDevice(@NotNull String message) {
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(@NotNull AvailableSubscriptions subscriptions) {
     }
 
     @Override
