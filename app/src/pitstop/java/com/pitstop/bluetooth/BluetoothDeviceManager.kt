@@ -3,6 +3,7 @@ package com.pitstop.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.continental.rvd.mobile_sdk.BindingQuestionType
 import com.continental.rvd.mobile_sdk.RvdIntentService
@@ -25,6 +26,8 @@ import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.models.Alarm
 import com.pitstop.models.DebugMessage
 import com.pitstop.utils.Logger
+
+
 
 /**
  *
@@ -50,8 +53,23 @@ class BluetoothDeviceManager(private val mContext: Context
         CLASSIC, LE
     }
 
-    enum class DeviceType {
-        ELM327, OBD215, OBD212, RVD
+    enum class DeviceType(val type: String) {
+        ELM327("ELM327"),
+        OBD215("215B"),
+        OBD212("212B"),
+        RVD("RVD Continental");
+
+        companion object {
+            @JvmStatic
+            fun fromString(text: String): DeviceType? {
+                for (d in DeviceType.values()) {
+                    if (d.type == text) {
+                        return d
+                    }
+                }
+                return null
+            }
+        }
     }
 
     init {
@@ -138,6 +156,16 @@ class BluetoothDeviceManager(private val mContext: Context
     fun onCompleted(device: AbstractDevice) {
         Log.d(TAG,"onCompleted()")
         deviceInterface = device
+    }
+
+    override fun onGotAvailableSubscriptions(subscriptions: AvailableSubscriptions) {
+        Log.d(TAG,"onGotAvailableSubscriptions() subscriptions: $subscriptions")
+        dataListener.onGotAvailableSubscriptions(subscriptions)
+    }
+
+    override fun onMessageFromDevice(message: String) {
+        Log.d(TAG,"onMessageFromDevice() message: $message")
+        dataListener.onMessageFromDevice(message)
     }
 
     /*
@@ -275,6 +303,10 @@ class BluetoothDeviceManager(private val mContext: Context
                 (deviceInterface as LowLevelDevice).setCommunicatorState(state)
             }
         }
+    }
+
+    fun getAvailableSubscriptions(): Boolean {
+        return rvdBluetoothDeviceSearcher.getAvailableSubscriptions()
     }
 
     fun changeScanUrgency(urgent: Boolean) {

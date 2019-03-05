@@ -1,6 +1,7 @@
 package com.pitstop.ui.add_car.device_search;
 
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,9 +18,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -32,6 +35,7 @@ import com.pitstop.ui.add_car.FragmentSwitcher;
 import com.pitstop.ui.add_car.PendingAddCarActivity;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.bluetooth.BluetoothDeviceManager.DeviceType;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -122,7 +126,12 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
 
         presenter.subscribe(this);
 
-        String[] spinnerSelection = new String[]{"212B","215B","ELM327","RVD Continental"};
+        String[] spinnerSelection = new String[] {
+                DeviceType.OBD212.getType(),
+                DeviceType.OBD215.getType(),
+                DeviceType.ELM327.getType(),
+                DeviceType.RVD.getType()
+        };
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_dropdown_item,spinnerSelection);
         deviceSelectionSpinner.setAdapter(arrayAdapter);
 
@@ -144,6 +153,9 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
         if (presenter == null) return;
         mixpanelHelper.trackButtonTapped(MixpanelHelper.ADD_CAR_SEARCH_TAPPED
                 , MixpanelHelper.ADD_CAR_VIEW);
+        String deviceTypeString = getDeviceType();
+        DeviceType deviceType = DeviceType.fromString(deviceTypeString);
+        presenter.setDeviceType(deviceType);
         presenter.startSearch();
     }
 
@@ -389,6 +401,17 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
     @Override
     public void displayToast(int message) {
         Log.d(TAG,"displayToast() message: "+getString(message));
+        if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayAvailableSubscriptions(AvailableSubscriptions subscriptions) {
+        // TODO: todo
+    }
+
+    @Override
+    public void displayToast(String message) {
+        Log.d(TAG,"displayToast() message: " + message);
         if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 

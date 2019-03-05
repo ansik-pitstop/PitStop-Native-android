@@ -1,5 +1,6 @@
 package com.pitstop.bluetooth.searcher
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions
 import com.continental.rvd.mobile_sdk.BindingQuestion
 
 /**
@@ -8,6 +9,9 @@ import com.continental.rvd.mobile_sdk.BindingQuestion
 interface RVDBluetoothDeviceSearcherStatusListener {
     fun onConnectionFailure(err: Error)
     fun onConnectionCompleted()
+
+    fun onGotAvailableSubscriptions(subscriptions: AvailableSubscriptions)
+    fun onMessageFromDevice(message: String)
 
     fun onBindingRequired()
     fun onBindingQuestionPrompted(question: BindingQuestion)

@@ -1,5 +1,6 @@
 package com.pitstop.observer
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions
 import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.ReadyDevice
@@ -50,4 +51,8 @@ interface BluetoothConnectionObserver : Observer {
     fun onFirmwareInstallationFinished()
 
     fun onFirmwareInstallationError(err: Error)
+
+    fun onMessageFromDevice(message: String)
+
+    fun onGotAvailableSubscriptions(subscriptions: AvailableSubscriptions)
 }

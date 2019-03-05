@@ -5,6 +5,7 @@ import android.content.Context;
 import com.castel.obd.info.DataPackageInfo;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.bluetooth.dataPackages.DtcPackage;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -108,6 +109,8 @@ public class ObdManager {
         void onFirmwareInstallationFinished();
         void onFirmwareInstallationError(Error error);
 
+        void onGotAvailableSubscriptions(AvailableSubscriptions subscriptions);
+        void onMessageFromDevice(String message);
     }
 
 }

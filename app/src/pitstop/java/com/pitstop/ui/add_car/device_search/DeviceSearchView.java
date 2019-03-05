@@ -2,6 +2,7 @@ package com.pitstop.ui.add_car.device_search;
 
 import android.view.View;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.Car;
@@ -28,6 +29,8 @@ public interface DeviceSearchView extends LoadingView{
     void onCouldNotConnectToDevice();
     void connectingToDevice();
     void displayToast(int message);
+    void displayToast(String message);
+    void displayAvailableSubscriptions(AvailableSubscriptions subscriptions);
     boolean isBluetoothServiceRunning();
     void startBluetoothService();
     void endBluetoothService();

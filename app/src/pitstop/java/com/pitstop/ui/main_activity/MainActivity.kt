@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.*
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
@@ -768,6 +769,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onDeviceSyncing() {
+    }
+
+    override fun onGotAvailableSubscriptions(subscriptions: AvailableSubscriptions) {
+
+    }
+
+    override fun onMessageFromDevice(message: String) {
+
     }
 
     override fun openRequestService(tentative: Boolean) {

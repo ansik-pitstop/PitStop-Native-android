@@ -3,7 +3,9 @@ package com.pitstop.ui.add_car.device_search;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
@@ -129,6 +131,16 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     };
 
     @Override
+    public void onMessageFromDevice(@NotNull String message) {
+        view.displayToast(message);
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(@NotNull AvailableSubscriptions subscriptions) {
+        view.displayAvailableSubscriptions(subscriptions);
+    }
+
+    @Override
     public void onConnectingToDevice() {
         Log.d(TAG, "onConnectingToDevice() searchingForDevice? = " + Boolean.toString(searchingForDevice)
                 +", connectingToDevice? "+connectingToDevice);
@@ -192,6 +204,10 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         }
     }
 
+    public void setDeviceType(BluetoothDeviceManager.DeviceType type) {
+        this.deviceType = type;
+    }
+
     public void subscribe(DeviceSearchView view){
         Log.d(TAG,"subscribe()");
         this.view = view;
@@ -215,7 +231,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
     }
 
     //Start the bluetooth search, if a connection already exists than begin pulling VIN right away
-    //
     public void startSearch(){
         Log.d(TAG,"startSearch()");
 
@@ -333,7 +348,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;
                     findDeviceTimer.start();
-
                 }
                 else{
                     view.displayToast(R.string.request_search_failed_add_car_message);
@@ -618,7 +632,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
     private void displayBindingDialog() {
         Log.d(TAG, "Binding log: displayBindingDialog()");
-        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
+//        Disposable d = view.getBluetoothService().take(1).subscribe(BluetoothService::startBindingProcess);
+
+
         view.displayBindingDialog("Binding log: Binding required, a set of questions needs to be answered"
                 ,new BindingDialog.AnswerListener() {
                     @Override

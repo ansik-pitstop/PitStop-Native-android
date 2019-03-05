@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.RvdIntentService;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.models.Alarm;
@@ -871,6 +872,28 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         if (deviceManager != null)
             return deviceManager.answerBindingQuestion(questionType,answer);
         else return false;
+    }
+
+    @Override
+    public void onMessageFromDevice(String message) {
+        Log.d(TAG, "onMessageFromDevice() message: " + message);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o).
+                        onMessageFromDevice(message));
+            }
+        }
+    }
+
+    @Override
+    public void onGotAvailableSubscriptions(AvailableSubscriptions subscriptions) {
+        Log.d(TAG, "onGotAvailableSubscriptions() subscriptions: " + subscriptions);
+        for (Observer o: observerList ){
+            if (o instanceof BluetoothConnectionObserver){
+                mainHandler.post(() -> ((BluetoothConnectionObserver)o).
+                        onGotAvailableSubscriptions(subscriptions));
+            }
+        }
     }
 
     @Override
