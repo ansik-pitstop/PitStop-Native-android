@@ -3,10 +3,7 @@ package com.pitstop.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
-import com.continental.rvd.mobile_sdk.AvailableSubscriptions
-import com.continental.rvd.mobile_sdk.BindingQuestion
-import com.continental.rvd.mobile_sdk.BindingQuestionType
-import com.continental.rvd.mobile_sdk.RvdIntentService
+import com.continental.rvd.mobile_sdk.*
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.bleDevice.*
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
@@ -95,6 +92,10 @@ class BluetoothDeviceManager(private val mContext: Context
     fun cancelBinding(): Boolean{
         Log.d(TAG,"cancelBinding()")
         return rvdBluetoothDeviceSearcher.respondBindingRequest(false)
+    }
+
+    fun selectSubscription(subscription: Subscription) {
+        rvdBluetoothDeviceSearcher.selectSubscription(subscription)
     }
 
     /*
@@ -274,7 +275,8 @@ class BluetoothDeviceManager(private val mContext: Context
             }
 
             DeviceType.RVD -> {
-                rvdBluetoothDeviceSearcher.start()
+//                rvdBluetoothDeviceSearcher.start()
+                rvdBluetoothDeviceSearcher.getAvailableSubscriptions()
             }
         }
     }

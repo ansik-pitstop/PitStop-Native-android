@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.RvdIntentService;
+import com.continental.rvd.mobile_sdk.Subscription;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.models.Alarm;
 import com.castel.obd.info.LoginPackageInfo;
@@ -1136,6 +1137,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                 });
             }
         }
+    }
+
+    public void selectSubscription(Subscription subscription) {
+        deviceManager.selectSubscription(subscription);
     }
 
     @Override

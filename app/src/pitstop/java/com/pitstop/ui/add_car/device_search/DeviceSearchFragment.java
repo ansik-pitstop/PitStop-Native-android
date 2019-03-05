@@ -2,6 +2,7 @@ package com.pitstop.ui.add_car.device_search;
 
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,6 +38,9 @@ import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.bluetooth.BluetoothDeviceManager.DeviceType;
 
+import java.util.Arrays;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -65,6 +69,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
     private UseCaseComponent useCaseComponent;
     private AlertDialog connectErrorDialog;
     private AlertDialog shouldStartBindingDialog;
+    private SubscriptionDialog subscriptionDialog;
 
     public static DeviceSearchFragment getInstance(){
         return new DeviceSearchFragment();
@@ -404,10 +409,35 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
         if (getActivity() != null) Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
+
     @Override
     public void displayAvailableSubscriptions(AvailableSubscriptions subscriptions) {
-        // TODO: todo
+        if (subscriptionDialog != null) return;
+        subscriptionDialog = new SubscriptionDialog();
+        subscriptionDialog.show(getFragmentManager(), "DeviceSearchFragment");
+//        subscriptionDialog.setCancelable(false);
+
+        Context context = getContext();
+        if (context != null) {
+            SubscriptionSelectionViewAdapter adapter = new SubscriptionSelectionViewAdapter(context, subscriptions);
+            subscriptionDialog.setAdapter(adapter);
+        }
+
     }
+
+
+//    @Override
+//    public void displayBindingDialog(String startingInstruction, BindingDialog.AnswerListener answerListener) {
+//        if (bindingDialog != null) {
+//            return;
+//        }
+//        bindingDialog = new BindingDialog();
+//        Log.d(TAG,"displayBindingDialog");
+//        bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
+//        bindingDialog.setCancelable(false);
+//        bindingDialog.registerAnswerListener(answerListener);
+//        bindingDialog.setInstruction(startingInstruction);
+//    }
 
     @Override
     public void displayToast(String message) {

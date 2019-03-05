@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
+import com.continental.rvd.mobile_sdk.Subscription;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
@@ -353,6 +354,12 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                     view.displayToast(R.string.request_search_failed_add_car_message);
                 }
             }
+        });
+    }
+
+    public void selectSubscription(Subscription subscription) {
+        Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+            next.selectSubscription(subscription);
         });
     }
 
