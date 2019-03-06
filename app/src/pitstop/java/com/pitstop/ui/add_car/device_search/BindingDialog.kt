@@ -50,6 +50,7 @@ class BindingDialog: DialogFragment() {
     private var instruction: TextView? = null
     private var answerEditText: EditText? = null
     private var pendingMessage: String = ""
+    private var bindingFinished = false
 
     private var pendingQuestion: BindingQuestion? = null
     private var pendingProgress = 0.0f
@@ -64,6 +65,7 @@ class BindingDialog: DialogFragment() {
         answerButton = view.findViewById(R.id.answer_button)
         backButton = view.findViewById(R.id.back_button)
         cancelButton = view.findViewById(R.id.cancel_button)
+
         answerSpinner = view.findViewById(R.id.answer_spinner)
         progressBar = view.findViewById(R.id.progress_bar)
         instruction = view.findViewById(R.id.instruction)
@@ -82,23 +84,30 @@ class BindingDialog: DialogFragment() {
                 answerListener?.onAnswerProvided(
                         when (currentAnswerType) {
                             AnswerType.INPUT -> answerEditText?.text.toString()
-                            AnswerType.SELECT -> answerSpinner?.selectedItem.toString()
+                            AnswerType.SELECT -> {
+                                var selectedAnswer = question!!.answers.keys.first()
+                                for (answer in question!!.answers) {
+                                    if (answer.value == answerSpinner!!.selectedItem) {
+                                        selectedAnswer = answer.key
+                                        break
+                                    }
+                                }
+                                selectedAnswer
+                            }
                             AnswerType.INSTRUCTION -> {
-                                ""
+                                BindingQuestion.BIDING_ANSWER_YES
                             }
                         }
                         ,question!!
                 )
-//                backButton?.setOnClickListener {
-//                    answerListener?.onBackPressed(question!!)
-//                }
-//                cancelButton?.setOnClickListener {
-//                    answerListener?.onCancelPressed(question!!)
-//                }
-
-                //Hide input fields till next question arrives
                 waitForNextQuestion()
+            } else if (bindingFinished) {
+                answerListener?.onCancelPressed(null)
             }
+        }
+
+        backButton?.setOnClickListener {
+            answerListener?.onAnswerProvided(BindingQuestion.BIDING_ANSWER_NO, question!!)
         }
 
         cancelButton?.setOnClickListener {
@@ -134,10 +143,14 @@ class BindingDialog: DialogFragment() {
         backButton?.isClickable = true
         backButton?.setTextColor(Color.BLACK)
 
-        instruction?.text = question.question
+        if (question.question == null || question.question.length == 0) {
+            instruction?.text = question.questionType.name
+        } else {
+            instruction?.text = question.question
+        }
 
-        when (question.questionType){
 
+        when (question.questionType) {
             BindingQuestionType.VIN,
             BindingQuestionType.ODOMETER -> {
                 toggleAnswer(AnswerType.INPUT)
@@ -173,9 +186,11 @@ class BindingDialog: DialogFragment() {
 
     fun showFinished(){
         Log.d(TAG,"showFinished()")
+        bindingFinished = true
         instruction?.text = "Binding process completed!"
         answerButton?.isClickable = true
         answerButton?.setTextColor(Color.BLACK)
+        answerButton?.text = "Close binding prosses"
         cancelButton?.isClickable = false
         cancelButton?.setTextColor(Color.GRAY)
         backButton?.isClickable = false
@@ -212,7 +227,7 @@ class BindingDialog: DialogFragment() {
     private fun populateSpinner(answers: Map<String,String>){
         val arrayAdapter = ArrayAdapter(activity!!
                 , android.R.layout.simple_spinner_dropdown_item
-                , answers.keys.toTypedArray())
+                , answers.values.toTypedArray())
         answer_spinner.adapter = arrayAdapter
     }
 

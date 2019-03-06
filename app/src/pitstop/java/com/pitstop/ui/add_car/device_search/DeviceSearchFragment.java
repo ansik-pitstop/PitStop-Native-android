@@ -518,7 +518,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView {
         bindingDialog = new BindingDialog();
         Log.d(TAG,"displayBindingDialog");
         bindingDialog.show(getFragmentManager(),"DeviceSearchFragment");
-        bindingDialog.setCancelable(false);
+//        bindingDialog.setCancelable(false);
         bindingDialog.registerAnswerListener(answerListener);
         bindingDialog.setInstruction(startingInstruction);
     }

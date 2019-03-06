@@ -55,4 +55,6 @@ interface BluetoothConnectionObserver : Observer {
     fun onMessageFromDevice(message: String)
 
     fun onGotAvailableSubscriptions(subscriptions: AvailableSubscriptions)
+
+
 }

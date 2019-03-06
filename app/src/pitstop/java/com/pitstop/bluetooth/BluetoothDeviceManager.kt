@@ -81,7 +81,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun startBinding(): Boolean{
         Log.d(TAG,"startBinding()")
-        return rvdBluetoothDeviceSearcher.respondBindingRequest(true)
+        return rvdBluetoothDeviceSearcher.startBinding()
     }
 
     fun startFirmwareInstallation(): Boolean{
@@ -91,7 +91,7 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun cancelBinding(): Boolean{
         Log.d(TAG,"cancelBinding()")
-        return rvdBluetoothDeviceSearcher.respondBindingRequest(false)
+        return true
     }
 
     fun selectSubscription(subscription: Subscription) {
@@ -275,8 +275,7 @@ class BluetoothDeviceManager(private val mContext: Context
             }
 
             DeviceType.RVD -> {
-//                rvdBluetoothDeviceSearcher.start()
-                rvdBluetoothDeviceSearcher.getAvailableSubscriptions()
+                return rvdBluetoothDeviceSearcher.start()
             }
         }
     }

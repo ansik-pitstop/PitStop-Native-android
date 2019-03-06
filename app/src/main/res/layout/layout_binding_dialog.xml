@@ -57,7 +57,7 @@
 
     <Button
         android:id="@+id/back_button"
-        android:text="Back"
+        android:text="No"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
