@@ -864,6 +864,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
+        currentDeviceId = deviceID;
         vinDataHandler.handleVinData(Vin
                 ,deviceID,ignoreVerification);
     }

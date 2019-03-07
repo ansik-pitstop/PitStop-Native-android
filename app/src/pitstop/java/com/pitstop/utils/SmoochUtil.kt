@@ -13,10 +13,10 @@ class SmoochUtil {
         fun setSmoochProperties(car: Car){
             val user = io.smooch.core.User.getCurrentUser()
             val customProperties = HashMap<String, Any>()
-            customProperties["VIN"] = car.vin
-            customProperties["Car Make"] = car.make
-            customProperties["Car Model"] = car.model
             customProperties["Car Year"] = car.year
+            if (car.vin != null) customProperties["VIN"] = car.vin
+            if (car.make != null) customProperties["Car Make"] = car.make
+            if (car.model != null) customProperties["Car Model"] = car.model
             user.addProperties(customProperties)
         }
 
