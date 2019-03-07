@@ -136,19 +136,14 @@ class BindingDialog: DialogFragment() {
 
         if (instruction == null) this.pendingQuestion = question
 
+        updateMessage(question)
+
         answerButton?.isClickable = true
         answerButton?.setTextColor(Color.BLACK)
         cancelButton?.isClickable = true
         cancelButton?.setTextColor(Color.BLACK)
         backButton?.isClickable = true
         backButton?.setTextColor(Color.BLACK)
-
-        if (question.question == null || question.question.length == 0) {
-            instruction?.text = question.questionType.name
-        } else {
-            instruction?.text = question.question
-        }
-
 
         when (question.questionType) {
             BindingQuestionType.VIN,
@@ -157,6 +152,7 @@ class BindingDialog: DialogFragment() {
             }
             BindingQuestionType.CAR_MANUFACTURER,
             BindingQuestionType.CAR_MODEL,
+            BindingQuestionType.LOOKUP,
             BindingQuestionType.CAR_ENGINE -> {
                 toggleAnswer(AnswerType.SELECT)
                 populateSpinner(question.answers)
@@ -168,19 +164,45 @@ class BindingDialog: DialogFragment() {
             BindingQuestionType.ENGINE_ON,
             BindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF,
             BindingQuestionType.BINDING_FEEDBACK,
-            BindingQuestionType.LOOKUP,
             BindingQuestionType.CHECK_DASHBOARD_LIGHT,
             BindingQuestionType.REGIONAL_RESTRICTION -> {
-                toggleAnswer(AnswerType.INSTRUCTION)
-            }
-
-            BindingQuestionType.COUNTRY_OF_INSTALLATION -> {
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
 
             else -> {
                 Log.d(TAG, "Invalid question type.")
             }
+        }
+    }
+
+    private fun updateMessage(question: BindingQuestion) {
+        if (question.question == null || question.question.isEmpty()) {
+            val instructionText = when(question.questionType) {
+                BindingQuestionType.VIN -> "Insert your VIN number"
+                BindingQuestionType.ODOMETER -> "Insert your odometer value"
+                BindingQuestionType.CAR_MANUFACTURER -> "Select your car manufacturer"
+                BindingQuestionType.LOOKUP -> "Select your a lookup"
+                BindingQuestionType.CAR_MODEL -> "Select your car model"
+                BindingQuestionType.CAR_ENGINE -> "Select your car engine"
+
+                BindingQuestionType.OBSERVE_DASHBOARD_LIGHTS -> "Observe your warning signs on the car dashboard"
+                BindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION -> "Driving is not allowed during binding process"
+                BindingQuestionType.IGNITION_OFF -> "Please turn your ignition OFF"
+                BindingQuestionType.ENGINE_ON -> "Please turn your ignition ON"
+                BindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF -> "Your engine should be ON during the binding process"
+                BindingQuestionType.BINDING_FEEDBACK -> "Was the binding process good?"
+
+                BindingQuestionType.CHECK_DASHBOARD_LIGHT -> "Did you notice any warning signs?"
+                BindingQuestionType.REGIONAL_RESTRICTION -> "Unfortunately not all that will; be available to you"
+
+                else -> {
+                    "${question.questionType.name} Answer yes"
+                }
+            }
+
+            instruction?.text = instructionText
+        } else {
+            instruction?.text = question.question
         }
     }
 
@@ -214,6 +236,7 @@ class BindingDialog: DialogFragment() {
     }
 
     private fun waitForNextQuestion(){
+        toggleAnswer(AnswerType.INSTRUCTION)
         instruction?.text = "Please wait..."
         answerButton?.isClickable = false
         answerButton?.setTextColor(Color.GRAY)

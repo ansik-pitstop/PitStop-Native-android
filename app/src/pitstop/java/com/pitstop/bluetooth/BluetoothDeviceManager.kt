@@ -275,7 +275,7 @@ class BluetoothDeviceManager(private val mContext: Context
             }
 
             DeviceType.RVD -> {
-                return rvdBluetoothDeviceSearcher.start()
+                rvdBluetoothDeviceSearcher.start()
             }
         }
     }

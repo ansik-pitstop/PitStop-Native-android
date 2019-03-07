@@ -348,7 +348,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
                     view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;
-                    findDeviceTimer.start();
+                    if (deviceType != BluetoothDeviceManager.DeviceType.RVD) {
+                        findDeviceTimer.start();
+                    }
                 }
                 else{
                     view.displayToast(R.string.request_search_failed_add_car_message);

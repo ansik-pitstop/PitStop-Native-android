@@ -115,17 +115,12 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                             rvdBluetoothListener.onBindingProgress(progress)
                         }
 
-                        override fun onBindingStarted() {
-                            rvdBluetoothListener.onMessageFromDevice("onBindingStarted()")
-                        }
+//                        override fun onBindingStarted() {
+//                            rvdBluetoothListener.onMessageFromDevice("onBindingStarted()")
+//                        }
 
                         override fun onBindingUserInput(bindingQuestion: BindingQuestion?) {
-                            rvdBluetoothListener.onMessageFromDevice("onBindingUserInput: ${bindingQuestion}")
                             rvdBluetoothListener.onBindingQuestionPrompted(bindingQuestion!!)
-                        }
-
-                        override fun onBindingWarning(warning: BindingStatus.BindingWarning?) {
-
                         }
 
                     })
@@ -146,9 +141,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                             val rvdDevice = RVDDevice(sdk!!, deviceManager)
                             deviceManager.onCompleted(rvdDevice)
                             deviceManager.setState(IBluetoothCommunicator.CONNECTED)
-
-                            // Get device id
-                            rvdDevice.getVin()
                         }
 
                         override fun onDongleConnected(toBluetoothDevice: BluetoothDongle?) {
@@ -197,7 +189,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                     sdk.addEventListener()!!.onAuthenticationEvents(object: OnAuthenticationEvents {
                         override fun onAuthenticationSuccess() {
-                            rvdBluetoothListener.onMessageFromDevice("onAuthenticationSuccess()")
                         }
 
                         override fun onAuthenticationError(error: SDKException?) {
