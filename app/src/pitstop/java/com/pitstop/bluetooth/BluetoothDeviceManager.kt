@@ -229,12 +229,8 @@ class BluetoothDeviceManager(private val mContext: Context
         parameterPackage.deviceId = deviceId
         parameterPackage.paramType = ParameterPackage.ParamType.SUPPORTED_PIDS
         parameterPackage.success = true
-        parameterPackage.value = supportedPids.reduceIndexed { index, acc, s ->
-            if(supportedPids.lastIndex != index){
-                "$s,"
-            }else{
-                s
-            }
+        parameterPackage.value = supportedPids.reduce { acc, s ->
+            "$acc,$s"
         }
         dataListener!!.parameterData(parameterPackage)
     }

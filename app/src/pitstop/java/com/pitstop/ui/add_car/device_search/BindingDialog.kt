@@ -107,7 +107,7 @@ class BindingDialog: DialogFragment() {
         }
 
         backButton?.setOnClickListener {
-            answerListener?.onAnswerProvided(BindingQuestion.BIDING_ANSWER_NO, question!!)
+            answerListener?.onAnswerProvided(BindingQuestion.BIDING_ANSWER_YES, question!!)
         }
 
         cancelButton?.setOnClickListener {
@@ -184,20 +184,15 @@ class BindingDialog: DialogFragment() {
                 BindingQuestionType.LOOKUP -> "Select your a lookup"
                 BindingQuestionType.CAR_MODEL -> "Select your car model"
                 BindingQuestionType.CAR_ENGINE -> "Select your car engine"
-
                 BindingQuestionType.OBSERVE_DASHBOARD_LIGHTS -> "Observe your warning signs on the car dashboard"
                 BindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION -> "Driving is not allowed during binding process"
                 BindingQuestionType.IGNITION_OFF -> "Please turn your ignition OFF"
                 BindingQuestionType.ENGINE_ON -> "Please turn your ignition ON"
                 BindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF -> "Your engine should be ON during the binding process"
                 BindingQuestionType.BINDING_FEEDBACK -> "Was the binding process good?"
-
                 BindingQuestionType.CHECK_DASHBOARD_LIGHT -> "Did you notice any warning signs?"
-                BindingQuestionType.REGIONAL_RESTRICTION -> "Unfortunately not all that will; be available to you"
-
-                else -> {
-                    "${question.questionType.name} Answer yes"
-                }
+                BindingQuestionType.REGIONAL_RESTRICTION -> "Unfortunately not all functionalities will be available to you"
+                BindingQuestionType.COUNTRY_OF_INSTALLATION-> "Unfortunately not all that will; be available to you"
             }
 
             instruction?.text = instructionText

@@ -27,7 +27,7 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
 
     fun onViewReady(){
         pidRepository.getAll(System.currentTimeMillis() - 1000*60*2)
-                .subscribe({
+                .subscribe {
                     Log.d(tag,"Got data: $it")
                     it.forEach {
                         val title = PIDParser.getPidName(it.type)
@@ -44,6 +44,6 @@ class PidGraphsPresenter(private val pidRepository: PidRepository) {
                             displayedData.add(it)
                         }
                     }
-                })
+                }
     }
 }
