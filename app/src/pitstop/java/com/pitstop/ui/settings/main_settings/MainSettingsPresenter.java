@@ -118,8 +118,10 @@ public class MainSettingsPresenter {
 
                 @Override
                 public void onError(RequestError error) {
-                    if (mainSettings != null)
-                        mainSettings.toast(error.getMessage());
+                    if (mainSettings != null) {
+                        if (error != null) mainSettings.toast(error.getMessage());
+                        else mainSettings.toast("Unknown error");
+                    }
                 }
             });
         }else if(key.equals(PHONE_PREF_KEY)){
