@@ -52,7 +52,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation != null){
-                    if (currentPidPackage == null) currentPidPackage = RVDPidPackage(dongleInformation.name, System.currentTimeMillis())
+                    if (currentPidPackage == null) currentPidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
                     val liveReadingSample = sample as LiveReadingSample
                     currentPidPackage!!.addPid(liveReadingSample.pid?.id.toString()
                             ,liveReadingSample.value)
@@ -77,8 +77,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation == null) return
-                val deviceName = dongleInformation!!.name
-
+                val deviceName = dongleInformation!!.sn
                 rvdSDK.getVehicleVin(object: Callback<String>() {
                     override fun onSuccess(vin: String?) {
                         deviceManager.onGotVin(vin!!, deviceName)
@@ -102,6 +101,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         pids.forEach {
             rvdSDK.startLiveReading(LiveReadingId(it.toInt(), 0, "", ""), timeInterval)
         }
+//        rvdSDK.startLiveReading()
         expectedPidList.addAll(pids.map{ it.toInt() })
         return true
     }
@@ -113,7 +113,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
             rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
                 override fun onSuccess(dongleInformation: DongleInformation?) {
                     if (dongleInformation != null){
-                        val pidPackage = RVDPidPackage(dongleInformation.name, System.currentTimeMillis())
+                        val pidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
                         rvdSDK.sampleLiveReading(LiveReadingId(it.toInt(), 0, "", ""), object: Callback<LiveReadingSample>() {
                             override fun onSuccess(liveReadingSample: LiveReadingSample?) {
                                 Log.d(TAG,"Got live reading sample: $liveReadingSample")
@@ -150,7 +150,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
                                 supportedPids.filter { it.value }.forEach {
                                     supportedList.add(it.key.id.toString())
                                 }
-                                deviceManager.onGotSupportedPids(supportedList, dongleInformation.name)
+                                deviceManager.onGotSupportedPids(supportedList, dongleInformation.sn)
                             }
                         }
 
@@ -174,7 +174,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation != null) {
-                    val pidPackage = RVDPidPackage(dongleInformation.name, System.currentTimeMillis())
+                    val pidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
                     rvdSDK.getAvailableLiveReading(object: Callback<Map<LiveReadingId, Boolean>>() {
                         override fun onSuccess(availableLiveReading: Map<LiveReadingId, Boolean>?) {
                             if (availableLiveReading != null)
@@ -234,7 +234,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 //                                it.value.forEach { allEngineCodes.add(it.faultCode,true) }
 //                            })
 
-                            deviceManager.onGotDtcData(DtcPackage(dongleInformation.name
+                            deviceManager.onGotDtcData(DtcPackage(dongleInformation.sn
                                     , System.currentTimeMillis().toString(), allEngineCodes))
                         }
 
@@ -269,7 +269,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
                                         allEngineCodes[it.code.toString()] = false
                                     }
                                 }
-                                deviceManager.onGotDtcData(DtcPackage(dongleInformation.name
+                                deviceManager.onGotDtcData(DtcPackage(dongleInformation.sn
                                         , System.currentTimeMillis().toString(), allEngineCodes))
                             }
                         }
