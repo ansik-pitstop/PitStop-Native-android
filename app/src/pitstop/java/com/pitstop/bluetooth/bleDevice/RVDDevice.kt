@@ -6,6 +6,7 @@ import com.continental.rvd.mobile_sdk.errors.SDKException
 import com.continental.rvd.mobile_sdk.events.OnCarEvents
 import com.continental.rvd.mobile_sdk.events.OnDongleEvents
 import com.continental.rvd.mobile_sdk.events.OnLiveReadingsEvents
+import com.continental.rvd.mobile_sdk.internal.license.domain.LicenseEntity
 import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.dataPackages.DtcPackage
@@ -19,8 +20,15 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     : AbstractDevice, OnDongleEvents, OnCarEvents, OnLiveReadingsEvents {
 
     private val TAG = RVDDevice::class.java.simpleName
-    private val expectedPidList: MutableList<Int> = mutableListOf()
+//    private val expectedPidList: MutableList<String> = mutableListOf()
     private var currentPidPackage: RVDPidPackage? = null
+    private var supportedPids: MutableList<LiveReadingId> = mutableListOf()
+    var license: LicenseEntity? = null
+    var bluetoothDevice: BluetoothDongle? = null
+
+    companion object {
+        val NAME = "RVD Device"
+    }
 
     init{
         //We need to register all events related to disconnecting from device and getting live data
@@ -52,12 +60,14 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation != null){
-                    if (currentPidPackage == null) currentPidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
+                    if (currentPidPackage == null) currentPidPackage = RVDPidPackage("RVD:" + dongleInformation.sn, System.currentTimeMillis())
                     val liveReadingSample = sample as LiveReadingSample
                     currentPidPackage!!.addPid(liveReadingSample.pid?.id.toString()
                             ,liveReadingSample.value)
-                    if (currentPidPackage!!.pids.size == expectedPidList.size)
+                    if (supportedPids.size != 0 && currentPidPackage!!.pids.size >= supportedPids.size) {
                         deviceManager.onGotPids(currentPidPackage!!)
+                        currentPidPackage = null
+                    }
                 }
             }
 
@@ -77,7 +87,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation == null) return
-                val deviceName = dongleInformation!!.sn
+                val deviceName = "RVD:" + dongleInformation!!.sn
                 rvdSDK.getVehicleVin(object: Callback<String>() {
                     override fun onSuccess(vin: String?) {
                         deviceManager.onGotVin(vin!!, deviceName)
@@ -98,11 +108,10 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun setPidsToSend(pids: List<String>, timeInterval: Int): Boolean {
         Log.d(TAG,"setPidsToSend() pids: $pids, timeInterval: $timeInterval")
-        pids.forEach {
-            rvdSDK.startLiveReading(LiveReadingId(it.toInt(), 0, "", ""), timeInterval)
+//        expectedPidList.addAll(pids)
+        supportedPids.forEach {
+            rvdSDK.startLiveReading(it, timeInterval)
         }
-//        rvdSDK.startLiveReading()
-        expectedPidList.addAll(pids.map{ it.toInt() })
         return true
     }
 
@@ -113,7 +122,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
             rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
                 override fun onSuccess(dongleInformation: DongleInformation?) {
                     if (dongleInformation != null){
-                        val pidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
+                        val pidPackage = RVDPidPackage("RVD:" + dongleInformation.sn, System.currentTimeMillis())
                         rvdSDK.sampleLiveReading(LiveReadingId(it.toInt(), 0, "", ""), object: Callback<LiveReadingSample>() {
                             override fun onSuccess(liveReadingSample: LiveReadingSample?) {
                                 Log.d(TAG,"Got live reading sample: $liveReadingSample")
@@ -146,11 +155,13 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
                     rvdSDK.getAvailableLiveReading(object: Callback<Map<LiveReadingId, Boolean>>() {
                         override fun onSuccess(supportedPids: Map<LiveReadingId, Boolean>?) {
                             if (supportedPids != null){
+                                this@RVDDevice.supportedPids = mutableListOf()
                                 val supportedList = mutableListOf<String>()
                                 supportedPids.filter { it.value }.forEach {
                                     supportedList.add(it.key.id.toString())
+                                    this@RVDDevice.supportedPids.add(it.key)
                                 }
-                                deviceManager.onGotSupportedPids(supportedList, dongleInformation.sn)
+                                deviceManager.onGotSupportedPids(supportedList, "RVD:" + dongleInformation.sn)
                             }
                         }
 
@@ -174,7 +185,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation != null) {
-                    val pidPackage = RVDPidPackage(dongleInformation.sn, System.currentTimeMillis())
+                    val pidPackage = RVDPidPackage("RVD:" + dongleInformation.sn, System.currentTimeMillis())
                     rvdSDK.getAvailableLiveReading(object: Callback<Map<LiveReadingId, Boolean>>() {
                         override fun onSuccess(availableLiveReading: Map<LiveReadingId, Boolean>?) {
                             if (availableLiveReading != null)
@@ -234,7 +245,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 //                                it.value.forEach { allEngineCodes.add(it.faultCode,true) }
 //                            })
 
-                            deviceManager.onGotDtcData(DtcPackage(dongleInformation.sn
+                            deviceManager.onGotDtcData(DtcPackage("RVD:" + dongleInformation.sn
                                     , System.currentTimeMillis().toString(), allEngineCodes))
                         }
 

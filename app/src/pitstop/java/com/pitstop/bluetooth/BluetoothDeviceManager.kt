@@ -79,9 +79,9 @@ class BluetoothDeviceManager(private val mContext: Context
         rvdBluetoothDeviceSearcher = RVDBluetoothDeviceSearcher(rvdIntentService, this,this)
     }
 
-    fun startBinding(): Boolean{
+    fun startBinding(start: Boolean): Boolean{
         Log.d(TAG,"startBinding()")
-        return rvdBluetoothDeviceSearcher.startBinding()
+        return rvdBluetoothDeviceSearcher.startBinding(start)
     }
 
     fun startFirmwareInstallation(): Boolean{
@@ -210,7 +210,6 @@ class BluetoothDeviceManager(private val mContext: Context
         Log.d(TAG, "setState() state: $state")
         this.btConnectionState = state
         dataListener.getBluetoothState(state)
-
     }
 
     fun answerBindingQuestion(questionType: BindingQuestionType, answer: String): Boolean{
@@ -471,14 +470,6 @@ class BluetoothDeviceManager(private val mContext: Context
 
     fun requestSnapshot(): Boolean {
         Log.d(TAG, "requestSnapshot()")
-//        if (deviceInterface != null) {
-//            if ((deviceInterface is Device215B || deviceInterface is ELM327Device) && btConnectionState == BluetoothCommunicator.CONNECTED) {
-//                Log.d(TAG, "executing writeToOBD requestSnapshot()")
-//                (deviceInterface as Device215B).requestSnapshot()
-//                return true
-//            }
-//        }
-
         if (deviceInterface != null && btConnectionState == BluetoothCommunicator.CONNECTED) {
             deviceInterface?.requestSnapshot()
             return true

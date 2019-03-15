@@ -4,9 +4,11 @@ import android.os.Handler;
 
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
+import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
 /**
@@ -20,13 +22,15 @@ public class GetCarByVinUseCaseImpl implements GetCarByVinUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CarRepository carRepository;
+    private UserRepository userRepository;
     private Callback callback;
     private String vin;
 
-    public GetCarByVinUseCaseImpl(Handler useCaseHandler, Handler mainHandler, CarRepository carRepository) {
+    public GetCarByVinUseCaseImpl(Handler useCaseHandler, Handler mainHandler, CarRepository carRepository, UserRepository userRepository) {
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
         this.carRepository = carRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -40,14 +44,24 @@ public class GetCarByVinUseCaseImpl implements GetCarByVinUseCase {
 
     @Override
     public void run() {
-        carRepository.getCarByVin(vin, new Repository.Callback<Car>() {
+        userRepository.getCurrentUser(new Repository.Callback<User>() {
             @Override
-            public void onSuccess(Car car) {
-                if (car == null){
-                    GetCarByVinUseCaseImpl.this.onNoCarFound();
-                    return;
-                }
-                GetCarByVinUseCaseImpl.this.onGotCar(car);
+            public void onSuccess(User data) {
+                carRepository.getCarByVin("" + data.getId(), vin, new Repository.Callback<Car>() {
+                    @Override
+                    public void onSuccess(Car car) {
+                        if (car == null){
+                            GetCarByVinUseCaseImpl.this.onNoCarFound();
+                            return;
+                        }
+                        GetCarByVinUseCaseImpl.this.onGotCar(car);
+                    }
+
+                    @Override
+                    public void onError(RequestError error) {
+                        GetCarByVinUseCaseImpl.this.onError(error);
+                    }
+                });
             }
 
             @Override

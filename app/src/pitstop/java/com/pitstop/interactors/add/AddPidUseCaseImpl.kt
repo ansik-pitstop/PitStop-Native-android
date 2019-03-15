@@ -105,8 +105,10 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
         val locallyStoredCount = sensorDataRepository
                 .store(sensorData)
 
+//        if (sensorDataRepository.getSensorDataCount()
+//                >= sensorDataRepository.getChunkSize()){
         if (sensorDataRepository.getSensorDataCount()
-                >= sensorDataRepository.getChunkSize()){
+                >= 2){
 
             val disposable = sensorDataRepository.dumpData()
                     .observeOn(Schedulers.io(), true)

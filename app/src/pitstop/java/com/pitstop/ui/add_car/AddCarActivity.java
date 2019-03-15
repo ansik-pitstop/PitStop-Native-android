@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.pitstop.R;
@@ -78,6 +79,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
 
     @Override
     public void onMessageFromDevice(@NotNull String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override

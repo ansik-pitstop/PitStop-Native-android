@@ -500,8 +500,8 @@ public class UseCaseModule {
 
     @Provides
     GetCarByVinUseCase getCarByVinUseCase(@Named("useCaseHandler")Handler useCaseHandler
-            , @Named("mainHandler") Handler mainHandler, CarRepository carRepository){
-        return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository);
+            , @Named("mainHandler") Handler mainHandler, CarRepository carRepository, UserRepository userRepository){
+        return new GetCarByVinUseCaseImpl(useCaseHandler,mainHandler,carRepository, userRepository);
     }
 
     @Provides

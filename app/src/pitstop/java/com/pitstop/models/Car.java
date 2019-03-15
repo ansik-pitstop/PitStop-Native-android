@@ -248,7 +248,12 @@ public class Car implements Parcelable {
     }
 
     // create car from json response (this is for GET from api)
-    public static Car createCar(String response) throws JSONException {
+    public static Car createCar(String _response) throws JSONException {
+
+        JSONObject jsonObjectWithResult = new JSONObject(_response);
+
+        String response = jsonObjectWithResult.getJSONArray("result").getJSONObject(0).toString();
+
         Car car = JsonUtil.json2object(response, Car.class);
 
         car.setDisplayedMileage(car.getTotalMileage());
@@ -260,8 +265,8 @@ public class Car implements Parcelable {
             car.setShopId(dealer.getId());
         }
 
-        if(!jsonObject.isNull("scannerId")) {
-            car.setScannerId(jsonObject.getJSONObject("scannerId").getString("scannerId"));
+        if(!jsonObject.isNull("scanner")) {
+            car.setScannerId(jsonObject.getJSONObject("scanner").getString("scannerId"));
         }
 
         return car;

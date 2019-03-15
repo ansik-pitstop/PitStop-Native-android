@@ -18,6 +18,7 @@ import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.RvdIntentService;
 import com.continental.rvd.mobile_sdk.Subscription;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
+import com.pitstop.interactors.add.AddPidUseCase;
 import com.pitstop.models.Alarm;
 import com.castel.obd.info.LoginPackageInfo;
 import com.pitstop.bluetooth.dataPackages.FreezeFramePackage;
@@ -698,7 +699,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 BluetoothDeviceManager.DeviceType deviceType;
                 if (car.getScannerId() == null){
-                    deviceType = BluetoothDeviceManager.DeviceType.OBD215; //default if none is present
+                    return; //default if none is present
                 }
                 else if (car.getScannerId().contains("RVD")){
                     deviceType = BluetoothDeviceManager.DeviceType.RVD;
@@ -914,9 +915,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         return deviceManager != null && deviceManager.cancelBinding();
     }
 
-    public boolean startBindingProcess() {
+    public boolean startBindingProcess(Boolean start) {
         Log.d(TAG, "startBindingProcess()");
-        return deviceManager != null && deviceManager.startBinding();
+        return deviceManager != null && deviceManager.startBinding(start);
     }
 
     public boolean startFirmwareInstallation() {
@@ -1061,6 +1062,18 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     @Override
     public void pidData(PidPackage pidPackage) {
         if (pidPackage == null)return;
+
+        if (deviceManager != null) deviceManager.requestData();
+        trackIdrPidData(pidPackage);
+
+        //Set device id if its found in pid package
+        if (pidPackage != null && pidPackage.getDeviceId() != null && !pidPackage.getDeviceId().isEmpty()){
+            Log.d(TAG, "setting current device ID to " + pidPackage.getDeviceId());
+            currentDeviceId = pidPackage.getDeviceId();
+        }
+        pidPackage.setDeviceId(currentDeviceId);
+        pidDataHandler.handlePidData(pidPackage, vinDataHandler.getRecentVin());
+
 
         pidTimeoutTimer.cancel();
         Logger.getInstance().logI(TAG, "All pid data received: " + pidPackage.toString()
@@ -1615,6 +1628,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }}*/
         allPidRequested = false;
         pidTimeoutTimer.cancel();
+
+//        useCaseComponent.addPidUseCase().execute(pidPackage, pidPackage.);
+
+
         for (Observer observer: observerList){
             Log.d(TAG, "notifying that pids were received");
             if (observer instanceof BluetoothPidObserver){

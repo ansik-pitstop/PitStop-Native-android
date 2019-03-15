@@ -245,64 +245,6 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.startBluetoothService();
         }
 
-//        switch(view.getDeviceType()){
-//            case "215B":
-//                deviceType = BluetoothDeviceManager.DeviceType.OBD215;
-//                break;
-//            case "212B":
-//                deviceType = BluetoothDeviceManager.DeviceType.OBD212;
-//                break;
-//            case "ELM327":
-//                deviceType = BluetoothDeviceManager.DeviceType.ELM327;
-//                break;
-//            case "RVD Continental":
-//                deviceType = BluetoothDeviceManager.DeviceType.RVD;
-//                displayBindingDialog();
-//                break;
-//        }
-
-
-
-        //TEST CODE
-//        if (deviceType == BluetoothDeviceManager.DeviceType.RVD){
-//            view.displayBindingDialog(new BindingDialog.AnswerListener() {
-//                @Override
-//                public void onAnswerProvided(@NotNull String answer, @NotNull BindingQuestion question) {
-//                    Log.d(TAG,"onAnswerProvided() answer: "+answer+", question: "+question);
-//                    Disposable d = view.getBluetoothService().take(1)
-//                            .subscribe(next -> next.answerBindingQuestion(question.questionType,answer));
-//                }
-//
-//                @Override
-//                public void onBackPressed(@NotNull BindingQuestion question) {
-//                    Log.d(TAG,"onBackPressed()");
-//                    Disposable d = view.getBluetoothService().take(1)
-//                            .subscribe(next -> next.answerBindingQuestion(question.questionType,BindingQuestion.BIDING_ANSWER_BACK));
-//                }
-//
-//                @Override
-//                public void onCancelPressed(@NotNull BindingQuestion question) {
-//                    Log.d(TAG,"onCancelPressed()");
-//                    Disposable d = view.getBluetoothService().take(1)
-//                            .subscribe(next -> next.cancelBinding());
-//                }
-//            });
-//            view.displayBindingQuestion(new BindingQuestion(EBindingQuestionType.VIN,"Please enter your car's VIN"));
-//            view.displayBindingProgress(0.4f);
-//            return;
-//        }else if (deviceType == BluetoothDeviceManager.DeviceType.OBD215){
-//            view.displayFirmwareInstallationDialog(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//
-//                }
-//            });
-//            view.displayFirmwareInstallationProgress(0.3f);
-//            view.displayFirmwareInstallationError("Error installing firmware. Contact Support!");
-//            return;
-//        }
-        //END OF TEST CODE
-
         mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_CONNECT_TO_BLUETOOTH
                 , MixpanelHelper.PENDING);
 
@@ -627,7 +569,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             public void onStart() {
                 Log.d(TAG, "Binding log: onBindingRequired, onStart");
                 Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
-                    next.startBindingProcess();
+                    next.startBindingProcess(true);
                     displayBindingDialog();
                 });
             }
@@ -635,6 +577,9 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             @Override
             public void onCancel() {
                 Log.d(TAG, "Binding log: onBindingRequired, onCancel");
+                Disposable d = view.getBluetoothService().take(1).subscribe((next) -> {
+                    next.startBindingProcess(false);
+                });
             }
         });
     }

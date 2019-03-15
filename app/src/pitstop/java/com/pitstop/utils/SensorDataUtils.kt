@@ -3,10 +3,8 @@ package com.pitstop.utils
 import com.pitstop.bluetooth.bleDevice.Device212B
 import com.pitstop.bluetooth.bleDevice.Device215B
 import com.pitstop.bluetooth.bleDevice.ELM327Device
-import com.pitstop.bluetooth.dataPackages.ELM327PidPackage
-import com.pitstop.bluetooth.dataPackages.OBD212PidPackage
-import com.pitstop.bluetooth.dataPackages.OBD215PidPackage
-import com.pitstop.bluetooth.dataPackages.PidPackage
+import com.pitstop.bluetooth.bleDevice.RVDDevice
+import com.pitstop.bluetooth.dataPackages.*
 import com.pitstop.models.sensor_data.DataPoint
 import com.pitstop.models.sensor_data.SensorData
 
@@ -36,7 +34,10 @@ class SensorDataUtils {
                 }catch(e: Exception){
                     0L
                 }
-            }else{
+            } else if (pid is RVDPidPackage) {
+                deviceName = RVDDevice.NAME
+                rtcTime = (pid.timestamp / 1000)
+            } else {
                 throw IllegalArgumentException()
             }
 

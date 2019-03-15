@@ -36,7 +36,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
 
     private val tag = javaClass.simpleName
 
-    fun getCarByVin(vin: String, callback: Repository.Callback<Car>) {
+    fun getCarByVin(userId: String, vin: String, callback: Repository.Callback<Car>) {
 
         if (vin.isEmpty()) {
             val err = RequestError()
@@ -46,7 +46,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
             return
         }
 
-        networkHelper.get("car/?vin=" + vin) { response, requestError ->
+        networkHelper.get("v1/car?userId=$userId&vin=$vin") { response, requestError ->
             if (requestError == null) {
 
                 //No car found

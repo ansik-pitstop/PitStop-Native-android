@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.pitstop.R;
@@ -69,6 +70,7 @@ public class EmissionsProgressActivity extends IBluetoothServiceActivity impleme
 
     @Override
     public void onMessageFromDevice(@NotNull String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
@@ -110,7 +111,6 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
 
     @Override
     public void onMessageFromDevice(@NotNull String message) {
-
     }
 
     @Override

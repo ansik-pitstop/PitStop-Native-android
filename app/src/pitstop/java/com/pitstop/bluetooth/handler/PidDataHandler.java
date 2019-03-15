@@ -167,6 +167,7 @@ public class PidDataHandler {
 
     public void setDefaultPidCommunicationParameters(String vin){
         Log.d(TAG,"setDefaultPidCommunicationParameters() vin: "+vin);
+
         useCaseComponent.getGetCarByVinUseCase().execute(vin, new GetCarByVinUseCase.Callback() {
             @Override
             public void onGotCar(Car car) {
@@ -270,10 +271,10 @@ public class PidDataHandler {
                             +", and supported pids to: "+supportedPids);
                 }
                 else {
-                    if (car.getMake().equalsIgnoreCase(Car.Make.RAM)
+                    if (car.getMake() != null && (car.getMake().equalsIgnoreCase(Car.Make.RAM)
                             || car.getMake().equalsIgnoreCase(Car.Make.DODGE)
                             || car.getMake().equalsIgnoreCase(Car.Make.CHRYSLER)
-                            || car.getMake().equalsIgnoreCase(Car.Make.JEEP)) {
+                            || car.getMake().equalsIgnoreCase(Car.Make.JEEP))) {
 
                         String supportedPids = getSupportedPid(pids, PID_COUNT_SAFE);
                         bluetoothDataHandlerManager.setPidsToBeSent(supportedPids, TIME_INTERVAL_SAFE);

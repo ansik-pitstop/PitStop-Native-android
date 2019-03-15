@@ -22,6 +22,8 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
     private val TAG = RVDBluetoothDeviceSearcher::class.java.simpleName
     private var sdk: RvdApi? = null
     private var connectedDongle: BluetoothDongle? = null
+    private var rvdDevice: RVDDevice? = null
+    private var isCarConnected = false
 
     fun start(): Boolean {
         Log.d(TAG,"start()")
@@ -38,10 +40,11 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                     rvdBluetoothListener.onMessageFromDevice("Successfully initialized RVD SDK!")
                     this@RVDBluetoothDeviceSearcher.sdk = sdk
 
+                    rvdDevice = RVDDevice(sdk!!, deviceManager)
+
                     // Bluetooth
                     sdk.addEventListener()!!.onBluetoothEvents(object: OnBluetoothEvents {
                         override fun onBluetoothConnectTo(devicesAvailableForConnection: Array<out BluetoothDongle>?) {
-                            Log.d(TAG,"onBluetoothConnectTo(devicesAvailableForConnection: Array<out BluetoothDongle>?)")
                             val dongle = devicesAvailableForConnection?.getOrNull(0)
                             sdk.setDongleToConnectTo(dongle)
                         }
@@ -60,22 +63,8 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                             // Param object should be instance of Throwable
                             // TODO: Send connection failure to rvdBluetoothListener
 //                            rvdBluetoothListener.onConnectionFailure()
-                            print(error)
                             if (error == null) return
                             rvdBluetoothListener.onMessageFromDevice(error.localizedMessage)
-                        }
-
-                        override fun onBluetoothPairingStarted() {
-                            print("onBluetoothPairingStarted()")
-                            rvdBluetoothListener.onMessageFromDevice("onBluetoothPairingStarted()")
-                        }
-
-                        override fun onBluetoothOn() {
-                            rvdBluetoothListener.onMessageFromDevice("onBluetoothOn()")
-                        }
-
-                        override fun onBluetoothOff() {
-                            rvdBluetoothListener.onMessageFromDevice("onBluetoothOff()")
                         }
                     })
 
@@ -104,6 +93,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                         override fun onBindingFinished() {
                             rvdBluetoothListener.onBindingFinished()
+                            deviceIsReadyToUse()
                         }
 
                         override fun onBindingNotNeeded() {
@@ -114,10 +104,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                             rvdBluetoothListener.onMessageFromDevice("progress: $progress")
                             rvdBluetoothListener.onBindingProgress(progress)
                         }
-
-//                        override fun onBindingStarted() {
-//                            rvdBluetoothListener.onMessageFromDevice("onBindingStarted()")
-//                        }
 
                         override fun onBindingUserInput(bindingQuestion: BindingQuestion?) {
                             rvdBluetoothListener.onBindingQuestionPrompted(bindingQuestion!!)
@@ -137,53 +123,27 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                         override fun onDongleConfigured() {
                             rvdBluetoothListener.onMessageFromDevice("onDongleConfigured")
-
-                            val rvdDevice = RVDDevice(sdk!!, deviceManager)
-                            deviceManager.onCompleted(rvdDevice)
-                            deviceManager.setState(IBluetoothCommunicator.CONNECTED)
                         }
 
                         override fun onDongleConnected(toBluetoothDevice: BluetoothDongle?) {
-                            rvdBluetoothListener.onMessageFromDevice("onDongleConnected toBluetoothDevice: $toBluetoothDevice")
-                            connectedDongle = toBluetoothDevice
+                            if (toBluetoothDevice != null) {
+                                rvdBluetoothListener.onMessageFromDevice("Connected to: ${toBluetoothDevice.name}")
+                            }
+                            rvdDevice?.bluetoothDevice = toBluetoothDevice
                         }
 
                         override fun onDongleDisconnected(reason: BluetoothDisconnectionReason?) {
-                            rvdBluetoothListener.onMessageFromDevice("onDongleDisconnected: ${reason.toString()}")
-                            deviceManager.bluetoothStateChanged(BluetoothCommunicator.DISCONNECTED)
-                            connectedDongle = null
+//                            rvdBluetoothListener.onMessageFromDevice("onDongleDisconnected: ${reason.toString()}")
                         }
                     })
 
                     sdk.addEventListener()!!.onLicenseEvents(object: OnLicenseEvents {
-
-                        // List of licenses available to the user
-//                        override fun onApplicationAvailable(applications: MutableList<Subscription>?) {
-//                        }
-
-                        override fun onLicenseUnverifiable() {
-                            rvdBluetoothListener.onConnectionFailure(Error("onLicenseUnverifiable()"))
-                            rvdBluetoothListener.onMessageFromDevice("onLicenseUnverifiable()")
-                        }
-
-                        override fun onApplicationAvailable(applications: MutableList<Subscription>?) {
-                            rvdBluetoothListener.onMessageFromDevice("onApplicationAvailable")
-                        }
-
-                        override fun onApplicationSetup() {
-                            rvdBluetoothListener.onMessageFromDevice("onApplicationSetup()")
-                        }
-
                         override fun onLicenseInvalid() {
-                            rvdBluetoothListener.onMessageFromDevice("onLicenseInvalid()")
+                            rvdBluetoothListener.onMessageFromDevice("You license is invalid")
                         }
 
                         override fun onLicenseReceived(license: LicenseEntity?) {
-                            rvdBluetoothListener.onMessageFromDevice("onLicenseReceived " + license!!)
-                        }
-
-                        override fun onLicenseValid(daysToExpire: Int) {
-                            rvdBluetoothListener.onMessageFromDevice("onLicenseValid(daysToExpire: Int: )" + daysToExpire)
+                            rvdDevice?.license = license
                         }
                     })
 
@@ -198,13 +158,17 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                     sdk.addEventListener()!!.onCarEvents(object: OnCarEvents {
                         override fun onCarConnected() {
-//                            rvdBluetoothListener.onConnectionCompleted()
-//                            deviceManager.onCompleted(RVDDevice(sdk!!, deviceManager))
                             rvdBluetoothListener.onMessageFromDevice("onCarConnected()")
+                            isCarConnected = true
+                            if (!sdk.isBindingNeeded) {
+                                deviceIsReadyToUse()
+                            }
                         }
 
                         override fun onCarDisconnected() {
-                            rvdBluetoothListener.onMessageFromDevice("onCarDisconnected()")
+//                            rvdBluetoothListener.onMessageFromDevice("onCarDisconnected()")
+                            isCarConnected = false
+                            deviceManager.setState(IBluetoothCommunicator.DISCONNECTED)
                         }
 
                         override fun onCarMoving(isMoving: Boolean) {
@@ -218,30 +182,19 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                     Log.d(TAG,"Failed to initialize RVD SDK")
                 }
             })
-        } else {
-            if (sdk?.isVehicleConnected == true && sdk?.canBindingBeResumed() == true) {
-                rvdBluetoothListener.onMessageFromDevice("Resuming binding")
-                sdk?.resumeBinding()
-            } else if (sdk?.isDongleConnected == true || sdk?.isVehicleConnected == true) {
-                rvdBluetoothListener.onMessageFromDevice("DongleIsConnected binding again")
-                rvdBluetoothListener.onBindingRequired()
-            }
-//            BindingStatus.State.STARTED
-//            else if (sdk?.)
-
-//            else {
-//                sdk?.destroy()
-//                rvdBluetoothListener.onMessageFromDevice("SDK destroyed")
-//                sdk = null
-//                return start()
-//            }
         }
         return true
     }
 
+    private fun deviceIsReadyToUse() {
+        val rvdDevice = rvdDevice
+        if (rvdDevice != null && isCarConnected) {
+            deviceManager.onCompleted(rvdDevice)
+            deviceManager.setState(IBluetoothCommunicator.CONNECTED)
+        }
+    }
+
     fun getAvailableSubscriptions(): Boolean {
-//        val subscription: List<Subscription> = arrayListOf()
-//        rvdBluetoothListener.onGotAvailableSubscriptions(AvailableSubscriptions(subscription, ""))
         if (sdk == null || sdk?.isInitialized == false) return false
         sdk?.getAvailableSubscriptions(object: Callback<AvailableSubscriptions>() {
             override fun onSuccess(subscriptions: AvailableSubscriptions?) {
@@ -255,14 +208,18 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
         return true
     }
 
-    fun startBinding(): Boolean {
+    fun startBinding(start: Boolean): Boolean {
         Log.d(TAG,"respondBindingRequest()")
-        if (sdk?.bindingStatus == BindingStatus.State.STARTED) return true
-        if (sdk?.isVehicleConnected == true && sdk?.canBindingBeResumed() == true) {
-            rvdBluetoothListener.onMessageFromDevice("Resuming binding")
-            sdk?.resumeBinding()
+        if (start) {
+            if (sdk?.bindingStatus == BindingStatus.State.STARTED) return true
+            if (sdk?.isVehicleConnected == true && sdk?.canBindingBeResumed() == true) {
+                rvdBluetoothListener.onMessageFromDevice("Resuming binding")
+                sdk?.resumeBinding()
+            } else {
+                sdk?.startBinding()
+            }
         } else {
-            sdk?.startBinding()
+            deviceIsReadyToUse()
         }
         return true
     }
@@ -282,6 +239,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
     fun answerBindingQuestion(questionType: BindingQuestionType, response: String): Boolean {
         Log.d(TAG,"answerBindingQuestion() question:$questionType, response:$response")
         sdk?.answerBindingUserInput(questionType, response)
+
         return true
     }
 

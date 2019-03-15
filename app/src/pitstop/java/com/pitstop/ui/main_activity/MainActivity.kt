@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.support.v4.app.FragmentActivity
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -17,6 +18,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import com.continental.rvd.mobile_sdk.AvailableSubscriptions
+import com.continental.rvd.mobile_sdk.BindingQuestion
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
@@ -30,6 +32,7 @@ import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.dependency.UseCaseComponent
+import com.pitstop.interactors.get.GetCarByVinUseCase
 import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.models.Car
@@ -41,6 +44,7 @@ import com.pitstop.observer.*
 import com.pitstop.repositories.Repository
 import com.pitstop.ui.IBluetoothServiceActivity
 import com.pitstop.ui.add_car.AddCarActivity
+import com.pitstop.ui.add_car.device_search.BindingDialog
 import com.pitstop.ui.custom_shops.CustomShopActivity
 import com.pitstop.ui.graph_pid.PidGraphsActivity
 import com.pitstop.ui.issue_detail.IssueDetailsActivity
@@ -101,6 +105,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var findDirectionsIcon: ImageView? = null;
     private var addCarDialog: AlertDialog? = null;
     private var addDealershipDialog: AlertDialog? = null;
+    private var bindingDialog: BindingDialog? = null
+    private var shouldStartBindingDialog: AnimatedDialogBuilder? = null
 
     private lateinit var mainServicesFragment: MainServicesFragment
     private lateinit var startReportFragment: StartReportFragment
@@ -775,8 +781,73 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     }
 
-    override fun onMessageFromDevice(message: String) {
+    override fun onBindingRequired() {
+        Log.d(TAG, "Binding log: onBindingRequired")
 
+        if (shouldStartBindingDialog == null) {
+
+            shouldStartBindingDialog = AnimatedDialogBuilder(this)
+            shouldStartBindingDialog!!
+                    .setTitle(getString(R.string.binding_process_title))
+                    .setCancelable(true)
+                    .setMessage(getString(R.string.binding_should_start))
+                    .setPositiveButton(getString(R.string.yes_button_text)) { dialog, id ->
+                        getBluetoothService().take(1).subscribe {
+
+                            it.startBindingProcess(true)
+
+                            displayBindingDialog("Binding log: Binding required, a set of questions needs to be answered", object: BindingDialog.AnswerListener {
+                                override fun onAnswerProvided(answer: String, question: BindingQuestion) {
+                                    val d = getBluetoothService().take(1).subscribe {
+                                        it.answerBindingQuestion(question.questionType, answer)
+                                    }
+                                }
+
+                                override fun onBackPressed(question: BindingQuestion) {}
+
+                                override fun onCancelPressed(question: BindingQuestion?) {
+                                    bindingDialog?.dismiss()
+                                    bindingDialog = null
+                                }
+                            })
+                        }
+                    }
+                    .setNegativeButton(getString(R.string.no_button_text)) { dialog, id ->
+                        getBluetoothService().take(1).subscribe {
+                            it.startBindingProcess(false)
+                            dialog.dismiss()
+                        }
+                    }
+                    .create()
+        }
+        shouldStartBindingDialog?.show()
+    }
+
+    fun displayBindingDialog(startingInstruction: String, answerListener: BindingDialog.AnswerListener) {
+        if (bindingDialog != null) {
+            return
+        }
+        bindingDialog = BindingDialog()
+        Log.d(TAG, "displayBindingDialog")
+        bindingDialog?.show(supportFragmentManager, "MainActivity")
+        bindingDialog?.registerAnswerListener(answerListener)
+        bindingDialog?.setInstruction(startingInstruction)
+    }
+
+    override fun onBindingQuestionPrompted(question: BindingQuestion) {
+        bindingDialog?.showQuestion(question)
+    }
+
+    override fun onBindingProgress(progress: Float) {
+        bindingDialog?.showProgress(progress)
+    }
+
+    override fun onBindingFinished() {
+        bindingDialog?.showFinished()
+    }
+
+    override fun onMessageFromDevice(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     override fun openRequestService(tentative: Boolean) {
