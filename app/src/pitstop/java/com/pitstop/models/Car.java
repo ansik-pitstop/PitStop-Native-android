@@ -249,10 +249,14 @@ public class Car implements Parcelable {
 
     // create car from json response (this is for GET from api)
     public static Car createCar(String _response) throws JSONException {
-
         JSONObject jsonObjectWithResult = new JSONObject(_response);
+        String response;
 
-        String response = jsonObjectWithResult.getJSONArray("result").getJSONObject(0).toString();
+        try {
+            response = jsonObjectWithResult.getJSONArray("result").getJSONObject(0).toString();
+        } catch(JSONException error) {
+            response = _response;
+        }
 
         Car car = JsonUtil.json2object(response, Car.class);
 

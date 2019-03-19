@@ -23,7 +23,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
     private var sdk: RvdApi? = null
     private var connectedDongle: BluetoothDongle? = null
     private var rvdDevice: RVDDevice? = null
-    private var isCarConnected = false
 
     fun start(): Boolean {
         Log.d(TAG,"start()")
@@ -159,7 +158,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
                     sdk.addEventListener()!!.onCarEvents(object: OnCarEvents {
                         override fun onCarConnected() {
                             rvdBluetoothListener.onMessageFromDevice("onCarConnected()")
-                            isCarConnected = true
                             if (!sdk.isBindingNeeded) {
                                 deviceIsReadyToUse()
                             }
@@ -167,7 +165,6 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
                         override fun onCarDisconnected() {
 //                            rvdBluetoothListener.onMessageFromDevice("onCarDisconnected()")
-                            isCarConnected = false
                             deviceManager.setState(IBluetoothCommunicator.DISCONNECTED)
                         }
 
@@ -188,7 +185,7 @@ class RVDBluetoothDeviceSearcher(private val sdkIntentService: RvdIntentService
 
     private fun deviceIsReadyToUse() {
         val rvdDevice = rvdDevice
-        if (rvdDevice != null && isCarConnected) {
+        if (rvdDevice != null && sdk?.isVehicleConnected == true) {
             deviceManager.onCompleted(rvdDevice)
             deviceManager.setState(IBluetoothCommunicator.CONNECTED)
         }

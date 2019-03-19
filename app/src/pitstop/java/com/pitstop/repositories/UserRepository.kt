@@ -274,7 +274,11 @@ class UserRepository(private val localUserStorage: LocalUserStorage
 
     fun setAlarmsEnabled(alarmsEnabled: Boolean, callback: Repository.Callback<Any>) {
 
-        val userId = localUserStorage.user!!.id
+        val userId = localUserStorage.user?.id
+        if (userId == null) {
+            callback.onError(RequestError.getUnknownError())
+            return
+        }
 
         getUserSettings(userId, RequestCallback { response, requestError ->
             if (requestError == null) {

@@ -84,6 +84,9 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     override fun getVin(): Boolean {
         Log.d(TAG,"getVin()")
 
+        if (!rvdSDK.isVehicleConnected) {
+            return false
+        }
         rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
             override fun onSuccess(dongleInformation: DongleInformation?) {
                 if (dongleInformation == null) return
