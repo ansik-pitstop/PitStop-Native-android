@@ -340,7 +340,7 @@ public class PIDParser {
             case "181": return "Diesel Particulate Filter Bank 2 Delta Pressure";
             case "182": return "Diesel Particulate Filter Bank 2 Inlet Pressure";
             case "183": return "Diesel Particulate Filter Bank 2 Outlet Pressure";
-            case "184": return "Temperature before particle trap â?? DPF";
+            case "184": return "Temperature before particle trap DPF";
             case "185": return "Particle filter outlet temp.sens.1 bank 1, raw value";
             case "186": return "DPF Bank 2 Inlet Temperature Sensor";
             case "187": return "DPF Bank 2 Outlet Temperature Sensor";
