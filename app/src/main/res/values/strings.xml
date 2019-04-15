@@ -40,8 +40,6 @@
     <string name="title_activity_add_car">Add Car</string>
 
 
-
-
     <!--Term of use-->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_vehicles">vehicles</string>
@@ -62,7 +60,7 @@
     <string name="camera_request_rationale">Access to the camera is needed for barcode detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="location_request_rationale">Access to device location is needed for bluetooth feature and trip tracking</string>
-    
+
     <string name="appversion">app_version</string>
 
 
@@ -161,10 +159,10 @@
     <string name="password_hint">Password</string>
     <string name="confirm_password_hint">Confirm Password</string>
     <string name="forgot_password_button">Forgot password?</string>
-    
-    
+
+
     <!--Upcoming Timeline-->
-    
+
     <string name="kilometers_unit">KMs</string>
     <string name="timeline_error_message">Something went wrong&#8230;</string>
     <string name="no_data_timeline">Looks like your vehicle does not have any upcoming services at the moment</string>
@@ -210,9 +208,6 @@
     <string name="action_refresh">Refresh</string>
 
 
-
-
-
     <string name="offline_error">Cannot perform this action while offline, please connect to the internet and try again.</string>
     <string name="offline_error_title">Offline Error</string>
 
@@ -243,7 +238,6 @@
     <string name="connect_to_internet_toast_message">Please connect to the internet</string>
     <string name="saving_car_message">Saving Car</string>
     <string name="unexpected_car_adding_error_message">Unexpected error occurred adding car please restart the app and try again.</string>
-
 
 
     <!-- vin entry fragment-->

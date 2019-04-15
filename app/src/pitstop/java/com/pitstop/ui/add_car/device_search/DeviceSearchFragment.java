@@ -76,7 +76,7 @@ public class DeviceSearchFragment extends Fragment implements DeviceSearchView{
             /*Has to be handled because when the ProgressDialog
             **is open onBackPressed() is not invoked*/
             progressDialog.setOnKeyListener((dialog, keyCode, event) -> {
-                if (presenter != null){
+                if (presenter != null) {
                     presenter.onProgressDialogKeyPressed(keyCode);
                 }
                 return false;

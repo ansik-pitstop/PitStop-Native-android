@@ -82,16 +82,16 @@ android {
         versionName "5.3.5"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
-    buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
-    buildConfigField "String", "BUILD_TYPE_RELEASE", buildTypeRelease
-    buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
-    buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
-    buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
-    ndk {
-        abiFilters 'armeabi-v7a', 'x86', 'x86_64'
+        buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
+        buildConfigField "String", "BUILD_TYPE_RELEASE", buildTypeRelease
+        buildConfigField "String", "ENDPOINT_TYPE_STAGING", endpointTypeStaging
+        buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
+        buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
+        ndk {
+            abiFilters 'armeabi-v7a', 'x86', 'x86_64'
+        }
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-}
     buildTypes {
         debug { // for development, dev backend, no mixpanel
             buildConfigField "String", "ENDPOINT_TYPE", isStaging ? endpointTypeStaging : endpointTypeSnapshot
@@ -138,7 +138,7 @@ android {
 }
 
 repositories {
-    maven{
+    maven {
         url "https://maven.google.com"
     }
     maven {

@@ -16,6 +16,7 @@ import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.add_car.ask_has_device.AskHasDeviceFragment;
 import com.pitstop.ui.add_car.device_search.DeviceSearchFragment;
+import com.pitstop.ui.add_car.select_device.SelectDeviceFragment;
 import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -39,6 +40,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     private AskHasDeviceFragment askHasDeviceFragment;
     private DeviceSearchFragment deviceSearchFragment;
     private VinEntryFragment vinEntryFragment;
+    private SelectDeviceFragment selectDeviceFragment;
     private Fragment currentFragment;
     private MixpanelHelper mixpanelHelper;
     private BluetoothConnectionObservable bluetoothConnectionObservable;
@@ -55,6 +57,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         askHasDeviceFragment = AskHasDeviceFragment.getInstance();
         deviceSearchFragment = DeviceSearchFragment.getInstance();
         vinEntryFragment = VinEntryFragment.getInstance();
+        selectDeviceFragment = SelectDeviceFragment.getInstance();
 
         ((GlobalApplication)getApplicationContext()).getServices()
                 .filter(next -> next instanceof BluetoothService)
@@ -122,6 +125,18 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, vinEntryFragment);
         currentFragment = vinEntryFragment;
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void setSelectDeviceView() {
+        Log.d(TAG,"setSelectDeviceView()");
+
+        mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
+        vinEntryFragment.setHasScanner(false);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, selectDeviceFragment);
+        currentFragment = selectDeviceFragment;
         fragmentTransaction.commit();
     }
 

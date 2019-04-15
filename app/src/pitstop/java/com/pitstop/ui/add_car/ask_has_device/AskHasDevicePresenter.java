@@ -44,7 +44,7 @@ public class AskHasDevicePresenter {
         Log.d(TAG,"onHasDeviceSelected()");
         if (view == null) return;
 
-        view.loadDeviceSearchView();
+        view.loadSelectDeviceView();
     }
 
 }

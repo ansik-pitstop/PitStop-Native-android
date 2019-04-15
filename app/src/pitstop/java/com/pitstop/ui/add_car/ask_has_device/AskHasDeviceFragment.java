@@ -104,11 +104,17 @@ public class AskHasDeviceFragment extends Fragment implements AskHasDeviceView{
         fragmentSwitcher.setViewVinEntry();
     }
 
+//    @Override
+//    public void loadDeviceSearchView() {
+//        Log.d(TAG,"loadDeviceSearchView()");
+//        if (fragmentSwitcher == null) return;
+//        fragmentSwitcher.setViewDeviceSearch();
+//    }
+
     @Override
-    public void loadDeviceSearchView() {
+    public void loadSelectDeviceView() {
         Log.d(TAG,"loadDeviceSearchView()");
         if (fragmentSwitcher == null) return;
-        fragmentSwitcher.setViewDeviceSearch();
-
+        fragmentSwitcher.setSelectDeviceView();
     }
 }
