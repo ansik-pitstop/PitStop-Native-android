@@ -131,9 +131,7 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
     @Override
     public void setSelectDeviceView() {
         Log.d(TAG,"setSelectDeviceView()");
-
         mixpanelHelper.trackViewAppeared(MixpanelHelper.ADD_CAR_VIN_ENTRY_VIEW);
-        vinEntryFragment.setHasScanner(false);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.activity_add_car_fragment_holder, selectDeviceFragment);
         currentFragment = selectDeviceFragment;

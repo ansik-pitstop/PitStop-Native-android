@@ -198,9 +198,7 @@ public class TripsFragment extends Fragment implements TripsView {
 
     @Override
     public void requestForDataUpdate() {
-
         Log.d(TAG, "requestForDataUpdate()");
-
         if (tripListFragment != null) {
             Log.d(TAG, "Child found");
             tripListFragment.requestForDataUpdate(true);

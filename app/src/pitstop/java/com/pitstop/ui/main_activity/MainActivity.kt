@@ -24,6 +24,9 @@ import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.bluetooth.BluetoothWriter
+import com.pitstop.database.LocalCarStorage
+import com.pitstop.database.LocalDatabaseHelper
+import com.pitstop.database.LocalUserStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -353,6 +356,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun notifyCarDataChanged() {
+        displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
         carsAdapter?.notifyDataSetChanged()
     }
 
@@ -372,6 +376,24 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG, "displayDeviceState(): " + state)
 
         if (supportActionBar == null) return
+
+        val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(this))
+
+        val carId = localUserStorage.user?.settings?.carId
+        if (carId == null) {
+            return
+        }
+
+        val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(this))
+        val car = localCarStorage.getCar(carId)
+        if (car != null && car.scannerId != null) {
+            if (car.scannerId.contains("danlaw")) {
+                runOnUiThread {
+                    supportActionBar?.subtitle = ""
+                }
+                return
+            }
+        }
 
         runOnUiThread {
             if (state == BluetoothConnectionObservable.State.CONNECTED_VERIFIED) {

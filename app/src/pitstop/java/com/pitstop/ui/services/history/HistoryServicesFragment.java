@@ -199,7 +199,11 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
     @Override
     public boolean isRefreshing() {
-        return parentSwipeRefreshLayout == null ? null : parentSwipeRefreshLayout.isRefreshing();
+        SwipeRefreshLayout _parentSwipeRefreshLayout = parentSwipeRefreshLayout;
+        if (_parentSwipeRefreshLayout == null) {
+            return false;
+        }
+        return _parentSwipeRefreshLayout.isRefreshing();
     }
 
     @Override

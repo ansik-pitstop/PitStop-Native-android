@@ -21,9 +21,13 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -213,6 +217,16 @@ public class StartReportFragment extends Fragment implements StartReportView {
 
     @Override
     public void changeTitle(int stringId, boolean progress) {
+        LocalUserStorage localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(context));
+        int carId = localUserStorage.getUser().getSettings().getCarId();
+        LocalCarStorage localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
+        Car car = localCarStorage.getCar(carId);
+        if (car != null && car.getScannerId() != null) {
+            if (car.getScannerId().contains("danlaw")) {
+                vehicleHealthTitle.setText("");
+                return;
+            }
+        }
         Log.d(TAG,"changeTitle() stringId: "+stringId+", string: "+getString(stringId));
         String title = String.format("%s%s",getText(stringId),progress? "..." : "");
         vehicleHealthTitle.setText(title);

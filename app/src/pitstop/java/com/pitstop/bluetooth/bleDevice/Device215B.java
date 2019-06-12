@@ -591,6 +591,7 @@ public class Device215B implements AbstractDevice {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+                    Log.d(this.TAG, "rtcTime: " + rtcTime);
                     OBD215PidPackage pidPackage = new OBD215PidPackage(idrInfo.terminalSN,rtcTime
                             , idrInfo.mileage, System.currentTimeMillis());
                     pidPackage.setPids(parsePids(idrInfo.pid));
