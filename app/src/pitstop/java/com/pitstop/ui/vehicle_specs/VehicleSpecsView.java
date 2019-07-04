@@ -40,4 +40,7 @@ public interface VehicleSpecsView {
     void showScannerAlreadyActiveDialog();
     void showScannerID(String s);
     void showConfirmUpdateScannerDialog(String s);
+    void setCarUnitOfLength(String s);
+    void displayCityMileage(String s);
+    void displayHighwayMileage(String s);
 }

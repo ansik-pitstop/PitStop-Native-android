@@ -50,7 +50,6 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
                 }, {err ->
                     Log.d(TAG,"login error response: $err")
                     LoginUseCaseImpl@onError(RequestError(err))
-
                 })
         compositeDisposable.add(disposable)
     }

@@ -501,6 +501,61 @@
 
                     <include layout="@layout/divider" />
 
+                    <!-- License Plate Row -->
+                    <RelativeLayout
+                        android:id="@+id/set_unit_row"
+                        android:background="@color/white"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+
+                        <ImageView
+                            android:id="@+id/unit_icon"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/tank_size_2x"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp" />
+
+                        <TextView
+                            android:layout_marginStart="15dp"
+                            android:layout_toEndOf="@id/unit_icon"
+                            android:id="@+id/unit_title"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            style="@style/vehicle_specs_text"
+                            android:text="@string/unit_of_measurement" />
+
+
+                        <TextView
+                            android:id="@+id/unit_text_specs"
+                            android:layout_toEndOf="@id/unit_title"
+                            android:layout_centerVertical="true"
+                            style="@style/vehicle_specs_text"
+                            android:layout_toStartOf="@+id/unit_pencil"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="viewEnd" />
+
+                        <ImageView
+                            android:id="@+id/unit_pencil"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/editpencil" />
+
+                    </RelativeLayout>
+
+                    <include layout="@layout/divider" />
+
                     <!-- Engine Row -->
                     <RelativeLayout
                         android:background="@color/white"

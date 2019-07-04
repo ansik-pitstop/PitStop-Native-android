@@ -22,11 +22,16 @@ public class Settings {
     @Expose
     private boolean alarmsEnabled;
 
-    public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms) {
+    @SerializedName("odometer")
+    @Expose
+    private String odometer;
+
+    public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms, String odometer) {
         this.userId = userId;
         this.carId = carId;
         this.firstCarAdded = firstCarAdded;
         this.alarmsEnabled  = alarms;
+        this.odometer = odometer;
     }
 
     public boolean hasMainCar(){
@@ -56,6 +61,10 @@ public class Settings {
     public void setCarId(int carId) {
         this.carId = carId;
     }
+
+    public String getOdometer() { return odometer; }
+
+    public void setOdometer(String odometer) { this.odometer = odometer; }
 
     public boolean isAlarmsEnabled() {return alarmsEnabled;}
 

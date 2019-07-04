@@ -14,6 +14,7 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
+import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
@@ -22,6 +23,8 @@ import com.pitstop.interactors.remove.RemoveCarUseCase;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Settings;
+import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
@@ -29,13 +32,15 @@ import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
-import com.pitstop.ui.main_activity.MainActivityPresenter;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.UnitOfLength;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
+
+import kotlin.Unit;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -200,6 +205,22 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             }
         });
 
+        useCaseComponent.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
+            @Override
+            public void onUserRetrieved(User user) {
+                VehicleSpecsView view = getView();
+                if (view != null) {
+                    view.setCarUnitOfLength(user.getSettings().getOdometer());
+                }
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                if (getView() == null) return;
+                getView().hideBadge();
+            }
+        });
+
         useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
@@ -255,6 +276,40 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 getView().hideLoading();
             }
         });
+    }
+
+    public void getCityMileage() {
+//        cityMileage.setText(car.getCityMileage());
+
+        useCaseComponent.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
+            @Override
+            public void onUserRetrieved(User user) {
+                if (user == null) return;
+                Settings settings = user.getSettings();
+                UnitOfLength unitOfLength = UnitOfLength.Kilometers;
+
+                if (settings != null) {
+                    UnitOfLength unitOfLengthFromSettings = UnitOfLength.getValueFromToString(settings.getOdometer());
+                    if (unitOfLengthFromSettings != null) {
+                        unitOfLength = unitOfLengthFromSettings;
+                    }
+                }
+                VehicleSpecsView view = getView();
+                if (view != null) {
+                    if (unitOfLength == UnitOfLength.Kilometers) {
+                        
+                    }
+//                    if (unitOfLength == Unit)
+//                    view.displayCityMileage();
+                }
+            }
+
+            @Override
+            public void onError(RequestError error) {
+
+            }
+        });
+
     }
 
     public void onRefresh() {

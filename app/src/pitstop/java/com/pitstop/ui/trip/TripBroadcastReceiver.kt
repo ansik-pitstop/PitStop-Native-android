@@ -183,32 +183,32 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                             nextIntent.putExtra(TYPE_CURRENT_STATE,nextStateAfterStill.tripStateType.value)
                             context.sendBroadcast(nextIntent)
 
-                            NotificationsHelper.sendNotification(context
-                                    ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
+//                            NotificationsHelper.sendNotification(context
+//                                    ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
                         }
 
                     },TripUtils.STILL_TIMEOUT.toLong())
                 }
 
-                val notifMessage = when (nextState.tripStateType){
-                    TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
-                    TripStateType.TRIP_END_SOFT ->{
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip finished recording, it may take a moment to appear in the app"
-                    }
-                    TripStateType.TRIP_END_HARD -> {
-                        //Allow for processing trip data on end, but wait for next location bundle to come in
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip finished recording, it may take a moment to appear in the app"
-                    }
-                    TripStateType.TRIP_MANUAL_END -> {
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        null
-                    }
-                    else -> null
-                }
-                if (notifMessage != null)
-                    NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
+//                val notifMessage = when (nextState.tripStateType){
+//                    TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
+//                    TripStateType.TRIP_END_SOFT ->{
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        "Trip finished recording, it may take a moment to appear in the app"
+//                    }
+//                    TripStateType.TRIP_END_HARD -> {
+//                        //Allow for processing trip data on end, but wait for next location bundle to come in
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        "Trip finished recording, it may take a moment to appear in the app"
+//                    }
+//                    TripStateType.TRIP_MANUAL_END -> {
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        null
+//                    }
+//                    else -> null
+//                }
+//                if (notifMessage != null)
+//                    NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
             }
 
             setCurrentState(sharedPreferences,nextState)

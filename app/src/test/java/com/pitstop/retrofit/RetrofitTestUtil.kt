@@ -50,11 +50,12 @@ class RetrofitTestUtil {
             jsonObject.addProperty("username",username)
             jsonObject.addProperty("password",password)
             jsonObject.addProperty("installationId",installationId)
-            val response = authApi.login(jsonObject).execute()
-            if (response.isSuccessful) return response.body()!!["accessToken"].asString
-            else{
-                throw Exception()
-            }
+            return ""
+//            val response = authApi.login(jsonObject).e
+//            if (response.isSuccessful) return response.body()!!["accessToken"].asString
+//            else{
+//                throw Exception()
+//            }
         }
 
         private fun getBaseURL(): String = "http://staging.api.getpitstop.io:10010/"

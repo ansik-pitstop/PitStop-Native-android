@@ -156,6 +156,8 @@ import com.pitstop.interactors.set.SetNotificationReadUseCase;
 import com.pitstop.interactors.set.SetNotificationReadUseCaseImpl;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCaseImpl;
+import com.pitstop.interactors.set.SetUnitOfLengthUseCase;
+import com.pitstop.interactors.set.SetUnitOfLengthUseCaseImpl;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCaseImpl;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
@@ -568,10 +570,18 @@ public class UseCaseModule {
     }
 
     @Provides
-    SetServicesDoneUseCase setServicesDoneUseCase(CarIssueRepository carIssueRepository
-            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+    SetServicesDoneUseCase setServicesDoneUseCase(CarIssueRepository carIssueRepository,
+                                                  @Named("useCaseHandler")Handler useCaseHandler,
+                                                  @Named("mainHandler") Handler mainHandler){
 
         return new SetServicesDoneUseCaseImpl(carIssueRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SetUnitOfLengthUseCase setUnitOfLengthUseCase(UserRepository userRepository,
+                                                  @Named("useCaseHandler")Handler useCaseHandler,
+                                                  @Named("mainHandler") Handler mainHandler) {
+        return new SetUnitOfLengthUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

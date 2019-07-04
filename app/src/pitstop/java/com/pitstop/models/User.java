@@ -164,6 +164,7 @@ public class User implements Parcelable {
                 int carId = -1;
                 boolean firstCarAdded = true; //if not present, default is true
                 boolean alarmsEnabled = false;
+                String odometer = "km";
 
                 if (settings.has("isFirstCarAdded")){
                     firstCarAdded = settings.getBoolean("isFirstCarAdded");
@@ -174,7 +175,11 @@ public class User implements Parcelable {
                 if (settings.has("alarmsEnabled")){
                     alarmsEnabled = settings.getBoolean("alarmsEnabled");
                 }
-                user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled));
+                if (settings.has("odometer")) {
+                    odometer = settings.getString("odometer");
+                }
+
+                user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled, odometer));
 
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
             }
