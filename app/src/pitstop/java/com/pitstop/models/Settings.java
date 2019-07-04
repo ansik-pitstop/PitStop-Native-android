@@ -25,13 +25,17 @@ public class Settings {
     @SerializedName("odometer")
     @Expose
     private String odometer;
+    @SerializedName("timezone")
+    @Expose
+    private String timezone;
 
-    public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms, String odometer) {
+    public Settings(int userId, int carId, boolean firstCarAdded, boolean alarms, String odometer, String timezone) {
         this.userId = userId;
         this.carId = carId;
         this.firstCarAdded = firstCarAdded;
         this.alarmsEnabled  = alarms;
         this.odometer = odometer;
+        this.timezone = timezone;
     }
 
     public boolean hasMainCar(){
@@ -69,6 +73,10 @@ public class Settings {
     public boolean isAlarmsEnabled() {return alarmsEnabled;}
 
     public void setAlarmsEnabled(boolean alarmsEnabled) {this.alarmsEnabled = alarmsEnabled;}
+
+    public void setTimezone(String timezone) { this.timezone = timezone; }
+
+    public String getTimezone() { return timezone; }
 
     public String toString(){
         return "{ userID: " + this.userId +

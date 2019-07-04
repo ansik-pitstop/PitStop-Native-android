@@ -133,6 +133,7 @@ public final class TABLES {
         String KEY_ALARMS_ENABLED = "alarmsEnabled";
         String KEY_FIRST_CAR_ADDED = "isFirstCarAdded";
         String KEY_ODOMETER = "odometer";
+        String KEY_TIMEZONE = "timezone";
     }
 
     public interface SHOP {

@@ -20,6 +20,7 @@ import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
+import com.pitstop.interactors.set.SetTimezoneUseCase;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
@@ -31,6 +32,7 @@ import com.pitstop.observer.AlarmObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
 import com.pitstop.utils.UnitOfLength;
@@ -93,6 +95,15 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     public VehicleSpecsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+    }
+
+    public void updateTimezone() {
+        useCaseComponent.setTimezoneUseCase().execute(new SetTimezoneUseCase.Callback() {
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     public void onUpdateLicensePlateDialogConfirmClicked(int carID, String s) {
@@ -297,7 +308,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 VehicleSpecsView view = getView();
                 if (view != null) {
                     if (unitOfLength == UnitOfLength.Kilometers) {
-                        
+
                     }
 //                    if (unitOfLength == Unit)
 //                    view.displayCityMileage();

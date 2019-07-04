@@ -156,6 +156,8 @@ import com.pitstop.interactors.set.SetNotificationReadUseCase;
 import com.pitstop.interactors.set.SetNotificationReadUseCaseImpl;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCaseImpl;
+import com.pitstop.interactors.set.SetTimezoneUseCase;
+import com.pitstop.interactors.set.SetTimezoneUseCaseImpl;
 import com.pitstop.interactors.set.SetUnitOfLengthUseCase;
 import com.pitstop.interactors.set.SetUnitOfLengthUseCaseImpl;
 import com.pitstop.interactors.set.SetUserCarUseCase;
@@ -582,6 +584,13 @@ public class UseCaseModule {
                                                   @Named("useCaseHandler")Handler useCaseHandler,
                                                   @Named("mainHandler") Handler mainHandler) {
         return new SetUnitOfLengthUseCaseImpl(userRepository, useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    SetTimezoneUseCase setTimezoneUseCase(UserRepository userRepository,
+                                          @Named("useCaseHandler")Handler useCaseHandler,
+                                          @Named("mainHandler") Handler mainHandler) {
+        return new SetTimezoneUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

@@ -232,6 +232,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.onUpdateNeeded(false);
+        presenter.updateTimezone();
     }
 
     @Override
@@ -307,9 +308,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             scannerID.setText(car.getScannerId());
         engine.setText(car.getEngine());
 
-//        car.getCityMileage();
-//        cityMileage.setText(car.getCityMileage());
-        presenter.getCityMileage();
+        car.getCityMileage();
+        cityMileage.setText(car.getCityMileage());
+//        presenter.getCityMileage();
 
         highwayMileage.setText(car.getHighwayMileage());
         trim.setText(car.getTrim());

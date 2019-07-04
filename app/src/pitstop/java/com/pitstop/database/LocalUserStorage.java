@@ -26,6 +26,7 @@ public class LocalUserStorage {
             + TABLES.USER.KEY_FIRST_CAR_ADDED + " TEXT, "
             + TABLES.USER.KEY_ALARMS_ENABLED + " TEXT, "
             + TABLES.USER.KEY_ODOMETER + " TEXT, "
+            + TABLES.USER.KEY_TIMEZONE + " TEXT, "
             + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
@@ -85,7 +86,12 @@ public class LocalUserStorage {
         if (odometer == null) {
             odometer = UnitOfLength.Kilometers.toString();
         }
-        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled,odometer));
+        String timezone = c.getString(c.getColumnIndex(TABLES.USER.KEY_TIMEZONE));
+        if (timezone == null) {
+            timezone = "";
+        }
+
+        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled,odometer, timezone));
         return user;
     }
 
@@ -101,6 +107,7 @@ public class LocalUserStorage {
             values.put(TABLES.USER.KEY_FIRST_CAR_ADDED, user.getSettings().isFirstCarAdded());
             values.put(TABLES.USER.KEY_ALARMS_ENABLED, user.getSettings().isAlarmsEnabled());
             values.put(TABLES.USER.KEY_ODOMETER, user.getSettings().getOdometer());
+            values.put(TABLES.USER.KEY_TIMEZONE, user.getSettings().getTimezone());
         }
 
         return values;
