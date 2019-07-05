@@ -39,7 +39,7 @@ class GetSnapToRoadUseCaseImpl(private val snapToRoadRepository: SnapToRoadRepos
         //Sort the list
         polylineList = polylineList.sortedBy { it.time }
 
-        Log.d(tag,"length of trips = ${(polylineList.last().time-polylineList.first().time)/1000/60}")
+//        Log.d(tag,"length of trips = ${(polylineList.last().time-polylineList.first().time)/1000/60}")
 
         var index = 0
         val overlap = 0

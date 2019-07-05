@@ -1,8 +1,11 @@
 package com.pitstop.interactors.add;
 
 import android.os.Handler;
+import android.util.JsonReader;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -10,7 +13,6 @@ import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
-import com.pitstop.models.ObdScanner;
 import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.repositories.CarRepository;
@@ -21,6 +23,8 @@ import com.pitstop.utils.Logger;
 import com.pitstop.utils.SmoochUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Matt on 2017-07-27.
@@ -152,6 +156,14 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                     }
                     @Override
                     public void onError(RequestError error) {
+                        try {
+                            JSONObject errorJson = new JSONObject(error.getError());
+                            if (errorJson.has("message")) {
+                                error.setMessage(errorJson.getString("message"));
+                                AddCarUseCaseImpl.this.onError(error);
+                                return;
+                            }
+                        } catch (JSONException e) { }
                         AddCarUseCaseImpl.this.onError(error);
                     }});
     }

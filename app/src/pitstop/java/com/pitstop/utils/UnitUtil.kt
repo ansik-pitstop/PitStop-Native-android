@@ -23,6 +23,15 @@ enum class UnitOfLength {
             }
             return null
         }
+
+        @JvmStatic
+        fun convertKilometreToMiles(kilometreString: String): Double {
+            try {
+                val kilometre = kilometreString.toDouble()
+                return kilometre/1.609
+            } catch (e: Error) {}
+            return 0.0
+        }
     }
 
 
