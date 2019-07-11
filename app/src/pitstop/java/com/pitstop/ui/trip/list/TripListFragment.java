@@ -28,6 +28,8 @@ import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
+import com.pitstop.models.User;
 import com.pitstop.models.trip.Trip;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -127,6 +129,9 @@ public class TripListFragment extends Fragment implements TripListView {
             }
 
         });
+
+
+
 
         bottomButton.setOnClickListener(view1 -> presenter.onBottomListButtonClicked());
         return view;
@@ -301,13 +306,15 @@ public class TripListFragment extends Fragment implements TripListView {
     @Override
     public void hideLoading() {
         Log.d(TAG, "hideLoading()");
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
-        } else {
-            presenter.sendOnHideLoading();
-            //loadingView.setVisibility(View.GONE);
-            swipeRefreshLayout.setEnabled(true);
-        }
+        swipeRefreshLayout.setRefreshing(false);
+
+//        if (swipeRefreshLayout.isRefreshing()) {
+//            swipeRefreshLayout.setRefreshing(false);
+//        } else {
+//            presenter.sendOnHideLoading();
+//            //loadingView.setVisibility(View.GONE);
+//            swipeRefreshLayout.setEnabled(true);
+//        }
     }
 
     @Override
@@ -336,7 +343,19 @@ public class TripListFragment extends Fragment implements TripListView {
         presenter.onUpdateNeeded(sortSpinner.getSelectedItemPosition());
 
         LocalUserStorage localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(context));
-        int carId = localUserStorage.getUser().getSettings().getCarId();
+        User user = localUserStorage.getUser();
+        if (user == null) {
+            return;
+        }
+        Settings settings = user.getSettings();
+        if (settings == null) {
+            return;
+        }
+        int carId = settings.getCarId();
+        if (carId == -1) {
+            return;
+        }
+
         LocalCarStorage localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
         Car car = localCarStorage.getCar(carId);
         if (car != null && car.getScannerId() != null) {

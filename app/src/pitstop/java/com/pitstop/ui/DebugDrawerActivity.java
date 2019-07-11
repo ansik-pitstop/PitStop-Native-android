@@ -104,10 +104,9 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
-            return;
-        }
-
+//        if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
+//            return;
+//        }
 
         TempNetworkComponent tempNetworkComponent = DaggerTempNetworkComponent.builder()
                 .contextModule(new ContextModule(this))

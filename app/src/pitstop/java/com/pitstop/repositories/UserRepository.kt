@@ -419,7 +419,7 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     }
 
     fun updateTimezone() {
-        val userId = localUserStorage.user!!.id
+        val userId = localUserStorage.user?.id ?: return
 
         getUserSettings(userId, RequestCallback{ response, requestError ->
             if (requestError != null || localUserStorage.user == null) {

@@ -108,11 +108,8 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
                                     return;
                                 }
                                 carRepository.setCurrent(response.getData());
-
                                 GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
-                                        , response.getData().getShop()
-                                        , response.isLocal());
-
+                                , null, true);
                             }, err ->{
                                 GetUserCarUseCaseImpl.this.onError(new RequestError(err));
                             });
