@@ -749,8 +749,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
 
-        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                && !ignoreMissingDeviceName && allowDeviceOverwrite) {
+        if (!ignoreMissingDeviceName && allowDeviceOverwrite) {
             displayGetScannerIdDialog()
         }
     }

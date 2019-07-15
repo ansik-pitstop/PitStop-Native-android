@@ -242,8 +242,9 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 if (!isLocal)
                     updating = false;
                 if (getView() != null) {
-                    getView().hideLoading();
-
+                    if (!isLocal) {
+                        getView().hideLoading();
+                    }
                     getView().setCarView(mCar);
 
                     getFuelConsumed(car.getScannerId());

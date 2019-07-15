@@ -101,7 +101,7 @@ public class TripsFragment extends Fragment implements TripsView {
     public void showLoading() {
 
         Log.d(TAG, "showLoading()");
-        loadingSpinner.setVisibility(View.VISIBLE);
+        loadingSpinner.setVisibility(View.GONE);
         loadingSpinner.bringToFront();
 
     }
