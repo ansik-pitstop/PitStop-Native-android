@@ -75,7 +75,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog pairScannerAlertDialog;
     private AlertDialog deleteCarAlertDialog;
     private AlertDialog changeDealershipAlertDialog;
-    private VehicleSpecsPresenter presenter;
+    public VehicleSpecsPresenter presenter;
     private AlertDialog unknownErrorDialog;
     private AlertDialog scannerAlreadyActiveDialog;
     private AlertDialog offlineErrorDialog;

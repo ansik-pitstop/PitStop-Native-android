@@ -96,7 +96,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         Log.d(TAG, "onUpdateNeeded")
         this.isCarLoaded = false
         mCar = null
-        this.carListLoaded = false;
+        this.carListLoaded = false
         this.dealershipListLoaded = false
         loadCars()
     }

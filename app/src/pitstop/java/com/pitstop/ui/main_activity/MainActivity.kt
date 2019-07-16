@@ -103,7 +103,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var addCarDialog: AlertDialog? = null;
     private var addDealershipDialog: AlertDialog? = null;
 
-    private lateinit var mainServicesFragment: MainServicesFragment
+    lateinit var mainServicesFragment: MainServicesFragment
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var tripsFragment: TripsFragment
@@ -379,10 +379,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
         val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(this))
 
-        val carId = localUserStorage.user?.settings?.carId
-        if (carId == null) {
-            return
-        }
+        val carId = localUserStorage.user?.settings?.carId ?: return
 
         val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(this))
         val car = localCarStorage.getCar(carId)
@@ -705,7 +702,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         intent.putExtra(CAR_ISSUE_POSITION, position)
         intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE)
         useCaseComponent?.getUserCarUseCase()!!.execute(Repository.DATABASE_TYPE.REMOTE, object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+            override fun onCarRetrieved(car: Car, dealership: Dealership?, isLocal: Boolean) {
                 if (isLocal) return
                 intent.putExtra(CAR_KEY, car)
                 startActivity(intent)
@@ -760,6 +757,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onDeviceReady(device: ReadyDevice) {
+        // TODO: Update device id on Vehicle Specs, update on my vehicles list
+        presenter?.onUpdateNeeded()
+        vehicleSpecsFragment.presenter.onUpdateNeeded(false)
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)
     }
 

@@ -55,6 +55,8 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
             usecaseComponent.updateCarMileageUseCase().execute(mileage, view?.getEventSource(), object: UpdateCarMileageUseCase.Callback{
                 override fun onMileageUpdated() {
                     Log.d(tag,"onMileageUpdated()")
+                    view?.mileageWasUpdated()
+                    view?.closeDialog()
                 }
 
                 override fun onNoCarAdded() {
@@ -66,7 +68,6 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
                 }
 
             })
-            view!!.closeDialog()
         }catch(e: NumberFormatException){
             e.printStackTrace()
             view?.showError(R.string.invalid_mileage_alert_message)
