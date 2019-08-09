@@ -2,6 +2,10 @@ package com.pitstop.bluetooth.bleDevice
 
 import android.util.Log
 import com.continental.rvd.mobile_sdk.*
+import com.continental.rvd.mobile_sdk.errors.SDKException
+import com.continental.rvd.mobile_sdk.events.OnCarEvents
+import com.continental.rvd.mobile_sdk.events.OnDongleEvents
+import com.continental.rvd.mobile_sdk.events.OnLiveReadingsEvents
 import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.dataPackages.DtcPackage
@@ -10,7 +14,7 @@ import com.pitstop.bluetooth.dataPackages.RVDPidPackage
 /**
  * Created by Karol Zdebel on 8/31/2018.
  */
-class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: BluetoothDeviceManager)
+class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: BluetoothDeviceManager)
     : AbstractDevice, IEventsInterface.IEventListener {
 
     private val TAG = RVDDevice::class.java.simpleName
@@ -18,33 +22,34 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
     private var currentPidPackage: RVDPidPackage? = null
 
     init{
-        //We need to register all events related to disconnecting from device and getting live data
-        rvdSDK.addNotificationListener(this, IEventsInterface.EventType.LIVE_READING
-                , IEventsInterface.EventType.DONGLE
-                , IEventsInterface.EventType.CAR)
-    }
+        rvdSDK.addEventListener().onCarEvents(object: OnCarEvents {
+            override fun onCarDisconnected() {
+                deviceManager?.setState(BluetoothCommunicator.DISCONNECTED)
+            }
+        })
 
-    override fun onNotification(event: IEventsInterface.Event, retObject: Any?) {
-        Log.d(TAG,"onNotification() event: $event")
-        when(event){
-            IEventsInterface.Event.CAR_DISCONNECTED -> {
+        rvdSDK.addEventListener().onDongleEvents(object: OnDongleEvents {
+            override fun onDongleDisconnected(reason: BluetoothDisconnectionReason?) {
                 deviceManager?.setState(BluetoothCommunicator.DISCONNECTED)
             }
-            IEventsInterface.Event.DONGLE_STATE_DISCONNECTED -> {
-                deviceManager?.setState(BluetoothCommunicator.DISCONNECTED)
-            }
-            IEventsInterface.Event.DONGLE_STATE_CONNECTED -> {
+
+            override fun onDongleConnected(toBluetoothDevice: BluetoothDongle?) {
                 deviceManager?.setState(BluetoothCommunicator.CONNECTED)
             }
-            IEventsInterface.Event.DONGLE_STATE_CONNECTING -> {
+
+            override fun onDongleConnecting(toBluetoothDevice: BluetoothDongle?) {
                 deviceManager?.setState(BluetoothCommunicator.CONNECTING)
             }
-            IEventsInterface.Event.LIVE_READINGS_ERROR -> {
+        })
+
+        rvdSDK.addEventListener().onLiveReadingsEvents(object: OnLiveReadingsEvents {
+            override fun onLiveReadingsError(error: SDKException?) {
                 Log.e(TAG,"Live reading error!")
             }
-            IEventsInterface.Event.LIVE_READINGS_RECEIVED -> {
-                rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo> {
-                    override fun onSuccess(deviceInfo: DeviceInfo?) {
+
+            override fun onLiveReadingsReceived(retObject: LiveReadingSample?) {
+                rvdSDK.getDongleInformation(object: Callback<DongleInformation>() {
+                    override fun onSuccess(deviceInfo: DongleInformation?) {
                         if (deviceInfo != null) {
                             if (currentPidPackage == null) currentPidPackage = RVDPidPackage(deviceInfo.name, System.currentTimeMillis())
                             val liveReadingSample = retObject as LiveReadingSample
@@ -54,14 +59,12 @@ class RVDDevice(private val rvdSDK: ISDKApi, private val deviceManager: Bluetoot
                                 deviceManager.onGotPids(currentPidPackage!!)
                         }
                     }
-
                     override fun onError(error: Throwable?) {
                         Log.d(TAG,"Error getting device info! error: $error")
                     }
-
                 })
             }
-        }
+        })
     }
 
     override fun getVin(): Boolean {
