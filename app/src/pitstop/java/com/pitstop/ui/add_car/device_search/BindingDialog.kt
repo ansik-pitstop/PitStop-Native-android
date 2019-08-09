@@ -9,8 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.continental.rvd.mobile_sdk.BindingQuestion
-import com.continental.rvd.mobile_sdk.EBindingQuestionType
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
+import com.continental.rvd.mobile_sdk.BindingQuestionType
 import com.pitstop.R
 import kotlinx.android.synthetic.main.layout_binding_dialog.*
 
@@ -139,30 +138,30 @@ class BindingDialog: DialogFragment() {
 
         when (question.questionType){
 
-            EBindingQuestionType.VIN,
-            EBindingQuestionType.ODOMETER -> {
+            BindingQuestionType.VIN,
+            BindingQuestionType.ODOMETER -> {
                 toggleAnswer(AnswerType.INPUT)
             }
-            EBindingQuestionType.CAR_MANUFACTURER,
-            EBindingQuestionType.CAR_MODEL,
-            EBindingQuestionType.CAR_ENGINE -> {
+            BindingQuestionType.CAR_MANUFACTURER,
+            BindingQuestionType.CAR_MODEL,
+            BindingQuestionType.CAR_ENGINE -> {
                 toggleAnswer(AnswerType.SELECT)
                 populateSpinner(question.answers)
             }
 
-            EBindingQuestionType.OBSERVE_DASHBOARD_LIGHTS,
-            EBindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION,
-            EBindingQuestionType.IGNITION_OFF,
-            EBindingQuestionType.ENGINE_ON,
-            EBindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF,
-            EBindingQuestionType.BINDING_FEEDBACK,
-            EBindingQuestionType.LOOKUP,
-            EBindingQuestionType.CHECK_DASHBOARD_LIGHT,
-            EBindingQuestionType.REGIONAL_RESTRICTION -> {
+            BindingQuestionType.OBSERVE_DASHBOARD_LIGHTS,
+            BindingQuestionType.DRIVING_NOT_ALLOWED_CONFIRMATION,
+            BindingQuestionType.IGNITION_OFF,
+            BindingQuestionType.ENGINE_ON,
+            BindingQuestionType.INFO_ENGINE_ON_AUTO_ENGINE_OFF,
+            BindingQuestionType.BINDING_FEEDBACK,
+            BindingQuestionType.LOOKUP,
+            BindingQuestionType.CHECK_DASHBOARD_LIGHT,
+            BindingQuestionType.REGIONAL_RESTRICTION -> {
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
 
-            EBindingQuestionType.COUNTRY_OF_INSTALLATION -> {
+            BindingQuestionType.COUNTRY_OF_INSTALLATION -> {
                 toggleAnswer(AnswerType.INSTRUCTION)
             }
 

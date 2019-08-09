@@ -17,9 +17,8 @@ import android.util.Log;
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.EBindingQuestionType;
-import com.continental.rvd.mobile_sdk.SDKIntentService;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
+import com.continental.rvd.mobile_sdk.BindingQuestionType;
+import com.continental.rvd.mobile_sdk.RvdIntentService;
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
@@ -336,9 +335,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                 deviceManager = null;
             }
             Disposable d = ((GlobalApplication)getApplication()).getServices()
-                    .filter(next -> next instanceof SDKIntentService)
+                    .filter(next -> next instanceof RvdIntentService)
                     . subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
+                    deviceManager = new BluetoothDeviceManager(this,(RvdIntentService) next,this);
             });
 
         }
@@ -868,7 +867,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     }
 
     @Override
-    public boolean answerBindingQuestion(EBindingQuestionType questionType, String answer){
+    public boolean answerBindingQuestion(BindingQuestionType questionType, String answer){
         if (deviceManager != null)
             return deviceManager.answerBindingQuestion(questionType,answer);
         else return false;
@@ -1350,9 +1349,9 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
 
         Disposable d = ((GlobalApplication)getApplication()).getServices()
-                .filter(next -> next instanceof SDKIntentService)
+                .filter(next -> next instanceof RvdIntentService)
                 .subscribe(next -> {
-                    deviceManager = new BluetoothDeviceManager(this,(SDKIntentService) next,this);
+                    deviceManager = new BluetoothDeviceManager(this,(RvdIntentService) next,this);
                     if (BluetoothAdapter.getDefaultAdapter()!=null
                             && BluetoothAdapter.getDefaultAdapter().isEnabled()) {
 

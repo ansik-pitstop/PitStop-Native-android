@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('mobile_sdk-1.13.4_11340-release.aar'))

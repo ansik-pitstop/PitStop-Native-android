@@ -1,6 +1,6 @@
 package com.pitstop.observer;
 
-import com.continental.rvd.mobile_sdk.EBindingQuestionType;
+import com.continental.rvd.mobile_sdk.BindingQuestionType;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.ReadyDevice;
@@ -33,7 +33,7 @@ public interface BluetoothConnectionObservable extends Subject{
         String CONNECTED_VERIFIED = "state_connected_verified"; //Established trusted connection with device
     }
 
-    boolean answerBindingQuestion(EBindingQuestionType questionType, String answer);
+    boolean answerBindingQuestion(BindingQuestionType questionType, String answer);
 
     boolean requestPidInitialization();
 
