@@ -3,7 +3,6 @@ package com.pitstop.ui.add_car.device_search;
 import android.view.View;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.models.Car;
 import com.pitstop.ui.LoadingView;

@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.continental.rvd.mobile_sdk.BindingQuestion;
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
 import com.pitstop.bluetooth.BluetoothDeviceManager;
