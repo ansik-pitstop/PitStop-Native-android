@@ -1,7 +1,6 @@
 package com.pitstop.bluetooth.searcher
 
 import com.continental.rvd.mobile_sdk.BindingQuestion
-import com.continental.rvd.mobile_sdk.internal.api.binding.model.Error
 
 /**
  * Created by Karol Zdebel on 8/31/2018.

@@ -11,11 +11,9 @@ import com.pitstop.bluetooth.communicator.BluetoothCommunicator
 import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.bluetooth.dataPackages.RVDPidPackage
 
-/**
- * Created by Karol Zdebel on 8/31/2018.
- */
 class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: BluetoothDeviceManager)
-    : AbstractDevice, IEventsInterface.IEventListener {
+
+    : AbstractDevice {
 
     private val TAG = RVDDevice::class.java.simpleName
     private val expectedPidList: MutableList<Int> = mutableListOf()
@@ -69,10 +67,10 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun getVin(): Boolean {
         Log.d(TAG,"getVin()")
-        rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-            override fun onSuccess(deviceInfo: DeviceInfo?) {
+        rvdSDK.getDongleInformation(object : Callback<DongleInformation>() {
+            override fun onSuccess(deviceInfo: DongleInformation?) {
                 if (deviceInfo != null)
-                    rvdSDK.getVin(object: TApiCallback<String>{
+                    rvdSDK.getVehicleVin(object: Callback<String>(){
                         override fun onSuccess(VIN: String?) {
                             Log.d(TAG,"Got VIN successfully! VIN: $VIN")
                             if (VIN != null)
@@ -82,8 +80,8 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
                         override fun onError(error: Throwable?) {
                             Log.d(TAG,"Error getting VIN! error: $error")
                         }
+        })
 
-                    })
             }
 
             override fun onError(error: Throwable?) {
@@ -98,7 +96,7 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     override fun setPidsToSend(pids: List<String>, timeInterval: Int): Boolean {
         Log.d(TAG,"setPidsToSend() pids: $pids, timeInterval: $timeInterval")
         pids.forEach {
-            rvdSDK.startLiveReading(DonglePID(it.toInt(),0,"",""),timeInterval)
+            rvdSDK.startLiveReading(LiveReadingId(it.toInt(),0,"",""),timeInterval)
         }
         expectedPidList.addAll(pids.map{ it.toInt() })
         return true
@@ -108,11 +106,14 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     override fun getPids(pids: List<String>): Boolean {
         Log.d(TAG,"getPids() pids: $pids")
         pids.forEach {
-            rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-                override fun onSuccess(deviceInfo: DeviceInfo?) {
+
+            rvdSDK.getDongleInformation(object: Callback<DongleInformation>(){
+                override fun onSuccess(deviceInfo: DongleInformation?) {
                     if (deviceInfo != null){
                         val pidPackage = RVDPidPackage(deviceInfo.name,System.currentTimeMillis())
-                        rvdSDK.sampleLiveReading(DonglePID(it.toInt(),0,"",""),object: TApiCallback<LiveReadingSample>{
+                        rvdSDK.sampleLiveReading(LiveReadingId(it.toInt(),0,"",""), object : Callback<LiveReadingSample>
+                        (){
+
                             override fun onSuccess(liveReadingSample: LiveReadingSample?) {
                                 Log.d(TAG,"Got live reading sample: $liveReadingSample")
                                 if (liveReadingSample != null)
@@ -139,11 +140,13 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun getSupportedPids(): Boolean {
         Log.d(TAG,"getSupportedPids()")
-        rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-            override fun onSuccess(deviceInfo: DeviceInfo?) {
+        rvdSDK.getDongleInformation(object: Callback<DongleInformation>()
+        {
+            override fun onSuccess(deviceInfo: DongleInformation?) {
                 if (deviceInfo != null)
-                    rvdSDK.getAvailableLiveReading(object: TApiCallback<Map<DonglePID,Boolean>>{
-                        override fun onSuccess(supportedPids: Map<DonglePID, Boolean>?) {
+                    rvdSDK.getAvailableLiveReading(object : Callback<Map<LiveReadingId,Boolean>>()
+                    {
+                        override fun onSuccess(supportedPids: Map<LiveReadingId, Boolean>?) {
                             if (supportedPids != null){
                                 val supportedList = mutableListOf<String>()
                                 supportedPids.filter { it.value }.forEach {
@@ -171,15 +174,16 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     override fun requestSnapshot(): Boolean {
         Log.d(TAG,"requestSnapshot()")
         //Get all available pids then ask for them all
-        rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-            override fun onSuccess(deviceInfo: DeviceInfo?) {
+        rvdSDK.getDongleInformation(object: Callback<DongleInformation>()
+        {
+            override fun onSuccess(deviceInfo: DongleInformation?) {
                 if (deviceInfo != null){
                     val pidPackage = RVDPidPackage(deviceInfo.name, System.currentTimeMillis())
-                    rvdSDK.getAvailableLiveReading(object: TApiCallback<Map<DonglePID,Boolean>>{
-                        override fun onSuccess(availableLiveReading: Map<DonglePID, Boolean>?) {
+                    rvdSDK.getAvailableLiveReading(object: Callback<Map<LiveReadingId,Boolean>>(){
+                        override fun onSuccess(availableLiveReading: Map<LiveReadingId, Boolean>?) {
                             if (availableLiveReading != null)
                                 availableLiveReading.filter{true}.forEach {
-                                    rvdSDK.sampleLiveReading(it.key, object: TApiCallback<LiveReadingSample>{
+                                    rvdSDK.sampleLiveReading(it.key, object: Callback<LiveReadingSample>(){
                                         override fun onSuccess(liveReadingSample: LiveReadingSample?) {
                                             if (liveReadingSample != null){
                                                 pidPackage.addPid(liveReadingSample.pid?.id.toString(),liveReadingSample.value)
@@ -215,10 +219,10 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun getDtcs(): Boolean {
         Log.d(TAG,"getDtcs()")
-        rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-            override fun onSuccess(deviceInfo: DeviceInfo?) {
-                if (deviceInfo != null) rvdSDK.getDTCReadings(object: TApiCallback<DTCItem>{
-                    override fun onSuccess(dtcItem: DTCItem?) {
+        rvdSDK.getDongleInformation(object: Callback<DongleInformation>(){
+            override fun onSuccess(deviceInfo: DongleInformation?) {
+                if (deviceInfo != null) rvdSDK.readDiagnosticTroubleCodes(object: Callback<DiagnosticTroubleCodes>(){
+                    override fun onSuccess(dtcItem: DiagnosticTroubleCodes?) {
                         Log.d(TAG,"Successfully got dtc item: $dtcItem")
                         if (dtcItem != null){
                             val allEngineCodes = mutableMapOf<String,Boolean>()
@@ -260,10 +264,12 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun getPendingDtcs(): Boolean {
         Log.d(TAG,"getPendingDtcs()")
-        rvdSDK.getDeviceInfo(object: TApiCallback<DeviceInfo>{
-            override fun onSuccess(deviceInfo: DeviceInfo?) {
-                if (deviceInfo != null) rvdSDK.getDTCReadings(object: TApiCallback<DTCItem>{
-                    override fun onSuccess(dtcItem: DTCItem?) {
+
+        rvdSDK.getDongleInformation(object: Callback<DongleInformation>(){
+            override fun onSuccess(deviceInfo: DongleInformation?) {
+
+                if (deviceInfo != null) rvdSDK.readDiagnosticTroubleCodes(object: Callback<DiagnosticTroubleCodes>(){
+                    override fun onSuccess(dtcItem: DiagnosticTroubleCodes?) {
                         Log.d(TAG,"Successfully got dtc item: $dtcItem")
                         if (dtcItem != null){
                             val allEngineCodes = mutableMapOf<String,Boolean>()
@@ -294,22 +300,22 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
 
     override fun closeConnection(): Boolean {
         Log.d(TAG,"closeConnection")
-        rvdSDK.unpairDevices(object: TApiCallback<Boolean>{
+        rvdSDK.deleteAndroidDevicesTrustedByDongle(object: Callback<Boolean>()
+        {
             override fun onSuccess(success: Boolean?) {
                 Log.d(TAG,"unpairDevices() callback value: $success")
                 deviceManager.setState(BluetoothCommunicator.DISCONNECTED)
             }
-
             override fun onError(error: Throwable?) {
                 Log.d(TAG,"Error closing connection! error: $error")
             }
+      })
 
-        })
         return true
     }
 
     override fun getCommunicatorState(): Int {
-        return if (rvdSDK.dongleConnectionStatus) BluetoothCommunicator.CONNECTED
+        return  if (rvdSDK.isDongleConnected) BluetoothCommunicator.CONNECTED
         else BluetoothCommunicator.DISCONNECTED
     }
 }
