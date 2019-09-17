@@ -134,7 +134,9 @@ class BindingDialog: DialogFragment() {
         backButton?.isClickable = true
         backButton?.setTextColor(Color.BLACK)
 
-        instruction?.text = question.question
+      //  instruction?.text = question.question
+        instruction?.text = if (question.question != null)
+            question.question else question.questionType.name
 
         when (question.questionType){
 
