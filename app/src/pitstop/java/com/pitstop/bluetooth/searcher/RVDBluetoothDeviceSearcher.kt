@@ -38,13 +38,6 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                     })
 
                     sdk.addEventListener().onBluetoothEvents(object: OnBluetoothEvents{
-                        override fun onBluetoothPairingFinished() {
-                            Log.d(TAG,"onBluetoothPairingFinished!")
-                            deviceManager.scanFinished()
-                        }
-                    })
-
-                    sdk.addEventListener().onBluetoothEvents(object: OnBluetoothEvents{
 
                         override fun onBluetoothPairTo(devices: Array<out BluetoothDongle>?) {
                             Log.d(TAG,"onBluetoothPairTo!" + devices)
@@ -55,10 +48,6 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                         }
 
                         override fun onBluetoothPairingStarted() {
-                            Log.d(TAG,"onBluetoothPairingStarted!" )
-                        }
-
-                        override fun onBluetoothPairingFinished() {
                             Log.d(TAG,"onBluetoothPairingStarted!" )
                         }
                         override fun onBluetoothPairingError(error: SDKException?) {
@@ -72,9 +61,12 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             rvdBluetoothListener.onConnectionFailure(newError)
                         }
 
+                        override fun onBluetoothPairingFinished() {
+                            Log.d(TAG,"onBluetoothPairingFinished!")
+                            deviceManager.scanFinished()
+                        }
+
                     })
-
-
 
                     sdk.addEventListener().onNetworkEvents(object: OnNetworkEvents{
                         override fun onInternetConnectionRequired() {
@@ -90,8 +82,10 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
 
                             deviceManager.scanFinished()
                         }
-                    })
-                    sdk.addEventListener().onDongleEvents(object : OnDongleEvents{
+
+                        override fun onDongleConnected(toBluetoothDevice: BluetoothDongle?) {
+                            Log.d(TAG,"onDongleConnected")
+                        }
                         override fun onDongleNotConfigured(notFirstBinding: Boolean?) {
                             Log.d(TAG,"onDongleNotConfigured!")
                             if (sdk.bindingStatus.state == BindingStatus.State.PAUSED) {
@@ -101,19 +95,13 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             if (sdk.bindingStatus.state != BindingStatus.State.STARTED) {
                                 rvdBluetoothListener.onBindingRequired()
                             }
-                         //   rvdBluetoothListener.onBindingRequired()
+                            //   rvdBluetoothListener.onBindingRequired()
                         }
                     })
                     sdk.addEventListener().onLicenseEvents(object: OnLicenseEvents{
                         override fun onLicenseUnverifiable() {
                             val error = java.lang.Error("License unverifiable")
                             rvdBluetoothListener.onConnectionFailure(error)
-                        }
-                    })
-                    sdk.addEventListener().onAuthenticationEvents(object : OnAuthenticationEvents{
-                        override fun onAuthenticationSuccess() {
-                            Log.d(TAG,"onAuthenticationSuccess!")
-                            rvdBluetoothListener.onConnectionCompleted()
                         }
                     })
                     sdk.addEventListener().onAuthenticationEvents(object : OnAuthenticationEvents{
@@ -126,14 +114,16 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             newError.stackTrace = error.stackTrace
                             rvdBluetoothListener.onConnectionFailure(newError)
                         }
+                        override fun onAuthenticationSuccess() {
+                            Log.d(TAG,"onAuthenticationSuccess!")
+                            rvdBluetoothListener.onConnectionCompleted()
+                        }
                     })
                     sdk.addEventListener().onBindingEvents(object : OnBindingEvents{
                         override fun onBindingProcessChanged(progress: Float) {
                             Log.d(TAG,"onBindingProcessChanged!!!!" + progress)
                             rvdBluetoothListener.onBindingProgress(progress)
                         }
-                    })
-                    sdk.addEventListener().onBindingEvents(object : OnBindingEvents{
                         override fun onBindingError(error: SDKException?) {
                             Log.d(TAG,"onBindingError!")
                             if (error == null) {
@@ -145,14 +135,10 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             newError.stackTrace = error.stackTrace
                             rvdBluetoothListener.onConnectionFailure(newError)
                         }
-                    })
-                    sdk.addEventListener().onBindingEvents(object : OnBindingEvents{
                         override fun onBindingFinished() {
                             Log.d(TAG,"onBindingFinished!")
                             rvdBluetoothListener.onBindingFinished()
                         }
-                    })
-                    sdk.addEventListener().onBindingEvents(object : OnBindingEvents{
                         override fun onBindingUserInput(bindingQuestion: BindingQuestion?) {
                             Log.d(TAG,"onBindingUserInput!")
                             if (bindingQuestion == null) {
@@ -166,13 +152,9 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
 
                             rvdBluetoothListener.onFirmwareInstallationRequired()
                         }
-                    })
-                    sdk.addEventListener().onUpdateEvents(object : OnUpdateEvents{
                         override fun onUpdateDownloadProgressChanged(progress: Float) {
                             rvdBluetoothListener.onFirmwareInstallationProgress(progress)
                         }
-                    })
-                    sdk.addEventListener().onUpdateEvents(object : OnUpdateEvents{
                         override fun onUpdateDownloadError(error: SDKException?) {
                             if (error == null) {
                                 return
@@ -181,8 +163,6 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             newError.stackTrace = error.stackTrace
                             rvdBluetoothListener.onFirmwareInstallationError(newError)
                         }
-                    })
-                    sdk.addEventListener().onUpdateEvents(object : OnUpdateEvents{
                         override fun onUpdateError(error: SDKException?) {
                             if (error == null) {
                                 return
@@ -191,8 +171,6 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                             newError.stackTrace = error.stackTrace
                             rvdBluetoothListener.onFirmwareInstallationError(newError)
                         }
-                    })
-                    sdk.addEventListener().onUpdateEvents(object : OnUpdateEvents{
                         override fun onUpdateVerificationResult(firmwareCheckResults: FirmwareCheckResults?) {
                             if (firmwareCheckResults == FirmwareCheckResults.OK) {
                                 sdk?.startFirmwareInstallation()
@@ -203,13 +181,9 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                         override fun onFirmwareInstallationProgressChanged(progress: Float) {
                             rvdBluetoothListener.onFirmwareInstallationProgress(progress)
                         }
-                    })
-                    sdk.addEventListener().onFirmwareEvents(object : OnFirmwareEvents{
                         override fun onFirmwareInstallationFinished() {
                             rvdBluetoothListener.onFirmwareInstallationFinished()
                         }
-                    })
-                    sdk.addEventListener().onFirmwareEvents(object : OnFirmwareEvents{
                         override fun onFirmwareInstallationError(error: SDKException?) {
                             if (error == null) {
                                 return
@@ -221,15 +195,11 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
                     })
                     sdk.addEventListener().onCarEvents(object : OnCarEvents{
                         override fun onCarConnected() {
+                            Log.d(TAG,"onCarConnected")
                             deviceManager.onCompleted(RVDDevice(sdk!!,deviceManager))
                         }
                     })
-
-
                 }
-
-
-
 
                 override fun onError(p0: Throwable?) {
                     Log.d(TAG,"Failed to initialize RVD SDK")
@@ -244,6 +214,13 @@ class RVDBluetoothDeviceSearcher(private val rvdIntentService: RvdIntentService
 
     fun respondBindingRequest(start: Boolean): Boolean {
         Log.d(TAG,"respondBindingRequest() start: $start")
+        if (sdk?.isBindingNeeded == false) {
+            rvdBluetoothListener.onBindingFinished()
+            return start
+        }
+        if (sdk?.isDongleConnected == false) {
+            return false
+        }
         if (start) sdk?.startBinding(false)
         return start
     }

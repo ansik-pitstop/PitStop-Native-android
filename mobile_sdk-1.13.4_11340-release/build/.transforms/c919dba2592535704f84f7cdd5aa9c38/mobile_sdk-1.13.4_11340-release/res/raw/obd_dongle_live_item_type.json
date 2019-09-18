@@ -1,0 +1,2274 @@
+{
+  "Name":"ObdDongleLiveItemType",
+  "Namespace":"Continental.BTDongle.Server.Common.SharedEnums",
+  "Values":[
+    {
+      "Levels":"1",
+      "Description":"OBD Monitor status since DTCs cleared",
+      "Mnemonic":"OBDMonitorStatus",
+      "Importance":2,
+      "Category":"OBD Data",
+      "Code":0,
+      "Notes":"Represents EOBD Mode 01 Pid 01"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"MIL Indicator",
+      "Mnemonic":"MILIndicator",
+      "Importance":1,
+      "Category":"Warning Lamps",
+      "Code":1,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine Speed",
+      "Mnemonic":"EngineSpeed",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":2,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Vehicle Speed",
+      "Mnemonic":"VehicleSpeed",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":3,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Calculated Load",
+      "Mnemonic":"CalculatedLoad",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":4,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Coolant Temperature",
+      "Mnemonic":"CoolantTemperature",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":5,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Ignition Timing",
+      "Mnemonic":"IgnitionTiming",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":6,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Intake Air Temperature",
+      "Mnemonic":"IntakeAirTemperature",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":7,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Mass Air Flow",
+      "Mnemonic":"MassAirFlow",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":8,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Absolute Throttle Position",
+      "Mnemonic":"AbsoluteThrottlePosition",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":9,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"OBD Standard",
+      "Mnemonic":"OBDStandard",
+      "Importance":2,
+      "Category":"OBD Data",
+      "Code":10,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Time Since Engine Start",
+      "Mnemonic":"TimeSinceEngineStart",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":11,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Distance with MIL Active",
+      "Mnemonic":"DistancewithMILActive",
+      "Importance":1,
+      "Category":"OBD Data",
+      "Code":12,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Fuel Level",
+      "Mnemonic":"FuelLevel",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":13,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Warmups since DTC Clear",
+      "Mnemonic":"WarmupsSinceDTCClear",
+      "Importance":1,
+      "Category":"OBD Data",
+      "Code":14,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Distance since DTC Clear",
+      "Mnemonic":"DistanceSinceDTCClear",
+      "Importance":1,
+      "Category":"OBD Data",
+      "Code":15,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Barometric Pressure",
+      "Mnemonic":"BarometricPressure",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":16,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Catalyst Temperature",
+      "Mnemonic":"CatalystTemperature",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":17,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Control Module Voltage",
+      "Mnemonic":"ControlModuleVoltage",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":18,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Absolute Load",
+      "Mnemonic":"AbsoluteLoad",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":19,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Fuel Rail Pressure",
+      "Mnemonic":"FuelRailPressure",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":20,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Intake MAP",
+      "Mnemonic":"IntakeMAP",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":21,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Fuel Type",
+      "Mnemonic":"FuelType",
+      "Importance":2,
+      "Category":"OBD Data",
+      "Code":22,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Absolute Throttle Position B",
+      "Mnemonic":"AbsoluteThrottlePositionB",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":23,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Absolute Throttle Position C",
+      "Mnemonic":"AbsoluteThrottlePositionC",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":24,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Accelerator Pedal Position D",
+      "Mnemonic":"AcceleratorPedalPositionD",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":25,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Accelerator Pedal Position E",
+      "Mnemonic":"AcceleratorPedalPositionE",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":26,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Accelerator Pedal Position F",
+      "Mnemonic":"AcceleratorPedalPositionF",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":27,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Commanded Throttle Actuator Control",
+      "Mnemonic":"CommandedThrottleActuatorControl",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":28,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"State Of Charge (SOC)",
+      "Mnemonic":"StateOfCharge",
+      "Importance":1,
+      "Category":"Battery",
+      "Code":29,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine run time while MIL is activated",
+      "Mnemonic":"EngineRunTimeWhileMILisActivated",
+      "Importance":2,
+      "Category":"OBD Data",
+      "Code":30,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine run time since DTCs cleared",
+      "Mnemonic":"EngineRunTimeSinceDTCsCleared",
+      "Importance":2,
+      "Category":"OBD Data",
+      "Code":31,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine Fuel Rate",
+      "Mnemonic":"EngineFuelRate",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":32,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Odometer",
+      "Mnemonic":"Odometer",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":33,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Service Indicator",
+      "Mnemonic":"ServiceIndicator",
+      "Importance":1,
+      "Category":"Warning Lamps",
+      "Code":34,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Check Indicator",
+      "Mnemonic":"CheckIndicator",
+      "Importance":1,
+      "Category":"Warning Lamps",
+      "Code":35,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Oil Level",
+      "Mnemonic":"OilLevel",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":36,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Front - remaining life",
+      "Mnemonic":"BrakesFront_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":37,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Rear - remaining life",
+      "Mnemonic":"BrakesRear_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":38,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Brake Fluid",
+      "Mnemonic":"BrakeFluid",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":39,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time From Last Service",
+      "Mnemonic":"TimeFromLastService",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":40,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance From Last Service",
+      "Mnemonic":"DistanceFromLastService",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":41,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time To Next Service",
+      "Mnemonic":"TimeToNextService",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":42,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance To Next Service",
+      "Mnemonic":"DistanceToNextService",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":43,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Urea Status (Diesel Exhaust Fluid)",
+      "Mnemonic":"UreaStatus",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":44,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Urea Range (Diesel Exhaust Fluid)",
+      "Mnemonic":"UreaRange",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":45,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Theoretical Service Interval",
+      "Mnemonic":"TheoreticalServiceInterval",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":46,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Engine Oil - remaining life",
+      "Mnemonic":"EngineOil_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":47,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Particle Filter State - remaining life",
+      "Mnemonic":"ParticleFilterState_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":48,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Diesel Additive - remaining life",
+      "Mnemonic":"DieselAdditive_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":49,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Spark Plugs - remaining life",
+      "Mnemonic":"SparkPlugs_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":50,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Coolant - remaining life",
+      "Mnemonic":"Coolant_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":51,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Micro Filter - remaining life",
+      "Mnemonic":"MicroFilter_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":52,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Brake Fluid - remaining life",
+      "Mnemonic":"BrakeFluid_RemainingLife",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":53,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Vehicle check - remaining",
+      "Mnemonic":"VehicleCheck_Remaining",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":54,
+      "Notes":"% -added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Vehicle Inspection service due date",
+      "Mnemonic":"VehicleInspectionServiceDueDate",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":55,
+      "Notes":"Date - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Exhaust Inspection service due date",
+      "Mnemonic":"ExhaustInspectionServiceDueDate",
+      "Importance":1,
+      "Category":"Servicing",
+      "Code":56,
+      "Notes":"Date - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Ignition status",
+      "Mnemonic":"IgnitionStatus",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":57,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Washer Fluid Level",
+      "Mnemonic":"WasherFluidLevel",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":58,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Airbag Deployed",
+      "Mnemonic":"AirbagDeployed",
+      "Importance":1,
+      "Category":"Crash data",
+      "Code":59,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Seat Pre-tensioner deployed",
+      "Mnemonic":"SeatPreTensionerDeployed",
+      "Importance":1,
+      "Category":"Crash data",
+      "Code":60,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Seat Occupancy",
+      "Mnemonic":"SeatOccupancy",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":61,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Headlight status",
+      "Mnemonic":"HeadlightStatus",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":62,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Battery Voltage",
+      "Mnemonic":"BatteryVoltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":63,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Airbag Warning Lamp",
+      "Mnemonic":"AirbagWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":64,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"ABS Warning Lamp",
+      "Mnemonic":"ABSWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":65,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Traction Control Warning Lamp",
+      "Mnemonic":"TractionControlWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":66,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"ESP Warning Lamp",
+      "Mnemonic":"ESPWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":67,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Power Steering Warning Lamp",
+      "Mnemonic":"PowerSteeringWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":68,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"DPF Warning Lamp",
+      "Mnemonic":"DPFWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":69,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Warning Lamp",
+      "Mnemonic":"TyrePressureWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":70,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Oil Pressure Warning Lamp",
+      "Mnemonic":"OilPressureWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":71,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Low Coolant Warning Lamp",
+      "Mnemonic":"LowCoolantWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":72,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Water In Fuel Warning Lamp",
+      "Mnemonic":"WaterInFuelWarningLamp",
+      "Importance":2,
+      "Category":"Warning Lamps",
+      "Code":73,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Battery Capacity",
+      "Mnemonic":"BatteryCapacity",
+      "Importance":1,
+      "Category":"Battery",
+      "Code":74,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance Since Last Battery Change",
+      "Mnemonic":"DistanceSinceLastBatteryChange",
+      "Importance":1,
+      "Category":"Battery",
+      "Code":75,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Alternator Current",
+      "Mnemonic":"AlternatorCurrent",
+      "Importance":2,
+      "Category":"Battery",
+      "Code":76,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Alternator Load",
+      "Mnemonic":"AlternatorLoad",
+      "Importance":2,
+      "Category":"Battery",
+      "Code":77,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Vehicle Battery Current",
+      "Mnemonic":"VehicleBatteryCurrent",
+      "Importance":1,
+      "Category":"Battery",
+      "Code":78,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"DPF Differential Pressure",
+      "Mnemonic":"DPFDifferentialPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":79,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Number Of Successful DPF Regenerations",
+      "Mnemonic":"NumberOfSuccessfulDPFRegenerations",
+      "Importance":1,
+      "Category":"Diesel Particulate Filter",
+      "Code":80,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Number Of Demanded DPF Regenerations",
+      "Mnemonic":"NumberOfDemandedDPFRegenerations",
+      "Importance":1,
+      "Category":"Diesel Particulate Filter",
+      "Code":81,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Number Of Partial DPF Regenerations",
+      "Mnemonic":"NumberOfPartialDPFRegenerations",
+      "Importance":1,
+      "Category":"Diesel Particulate Filter",
+      "Code":82,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Measured Soot Mass In Particulate Filter (DPF)",
+      "Mnemonic":"MeasuredSootMassInParticulateFilter_DPF",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":83,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Steering Angle",
+      "Mnemonic":"SteeringAngle",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":84,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Front Left",
+      "Mnemonic":"TyrePressureFrontLeft",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":85,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Front Right",
+      "Mnemonic":"TyrePressureFrontRight",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":86,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Rear Left",
+      "Mnemonic":"TyrePressureRearLeft",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":87,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Rear Right",
+      "Mnemonic":"TyrePressureRearRight",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":88,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Front Left Remaining Battery Life",
+      "Mnemonic":"TyrePressureFrontLeftRemainingBatteryLife",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":89,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Front Right Remaining Battery Life",
+      "Mnemonic":"TyrePressureFrontRightRemainingBatteryLife",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":90,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Rear Left Remaining Battery Life",
+      "Mnemonic":"TyrePressureRearLeftRemainingBatteryLife",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":91,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Rear Right Remaining Battery Life",
+      "Mnemonic":"TyrePressureRearRightRemainingBatteryLife",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":92,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature Front Left",
+      "Mnemonic":"TyreTemperatureFrontLeft",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":93,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature Front Right",
+      "Mnemonic":"TyreTemperatureFrontRight",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":94,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature Rear Left",
+      "Mnemonic":"TyreTemperatureRearLeft",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":95,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature Rear Right",
+      "Mnemonic":"TyreTemperatureRearRight",
+      "Importance":2,
+      "Category":"Tyres",
+      "Code":96,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Coolant level",
+      "Mnemonic":"CoolantLevel",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":97,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance since last DPF Regeneration",
+      "Mnemonic":"DistanceSinceLastDPFRegeneration",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":98,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance to next DPF Regeneration",
+      "Mnemonic":"DistanceToNextDPFRegeneration",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":99,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Brake Fluid - Due Date for change",
+      "Mnemonic":"BrakeFluid_DueDateForChange",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":100,
+      "Notes":"Date - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Calculated Soot Mass In Particulate Filter (DPF)",
+      "Mnemonic":"CalculatedSootMassInParticulateFilter_DPF",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":101,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Oil ash volume In Particulate Filter (DPF)",
+      "Mnemonic":"OilAshVolumeInParticulateFilter_DPF",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":102,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Fuel consumption since last Particulate Filter (DPF) regeneration",
+      "Mnemonic":"FuelConsumptionSinceLastParticulateFilter_DPF_Regeneration",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":103,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time since last Particulate Filter (DPF) regeneration",
+      "Mnemonic":"TimeSinceLastParticulateFilter_DPF_Regeneration",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":104,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Front - distance until service",
+      "Mnemonic":"BrakesFront_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":105,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Rear - distance until service",
+      "Mnemonic":"BrakesRear_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":106,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Engine Oil - distance until service",
+      "Mnemonic":"EngineOil_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":107,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Particle Filter State - distance until service",
+      "Mnemonic":"ParticleFilterState_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":108,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Diesel Additive - distance until service",
+      "Mnemonic":"DieselAdditive_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":109,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Spark Plugs - distance until service",
+      "Mnemonic":"SparkPlugs_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":110,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Coolant - distance until service",
+      "Mnemonic":"Coolant_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":111,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Micro Filter - distance until service",
+      "Mnemonic":"MicroFilter_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":112,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Vehicle check - distance until service",
+      "Mnemonic":"VehicleCheck_DistanceUntilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":113,
+      "Notes":"Distance - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Front - number of services done",
+      "Mnemonic":"BrakesFront_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":114,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Brakes Rear - number of services done",
+      "Mnemonic":"BrakesRear_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":115,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Engine Oil - number of services done",
+      "Mnemonic":"EngineOil_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":116,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Particle Filter State - number of services done",
+      "Mnemonic":"ParticleFilterState_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":117,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Diesel Additive - number of services done",
+      "Mnemonic":"DieselAdditive_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":118,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Spark Plugs - number of services done",
+      "Mnemonic":"SparkPlugs_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":119,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Coolant - number of services done",
+      "Mnemonic":"Coolant_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":120,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Micro Filter - number of services done",
+      "Mnemonic":"MicroFilter_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":121,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Brake Fluid - number of services done",
+      "Mnemonic":"BrakeFluid_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":122,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Vehicle check - number of services done",
+      "Mnemonic":"VehicleCheck_NumberOfServicesDone",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":123,
+      "Notes":"Count - added for BMW CBS"
+    },
+    {
+      "Levels":"2",
+      "Description":"Door Lock Status",
+      "Mnemonic":"DoorsLockStatus",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":124,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Engine Running State",
+      "Mnemonic":"EngineRunningState",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":125,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Bonnet Contact",
+      "Mnemonic":"BonnetContact",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":126,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Lock Switch",
+      "Mnemonic":"LockSwitch",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":127,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Boot Contact",
+      "Mnemonic":"BootContact",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":128,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Driver Door Lock",
+      "Mnemonic":"DriverDoorLock",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":129,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Driver Door Unlock",
+      "Mnemonic":"DriverDoorUnlock",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":130,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Passenger Door Lock",
+      "Mnemonic":"PassengerDoorLock",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":131,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Passenger Door Unlock",
+      "Mnemonic":"PassengerDoorUnlock",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":132,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"2",
+      "Description":"Unlock Switch",
+      "Mnemonic":"UnlockSwitch",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":133,
+      "Notes":"SeKoR"
+    },
+    {
+      "Levels":"1",
+      "Description":"Catalyst Temperature Bank 1, Sensor 1",
+      "Mnemonic":"Catalyst_Temperature_Bank_1_Sensor_1",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":134,
+      "Notes":"Added in place of CatalystTemperature"
+    },
+    {
+      "Levels":"1",
+      "Description":"Catalyst Temperature Bank 2, Sensor 1",
+      "Mnemonic":"Catalyst_Temperature_Bank_2_Sensor_1",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":135,
+      "Notes":"Added to give complete catalyst temperature sensor readings"
+    },
+    {
+      "Levels":"1",
+      "Description":"Catalyst Temperature Bank 1, Sensor 2",
+      "Mnemonic":"Catalyst_Temperature_Bank_1_Sensor_2",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":136,
+      "Notes":"Added to give complete catalyst temperature sensor readings"
+    },
+    {
+      "Levels":"1",
+      "Description":"Catalyst Temperature Bank 2, Sensor 2",
+      "Mnemonic":"Catalyst_Temperature_Bank_2_Sensor_2",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":137,
+      "Notes":"Added to give complete catalyst temperature sensor readings"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 1 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_1_Sensor_1__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":138,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 2 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_1_Sensor_2__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":139,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 3 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_1_Sensor_3__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":140,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 4 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_1_Sensor_4__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":141,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 1 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_2_Sensor_1__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":142,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 2 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_2_Sensor_2__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":143,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 3 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_2_Sensor_3__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":144,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 4 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_2_Sensor_4__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":145,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 3 Sensor 1 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_3_Sensor_1__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":146,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 3 Sensor 2 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_3_Sensor_2__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":147,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 4 Sensor 1 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_4_Sensor_1__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":148,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 4 Sensor 2 (wide range O2S) Equivalence Ratio (lambda)",
+      "Mnemonic":"Bank_4_Sensor_2__wide_range_O2S__Equivalence_Ratio__lambda",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":149,
+      "Notes":"Added for Powertrain geasrshift app"
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 1 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_1_Sensor_1__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":150,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 2 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_1_Sensor_2__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":151,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 3 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_1_Sensor_3__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":152,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 1 Sensor 4 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_1_Sensor_4__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":153,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 1 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_2_Sensor_1__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":154,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 2 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_2_Sensor_2__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":155,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 3 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_2_Sensor_3__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":156,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 2 Sensor 4 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_2_Sensor_4__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":157,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 3 Sensor 1 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_3_Sensor_1__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":158,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 3 Sensor 2 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_3_Sensor_2__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":159,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 4 Sensor 1 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_4_Sensor_1__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":160,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Bank 4 Sensor 2 (wide range O2S) Oxygen Sensor Voltage",
+      "Mnemonic":"Bank_4_Sensor_2__wide_range_O2S__Oxygen_Sensor_Voltage",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":161,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"Fuel/Air Commanded Equivalence Ratio",
+      "Mnemonic":"Fuel_Air_Commanded_Equivalence_Ratio",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":162,
+      "Notes":""
+    },
+    {
+      "Levels":"1",
+      "Description":"OBD Monitor status during drive cycle",
+      "Mnemonic":"Monitorstatusduringdrivecycle",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":163,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Actual Engine - Percent Torque",
+      "Mnemonic":"ActualEngine_PercentTorque",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":164,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine Reference Torque",
+      "Mnemonic":"EngineReferenceTorque",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":165,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Engine Friction - Percent Torque",
+      "Mnemonic":"EngineFriction_PercentTorque",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":166,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Mass Air Flow Sensor A",
+      "Mnemonic":"MassAirFlowSensorA",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":167,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Mass Air Flow Sensor B",
+      "Mnemonic":"MassAirFlowSensorB",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":168,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 1 Sensor 1",
+      "Mnemonic":"O2SensorConcentrationBank1Sensor1",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":169,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 1 Sensor 2",
+      "Mnemonic":"O2SensorConcentrationBank1Sensor2",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":170,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 1 Sensor 3",
+      "Mnemonic":"O2SensorConcentrationBank1Sensor3",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":171,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 1 Sensor 4",
+      "Mnemonic":"O2SensorConcentrationBank1Sensor4",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":172,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 2 Sensor 1",
+      "Mnemonic":"O2SensorConcentrationBank2Sensor1",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":173,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 2 Sensor 2",
+      "Mnemonic":"O2SensorConcentrationBank2Sensor2",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":174,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 2 Sensor 3",
+      "Mnemonic":"O2SensorConcentrationBank2Sensor3",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":175,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"O2 Sensor Concentration Bank 2 Sensor 4",
+      "Mnemonic":"O2SensorConcentrationBank2Sensor4",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":176,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Cylinder Fuel Rate",
+      "Mnemonic":"CylinderFuelRate",
+      "Importance":1,
+      "Category":"Real time data",
+      "Code":177,
+      "Notes":"Added for Powertrain gearshift app"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 1 Delta Pressure",
+      "Mnemonic":"DieselParticulateFilterBank1DeltaPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":178,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 1 Inlet Pressure",
+      "Mnemonic":"DieselParticulateFilterBank1InletPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":179,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 1 Outlet Pressure",
+      "Mnemonic":"DieselParticulateFilterBank1OutletPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":180,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 2 Delta Pressure",
+      "Mnemonic":"DieselParticulateFilterBank2DeltaPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":181,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 2 Inlet Pressure",
+      "Mnemonic":"DieselParticulateFilterBank2InletPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":182,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Diesel Particulate Filter Bank 2 Outlet Pressure",
+      "Mnemonic":"DieselParticulateFilterBank2OutletPressure",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":183,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"DPF Bank 1 Inlet Temperature Sensor",
+      "Mnemonic":"DPFBank1InletTemperatureSensor",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":184,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"DPF Bank 1 Outlet Temperature Sensor",
+      "Mnemonic":"DPFBank1OutletTemperatureSensor",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":185,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"DPF Bank 2 Inlet Temperature Sensor",
+      "Mnemonic":"DPFBank2InletTemperatureSensor",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":186,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"DPF Bank 2 Outlet Temperature Sensor",
+      "Mnemonic":"DPFBank2OutletTemperatureSensor",
+      "Importance":2,
+      "Category":"Diesel Particulate Filter",
+      "Code":187,
+      "Notes":"Added for OBD Experts recommendation"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Oil Temperature",
+      "Mnemonic":"OilTemperature",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":188,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Ambient Air Temperature",
+      "Mnemonic":"AmbientAirTemperature",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":189,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"2",
+      "Description":"Transmission Engaged Gear",
+      "Mnemonic":"TransmissionEngagedGear",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":190,
+      "Notes":"Added for Worldline"
+    },
+    {
+      "Levels":"2",
+      "Description":"Door Contact",
+      "Mnemonic":"DoorContact",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":191,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance From Oil Service",
+      "Mnemonic":"DistanceFromOilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":192,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance From Inspection",
+      "Mnemonic":"DistanceFromInspection",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":193,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Theoretical Inspection Interval",
+      "Mnemonic":"TheoreticalInspectionInterval",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":194,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance To Inspection",
+      "Mnemonic":"DistanceToInspection",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":195,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Theoretical Oil Service Interval",
+      "Mnemonic":"TheoreticalOilServiceInterval",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":196,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Distance To Oil Service",
+      "Mnemonic":"DistanceToOilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":197,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time From Inspection",
+      "Mnemonic":"TimeFromInspection",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":198,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time To Inspection",
+      "Mnemonic":"TimeToInspection",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":199,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time To OilService",
+      "Mnemonic":"TimeToOilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":200,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Time From Oil Service",
+      "Mnemonic":"TimeFromOilService",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":201,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Position ID1",
+      "Mnemonic":"TyrePosition_ID1",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":202,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Position ID2",
+      "Mnemonic":"TyrePosition_ID2",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":203,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Position ID3",
+      "Mnemonic":"TyrePosition_ID3",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":204,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Position ID4",
+      "Mnemonic":"TyrePosition_ID4",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":205,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Position ID5",
+      "Mnemonic":"TyrePosition_ID5",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":206,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID1",
+      "Mnemonic":"TyrePressure_ID1",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":207,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID2",
+      "Mnemonic":"TyrePressure_ID2",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":208,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID3",
+      "Mnemonic":"TyrePressure_ID3",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":209,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID4",
+      "Mnemonic":"TyrePressure_ID4",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":210,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID5",
+      "Mnemonic":"TyrePressure_ID5",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":211,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature ID1",
+      "Mnemonic":"TyreTemperature_ID1",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":212,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature ID2",
+      "Mnemonic":"TyreTemperature_ID2",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":213,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature ID3",
+      "Mnemonic":"TyreTemperature_ID3",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":214,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature ID4",
+      "Mnemonic":"TyreTemperature_ID4",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":215,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature ID5",
+      "Mnemonic":"TyreTemperature_ID5",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":216,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID1 Remaining Battery Life",
+      "Mnemonic":"TyrePressureBatteryRemainingLife_ID1",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":217,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID2 Remaining Battery Life",
+      "Mnemonic":"TyrePressureBatteryRemainingLife_ID2",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":218,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID3 Remaining Battery Life",
+      "Mnemonic":"TyrePressureBatteryRemainingLife_ID3",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":219,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID4 Remaining Battery Life",
+      "Mnemonic":"TyrePressureBatteryRemainingLife_ID4",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":220,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure ID5 Remaining Battery Life",
+      "Mnemonic":"TyrePressureBatteryRemainingLife_ID5",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":221,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Spare Wheel",
+      "Mnemonic":"TyrePressureSpareWheel",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":222,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Pressure Spare Wheel Remaining Battery Life",
+      "Mnemonic":"TyrePressureSpareWheelRemainingBatteryLife",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":223,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Tyre Temperature Spare Wheel",
+      "Mnemonic":"TyreTemperatureSpareWheel",
+      "Importance":2,
+      "Category":"Servicing",
+      "Code":224,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Load",
+      "Mnemonic":"HVEV_Batt_Load",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":225,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Remaining Life",
+      "Mnemonic":"HVEV_Batt_Remaining_life",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":226,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery - State of Charge",
+      "Mnemonic":"HVEV_Batt_SOC",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":227,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery 1 - State of Charge",
+      "Mnemonic":"HVEV_Batt_SOC_1",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":228,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery 2 - State of Charge",
+      "Mnemonic":"HVEV_Batt_SOC_2",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":229,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery - State of Charge After Ignition",
+      "Mnemonic":"HVEV_Battery_SOC_after_Ign",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":230,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery - Minimum State of Charge",
+      "Mnemonic":"HVEV_Battery_SOC_Max",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":231,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery - Maximum State of Charge",
+      "Mnemonic":"HVEV_Battery_SOC_Min",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":232,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Temperature",
+      "Mnemonic":"HVEV_BattTemp",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":233,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Charging Current",
+      "Mnemonic":"HVEV_Charge_Current",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":234,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Maximum Charging Current",
+      "Mnemonic":"HVEV_Charge_Current_Max",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":235,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Charging Time Remaining",
+      "Mnemonic":"HVEV_Charging_Time_Remaining",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":236,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"ECO Drive Indicator",
+      "Mnemonic":"HVEV_ECO_Drive_Indicator",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":237,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"ECO Mode Selected",
+      "Mnemonic":"HVEV_EcoDrive_Mode_Selected",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":238,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Hybrid Battery Voltage",
+      "Mnemonic":"HVEV_HVBattVoltage",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":239,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque (Measured)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Measured",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":240,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque - Front (Measured)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Measured_Front",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":241,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque - Rear (Measured)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Measured_Rear",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":242,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque (Requested)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Req",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":243,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque - Front (Requested)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Req_Front",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":244,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"Regenerative Brake Torque - Rear (Requested)",
+      "Mnemonic":"HVEV_RegenBrake_Torque_Req_Rear",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":245,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"HV Remaining Distance",
+      "Mnemonic":"HVEV_Remaining_Distance",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":246,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"HV Remaining Time",
+      "Mnemonic":"HVEV_Remaining_Time",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":247,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"HV System Status",
+      "Mnemonic":"HVEV_Systemstatus",
+      "Importance":2,
+      "Category":"Hybrid",
+      "Code":248,
+      "Notes":""
+    },
+    {
+      "Levels":"2",
+      "Description":"OdometerUnit",
+      "Mnemonic":"OdometerUnit",
+      "Importance":2,
+      "Category":"Real time data",
+      "Code":249,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Unknown by Bluetooth Dongle",
+      "Mnemonic":"Unknown",
+      "Importance":0,
+      "Category":"Unsupported",
+      "Code":65534,
+      "Notes":""
+    },
+    {
+      "Levels":"1&2",
+      "Description":"Unsupported by Bluetooth Dongle",
+      "Mnemonic":"Unsupported",
+      "Importance":0,
+      "Category":"Unsupported",
+      "Code":65535,
+      "Notes":""
+    }
+  ]
+}
