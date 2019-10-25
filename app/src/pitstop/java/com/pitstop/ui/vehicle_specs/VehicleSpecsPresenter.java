@@ -450,7 +450,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                getView().displayUnknownErrorDialog();
+                getView().toast(error.getMessage());
+//                getView().displayUnknownErrorDialog();
             }
         });
 

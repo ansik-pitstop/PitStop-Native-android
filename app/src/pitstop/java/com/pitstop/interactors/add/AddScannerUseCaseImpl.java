@@ -48,79 +48,26 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
     public void run() {
         ObdScanner obdScanner = new ObdScanner(carId, scannerId); //Scanner to be added
         obdScanner.setStatus(true);
-        if (!carHasScanner) {//Set to active
-            Log.d(TAG, "car doesnt have scanner");
-            addScanner(obdScanner, new Callback() {
-                @Override
-                public void onDeviceAlreadyActive() {
-                    //Another user has this scanner
-                    AddScannerUseCaseImpl.this.onDeviceAlreadyActive();
-                }
+        Log.d(TAG, "car doesnt have scanner");
+        addScanner(obdScanner, new Callback() {
+            @Override
+            public void onDeviceAlreadyActive() {
+                //Another user has this scanner
+                AddScannerUseCaseImpl.this.onDeviceAlreadyActive();
+            }
 
-                @Override
-                public void onScannerCreated() {
-                    //Scanner created
-                    Log.d(TAG, "Created new scanner, onSuccess()");
-                    AddScannerUseCaseImpl.this.onSuccess();
-                }
+            @Override
+            public void onScannerCreated() {
+                //Scanner created
+                Log.d(TAG, "Created new scanner, onSuccess()");
+                AddScannerUseCaseImpl.this.onSuccess();
+            }
 
-                @Override
-                public void onError(RequestError error) {
-                    AddScannerUseCaseImpl.this.onError(error);
-                }
-            });
-        } else {
-            Log.d(TAG, "car has scanner");
-            scannerRepository.getScanner(scannerId, new Repository.Callback<ObdScanner>() {
-                @Override
-                public void onSuccess(ObdScanner data) {
-                    if (data == null || !data.getStatus()){
-                        ObdScanner oldCarScanner = new ObdScanner(carId, oldScannerId);
-                        oldCarScanner.setStatus(false); //Set to inactive
-                        scannerRepository.updateScanner(oldCarScanner, new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object data) {
-                                //Scanner set to inactive, now add the new one
-                                addScanner(obdScanner, new Callback() {
-                                    @Override
-                                    public void onDeviceAlreadyActive() {
-                                        //this shouldnt happen since we check if that scanner id is active first
-                                        // most likely means that the resposne was null
-                                        Log.d(TAG, "Adding scanner that is already active, onDeviceAlreadyActive()");
-                                        AddScannerUseCaseImpl.this.onDeviceAlreadyActive();
-                                    }
-
-                                    @Override
-                                    public void onScannerCreated() {
-                                        Log.d(TAG, "Overwrote scanner id, onSuccess()");
-                                        AddScannerUseCaseImpl.this.onSuccess();
-                                    }
-
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        AddScannerUseCaseImpl.this.onError(error);
-                                    }
-                                });
-
-                            }
-                            @Override
-                            public void onError(RequestError error) {
-                                AddScannerUseCaseImpl.this.onError(error);
-                            }
-                        });
-
-                    }
-                    else{
-                        // device is active already
-                        AddScannerUseCaseImpl.this.callback.onDeviceAlreadyActive();
-                    }
-                }
-                @Override
-                public void onError(RequestError error) {
-                   AddScannerUseCaseImpl.this.callback.onError(error);
-                }
-            });
-        }
+            @Override
+            public void onError(RequestError error) {
+                AddScannerUseCaseImpl.this.onError(error);
+            }
+        });
     }
 
     private void onDeviceAlreadyActive() {
@@ -144,31 +91,10 @@ public class AddScannerUseCaseImpl implements AddScannerUseCase {
 
 
     private void addScanner(ObdScanner obdScanner, Callback callback) {
-        scannerRepository.getScanner(obdScanner.getScannerId(), new Repository.Callback<ObdScanner>() {
-
+        scannerRepository.createScanner(obdScanner, new Repository.Callback() {
             @Override
-            public void onSuccess(ObdScanner data) {
-
-                //device exists and is already active, do not store
-                if (data != null && data.getStatus()) {
-                    callback.onDeviceAlreadyActive();
-                    return;
-                }
-                //Create scanner otherwise
-                obdScanner.setStatus(true);
-                scannerRepository.createScanner(obdScanner, new Repository.Callback() {
-
-                    @Override
-                    public void onSuccess(Object data) {
-                        callback.onScannerCreated();
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        callback.onError(error);
-                    }
-                });
-
+            public void onSuccess(Object data) {
+                callback.onScannerCreated();
             }
 
             @Override
