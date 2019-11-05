@@ -1,7 +1,9 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.database.LocalUserStorage;
@@ -82,6 +85,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @BindView(R.id.start_report_animation)
     AVLoadingIndicatorView startAnimation;
 
+    @BindView(R.id.clear_engine_code)
+    Button clearEngineCodes;
+
+
     private boolean emissionsMode;
 
     private StartReportPresenter presenter;
@@ -93,6 +100,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptAddCar;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private Map<String, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
+    private AlertDialog clearEngineCodesDailog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -111,6 +119,36 @@ public class StartReportFragment extends Fragment implements StartReportView {
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         moreGraphsButton.setOnClickListener(view1 -> presenter.onGraphClicked());
+
+        clearEngineCodes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                clearEngineCodesDailog = new AnimatedDialogBuilder(getActivity())
+                        .setTitle("Warning")
+                        .setMessage("Are you sure to clear the engine codes?")
+                        .setPositiveButton(getString(R.string.yes_button_text), (dialog, which) -> {
+                            Log.d(TAG,"clearEngineCodesDailog.positiveButtonClicked()");
+
+                            ((GlobalApplication)context.getApplicationContext()).getServices()
+                                    .filter(next -> next instanceof BluetoothService)
+                                    .map(next -> (BluetoothService)next)
+                                    .subscribe(next -> {
+                                        next.clearDTCs();
+                                    }, error -> {
+                                        Log.e(TAG,"clear engine code button clicked:"+error);
+                                        error.printStackTrace();
+                                    });
+
+                        })
+                        .setNegativeButton(getString(R.string.no_button_text), null)
+                        .setCancelable(false)
+                        .create();
+                clearEngineCodesDailog.show();
+           }
+        });
+
+
         return view;
     }
 
