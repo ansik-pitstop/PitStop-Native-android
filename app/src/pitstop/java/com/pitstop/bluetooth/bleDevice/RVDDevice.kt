@@ -48,7 +48,6 @@ class RVDDevice(private val rvdSDK: RvdApi, private val deviceManager: Bluetooth
     }
 
     override fun onDongleDisconnected(reason: BluetoothDisconnectionReason?) {
-        deviceManager?.setState(BluetoothCommunicator.DISCONNECTED)
     }
 
     // MARK: Dongle methods

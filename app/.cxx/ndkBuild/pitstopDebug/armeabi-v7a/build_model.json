@@ -1,0 +1,58 @@
+{
+  "variant": {
+    "module": {
+      "rootBuildGradleFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android",
+      "sdkFolder": "/Users/brenopinto/Library/Android/sdk",
+      "isNativeCompilerSettingsCacheEnabled": false,
+      "isBuildOnlyTargetAbiEnabled": true,
+      "ideBuildTargetAbi": "arm64-v8a,armeabi-v7a,armeabi",
+      "splitsAbiFilterSet": [],
+      "intermediatesFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates",
+      "gradleModulePathName": ":app",
+      "moduleRootFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app",
+      "makeFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
+      "buildSystem": "NDK_BUILD",
+      "compilerSettingsCacheFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/.cxx",
+      "cxxFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx",
+      "ndkFolder": "/Users/brenopinto/Library/Android/sdk/ndk-bundle",
+      "ndkVersion": "20.0.5594570",
+      "ndkSupportedAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "cmakeToolchainFile": "."
+    },
+    "buildSystemArgumentList": [],
+    "cFlagList": [],
+    "cppFlagsList": [],
+    "variantName": "pitstopDebug",
+    "soFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib",
+    "objFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local",
+    "jsonFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug",
+    "gradleBuildOutputFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/cxx/pitstopDebug",
+    "isDebuggableEnabled": true,
+    "validAbiList": [
+      "ARMEABI_V7A"
+    ],
+    "buildTargetSet": []
+  },
+  "abi": "ARMEABI_V7A",
+  "abiPlatformVersion": 21,
+  "cxxBuildFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a",
+  "jsonFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/android_gradle_build.json",
+  "gradleBuildOutputFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/cxx/pitstopDebug/armeabi-v7a",
+  "objFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local/armeabi-v7a",
+  "buildCommandFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/build_command.txt",
+  "buildOutputFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/build_output.txt",
+  "modelOutputFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/build_model.json",
+  "jsonGenerationLoggingRecordFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/json_generation_record.json",
+  "compileCommandsJsonFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/armeabi-v7a/compile_commands.json"
+}

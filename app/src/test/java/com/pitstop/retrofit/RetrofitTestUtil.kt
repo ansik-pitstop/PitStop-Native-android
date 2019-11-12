@@ -57,7 +57,7 @@ class RetrofitTestUtil {
             }
         }
 
-        private fun getBaseURL(): String = "http://staging.api.getpitstop.io/"
+        private fun getBaseURL(): String = "https://staging.api.getpitstop.io/"
 
         private fun getHttpClient(): OkHttpClient {
             return OkHttpClient.Builder()

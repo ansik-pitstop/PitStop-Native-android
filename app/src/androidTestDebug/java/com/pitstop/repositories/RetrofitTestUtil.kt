@@ -91,7 +91,7 @@ class RetrofitTestUtil {
             }
         }
 
-        private fun getBaseURL(): String = "http://staging.api.getpitstop.io:10010/"
+        private fun getBaseURL(): String = "https://staging.api.getpitstop.io:10010/"
 
         private fun getSnapToRoadBaseURL(): String = "https://roads.googleapis.com/"
 
