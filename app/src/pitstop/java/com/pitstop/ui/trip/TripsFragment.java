@@ -101,7 +101,7 @@ public class TripsFragment extends Fragment implements TripsView {
     public void showLoading() {
 
         Log.d(TAG, "showLoading()");
-        loadingSpinner.setVisibility(View.VISIBLE);
+        loadingSpinner.setVisibility(View.GONE);
         loadingSpinner.bringToFront();
 
     }
@@ -198,9 +198,7 @@ public class TripsFragment extends Fragment implements TripsView {
 
     @Override
     public void requestForDataUpdate() {
-
         Log.d(TAG, "requestForDataUpdate()");
-
         if (tripListFragment != null) {
             Log.d(TAG, "Child found");
             tripListFragment.requestForDataUpdate(true);

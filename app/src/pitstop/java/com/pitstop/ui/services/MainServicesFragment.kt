@@ -33,7 +33,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
 
     private var servicesPager: SubServiceViewPager? = null
     private var tabLayout: TabLayout? = null
-    private var presenter: MainServicesPresenter? = null
+    var presenter: MainServicesPresenter? = null
 
     private lateinit var currentServicesFragment: CurrentServicesFragment
     private lateinit var upcomingServicesFragment: UpcomingServicesFragment

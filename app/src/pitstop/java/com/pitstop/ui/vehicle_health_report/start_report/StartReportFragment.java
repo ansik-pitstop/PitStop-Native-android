@@ -1,7 +1,9 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,9 +23,16 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.bluetooth.BluetoothService;
+import com.pitstop.database.LocalCarStorage;
+import com.pitstop.database.LocalDatabaseHelper;
+import com.pitstop.database.LocalUserStorage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
+import com.pitstop.models.Car;
+import com.pitstop.models.Settings;
+import com.pitstop.models.User;
 import com.pitstop.observer.BluetoothConnectionObservable;
 import com.pitstop.ui.IBluetoothServiceActivity;
 import com.pitstop.ui.main_activity.MainActivity;
@@ -76,6 +85,10 @@ public class StartReportFragment extends Fragment implements StartReportView {
     @BindView(R.id.start_report_animation)
     AVLoadingIndicatorView startAnimation;
 
+    @BindView(R.id.clear_engine_code)
+    Button clearEngineCodes;
+
+
     private boolean emissionsMode;
 
     private StartReportPresenter presenter;
@@ -87,6 +100,7 @@ public class StartReportFragment extends Fragment implements StartReportView {
     private AlertDialog promptAddCar;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private Map<String, LineGraphSeries<DataPoint>> lineGraphSeriesMap;
+    private AlertDialog clearEngineCodesDailog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,6 +119,36 @@ public class StartReportFragment extends Fragment implements StartReportView {
         startReportButton.setOnClickListener(view1 -> presenter
                 .startReportButtonClicked(emissionsMode));
         moreGraphsButton.setOnClickListener(view1 -> presenter.onGraphClicked());
+
+        clearEngineCodes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                clearEngineCodesDailog = new AnimatedDialogBuilder(getActivity())
+                        .setTitle("Warning")
+                        .setMessage("Are you sure to clear the engine codes?")
+                        .setPositiveButton(getString(R.string.yes_button_text), (dialog, which) -> {
+                            Log.d(TAG,"clearEngineCodesDailog.positiveButtonClicked()");
+
+                            ((GlobalApplication)context.getApplicationContext()).getServices()
+                                    .filter(next -> next instanceof BluetoothService)
+                                    .map(next -> (BluetoothService)next)
+                                    .subscribe(next -> {
+                                        next.clearDTCs();
+                                    }, error -> {
+                                        Log.e(TAG,"clear engine code button clicked:"+error);
+                                        error.printStackTrace();
+                                    });
+
+                        })
+                        .setNegativeButton(getString(R.string.no_button_text), null)
+                        .setCancelable(false)
+                        .create();
+                clearEngineCodesDailog.show();
+           }
+        });
+
+
         return view;
     }
 
@@ -216,6 +260,25 @@ public class StartReportFragment extends Fragment implements StartReportView {
         Log.d(TAG,"changeTitle() stringId: "+stringId+", string: "+getString(stringId));
         String title = String.format("%s%s",getText(stringId),progress? "..." : "");
         vehicleHealthTitle.setText(title);
+
+        LocalUserStorage localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(context));
+        User user = localUserStorage.getUser();
+        if (user == null) {
+            return;
+        }
+        Settings settings = user.getSettings();
+        if (settings == null) {
+            return;
+        }
+        int carId = settings.getCarId();
+        LocalCarStorage localCarStorage = new LocalCarStorage(LocalDatabaseHelper.getInstance(context));
+        Car car = localCarStorage.getCar(carId);
+        if (car != null && car.getScannerId() != null) {
+            if (car.getScannerId().contains("danlaw")) {
+                vehicleHealthTitle.setText("");
+                return;
+            }
+        }
     }
 
     @Override

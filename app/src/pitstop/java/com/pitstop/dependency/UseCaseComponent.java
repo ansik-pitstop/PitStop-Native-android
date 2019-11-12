@@ -73,6 +73,8 @@ import com.pitstop.interactors.set.SetAlarmsEnabledUseCase;
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase;
 import com.pitstop.interactors.set.SetNotificationReadUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
+import com.pitstop.interactors.set.SetTimezoneUseCase;
+import com.pitstop.interactors.set.SetUnitOfLengthUseCase;
 import com.pitstop.interactors.set.SetUserCarUseCase;
 import com.pitstop.interactors.update.UpdateCarDealershipUseCase;
 import com.pitstop.interactors.update.UpdateCarMileageUseCase;
@@ -182,6 +184,10 @@ public interface UseCaseComponent {
     GetCarsWithDealershipsUseCase getCarsWithDealershipsUseCase();
 
     CheckNetworkConnectionUseCase getCheckNetworkConnectionUseCase();
+
+    SetUnitOfLengthUseCase getSetUnitOfLengthUseCase();
+
+    SetTimezoneUseCase setTimezoneUseCase();
 
     SetServicesDoneUseCase getSetServicesDoneUseCase();
 

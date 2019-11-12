@@ -253,7 +253,6 @@ class LocalCarStorage(private val databaseHelper: LocalDatabaseHelper) {
         values.put(TABLES.CAR.KEY_SHOP_ID, car.shopId)
         values.put(TABLES.CAR.KEY_NUM_SERVICES, car.numberOfServices)
         values.put(TABLES.CAR.KEY_IS_DASHBOARD_CAR, if (car.isCurrentCar) 1 else 0)
-
         return values
     }
 

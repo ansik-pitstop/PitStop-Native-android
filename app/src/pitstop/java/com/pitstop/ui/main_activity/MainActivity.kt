@@ -28,6 +28,9 @@ import com.pitstop.application.GlobalApplication
 import com.pitstop.bluetooth.BluetoothDeviceManager
 import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.bluetooth.BluetoothWriter
+import com.pitstop.database.LocalCarStorage
+import com.pitstop.database.LocalDatabaseHelper
+import com.pitstop.database.LocalUserStorage
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerTempNetworkComponent
 import com.pitstop.dependency.DaggerUseCaseComponent
@@ -108,7 +111,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var bindingDialog: BindingDialog? = null
     private var shouldStartBindingDialog: AnimatedDialogBuilder? = null
 
-    private lateinit var mainServicesFragment: MainServicesFragment
+    lateinit var mainServicesFragment: MainServicesFragment
     private lateinit var startReportFragment: StartReportFragment
     private lateinit var vehicleSpecsFragment: VehicleSpecsFragment
     private lateinit var tripsFragment: TripsFragment
@@ -363,6 +366,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun notifyCarDataChanged() {
+        displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
         carsAdapter?.notifyDataSetChanged()
     }
 
@@ -382,6 +386,21 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG, "displayDeviceState(): " + state)
 
         if (supportActionBar == null) return
+
+        val localUserStorage = LocalUserStorage(LocalDatabaseHelper.getInstance(this))
+
+        val carId = localUserStorage.user?.settings?.carId ?: return
+
+        val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(this))
+        val car = localCarStorage.getCar(carId)
+        if (car != null && car.scannerId != null) {
+            if (car.scannerId.contains("danlaw")) {
+                runOnUiThread {
+                    supportActionBar?.subtitle = ""
+                }
+                return
+            }
+        }
 
         runOnUiThread {
             if (state == BluetoothConnectionObservable.State.CONNECTED_VERIFIED) {
@@ -698,7 +717,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         intent.putExtra(CAR_ISSUE_POSITION, position)
         intent.putExtra(IssueDetailsActivity.SOURCE, CURRENT_ISSUE_SOURCE)
         useCaseComponent?.getUserCarUseCase()!!.execute(Repository.DATABASE_TYPE.REMOTE, object : GetUserCarUseCase.Callback {
-            override fun onCarRetrieved(car: Car, dealership: Dealership, isLocal: Boolean) {
+            override fun onCarRetrieved(car: Car, dealership: Dealership?, isLocal: Boolean) {
                 if (isLocal) return
                 intent.putExtra(CAR_KEY, car)
                 startActivity(intent)
@@ -742,8 +761,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         /*Check for device name being broken and create pop-up to set the id on DEBUG only(for now)
         **For 215 device only*/
 
-        if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)
-                && !ignoreMissingDeviceName && allowDeviceOverwrite) {
+        if (!ignoreMissingDeviceName && allowDeviceOverwrite) {
             displayGetScannerIdDialog()
         }
     }
@@ -754,6 +772,9 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     }
 
     override fun onDeviceReady(device: ReadyDevice) {
+        // TODO: Update device id on Vehicle Specs, update on my vehicles list
+        presenter?.onUpdateNeeded()
+        vehicleSpecsFragment.presenter.onUpdateNeeded(false)
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)
     }
 

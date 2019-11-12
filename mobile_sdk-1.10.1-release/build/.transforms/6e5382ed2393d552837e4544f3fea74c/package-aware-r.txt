@@ -1,0 +1,23 @@
+com.continental.rvd.mobile_sdk
+array sd_stages_keys
+array sd_stages_values
+raw obd_dongle_live_item_type
+raw obd_dongle_text2
+raw obd_dongle_units
+string app_name
+string sd_name_coverageval1
+string sd_name_coverageval2
+string sd_name_coverageval3
+string sd_name_covval1
+string sd_name_covval2
+string sd_name_covval3
+string sd_name_p
+string sd_name_pl
+string sd_url_coverageval1
+string sd_url_coverageval2
+string sd_url_coverageval3
+string sd_url_covval1
+string sd_url_covval2
+string sd_url_covval3
+string sd_url_p
+string sd_url_pl

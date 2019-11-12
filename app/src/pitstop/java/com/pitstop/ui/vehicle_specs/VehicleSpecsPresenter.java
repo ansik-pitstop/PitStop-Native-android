@@ -14,28 +14,35 @@ import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
 import com.pitstop.interactors.add.AddScannerUseCase;
 import com.pitstop.interactors.get.GetAlarmCountUseCase;
+import com.pitstop.interactors.get.GetCurrentUserUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedAndPriceUseCase;
 import com.pitstop.interactors.get.GetFuelConsumedUseCase;
 import com.pitstop.interactors.get.GetLicensePlateUseCase;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.interactors.remove.RemoveCarUseCase;
+import com.pitstop.interactors.set.SetTimezoneUseCase;
 import com.pitstop.models.Alarm;
 import com.pitstop.models.Car;
 import com.pitstop.models.Dealership;
+import com.pitstop.models.Settings;
+import com.pitstop.models.User;
 import com.pitstop.network.RequestError;
 import com.pitstop.observer.AlarmObservable;
 import com.pitstop.observer.AlarmObserver;
 import com.pitstop.observer.FuelObservable;
 import com.pitstop.observer.FuelObserver;
 import com.pitstop.repositories.Repository;
+import com.pitstop.repositories.UserRepository;
 import com.pitstop.ui.mainFragments.TabPresenter;
-import com.pitstop.ui.main_activity.MainActivityPresenter;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.UnitOfLength;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
+
+import kotlin.Unit;
 
 /**
  * Created by ishan on 2017-09-25.
@@ -88,6 +95,15 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     public VehicleSpecsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+    }
+
+    public void updateTimezone() {
+        useCaseComponent.setTimezoneUseCase().execute(new SetTimezoneUseCase.Callback() {
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     public void onUpdateLicensePlateDialogConfirmClicked(int carID, String s) {
@@ -200,6 +216,22 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             }
         });
 
+        useCaseComponent.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
+            @Override
+            public void onUserRetrieved(User user) {
+                VehicleSpecsView view = getView();
+                if (view != null) {
+                    view.setCarUnitOfLength(user.getSettings().getOdometer());
+                }
+            }
+
+            @Override
+            public void onError(RequestError error) {
+                if (getView() == null) return;
+                getView().hideBadge();
+            }
+        });
+
         useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
@@ -255,6 +287,40 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 getView().hideLoading();
             }
         });
+    }
+
+    public void getCityMileage() {
+//        cityMileage.setText(car.getCityMileage());
+
+        useCaseComponent.getGetCurrentUserUseCase().execute(new GetCurrentUserUseCase.Callback() {
+            @Override
+            public void onUserRetrieved(User user) {
+                if (user == null) return;
+                Settings settings = user.getSettings();
+                UnitOfLength unitOfLength = UnitOfLength.Kilometers;
+
+                if (settings != null) {
+                    UnitOfLength unitOfLengthFromSettings = UnitOfLength.getValueFromToString(settings.getOdometer());
+                    if (unitOfLengthFromSettings != null) {
+                        unitOfLength = unitOfLengthFromSettings;
+                    }
+                }
+                VehicleSpecsView view = getView();
+                if (view != null) {
+                    if (unitOfLength == UnitOfLength.Kilometers) {
+
+                    }
+//                    if (unitOfLength == Unit)
+//                    view.displayCityMileage();
+                }
+            }
+
+            @Override
+            public void onError(RequestError error) {
+
+            }
+        });
+
     }
 
     public void onRefresh() {
@@ -457,7 +523,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                getView().displayUnknownErrorDialog();
+                getView().toast(error.getMessage());
+//                getView().displayUnknownErrorDialog();
             }
         });
 

@@ -23,6 +23,9 @@ import com.pitstop.ui.trip.TripsFragment;
 import com.pitstop.ui.trip.TripsView;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.UnitOfLength;
+
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +41,9 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 
     @BindView(R.id.textview_km_num)
     protected TextView milesNum;
+
+    @BindView(R.id.textview_km_label)
+    protected TextView mileageLabel;
 
     @BindView(R.id.textview_mins_num)
     protected TextView minutesNum;
@@ -82,8 +88,6 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
             if (getParentFragment() instanceof TripsView) {
                 presenter.setCommunicationInteractor(((TripsFragment) getParentFragment()).getPresenter());
             }
-
-            this.loadTripData(trip);
         }
 
         return view;
@@ -94,6 +98,7 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
         Log.d(TAG, "onViewCreated()");
         presenter.subscribe(this);
         super.onViewCreated(view, savedInstanceState);
+        this.loadTripData(trip);
     }
 
     @Override
@@ -161,7 +166,8 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
 //        streetLocation.setText("Trip ID: " + trip.getTripId());
 //        countryLocation.setText("VIN: " + trip.getVin());
 
-        milesNum.setText(String.format("%.2f",trip.getMileageAccum()));
+
+        presenter.setMileage(String.format(Locale.getDefault(), "%.2f",trip.getMileageAccum()));
 
         Log.d(TAG,"trip time start: "+trip.getTimeStart()+", trip time end: "+trip.getTimeEnd());
 
@@ -169,8 +175,18 @@ public class TripDetailFragment extends Fragment implements TripDetailView {
         long totalMinutes = trip.getTripLength() / 60;
         minutesNum.setText(String.valueOf(totalMinutes));
 
+
 //        fuelNum.setText(String.valueOf((int) trip.getFuelConsumptionAccum()));
 
+    }
+
+    @Override
+    public void setTripMileage(String mileage) {
+        milesNum.setText(mileage);
+    }
+
+    public void setUnitOfLength(UnitOfLength unitOfLength) {
+        mileageLabel.setText(unitOfLength.uiString());
     }
 
     @Override

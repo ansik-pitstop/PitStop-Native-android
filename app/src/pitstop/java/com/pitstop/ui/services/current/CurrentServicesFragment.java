@@ -396,7 +396,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
 
     @Override
     public boolean isRefreshing() {
-        return parentSwipeRefreshLayout != null && parentSwipeRefreshLayout.isRefreshing();
+        if (parentSwipeRefreshLayout != null) {
+            return parentSwipeRefreshLayout.isRefreshing();
+        }
+        return false;
     }
 
 

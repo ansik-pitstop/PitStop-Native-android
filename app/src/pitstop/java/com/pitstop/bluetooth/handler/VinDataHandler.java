@@ -56,7 +56,7 @@ public class VinDataHandler{
         boolean deviceIsVerified = bluetoothDataHandlerManager.isDeviceVerified();
 
         //If adding car connect to first recognized device
-        if (ignoreVerification && !deviceIsVerified){
+        if ((ignoreVerification && !deviceIsVerified) || vin.isEmpty()){
             deviceVerificationObserver.onVerificationSuccess(vin);
         }
         //Check to see if VIN is correct, unless adding a car then no comparison is needed

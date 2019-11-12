@@ -11,6 +11,7 @@ import com.pitstop.EventBus.EventSourceImpl
 import com.pitstop.R
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
+import com.pitstop.ui.main_activity.MainActivity
 import kotlinx.android.synthetic.main.dialog_milage.*
 
 
@@ -69,6 +70,11 @@ class MileageDialog: DialogFragment(),MileageDialogView {
 
     override fun closeDialog() {
         dismiss()
+    }
+
+    override fun mileageWasUpdated() {
+        val activity = activity as MainActivity
+        activity.mainServicesFragment.presenter?.loadView()
     }
 
     override fun onDismiss(dialog: DialogInterface?) {

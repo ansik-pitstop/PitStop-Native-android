@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.pitstop.models.Settings;
 import com.pitstop.models.User;
+import com.pitstop.utils.UnitOfLength;
 
 /**
  * Created by Ben Wu on 2016-06-07.
@@ -24,6 +25,8 @@ public class LocalUserStorage {
             + TABLES.USER.KEY_CAR + " TEXT, "
             + TABLES.USER.KEY_FIRST_CAR_ADDED + " TEXT, "
             + TABLES.USER.KEY_ALARMS_ENABLED + " TEXT, "
+            + TABLES.USER.KEY_ODOMETER + " TEXT, "
+            + TABLES.USER.KEY_TIMEZONE + " TEXT, "
             + TABLES.COMMON.KEY_OBJECT_ID + " INTEGER, "
             + TABLES.COMMON.KEY_CREATED_AT + " DATETIME" + ")";
 
@@ -79,7 +82,16 @@ public class LocalUserStorage {
         int carId = c.getInt(c.getColumnIndex(TABLES.USER.KEY_CAR));
         boolean isFirstCarAdded = c.getInt(c.getColumnIndex(TABLES.USER.KEY_FIRST_CAR_ADDED)) == 1;
         boolean alarmsEnabled = c.getInt(c.getColumnIndex(TABLES.USER.KEY_ALARMS_ENABLED)) == 1;
-        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled));
+        String odometer = c.getString(c.getColumnIndex(TABLES.USER.KEY_ODOMETER));
+        if (odometer == null) {
+            odometer = UnitOfLength.Kilometers.toString();
+        }
+        String timezone = c.getString(c.getColumnIndex(TABLES.USER.KEY_TIMEZONE));
+        if (timezone == null) {
+            timezone = "";
+        }
+
+        user.setSettings(new Settings(user.getId(),carId,isFirstCarAdded,alarmsEnabled,odometer, timezone));
         return user;
     }
 
@@ -94,6 +106,8 @@ public class LocalUserStorage {
             values.put(TABLES.USER.KEY_CAR, user.getSettings().getCarId());
             values.put(TABLES.USER.KEY_FIRST_CAR_ADDED, user.getSettings().isFirstCarAdded());
             values.put(TABLES.USER.KEY_ALARMS_ENABLED, user.getSettings().isAlarmsEnabled());
+            values.put(TABLES.USER.KEY_ODOMETER, user.getSettings().getOdometer());
+            values.put(TABLES.USER.KEY_TIMEZONE, user.getSettings().getTimezone());
         }
 
         return values;

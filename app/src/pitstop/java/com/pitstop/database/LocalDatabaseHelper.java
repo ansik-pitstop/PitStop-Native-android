@@ -19,7 +19,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     private static LocalDatabaseHelper instance;
 
-    private static final int DATABASE_VERSION = 86;
+    private static final int DATABASE_VERSION = 89;
     public static final String DATABASE_NAME = "PITSTOP_DB";
 
     private BriteDatabase mBriteDatabase;
@@ -65,6 +65,10 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 88) {
+            migrateToVersion88(db);
+        }
+
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.PID.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.CAR_PENDING.TABLE_NAME);
@@ -73,7 +77,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.TRIP.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SHOP.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.NOTIFICATION.TABLE_NAME);
-        //db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLES.USER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.SCANNER.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.DEBUG_MESSAGES.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.LOCAL_ALARMS.TABLE_NAME);
@@ -91,6 +95,11 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLES.ACTIVITY_DATA.TABLE_NAME);
 
         onCreate(db);
+    }
+
+    private void migrateToVersion88(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE " +  TABLES.USER.TABLE_NAME  + " ADD COLUMN " + TABLES.USER.KEY_ODOMETER + " TEXT");
+        db.execSQL("ALTER TABLE " +  TABLES.USER.TABLE_NAME  + " ADD COLUMN " + TABLES.USER.KEY_TIMEZONE + " TEXT");
     }
 
     public void deleteAllData(){

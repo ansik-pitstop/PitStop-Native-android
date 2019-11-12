@@ -97,6 +97,14 @@ public class MixpanelHelper {
     public static final String ADD_CAR_ADD_CAR_TAPPED = "Add Car";
     public static final String ADD_CAR_SEARCH_TAPPED = "Search For Vehicle";
     public static final String ADD_CAR_VIEW = "Add Car";
+
+    /**
+     * Select device view
+     */
+    public static final String SIM_CARD_TAPPED = "Sim Card Device Clicked";
+    public static final String BLUETOOTH_DEVICE_TAPPED = "Bluetooth Device Clicked";
+    public static final String SELECT_DEVICE_VIEW = "Select Device View";
+
     /**
      * In step 1
      */

@@ -6,5 +6,5 @@ package com.pitstop.ui.add_car.ask_has_device;
 
 public interface AskHasDeviceView{
     void loadVinEntryView();
-    void loadDeviceSearchView();
+    void loadSelectDeviceView();
 }

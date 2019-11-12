@@ -9,6 +9,7 @@ interface MileageDialogView {
     fun getMileageInput(): String
     fun closeDialog()
     fun showMileage(mileage: Int)
+    fun mileageWasUpdated()
     fun showError(err: Int)
     fun setEditText(text: String)
     fun getEventSource(): EventSource

@@ -116,7 +116,6 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
                             }
                         }
                     }
-
                 }
                 val intentFilter = IntentFilter()
                 intentFilter.addAction(TripBroadcastReceiver.TYPE_CURRENT_STATE)

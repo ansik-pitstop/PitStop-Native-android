@@ -83,11 +83,11 @@ public class GetAppointmentStateUseCaseTest {
             }
             else{
                 Assert.assertTrue(futureObject instanceof RequestError && ((RequestError)futureObject)
-                        .getError().equals(RequestError.ERR_OFFLINE));
-            }
+        .getError().equals(RequestError.ERR_OFFLINE));
+        }
 
         }catch(InterruptedException | ExecutionException | TimeoutException e){
-            e.printStackTrace();
+        e.printStackTrace();
         }
-    }
-}
+        }
+        }

@@ -1,5 +1,7 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,7 +13,9 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
+import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -34,7 +38,7 @@ import io.reactivex.disposables.Disposable;
  * Created by Matt on 2017-08-11.
  */
 
-public class StartReportPresenter extends TabPresenter<StartReportView> implements BluetoothConnectionObserver {
+public class StartReportPresenter extends TabPresenter<StartReportView> implements BluetoothConnectionObserver{
 
     public static final EventSource EVENT_SOURCE = new EventSourceImpl(EventSource.SOURCE_SCAN);
 
@@ -56,6 +60,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     private int pidPackageNum = 0;
     private long lastPidTime = 0;
     private boolean isPidsSupported = false;
+    private AlertDialog confirmRTCAlertDialog;
 
 
     public StartReportPresenter(UseCaseComponent useCaseComponent
@@ -120,6 +125,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         carAdded = true;
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable d = view.getBluetoothConnectionObservable().take(1).subscribe((next) -> {
+
             next.subscribe(StartReportPresenter.this);
             //Get supported pids so we know whether to gray out button or not
             if (next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
@@ -202,6 +208,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable d = getView().getBluetoothConnectionObservable().take(1).subscribe((next) -> {
             //Check bluetooth connection
+
             if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
                 //Ask for search
                 if (!next.getDeviceState().equals(BluetoothConnectionObservable.State.SEARCHING)) {
@@ -366,9 +373,12 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         lastPidTime = currentTime;
     }
 
+
+
     void onGraphClicked(){
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         Disposable disposable = getView().getBluetoothConnectionObservable().take(1).subscribe((next)->{
+
             if (next.getDeviceState().equals(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)){
                 if (isPidsSupported){
                     getView().startGraphActivity();
@@ -379,6 +389,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
                 getView().displayBluetoothConnectionRequirePrompt();
             }
             compositeDisposable.clear();
+
         });
         compositeDisposable.add(disposable);
     }

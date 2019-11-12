@@ -58,7 +58,13 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         }
         val carId = localUserStorage.user.settings.carId
         val localCarStorage = LocalCarStorage(LocalDatabaseHelper.getInstance(context))
-        val vin = localCarStorage.getCar(carId)?.vin ?: ""
+        val car = localCarStorage.getCar(carId)
+
+        if (car?.scannerId?.contains("danlaw") == true) {
+            return
+        }
+
+        val vin = car?.vin ?: ""
         if (vin.isEmpty()){
             Logger.getInstance().logE(tag,"Vin is null! ",DebugMessage.TYPE_TRIP)
         }
@@ -161,13 +167,12 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                     ", next state: $nextState",DebugMessage.TYPE_TRIP)
 
             if (currentTripState != nextState){
-
                 //Launch still timer and end trip if 10 min goes by and the still state hasn't changed
                 if (nextState.tripStateType == TripStateType.TRIP_STILL_HARD) {
                     Logger.getInstance().logD(tag, "Still timer started",DebugMessage.TYPE_TRIP)
                     Handler().postDelayed({
                         Logger.getInstance().logD(tag, "Still timer ended current trip state ${getCurrentTripState(sharedPreferences)}",DebugMessage.TYPE_TRIP)
-                        if (getCurrentTripState(sharedPreferences) == nextState){
+                        if (getCurrentTripState(sharedPreferences) == nextState) {
                             Logger.getInstance().logD(tag, "Still timer timeout",DebugMessage.TYPE_TRIP)
                             localActivityStorage.store(arrayListOf(CarActivity(vin ?: ""
                                     ,System.currentTimeMillis()+1000,CarActivity.TYPE_STILL_TIMEOUT,100)))
@@ -180,32 +185,32 @@ class TripBroadcastReceiver: BroadcastReceiver() {
                             nextIntent.putExtra(TYPE_CURRENT_STATE,nextStateAfterStill.tripStateType.value)
                             context.sendBroadcast(nextIntent)
 
-                            NotificationsHelper.sendNotification(context
-                                    ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
+//                            NotificationsHelper.sendNotification(context
+//                                    ,"Trip finished recording, it may take a moment to appear in the app","Pitstop")
                         }
 
                     },TripUtils.STILL_TIMEOUT.toLong())
                 }
 
-                val notifMessage = when (nextState.tripStateType){
-                    TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
-                    TripStateType.TRIP_END_SOFT ->{
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip finished recording, it may take a moment to appear in the app"
-                    }
-                    TripStateType.TRIP_END_HARD -> {
-                        //Allow for processing trip data on end, but wait for next location bundle to come in
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        "Trip finished recording, it may take a moment to appear in the app"
-                    }
-                    TripStateType.TRIP_MANUAL_END -> {
-                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
-                        null
-                    }
-                    else -> null
-                }
-                if (notifMessage != null)
-                    NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
+//                val notifMessage = when (nextState.tripStateType){
+//                    TripStateType.TRIP_DRIVING_HARD -> "Trip recording"
+//                    TripStateType.TRIP_END_SOFT ->{
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        "Trip finished recording, it may take a moment to appear in the app"
+//                    }
+//                    TripStateType.TRIP_END_HARD -> {
+//                        //Allow for processing trip data on end, but wait for next location bundle to come in
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        "Trip finished recording, it may take a moment to appear in the app"
+//                    }
+//                    TripStateType.TRIP_MANUAL_END -> {
+//                        sharedPreferences.edit().putBoolean(READY_TO_PROCESS_TRIP_DATA,true).apply()
+//                        null
+//                    }
+//                    else -> null
+//                }
+//                if (notifMessage != null)
+//                    NotificationsHelper.sendNotification(context,notifMessage,"Pitstop")
             }
 
             setCurrentState(sharedPreferences,nextState)
@@ -222,7 +227,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
         sharedPreferences.edit().putLong(TIME_CURRENT_STATE,nextState.time).apply()
     }
 
-    private fun getCurrentTripState(sharedPreferences: SharedPreferences): TripState{
+    private fun getCurrentTripState(sharedPreferences: SharedPreferences): TripState {
         val currentStateType = sharedPreferences.getInt(TYPE_CURRENT_STATE, TripStateType.TRIP_NONE.value)
         val currentStateTime = sharedPreferences.getLong(TIME_CURRENT_STATE, System.currentTimeMillis())
         return TripState(TripStateType.values().first { it.value == currentStateType },currentStateTime)

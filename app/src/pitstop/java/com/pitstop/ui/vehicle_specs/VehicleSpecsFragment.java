@@ -45,8 +45,10 @@ import com.pitstop.ui.alarms.AlarmsActivity;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.dialog.MileageDialog;
 import com.pitstop.ui.main_activity.MainActivity;
+import com.pitstop.ui.unit_of_length_dialog.UnitOfLengthDialog;
 import com.pitstop.utils.AnimatedDialogBuilder;
 import com.pitstop.utils.MixpanelHelper;
+import com.pitstop.utils.UnitOfLength;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +58,6 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 
 /**
  * Created by ishan on 2017-09-25.
@@ -74,7 +75,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     private AlertDialog pairScannerAlertDialog;
     private AlertDialog deleteCarAlertDialog;
     private AlertDialog changeDealershipAlertDialog;
-    private VehicleSpecsPresenter presenter;
+    public VehicleSpecsPresenter presenter;
     private AlertDialog unknownErrorDialog;
     private AlertDialog scannerAlreadyActiveDialog;
     private AlertDialog offlineErrorDialog;
@@ -186,6 +187,9 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @BindView(R.id.fuel_trim_row)
     protected View trimView;
 
+    @BindView(R.id.unit_text_specs)
+    protected TextView unitOfLength;
+
     @BindView(R.id.trim)
     protected TextView trim;
 
@@ -228,7 +232,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         presenter.onUpdateNeeded(false);
-
+        presenter.updateTimezone();
     }
 
     @Override
@@ -280,6 +284,15 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     }
 
     @Override
+    public void setCarUnitOfLength(String unitOfLength) {
+        if (unitOfLength.equals(UnitOfLength.Miles.toString())) {
+            this.unitOfLength.setText(UnitOfLength.Miles.uiString());
+        } else {
+            this.unitOfLength.setText(UnitOfLength.Kilometers.uiString());
+        }
+    }
+
+    @Override
     public void setCarView(Car car) {
         Log.d(TAG, "setView()");
         //Set other views to GONE and main to VISIBLE
@@ -294,7 +307,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         else
             scannerID.setText(car.getScannerId());
         engine.setText(car.getEngine());
+
+        car.getCityMileage();
         cityMileage.setText(car.getCityMileage());
+//        presenter.getCityMileage();
+
         highwayMileage.setText(car.getHighwayMileage());
         trim.setText(car.getTrim());
         tankSize.setText(car.getTankSize());
@@ -304,6 +321,16 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             dealership.setText("No Shop");
         }
         presenter.getLicensePlate(car.getId());
+    }
+
+    @Override
+    public void displayCityMileage(String s) {
+
+    }
+
+    @Override
+    public void displayHighwayMileage(String s) {
+
     }
 
     @Override
@@ -372,6 +399,16 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                     .create();
         }
         licensePlateDialog.show();
+    }
+
+    @OnClick(R.id.set_unit_row)
+    public void onUpdateUnit() {
+        UnitOfLengthDialog unitOfLengthDialog = new UnitOfLengthDialog();
+        unitOfLengthDialog.setCallback(() ->
+            getActivity().runOnUiThread(() ->
+                    presenter.onRefresh())
+        );
+        unitOfLengthDialog.show(getFragmentManager(), "");
     }
 
     @OnClick(R.id.scanner_row)

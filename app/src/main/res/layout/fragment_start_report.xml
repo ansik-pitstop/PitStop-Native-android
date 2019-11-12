@@ -55,7 +55,25 @@
         android:layout_above="@id/graph"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/rpm" />
+
+    <Button
+        android:text="Clear Engine code"
+        android:id="@+id/clear_engine_code"
+        android:visibility="visible"
+        android:background="#A62C2B"
+        android:textColor="#ffffff"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_above="@id/graph"
+        android:layout_toRightOf="@+id/rpm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="8dp"
+        />
+
 
     <com.jjoe64.graphview.GraphView
         android:layout_below="@id/start_report_button_holder"

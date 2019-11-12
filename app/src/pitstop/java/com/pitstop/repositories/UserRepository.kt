@@ -13,9 +13,13 @@ import com.pitstop.network.RequestError
 import com.pitstop.retrofit.*
 import com.pitstop.utils.Logger
 import com.pitstop.utils.NetworkHelper
+import com.pitstop.utils.UnitOfLength
 import io.reactivex.Observable
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.*
 
 /**
  * User repository, use this class to modify, retrieve, and delete user data.
@@ -84,6 +88,21 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                     it.user.settings.userId = it.user.id
                     localUserStorage.storeUserData(it.user)
                 })
+    }
+
+    fun setUnitOfLength(userId: Int, unit: UnitOfLength): Observable<JsonObject> {
+        Log.d(TAG,"setUnitOfLength()")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("odometer", unit.toString())
+
+        val parameter = JsonObject()
+        parameter.add("settings", jsonObject)
+        return pitstopUserApi.patchUserSettings(userId, parameter)
+                .doOnNext {
+                    val user = localUserStorage.user
+                    user.settings.odometer = unit.toString()
+                    localUserStorage.updateUser(user)
+                }
     }
 
     fun setUserActive(userId: Int): Observable<UserActivationResponse>{
@@ -372,6 +391,8 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 var carId = -1
                 var firstCarAdded = true //if not present, default is true
                 var alarmsEnabled = false // if not present, default is false
+                var odometer = "km"
+                var timezone = ""
 
                 if (settings.getJSONObject("user").has("alarmsEnabled")) {
                     alarmsEnabled = settings.getJSONObject("user").getBoolean("alarmsEnabled")
@@ -382,9 +403,16 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 if (settings.getJSONObject("user").has("mainCar")) {
                     carId = settings.getJSONObject("user").getInt("mainCar")
                 }
+                if (settings.getJSONObject("user").has("odometer")) {
+                    odometer = settings.getString("odometer")
+                }
+                if (settings.getJSONObject("user").has("timezone")) {
+                    timezone = settings.getString("timezone")
+                }
+
                 val user = localUserStorage.user
 
-                user!!.settings = Settings(user.id, carId, firstCarAdded, alarmsEnabled)
+                user!!.settings = Settings(user.id, carId, firstCarAdded, alarmsEnabled, odometer, timezone)
                 localUserStorage.updateUser(user)
                 callback.onSuccess(user.settings)
             } catch (e: JSONException) {
@@ -392,6 +420,43 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 callback.onError(RequestError.getUnknownError())
             }
         })
+    }
+
+    fun updateTimezone() {
+        val userId = localUserStorage.user?.id ?: return
+
+        getUserSettings(userId, RequestCallback{ response, requestError ->
+            if (requestError != null || localUserStorage.user == null) {
+                return@RequestCallback
+            }
+            try {
+                val settings = JSONObject(response)
+                var timezone = ""
+                val userJson = settings.getJSONObject("user")
+                if (userJson.has("timezone")) {
+                    timezone = userJson.getString("timezone")
+                }
+                val phoneTimezone = TimeZone.getDefault().id
+                if (timezone != phoneTimezone) {
+                    updateTimezone(userId, phoneTimezone)
+                }
+            } catch (e: JSONException) {
+                Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
+            }
+        })
+    }
+
+    private fun updateTimezone(userId: Int, timezone: String) {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("timezone", timezone)
+
+        val parameter = JsonObject()
+        parameter.add("settings", jsonObject)
+        val a = pitstopUserApi.patchUserSettings(userId, parameter)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe {
+                }
     }
 
     private fun getUserSettings(userId: Int, callback: RequestCallback) {

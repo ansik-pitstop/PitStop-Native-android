@@ -109,22 +109,21 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
             boolean isSelectedTrip = (selectedTripId == trip.getOldId());
 
-            if (isSelectedTrip) {
+            setSelected(isSelectedTrip);
+        }
 
+        public void setSelected(Boolean selected) {
+            if (selected) {
                 this.tripAddress.setTextColor(Color.WHITE);
                 this.tripDate.setTextColor(Color.WHITE);
                 this.tripInfoButton.setImageResource(R.drawable.ic_info_white);
                 this.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
-
             } else {
-
                 this.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 this.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
                 this.tripInfoButton.setImageResource(R.drawable.ic_info_black);
                 this.itemView.setBackgroundColor(Color.WHITE);
-
             }
-
         }
 
         private void setRowText(Trip trip) {
@@ -153,26 +152,30 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.TripVi
 
     private void invertColors(TripViewHolder holder, boolean isNowSelected) {
 
-        if (!isNowSelected) { // Set the last selected item to the original colors (only if there was a previous selected item)
-
-            if (holder != null) {
-
-                holder.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                holder.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
-                holder.tripInfoButton.setImageResource(R.drawable.ic_info_black);
-                holder.itemView.setBackgroundColor(Color.WHITE);
-
-            }
-
-        } else { // Set the selected row in the selected colors
-
-            holder.tripAddress.setTextColor(Color.WHITE);
-            holder.tripDate.setTextColor(Color.WHITE);
-            holder.tripInfoButton.setImageResource(R.drawable.ic_info_white);
-            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
-
+        if (holder == null) {
+            return;
         }
+        holder.setSelected(isNowSelected);
 
+//        if (!isNowSelected) { // Set the last selected item to the original colors (only if there was a previous selected item)
+//
+//            if (holder != null) {
+//
+//                holder.tripAddress.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+//                holder.tripDate.setTextColor(context.getResources().getColor(R.color.facebook_blue));
+//                holder.tripInfoButton.setImageResource(R.drawable.ic_info_black);
+//                holder.itemView.setBackgroundColor(Color.WHITE);
+//
+//            }
+//
+//        } else { // Set the selected row in the selected colors
+//
+//            holder.tripAddress.setTextColor(Color.WHITE);
+//            holder.tripDate.setTextColor(Color.WHITE);
+//            holder.tripInfoButton.setImageResource(R.drawable.ic_info_white);
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facebook_blue));
+//
+//        }
     }
 
     public void restartSelectedId() {
