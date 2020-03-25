@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.27.1'
+        classpath 'io.fabric.tools:gradle:1.28.0'
     }
 }
 
@@ -78,8 +78,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 28
         // Change versioning in productFlavors instead of here
-        versionCode 333
-        versionName "5.4.7"
+        versionCode 340
+        versionName "5.4.9"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
@@ -88,7 +88,7 @@ android {
         buildConfigField "String", "ENDPOINT_TYPE_SNAPSHOT", endpointTypeSnapshot
         buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
         ndk {
-            abiFilters 'armeabi-v7a', 'x86', 'x86_64'
+            abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
         }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

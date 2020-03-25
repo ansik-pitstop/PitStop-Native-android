@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sd_stages_keys">
+        <item>@string/sd_url_pl</item>
+        <item>@string/sd_url_p</item>
+        <item>@string/sd_url_coverageval1</item>
+        <item>@string/sd_url_coverageval2</item>
+        <item>@string/sd_url_coverageval3</item>
+        <item>@string/sd_url_covval1</item>
+        <item>@string/sd_url_covval2</item>
+        <item>@string/sd_url_covval3</item>
+    </string-array>
+    <string-array name="sd_stages_values">
+        <item>@string/sd_name_pl</item>
+        <item>@string/sd_name_p</item>
+        <item>@string/sd_name_coverageval1</item>
+        <item>@string/sd_name_coverageval2</item>
+        <item>@string/sd_name_coverageval3</item>
+        <item>@string/sd_name_covval1</item>
+        <item>@string/sd_name_covval2</item>
+        <item>@string/sd_name_covval3</item>
+
+    </string-array>
+    <string name="app_name" translatable="false">RVD Mobile SDK</string>
+    <string name="sd_name_coverageval1">coverageval</string>
+    <string name="sd_name_coverageval2">coverageval2</string>
+    <string name="sd_name_coverageval3">coverageval3</string>
+    <string name="sd_name_covval1">covval1</string>
+    <string name="sd_name_covval2">covval2</string>
+    <string name="sd_name_covval3">covval3</string>
+    <string name="sd_name_p">production</string>
+    <string name="sd_name_pl">prelive</string>
+    <string name="sd_url_coverageval1" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-coverageval-service-discovery/sd.json</string>
+    <string name="sd_url_coverageval2" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-coverageval-service-discovery/coverageval2-sd.json</string>
+    <string name="sd_url_coverageval3" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-coverageval-service-discovery/coverageval3-sd.json</string>
+    <string name="sd_url_covval1" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-covval-service-discovery/covval1-sd.json</string>
+    <string name="sd_url_covval2" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-covval-service-discovery/covval2-sd.json</string>
+    <string name="sd_url_covval3" translatable="false">https://s3-eu-west-1.amazonaws.com/rvd-covval-service-discovery/covval3-sd.json</string>
+    <string name="sd_url_p" translatable="false">https://portal.continental-connected-services.com/sd.json</string>
+    <string name="sd_url_pl" translatable="false">https://prelive.continental-rvd.de/sd.json</string>
+</resources>

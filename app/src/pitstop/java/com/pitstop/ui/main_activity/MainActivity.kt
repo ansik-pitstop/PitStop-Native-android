@@ -759,7 +759,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onDeviceReady(device: ReadyDevice) {
         // TODO: Update device id on Vehicle Specs, update on my vehicles list
         presenter?.onUpdateNeeded()
-        vehicleSpecsFragment.presenter.onUpdateNeeded(false)
+        vehicleSpecsFragment.presenter?.onUpdateNeeded(false)
         displayDeviceState(BluetoothConnectionObservable.State.CONNECTED_VERIFIED)
     }
 

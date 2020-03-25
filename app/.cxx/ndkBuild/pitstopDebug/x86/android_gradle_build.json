@@ -1,30 +1,30 @@
 {
   "buildFiles": [
-    "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
-    "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Application.mk"
+    "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk",
+    "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Application.mk"
   ],
   "cleanCommands": [
-    "/Users/brenopinto/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib clean"
+    "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib clean"
   ],
-  "buildTargetsCommand": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib {LIST_OF_TARGETS_TO_BUILD}",
+  "buildTargetsCommand": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib {LIST_OF_TARGETS_TO_BUILD}",
   "libraries": {
     "secret-pitstopDebug-x86": {
-      "buildCommand": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib /Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local/x86/libsecret.so",
+      "buildCommand": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-18 NDK_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj NDK_LIBS_OUT\u003d/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/lib /Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local/x86/libsecret.so",
       "toolchain": "toolchain-x86",
       "abi": "x86",
       "artifactName": "secret",
       "files": [
         {
-          "src": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/secret.c",
-          "flags": "-target i686-none-linux-android18 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fPIC -O0 -UNDEBUG -fno-limit-debug-info -I/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security -mstackrealign"
+          "src": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/secret.c",
+          "flags": "-target i686-none-linux-android18 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fPIC -O0 -UNDEBUG -fno-limit-debug-info -I/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security -mstackrealign"
         }
       ],
-      "output": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local/x86/libsecret.so"
+      "output": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local/x86/libsecret.so"
     }
   },
   "toolchains": {
     "toolchain-x86": {
-      "cCompilerExecutable": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang"
+      "cCompilerExecutable": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang"
     }
   },
   "cFileExtensions": [
