@@ -92,6 +92,7 @@
       "project": {
         "compilerSettingsCacheFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/.cxx",
         "cxxFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/.cxx",
+        "ideBuildTargetAbi": "x86",
         "isBuildOnlyTargetAbiEnabled": true,
         "isCmakeBuildCohabitationEnabled": false,
         "isNativeCompilerSettingsCacheEnabled": false,
@@ -114,9 +115,7 @@
     "objFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopBeta/obj/local",
     "variantName": "pitstopBeta",
     "validAbiList": [
-      "ARMEABI_V7A",
-      "X86",
-      "X86_64"
+      "X86"
     ]
   }
 }

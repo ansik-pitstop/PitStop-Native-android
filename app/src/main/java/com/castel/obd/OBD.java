@@ -2,7 +2,7 @@ package com.castel.obd;
 
 public class OBD {
 	static {
-		System.loadLibrary("212B");
+		//System.loadLibrary("212B");
 	}
 
 	static {

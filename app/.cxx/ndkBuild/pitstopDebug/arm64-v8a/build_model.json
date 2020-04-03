@@ -1,17 +1,17 @@
 {
-  "abi": "X86",
+  "abi": "ARM64_V8A",
   "abiPlatformVersion": 18,
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/x86",
+  "cxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/arm64-v8a",
   "info": {
-    "abi": "X86",
-    "bitness": 32,
+    "abi": "ARM64_V8A",
+    "bitness": 64,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/x86",
+  "originalCxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/arm64-v8a",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],

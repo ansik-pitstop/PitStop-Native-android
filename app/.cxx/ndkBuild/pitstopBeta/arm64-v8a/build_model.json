@@ -1,24 +1,24 @@
 {
-  "abi": "X86",
+  "abi": "ARM64_V8A",
   "abiPlatformVersion": 18,
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/x86",
+  "cxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/arm64-v8a",
   "info": {
-    "abi": "X86",
-    "bitness": 32,
+    "abi": "ARM64_V8A",
+    "bitness": 64,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopDebug/x86",
+  "originalCxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/arm64-v8a",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],
     "cFlagsList": [],
     "cmakeSettingsConfiguration": "android-gradle-plugin-predetermined-name",
     "cppFlagsList": [],
-    "isDebuggableEnabled": true,
+    "isDebuggableEnabled": false,
     "module": {
       "buildSystem": "NDK_BUILD",
       "cmakeToolchainFile": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/build/cmake/android.toolchain.cmake",
@@ -111,8 +111,8 @@
         "SYSTEM": {}
       }
     },
-    "objFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopDebug/obj/local",
-    "variantName": "pitstopDebug",
+    "objFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopBeta/obj/local",
+    "variantName": "pitstopBeta",
     "validAbiList": [
       "ARMEABI_V7A",
       "ARM64_V8A",
