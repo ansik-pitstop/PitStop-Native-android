@@ -1,5 +1,5 @@
 {
-  "ndkFolder": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle",
+  "ndkFolder": "/Users/brenopinto/Library/Android/sdk/ndk-bundle",
   "messages": [
     {
       "level": "INFO",
@@ -7,7 +7,7 @@
     },
     {
       "level": "INFO",
-      "message": "ndk.dir in local.properties is /Users/gurindersingh/Library/Android/sdk/ndk-bundle"
+      "message": "ndk.dir in local.properties is not set"
     },
     {
       "level": "INFO",
@@ -15,23 +15,23 @@
     },
     {
       "level": "INFO",
-      "message": "sdkFolder is /Users/gurindersingh/Library/Android/sdk"
+      "message": "sdkFolder is /Users/brenopinto/Library/Android/sdk"
     },
     {
       "level": "INFO",
-      "message": "NDK side-by-side folder from sdkFolder /Users/gurindersingh/Library/Android/sdk/ndk does not exist"
+      "message": "Because no explicit NDK was requested, the default version \u002720.0.5594570\u0027 for this Android Gradle Plugin will be used"
     },
     {
       "level": "INFO",
-      "message": "Considering /Users/gurindersingh/Library/Android/sdk/ndk-bundle by ndk.dir"
+      "message": "Considering /Users/brenopinto/Library/Android/sdk/ndk-bundle in SDK ndk-bundle folder"
     },
     {
       "level": "INFO",
-      "message": "Considering /Users/gurindersingh/Library/Android/sdk/ndk-bundle in SDK ndk-bundle folder"
+      "message": "Considering /Users/brenopinto/Library/Android/sdk/ndk/21.1.6352462 in SDK ndk folder"
     },
     {
       "level": "INFO",
-      "message": "Found requested ndk.dir (/Users/gurindersingh/Library/Android/sdk/ndk-bundle) which has version 20.1.5948944"
+      "message": "Found requested NDK version 20.0.5594570 at /Users/brenopinto/Library/Android/sdk/ndk-bundle"
     }
   ]
 }

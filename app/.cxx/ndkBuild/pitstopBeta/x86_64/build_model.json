@@ -4,14 +4,14 @@
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/x86_64",
+  "cxxBuildFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/x86_64",
   "info": {
     "abi": "X86_64",
     "bitness": 64,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/x86_64",
+  "originalCxxBuildFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/x86_64",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],
@@ -21,20 +21,20 @@
     "isDebuggableEnabled": false,
     "module": {
       "buildSystem": "NDK_BUILD",
-      "cmakeToolchainFile": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/build/cmake/android.toolchain.cmake",
-      "cxxFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx",
+      "cmakeToolchainFile": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/build/cmake/android.toolchain.cmake",
+      "cxxFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx",
       "gradleModulePathName": ":app",
-      "intermediatesFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates",
-      "makeFile": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk",
-      "moduleBuildFile": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build.gradle",
-      "moduleRootFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app",
+      "intermediatesFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates",
+      "makeFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
+      "moduleBuildFile": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build.gradle",
+      "moduleRootFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app",
       "ndkDefaultAbiList": [
         "ARMEABI_V7A",
         "ARM64_V8A",
         "X86",
         "X86_64"
       ],
-      "ndkFolder": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle",
+      "ndkFolder": "/Users/brenopinto/Library/Android/sdk/ndk-bundle",
       "ndkMetaAbiList": [
         {
           "abi": "ARMEABI_V7A",
@@ -88,30 +88,30 @@
         "X86",
         "X86_64"
       ],
-      "ndkVersion": "20.1.5948944",
+      "ndkVersion": "20.0.5594570",
       "project": {
-        "compilerSettingsCacheFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/.cxx",
-        "cxxFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/.cxx",
+        "compilerSettingsCacheFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/.cxx",
+        "cxxFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/.cxx",
         "isBuildOnlyTargetAbiEnabled": true,
         "isCmakeBuildCohabitationEnabled": false,
         "isNativeCompilerSettingsCacheEnabled": false,
-        "rootBuildGradleFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android",
-        "sdkFolder": "/Users/gurindersingh/Library/Android/sdk"
+        "rootBuildGradleFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android",
+        "sdkFolder": "/Users/brenopinto/Library/Android/sdk"
       },
       "splitsAbiFilterSet": [],
       "stlSharedObjectMap": {
         "LIBCXX_SHARED": {
-          "ARMEABI_V7A": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
-          "ARM64_V8A": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
-          "X86": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
-          "X86_64": "/Users/gurindersingh/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+          "ARMEABI_V7A": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
+          "ARM64_V8A": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+          "X86": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
+          "X86_64": "/Users/brenopinto/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
         },
         "LIBCXX_STATIC": {},
         "NONE": {},
         "SYSTEM": {}
       }
     },
-    "objFolder": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopBeta/obj/local",
+    "objFolder": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/build/intermediates/ndkBuild/pitstopBeta/obj/local",
     "variantName": "pitstopBeta",
     "validAbiList": [
       "ARMEABI_V7A",

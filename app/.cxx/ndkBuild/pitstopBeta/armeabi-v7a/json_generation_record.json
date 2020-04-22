@@ -2,19 +2,19 @@
   {
     "level": "INFO",
     "message": "Start JSON generation. Platform version: 18 min SDK version: armeabi-v7a",
-    "file": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk",
+    "file": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
     "tag": "pitstopBeta|armeabi-v7a"
   },
   {
     "level": "INFO",
-    "message": "JSON \u0027/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/armeabi-v7a/android_gradle_build.json\u0027 was up-to-date",
-    "file": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk",
+    "message": "JSON \u0027/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/.cxx/ndkBuild/pitstopBeta/armeabi-v7a/android_gradle_build.json\u0027 was up-to-date",
+    "file": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
     "tag": "pitstopBeta|armeabi-v7a"
   },
   {
     "level": "INFO",
     "message": "JSON generation completed without problems",
-    "file": "/Users/gurindersingh/Documents/GitHub/PitStop-Native-android/app/src/main/jni/Android.mk",
+    "file": "/Users/brenopinto/Projects/Pitstop/PitStop-Native-android/app/src/main/jni/Android.mk",
     "tag": "pitstopBeta|armeabi-v7a"
   }
 ]
