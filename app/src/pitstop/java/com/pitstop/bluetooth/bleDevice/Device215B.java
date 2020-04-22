@@ -207,7 +207,7 @@ public class Device215B implements AbstractDevice {
         sb.append(Constants.INSTRUCTION_STAR);
 
         String crcData = sb.toString();
-        String crc = Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -224,7 +224,7 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + Constants.INSTRUCTION_STAR;
 
-        String crc = Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -243,7 +243,7 @@ public class Device215B implements AbstractDevice {
                 + ","
                 + Constants.INSTRUCTION_STAR;
 
-        String crc = Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -282,7 +282,7 @@ public class Device215B implements AbstractDevice {
                 + paramAndValues.toString()
                 + Constants.INSTRUCTION_STAR;
 
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -302,7 +302,7 @@ public class Device215B implements AbstractDevice {
                 + params
                 +Constants.INSTRUCTION_STAR;
 
-        String crc = Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
         return crcData + crc + Constants.INSTRUCTION_FOOD;
     }
 
@@ -320,7 +320,7 @@ public class Device215B implements AbstractDevice {
         }
 
         // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -332,7 +332,7 @@ public class Device215B implements AbstractDevice {
                 + Constants.INSTRUCTION_DTC + "," + controlEventID + ","
                 + Constants.INSTRUCTION_STAR;
         // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -367,7 +367,7 @@ public class Device215B implements AbstractDevice {
                 "," +
                 Constants.INSTRUCTION_STAR ;
 
-        String crc = Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
         return crcData + crc + Constants.INSTRUCTION_FOOD;
 
     }
@@ -377,7 +377,7 @@ public class Device215B implements AbstractDevice {
                 + Constants.INSTRUCTION_PIDT + "," + Constants.INSTRUCTION_STAR;
 
         // String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-        String crc = com.castel.obd215b.util.Utils.toHexString(OBD.CRC(crcData));
+        String crc = OBD.CRC(crcData);
 
         String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 

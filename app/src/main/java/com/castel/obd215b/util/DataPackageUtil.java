@@ -19,7 +19,8 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_STAR;
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -32,7 +33,7 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_STAR;
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -44,7 +45,7 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_PIDT + "," + Constants.INSTRUCTION_STAR;
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -65,7 +66,7 @@ public class DataPackageUtil {
 		}
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -91,7 +92,7 @@ public class DataPackageUtil {
 		}
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -108,7 +109,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -140,7 +141,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -159,7 +160,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -187,7 +188,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -405,7 +406,7 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_STAR;
 
 		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -415,7 +416,7 @@ public class DataPackageUtil {
 	public static String hardwareTestPackage(String testValue) {
 		String crcData = "";
 		crcData = "@@IDD,TEST," + testValue + ",*";
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -425,7 +426,7 @@ public class DataPackageUtil {
 	public static String replyIDRPackage() {
 		String crcData = "";
 		crcData = "@@IDD,IDR,0,*";
-		String crc = Utils.toHexString(OBD.CRC(crcData));
+		String crc = OBD.CRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
