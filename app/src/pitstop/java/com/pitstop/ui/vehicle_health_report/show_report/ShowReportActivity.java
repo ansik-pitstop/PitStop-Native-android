@@ -1,12 +1,13 @@
 package com.pitstop.ui.vehicle_health_report.show_report;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.pitstop.R;
 import com.pitstop.models.report.EmissionsReport;

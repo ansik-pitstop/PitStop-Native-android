@@ -1,8 +1,9 @@
 package com.pitstop.ui.services;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * Created by Karol Zdebel on 5/10/2017.

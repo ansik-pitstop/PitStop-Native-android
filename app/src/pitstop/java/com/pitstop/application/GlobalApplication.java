@@ -14,12 +14,11 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.multidex.MultiDex;
-import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
+import androidx.core.app.RemoteInput;
+import androidx.multidex.MultiDex;
+
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -54,7 +53,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.smooch.core.Settings;
@@ -100,19 +98,19 @@ public class GlobalApplication extends Application implements LoginManager {
         FacebookSdk.sdkInitialize(this);
         Stetho.initializeWithDefaults(this);
 
-        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build();
-
-        Fabric.with(this, crashlyticsKit);
+//        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+//                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+//                .build();
+//
+//        Fabric.with(this, crashlyticsKit);
 
         if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_RELEASE)){
             Log.d(TAG,"Release build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
+//            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Release");
         }
         else if (BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)){
             Log.d(TAG,"Beta build.");
-            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
+//            crashlyticsKit.setString(BuildConfig.VERSION_NAME,"Beta");
         }
 
         Logger.initLogger(this);

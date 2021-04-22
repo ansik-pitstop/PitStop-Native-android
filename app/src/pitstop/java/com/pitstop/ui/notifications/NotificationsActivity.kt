@@ -1,9 +1,9 @@
 package com.pitstop.ui.notifications
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.pitstop.R
 import com.pitstop.ui.main_activity.TabSwitcher
 

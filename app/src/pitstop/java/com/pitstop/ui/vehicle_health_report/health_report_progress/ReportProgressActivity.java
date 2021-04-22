@@ -2,10 +2,11 @@ package com.pitstop.ui.vehicle_health_report.health_report_progress;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MenuItem;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;

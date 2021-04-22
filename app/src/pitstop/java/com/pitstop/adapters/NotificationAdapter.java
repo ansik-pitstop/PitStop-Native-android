@@ -1,12 +1,13 @@
 package com.pitstop.adapters;
 
 import android.graphics.Typeface;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 import com.pitstop.models.Notification;

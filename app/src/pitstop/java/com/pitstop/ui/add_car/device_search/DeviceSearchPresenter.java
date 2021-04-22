@@ -1,8 +1,9 @@
 package com.pitstop.ui.add_car.device_search;
 
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import androidx.fragment.app.Fragment;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
@@ -249,7 +250,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
 
                 //Check if retrieved VIN is valid, otherwise begin timer
                 if (!AddCarUtils.isVinValid(readyDevice.getVin())){
-                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
+                    view.showLoading(((Fragment)view).getString(R.string.getting_vin));
                     searchingForVin = true;
                     next.requestVin();
                     getVinTimer.start();
@@ -266,7 +267,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                 //Try to start search or check if state isn't disconnected and therefore already searching
                 if (next.requestDeviceSearch(true, true)
                         || !next.getDeviceState().equals(BluetoothConnectionObservable.State.DISCONNECTED)){
-                    view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.searching_for_device_action_bar));
+                    view.showLoading(((Fragment)view).getString(R.string.searching_for_device_action_bar));
                     searchingForDevice = true;
                     findDeviceTimer.start();
 
@@ -313,7 +314,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             mixpanelHelper.trackAddCarProcess(MixpanelHelper.ADD_CAR_STEP_GET_VIN
                     , MixpanelHelper.PENDING);
 
-            view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.getting_vin));
+            view.showLoading(((Fragment)view).getString(R.string.getting_vin));
 
             //Try to get valid VIN
             searchingForVin = true;
@@ -373,7 +374,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
         if (view == null) return;
         if (!searchingForDevice) return;
         Log.wtf(TAG, "error, verifying in add car, should not happen");
-        view.showLoading(((android.support.v4.app.Fragment)view)
+        view.showLoading(((Fragment)view)
                 .getString(R.string.verifying_device_action_bar));
     }
 
@@ -391,7 +392,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
             view.onMileageInvalid();
             return;
         }
-        view.showLoading(((android.support.v4.app.Fragment)view).getString(R.string.saving_car_message));
+        view.showLoading(((Fragment)view).getString(R.string.saving_car_message));
 
         addingCar = true;
         double mileage = Double.valueOf(view.getMileage());
@@ -421,7 +422,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (view == null) return;
 
                         view.onCarAddedWithShop(car);
-                        view.hideLoading(((android.support.v4.app.Fragment)view).getString(R.string.car_added_successfully_toast_message));
+                        view.hideLoading(((Fragment)view).getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override
@@ -433,7 +434,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (view == null) return;
 
                         view.onCarAddedWithoutShop(car);
-                        view.hideLoading(((android.support.v4.app.Fragment)view).getString(R.string.car_added_successfully_toast_message));
+                        view.hideLoading(((Fragment)view).getString(R.string.car_added_successfully_toast_message));
                     }
 
                     @Override
@@ -447,7 +448,7 @@ public class DeviceSearchPresenter implements BluetoothConnectionObserver, Bluet
                         if (error.getError().equals(RequestError.ERR_OFFLINE)){
                             view.beginPendingAddCarActivity(readyDevice.getVin(),mileage
                                     ,readyDevice.getScannerId());
-                            view.hideLoading(((android.support.v4.app.Fragment)view).getString(R.string.connect_to_internet_toast_message));
+                            view.hideLoading(((Fragment)view).getString(R.string.connect_to_internet_toast_message));
                         }else if (error.getError().equals(RequestError.ERR_UNKNOWN)){
                             view.onErrorAddingCar(((Fragment) view).getContext().getString(R.string.unexpected_car_adding_error_message));
                             view.hideLoading(null);

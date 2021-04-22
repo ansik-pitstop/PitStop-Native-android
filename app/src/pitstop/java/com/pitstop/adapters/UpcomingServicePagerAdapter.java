@@ -1,13 +1,14 @@
 package com.pitstop.adapters;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.PagerAdapter;
 
 import com.pitstop.R;
 import com.pitstop.models.service.UpcomingService;

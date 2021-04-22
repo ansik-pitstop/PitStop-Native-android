@@ -1,9 +1,10 @@
 package com.pitstop.ui.main_activity;
 
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.pitstop.R;
 import com.pitstop.adapters.TabViewPagerAdapter;

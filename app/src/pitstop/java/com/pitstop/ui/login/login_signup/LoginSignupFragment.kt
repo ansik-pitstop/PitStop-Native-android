@@ -1,11 +1,11 @@
 package com.pitstop.ui.login.login_signup
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.pitstop.R
 import com.pitstop.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.layout_signup_login.*

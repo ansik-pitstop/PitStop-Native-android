@@ -1,8 +1,8 @@
 package com.pitstop.ui.vehicle_health_report.start_report;
 
-import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.jjoe64.graphview.series.DataPoint;
 import com.pitstop.EventBus.EventSource;
@@ -10,9 +10,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
-import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
-import com.pitstop.bluetooth.elm.enums.ObdProtocols;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
 import com.pitstop.models.Car;
@@ -24,8 +22,6 @@ import com.pitstop.observer.BluetoothConnectionObserver;
 import com.pitstop.repositories.Repository;
 import com.pitstop.ui.mainFragments.TabPresenter;
 import com.pitstop.utils.MixpanelHelper;
-
-import org.jetbrains.annotations.NotNull;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;

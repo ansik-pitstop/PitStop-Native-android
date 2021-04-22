@@ -2,11 +2,12 @@ package com.pitstop.ui.vehicle_health_report.past_reports;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.pitstop.models.report.FullReport;
 import com.pitstop.ui.vehicle_health_report.show_report.ShowReportActivity;

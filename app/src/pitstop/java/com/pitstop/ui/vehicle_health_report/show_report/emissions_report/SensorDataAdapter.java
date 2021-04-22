@@ -1,11 +1,12 @@
 package com.pitstop.ui.vehicle_health_report.show_report.emissions_report;
 
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 

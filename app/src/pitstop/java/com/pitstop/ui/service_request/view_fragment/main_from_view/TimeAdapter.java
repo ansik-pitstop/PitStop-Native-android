@@ -1,12 +1,12 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
-import android.content.res.Resources;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 
@@ -25,7 +25,7 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
 
     private List<String> times;
 
-    public TimeAdapter (@NonNull List<String> times,PresenterCallback callback) {
+    public TimeAdapter (@NonNull List<String> times, PresenterCallback callback) {
         this.times = times;
         this.callback = callback;
     }

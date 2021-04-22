@@ -4,8 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.pitstop.R
 import com.pitstop.ui.login.change_password.ChangePasswordFragment
 import com.pitstop.ui.login.login.LoginFragment

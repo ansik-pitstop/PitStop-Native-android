@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.fragment.app.Fragment;
+
 import com.pitstop.EventBus.CarDataChangedEvent;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
@@ -336,7 +338,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             getView().showFuelExpense((float) 0.0);
             return;
         }
-        SharedPreferences sharedPreferences = ((android.support.v4.app.Fragment) getView()).
+        SharedPreferences sharedPreferences = ((Fragment) getView()).
                 getActivity().getSharedPreferences(GAS_PRICE_SHARED_PREF, Context.MODE_PRIVATE);
         if (!sharedPreferences.contains(LAST_UPDATED_DATE + mCar.getVin())) {
             updatePrice(scannerId, sharedPreferences);

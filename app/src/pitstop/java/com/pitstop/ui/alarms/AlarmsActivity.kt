@@ -7,9 +7,9 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.pitstop.R
 import com.pitstop.bluetooth.BluetoothService
 import com.pitstop.models.Alarm

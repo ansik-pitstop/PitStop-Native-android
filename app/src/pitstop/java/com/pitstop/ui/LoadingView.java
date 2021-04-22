@@ -1,7 +1,7 @@
 package com.pitstop.ui;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Created by Karol Zdebel on 8/2/2017.

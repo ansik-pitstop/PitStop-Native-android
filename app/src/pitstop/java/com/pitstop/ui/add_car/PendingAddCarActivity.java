@@ -4,9 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.castel.obd.util.Utils;
 import com.pitstop.R;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
  * Created by David Liu on 2/21/2016.
  */
 
-public class PendingAddCarActivity extends AppCompatActivity{
+public class PendingAddCarActivity extends AppCompatActivity {
 
     public final static String pfName = "com.pitstop.login.name";
 

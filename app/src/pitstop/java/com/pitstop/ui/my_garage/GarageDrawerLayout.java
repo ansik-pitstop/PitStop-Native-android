@@ -1,7 +1,8 @@
 package com.pitstop.ui.my_garage;
 
 import android.content.Context;
-import android.support.v4.widget.DrawerLayout;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Created by ishan on 2017-10-19.

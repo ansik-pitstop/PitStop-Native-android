@@ -2,9 +2,10 @@ package com.pitstop.utils;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.view.View;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 
 public class ViewUtils {
 

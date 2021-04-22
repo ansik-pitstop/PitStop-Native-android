@@ -1,8 +1,9 @@
 package com.pitstop.ui.add_car.vin_entry;
 
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import androidx.fragment.app.Fragment;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.R;
