@@ -90,6 +90,12 @@ class UserRepository(private val localUserStorage: LocalUserStorage
                 })
     }
 
+    fun sendFleetManagerSms(userId: Int, text: String): Observable<JsonObject> {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("text", text)
+        return pitstopUserApi.messageFleetManager(userId, jsonObject)
+    }
+
     fun setUnitOfLength(userId: Int, unit: UnitOfLength): Observable<JsonObject> {
         Log.d(TAG,"setUnitOfLength()")
         val jsonObject = JsonObject()

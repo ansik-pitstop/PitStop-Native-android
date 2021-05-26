@@ -1,70 +1,44 @@
 {
   "project_info": {
-    "project_number": "309712221750",
-    "firebase_url": "https://api-5154625761437339405-514629.firebaseio.com",
-    "project_id": "api-5154625761437339405-514629",
-    "storage_bucket": "api-5154625761437339405-514629.appspot.com"
+    "project_number": "360911702761",
+    "firebase_url": "https://pitstop-app-store.firebaseio.com",
+    "project_id": "pitstop-app-store",
+    "storage_bucket": "pitstop-app-store.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:309712221750:android:a2f0417efcc197b7",
+        "mobilesdk_app_id": "1:360911702761:android:b3bf2ba3b04d05e15cfe78",
         "android_client_info": {
           "package_name": "com.ansik.pitstop"
         }
       },
       "oauth_client": [
         {
-          "client_id": "309712221750-4fnr971kb6nnvvintm1pkjnao32jmv8c.apps.googleusercontent.com",
+          "client_id": "360911702761-61vvurnpguhkc7gh32fqu9rpgivn29u0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCt4uuZH175Jhpq4ZAd2DORc6nc12hN-HQ"
+          "current_key": "AIzaSyAkPqMKYW73Dmq0LP4qdD3xgmg3THhJf7U"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:309712221750:android:7c7bff7e0ae96e01",
-        "android_client_info": {
-          "package_name": "com.ansik.pitstop.test_app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "309712221750-4fnr971kb6nnvvintm1pkjnao32jmv8c.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCt4uuZH175Jhpq4ZAd2DORc6nc12hN-HQ"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360911702761-61vvurnpguhkc7gh32fqu9rpgivn29u0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "360911702761-jifku12960kpii8stc3sr2i5u555t9iq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "pitstop.ansik.ios.appstore"
+              }
+            }
+          ]
         }
       }
     }

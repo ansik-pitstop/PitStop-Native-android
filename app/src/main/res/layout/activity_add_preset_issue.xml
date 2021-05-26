@@ -41,7 +41,7 @@
 
     </LinearLayout>
 
-    <!--<android.support.v7.widget.CardView-->
+    <!--<androidx.cardview.widget.CardView-->
     <!--android:id="@+id/custom_issue_item_button"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="wrap_content"-->
@@ -79,9 +79,9 @@
 
     <!--</RelativeLayout>-->
 
-    <!--</android.support.v7.widget.CardView>-->
+    <!--</androidx.cardview.widget.CardView>-->
 
-    <!--<android.support.v7.widget.CardView-->
+    <!--<androidx.cardview.widget.CardView-->
     <!--android:id="@+id/custom_issue_action_button"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="wrap_content"-->
@@ -119,10 +119,10 @@
 
     <!--</RelativeLayout>-->
 
-    <!--</android.support.v7.widget.CardView>-->
+    <!--</androidx.cardview.widget.CardView>-->
 
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/custom_issue_list"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
@@ -137,7 +137,7 @@
     <!--android:layout_marginTop="16dp"-->
     <!--android:visibility="visible">-->
 
-    <!--<android.support.v7.widget.CardView-->
+    <!--<androidx.cardview.widget.CardView-->
     <!--android:id="@+id/custom_issue_indicator_card"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="137dp">-->
@@ -204,7 +204,7 @@
     <!--</LinearLayout>-->
 
     <!--</LinearLayout>-->
-    <!--</android.support.v7.widget.CardView>-->
+    <!--</androidx.cardview.widget.CardView>-->
 
     <!--<ScrollView-->
     <!--android:layout_width="match_parent"-->

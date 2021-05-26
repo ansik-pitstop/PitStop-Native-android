@@ -251,8 +251,8 @@ class CarIssueRepository(private val localCarIssueStorage: LocalCarIssueStorage
     }
 
     fun getCurrentCarIssues(carId: Int, databaseType: Repository.DATABASE_TYPE): Observable<RepositoryResponse<List<CarIssue>>> {
-        val remote = pitstopServiceApi.getCurrentServices(carId)
-                .map{ RepositoryResponse(it.results,false)}
+        val remote = pitstopServiceApi.getCurrentServices(carId, 30, 0, "new")
+                .map{ RepositoryResponse(it.data,false)}
                 .doOnNext({
                     Log.d(TAG,"got current data: "+it.data)
                     val storedRows = localCarIssueStorage.replaceCurrentIssues(carId,it.data!!)

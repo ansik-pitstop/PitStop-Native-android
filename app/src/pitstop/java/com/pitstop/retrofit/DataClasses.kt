@@ -20,9 +20,11 @@ data class PitstopResponse<T>(val response: T)
 
 data class PitstopResult<T>(val results: T)
 
+data class PitstopPaginatedData<T>(val meta: Any, val data: T)
+
 data class Token(val accessToken: String)
 
-data class CarList(val data: List<Car>, val emptyData: Object)
+data class CarList(val data: List<Car>, val emptyData: Any)
 
 data class SnapToRoadResponse<T>(val snappedPoints: T)
 

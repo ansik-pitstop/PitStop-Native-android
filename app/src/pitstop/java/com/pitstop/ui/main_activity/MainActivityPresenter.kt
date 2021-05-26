@@ -258,6 +258,12 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         view?.openSmooch()
     }
 
+    fun onServiceRequestClicked() {
+        Log.d(TAG, "onServiceRequestClicked()")
+        if (view == null) return
+        view?.openServiceRequest()
+    }
+
     fun onCallClicked() {
         if (!isCarLoaded){
             view?.toast("Car data has not been loaded yet. Check your connection.")

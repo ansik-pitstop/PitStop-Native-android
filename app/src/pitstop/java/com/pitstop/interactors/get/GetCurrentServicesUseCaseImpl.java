@@ -128,7 +128,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     }
 
     private void getCurrentCarIssues(int carId){
-        Disposable disposable = carIssueRepository.getCurrentCarIssues(carId, Repository.DATABASE_TYPE.BOTH)
+        Disposable disposable = carIssueRepository.getCurrentCarIssues(carId, Repository.DATABASE_TYPE.REMOTE)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io(), true)
                 .subscribe(next -> {

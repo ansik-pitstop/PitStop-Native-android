@@ -191,7 +191,7 @@
                 android:layout_centerVertical="true"
                 android:visibility="gone" />
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/service_time_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -211,7 +211,7 @@
             android:layout_height="match_parent"
             android:background="@color/white">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/service_chosen_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -255,7 +255,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/service_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

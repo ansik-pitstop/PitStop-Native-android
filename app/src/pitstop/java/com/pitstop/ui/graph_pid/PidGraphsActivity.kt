@@ -40,13 +40,13 @@ class PidGraphsActivity: AppCompatActivity(), PidGraphsView {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return if (item?.itemId == android.R.id.home) {
-            super.onBackPressed()
-            true
-        }
-        else return super.onOptionsItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+//        return if (item?.itemId == android.R.id.home) {
+//            super.onBackPressed()
+//            true
+//        }
+//        else return super.onOptionsItemSelected(item)
+//    }
 
     override fun onStart() {
         super.onStart()

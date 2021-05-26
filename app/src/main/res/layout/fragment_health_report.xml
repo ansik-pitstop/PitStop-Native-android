@@ -131,7 +131,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/engine_codes_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -227,7 +227,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recalls_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -332,7 +332,7 @@
             android:layout_centerHorizontal="true"
             android:visibility="gone" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/services_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

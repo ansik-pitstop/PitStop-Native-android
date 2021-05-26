@@ -17,7 +17,7 @@
         android:text="Update Your Car Unit of length"/>
 
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/main_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -78,7 +78,7 @@
                     android:textStyle="bold" />
             </RelativeLayout>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"

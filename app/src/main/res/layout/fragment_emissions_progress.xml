@@ -73,7 +73,7 @@
             android:inAnimation="@anim/activity_slide_left_in"
             android:outAnimation="@anim/activity_slide_left_out">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/vin_check_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -103,9 +103,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/eligible_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -135,9 +135,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/not_eligible_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -167,9 +167,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/fuel_type_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -234,9 +234,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/licence_plate_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -283,9 +283,9 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/ready_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -317,7 +317,7 @@
 
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         </ViewAnimator>
 

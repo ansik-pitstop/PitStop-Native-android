@@ -557,6 +557,7 @@
     <string name="license_plate">License Plate Number</string>
     <string name="unit_of_measurement">Unit Of Measurement</string>
     <string name="message">Message</string>
+    <string name="service_request">Service Request</string>
     <string name="my_garage">My Garage</string>
     <string name="no_associated_shop">No Associated Shop</string>
     <string name="purchase_device_message">It appears you do not have a Pitstop device paired to this car. With the device we can track you car\'s mileage, fuel consumption, trips, engine codes, and driving alarms. If you would like all these features please purchase a device and connect it to your car.</string>

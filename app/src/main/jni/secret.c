@@ -50,7 +50,7 @@ Java_com_pitstop_utils_SecretUtils_getSmoochTokenDev(JNIEnv *env, jobject instan
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getSmoochTokenProd(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "56c53046d0f0b42f009e813c");
+    return (*env) ->  NewStringUTF(env, "59a8188b9a42833a005d0bf8");
 }
 
 // Parse

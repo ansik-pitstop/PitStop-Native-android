@@ -35,6 +35,7 @@ import com.pitstop.interactors.get.GetUserCarUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.models.Car
 import com.pitstop.models.Dealership
+import com.pitstop.models.Notification
 import com.pitstop.models.ReadyDevice
 import com.pitstop.models.issue.CarIssue
 import com.pitstop.network.RequestError
@@ -49,6 +50,7 @@ import com.pitstop.ui.login.LoginActivity
 import com.pitstop.ui.my_appointments.MyAppointmentActivity
 import com.pitstop.ui.notifications.NotificationsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
+import com.pitstop.ui.service_request_fleet_manager.ServiceRequestFleetManager
 import com.pitstop.ui.services.MainServicesFragment
 import com.pitstop.ui.services.custom_service.CustomServiceActivity
 import com.pitstop.ui.trip.TripsFragment
@@ -85,6 +87,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     private var carsAdapter: CarsAdapter? = null
     private var addCarBtn: View? = null
     private var messageBtn: View? = null
+    private var serviceRequestBtn: View? = null
     private var callBtn: View? = null
     private var findDirectionsBtn: View? = null
     private var contactView: View? = null
@@ -269,6 +272,14 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             Log.d(TAG, "requestAppointmentsClicked()")
             this.presenter?.onRequestServiceClicked()
         }
+
+//        service_request_card
+        this.serviceRequestBtn = findViewById(R.id.service_request_card)
+        serviceRequestBtn?.setOnClickListener {
+            Log.d(TAG, "onServiceRequestClicked()")
+            presenter?.onServiceRequestClicked()
+        }
+
         this.messageBtn = findViewById(R.id.message_my_garage)
         messageBtn?.setOnClickListener {
             Log.d(TAG, "messageClicked()")
@@ -457,6 +468,10 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
             }
             else if (resultCode == NotificationsActivity.GO_TO_REQUEST_SERVICE){
                 openRequestService()
+            }
+        } else if (requestCode == RC_SERVICE_REQUEST_FLEET_MANAGER) {
+            if (resultCode == NotificationsActivity.GO_TO_SMOOCH_MESSAGES) {
+                openSmooch()
             }
         }
         else{
@@ -778,7 +793,19 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
 
     override fun openSmooch() {
         Log.d(TAG, "openSmooch()");
-        ConversationActivity.show(this)
+//        ConversationActivity
+        ConversationActivity.builder().show(this)
+    }
+
+    override fun openServiceRequest() {
+        Log.d(TAG, "openServiceRequest()");
+        val intent = Intent(this, ServiceRequestFleetManager::class.java)
+//        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
+//        isFirstAppointment = false
+        //Result is captured by certain fragments such as service fragment which displays booked appointment
+//        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
+        startActivityForResult(intent, RC_SERVICE_REQUEST_FLEET_MANAGER)
+        hideLoading()
     }
 
     override fun onDeviceSyncing() {
@@ -887,6 +914,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         const val RC_ADD_CUSTOM_ISSUE = 54
         const val RC_REQUEST_SERVICE = 55
         const val RC_NOTIFICATIONS = 56
+        const val RC_SERVICE_REQUEST_FLEET_MANAGER = 57
         val FROM_NOTIF = "from_notfftfttfttf"
 
         val RC_ENABLE_BT = 102

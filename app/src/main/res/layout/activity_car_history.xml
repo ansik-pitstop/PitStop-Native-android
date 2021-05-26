@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:visibility="invisible"
         android:id="@+id/history_recycler_view"
         android:layout_width="fill_parent"
@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/message_card"
         android:layout_width="match_parent"
         android:layout_height="70dp"
@@ -41,5 +41,5 @@
 
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </RelativeLayout>

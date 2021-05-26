@@ -42,13 +42,14 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
             override fun onPredictedServiceState(predictedService: PredictedService) {
                 Log.d(tag,"appointment state onPredictedServiceState() predictedService: "+predictedService);
                 if (view != null){
-                    val halfInterval: Long = predictedService.confidenceInterval/2L
-                    val timeDiff = halfInterval * TimeUnit.DAYS.toMillis(halfInterval) //interval * milliseconds in day
-                    val from = Date(predictedService.predictedDate.time-timeDiff)
-                    val to = Date(predictedService.predictedDate.time+timeDiff)
-                    Log.d(tag,"from: $from, to: $to")
-                    val format = SimpleDateFormat("EEE MMM dd yyyy", Locale.CANADA)
-                    view!!.displayPredictedService(format.format(from),format.format(to))
+                    // TODO predictedService.predictedDate is null - will crash
+//                    val halfInterval: Long = predictedService.confidenceInterval/2L
+//                    val timeDiff = halfInterval * TimeUnit.DAYS.toMillis(halfInterval) //interval * milliseconds in day
+//                    val from = Date(predictedService.predictedDate.time-timeDiff)
+//                    val to = Date(predictedService.predictedDate.time+timeDiff)
+//                    Log.d(tag,"from: $from, to: $to")
+//                    val format = SimpleDateFormat("EEE MMM dd yyyy", Locale.CANADA)
+//                    view!!.displayPredictedService(format.format(from),format.format(to))
                 }
             }
 

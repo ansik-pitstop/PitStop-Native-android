@@ -77,10 +77,10 @@ class MileageDialog: DialogFragment(),MileageDialogView {
         activity.mainServicesFragment.presenter?.loadView()
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
-        presenter?.unsubscribe()
-        super.onDismiss(dialog)
-    }
+//    override fun onDismiss(dialog: DialogInterface?) {
+//        presenter?.unsubscribe()
+//        super.onDismiss(dialog)
+//    }
 
     override fun showError(err: Int) {
         error_text?.text = resources.getText(err)

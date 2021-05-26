@@ -9,7 +9,6 @@ import com.squareup.sqlbrite.SqlBrite;
 
 import rx.android.schedulers.AndroidSchedulers;
 
-
 /**
  * Created by Paul Soladoye on 3/16/2016.
  */

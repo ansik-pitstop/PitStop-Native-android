@@ -20,6 +20,7 @@ class NotificationsActivity: AppCompatActivity(), TabSwitcher {
         const val GO_TO_SCAN = 2
         const val GO_TO_APPOINTMENTS = 3
         const val GO_TO_REQUEST_SERVICE = 4
+        const val GO_TO_SMOOCH_MESSAGES = 6
     }
 
     private lateinit var notificationFragment: NotificationFragment

@@ -17,6 +17,7 @@ interface MainView  {
     fun showCars(carList: MutableList<Car>)
     fun openAddCarActivity()
     fun openSmooch()
+    fun openServiceRequest()
     fun callDealership(dealership: Dealership?)
     fun openDealershipDirections(dealership: Dealership?)
     fun showCarsLoading()

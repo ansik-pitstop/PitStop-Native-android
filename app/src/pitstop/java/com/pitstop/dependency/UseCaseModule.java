@@ -130,6 +130,8 @@ import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCaseImpl;
 import com.pitstop.interactors.other.ResetPasswordUseCase;
 import com.pitstop.interactors.other.ResetPasswordUseCaseImpl;
+import com.pitstop.interactors.other.SendFleetManagerSmsUseCase;
+import com.pitstop.interactors.other.SendFleetManagerSmsUseCaseImpl;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCaseImpl;
 import com.pitstop.interactors.other.SignUpUseCase;
@@ -476,6 +478,14 @@ public class UseCaseModule {
             , @Named("mainHandler") Handler mainHandler){
 
         return new DiscoveryTimeoutUseCaseImpl(useCaseHandler,mainHandler);
+    }
+
+    @Provides
+    SendFleetManagerSmsUseCase sendFleetManagerSmsUseCase(
+            UserRepository userRepository,
+            @Named("useCaseHandler")Handler useCaseHandler,
+            @Named("mainHandler") Handler mainHandler){
+        return new SendFleetManagerSmsUseCaseImpl(userRepository, useCaseHandler, mainHandler);
     }
 
     @Provides

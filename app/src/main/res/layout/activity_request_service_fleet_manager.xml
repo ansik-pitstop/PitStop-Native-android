@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/request_service_fleet_manager_fragment_holder"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/left_content_constraint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.15"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/right_content_constraint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.85"
+            />
+
+        <TextView
+            android:id="@+id/service_request_fillout_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/left_content_constraint"
+            app:layout_constraintRight_toRightOf="@id/right_content_constraint"
+            android:textAlignment="center"
+            android:text="Fill out the breakdown service request form"
+            android:textSize="30sp"
+            android:paddingTop="20dp"/>
+
+        <CheckBox
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/left_content_constraint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Alert fleet manager with SMS"
+            android:textSize="25sp"/>
+
+        <LinearLayout
+            android:id="@+id/create_a_request_button"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:layout_constraintLeft_toLeftOf="@id/left_content_constraint"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginStart="4dp"
+            android:elevation="10dp"
+            android:background="#0e58d0">
+
+            <TextView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:text="Analyze"
+                android:textSize="25sp"
+                android:textColor="#FFFFFF"
+                />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

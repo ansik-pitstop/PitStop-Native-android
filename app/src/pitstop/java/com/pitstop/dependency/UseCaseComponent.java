@@ -60,6 +60,7 @@ import com.pitstop.interactors.other.MarkServiceDoneUseCase;
 import com.pitstop.interactors.other.ProcessTripDataUseCase;
 import com.pitstop.interactors.other.RequestServiceUseCase;
 import com.pitstop.interactors.other.ResetPasswordUseCase;
+import com.pitstop.interactors.other.SendFleetManagerSmsUseCase;
 import com.pitstop.interactors.other.SendPendingUpdatesUseCase;
 import com.pitstop.interactors.other.SignUpUseCase;
 import com.pitstop.interactors.other.SmoochLoginUseCase;
@@ -162,6 +163,8 @@ public interface UseCaseComponent {
     UpdateCarMileageUseCase updateCarMileageUseCase();
 
     DiscoveryTimeoutUseCase discoveryTimeoutUseCase();
+
+    SendFleetManagerSmsUseCase sendFleetManagerSmsUseCase();
 
     GenerateReportUseCase getGenerateReportUseCase();
 

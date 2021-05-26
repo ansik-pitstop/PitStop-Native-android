@@ -47,8 +47,16 @@ public class CarIssue implements Parcelable, Issue {
     private int priority;
     private IssueDetail issueDetail;
     private String issueType;
+    private String action;
+    private String name;
+    private String symptoms;
+    private String description;
+    private String causes;
+    private String source;
 
-    public CarIssue() {}
+    public CarIssue() {
+
+    }
 
     public int getDaysAgo(){
         Calendar doneAt = Calendar.getInstance();
@@ -148,32 +156,70 @@ public class CarIssue implements Parcelable, Issue {
     }
 
     public String getIssueType() {
-        return issueType;
+        if (issueType != null) return issueType;
+        return source;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public void setIssueType(String issueType) {
         this.issueType = issueType;
     }
 
+    public void setAction(String action) { this.action = action; }
+
+    public String getAction() { return this.action; }
+
     public String getItem() {
+        if (issueDetail == null) return name;
         return issueDetail.getItem();
     }
 
-    public String getAction() {
-        if (issueDetail.getAction() == null) return "Engine trouble code";
-        else return issueDetail.getAction();
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
 
+
+//    public String getAction() {
+//        if (issueDetail.getAction() == null) return "Engine trouble code";
+//        else return issueDetail.getAction();
+//    }
+
     public String getDescription() {
+        if (issueDetail == null) return description;
         return issueDetail.getDescription();
     }
 
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getSymptoms() {
+        if (issueDetail == null) return symptoms;
         return issueDetail.getSymptoms();
     }
 
+    public void setSymptoms(String symptoms) {
+        this.symptoms = symptoms;
+    }
+
     public String getCauses() {
+        if (issueDetail == null) return causes;
         return issueDetail.getCauses();
+    }
+
+    public void setCauses(String causes) {
+        this.causes = causes;
     }
 
     @Override

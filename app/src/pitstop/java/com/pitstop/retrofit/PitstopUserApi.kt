@@ -18,4 +18,7 @@ interface PitstopUserApi {
 
     @POST("user/{userId}/password")
     fun changePassword(@Path("userId") userId: Int, @Body change: JsonObject): Observable<ChangePasswordResponse>
+
+    @POST("v1/user/{userId}/message/fleet-manager")
+    fun messageFleetManager(@Path("userId") userId: Int, @Body body: JsonElement): Observable<JsonObject>
 }

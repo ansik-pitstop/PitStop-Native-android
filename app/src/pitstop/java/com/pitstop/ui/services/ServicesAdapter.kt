@@ -19,7 +19,7 @@ class ServicesAdapter(fm: FragmentManager, private val upcomingServicesFragment:
         val FRAGMENT_COUNT = 3
     }
 
-    override fun getItem(position: Int): Fragment? {
+    override fun getItem(position: Int): Fragment {
 
         //Return respective fragment and set the variable inside outer class for later callback reference
         when (position) {
@@ -27,7 +27,7 @@ class ServicesAdapter(fm: FragmentManager, private val upcomingServicesFragment:
             FRAGMENT_CURRENT -> return currentServicesFragment
             FRAGMENT_HISTORY -> return historyServicesFragment
         }
-        return null
+        return upcomingServicesFragment
     }
 
     override fun getCount(): Int {
