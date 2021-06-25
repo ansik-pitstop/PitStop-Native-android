@@ -16,6 +16,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.smooch.core.Smooch
 import java.io.IOException
+import java.util.*
 
 /**
  * Created by Karol Zdebel on 2/26/2018.
@@ -47,71 +48,49 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
                 val userId = user.id
 
                 //Set user so that when this use case finishes the user is set and ready for messaging
-                SmoochUtil.setSmoochProperties(user)
-                if (user.settings.hasMainCar()){
-                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io())
-                            .subscribe({next->
-                                val car: Car = next.data!!
-                                //Set car
-                                SmoochUtil.setSmoochProperties(car)
-                                Log.d(tag,"set smooch user proerties! user: $user")
-                            }, {error ->
-                                Log.e(tag,"error storing custom properties! err: $error")
-                            })
-                    compositeDisposable.add(disposable)
-                }
 
                 try {
                     val call = smoochApi.getSmoochToken(userId).execute()
-                    if (call.isSuccessful) {
-                        Log.d(tag, "call successful")
-                        val body = call.body()
-                        if (body != null) {
-                            val smoochToken = body.get("smoochToken").asString
-                            Log.d(tag, "smooch token: " + smoochToken)
-                            if (smoochToken != null) {
-                                Smooch.login(userId.toString(), smoochToken, {
-                                    Log.d(tag, "login response err: " + it.error)
-                                    if (it.error == null){
-                                        //Set user so that when this use case finishes the user is set and ready for messaging
-                                        SmoochUtil.setSmoochProperties(user)
-                                        onLogin()
 
-                                        //Set car properties
-                                        if (user.settings.hasMainCar()){
-                                            val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.REMOTE)
-                                                    .subscribeOn(Schedulers.computation())
-                                                    .observeOn(Schedulers.io(), true)
-                                                    .subscribe({next->
-                                                        val car: Car = next.data!!
-                                                        //Set car
-                                                        SmoochUtil.setSmoochProperties(car)
-                                                        compositeDisposable.clear()
-                                                        Log.d(tag,"set smooch user proerties! user: $user")
-                                                    }, {error ->
-                                                        Log.e(tag,"error storing custom properties! err: $error")
-                                                        compositeDisposable.clear()
-                                                    })
-                                            compositeDisposable.add(disposable)
-                                        }
-                                    }
-                                    else onErrorFound(RequestError.getUnknownError())
-                                })
-                            } else {
-                                Log.d(tag, "err smooch token null")
-                                onErrorFound(RequestError.getUnknownError())
-                            }
-                        } else {
-                            Log.d(tag, "err body null")
-                            onErrorFound(RequestError.getUnknownError())
-                        }
-                    } else {
+                    if (!call.isSuccessful) {
                         Log.d(tag, "call unsuccessful")
                         onErrorFound(RequestError.getUnknownError())
+                        return
                     }
-                }catch(e: IOException){
+
+                    Log.d(tag, "call successful")
+                    val body = call.body()
+
+                    if (body == null) {
+                        Log.d(tag, "err body null")
+                        onErrorFound(RequestError.getUnknownError())
+                        return
+                    }
+
+                    val smoochToken = body.get("smoochToken").asString
+                    Log.d(tag, "smooch token: " + smoochToken)
+                    Log.d(tag, "Current thread" + Thread.currentThread())
+
+                    if (smoochToken == null) {
+                        Log.d(tag, "err smooch token null")
+                        onErrorFound(RequestError.getUnknownError())
+                        return
+                    }
+
+                    Log.d(tag, "Will login on smooch")
+                    Log.d(tag, "userId: $userId")
+
+                    // For some random reason, login on smooch doesn't work anymore when it's
+                    // outside a thread, maybe a race condition
+                    val task: TimerTask = object : TimerTask() {
+                        override fun run() {
+                            loginOnSmooch(user, smoochToken)
+                        }
+                    }
+                    val timer = Timer("Timer")
+                    val delay = 1000L
+                    timer.schedule(task, delay)
+                } catch(e: IOException) {
                     onErrorFound(RequestError.getOfflineError())
                 }
             }
@@ -119,8 +98,35 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
             override fun onError(error: RequestError) {
                 onErrorFound(error)
             }
-
         })
+    }
+
+    fun loginOnSmooch(user: User, smoochToken: String) {
+        Smooch.login(user.id.toString(), smoochToken) {
+            Log.d(tag, "Logged in on smooch")
+            Log.d(tag, "login response err: " + it.error)
+            if (it.error == null) {
+                //Set user so that when this use case finishes the user is set and ready for messaging
+                SmoochUtil.setSmoochProperties(user)
+                if (user.settings.hasMainCar()) {
+                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(Schedulers.io())
+                            .subscribe({next->
+                                val car: Car = next.data!!
+                                Log.d(tag, next.data.toString())
+                                //Set car
+                                SmoochUtil.setSmoochProperties(car)
+                                Log.d(tag,"set smooch user properties! user: $user")
+                                onLogin()
+                            }, {error ->
+                                Log.e(tag,"error storing custom properties! err: $error")
+                                onErrorFound(RequestError.getUnknownError())
+                            })
+                    compositeDisposable.add(disposable)
+                }
+            } else onErrorFound(RequestError.getUnknownError())
+        }
     }
 
     private fun onErrorFound(err: RequestError){

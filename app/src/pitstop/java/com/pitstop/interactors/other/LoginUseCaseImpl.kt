@@ -58,13 +58,13 @@ class LoginUseCaseImpl(private val userRepository: UserRepository
         Logger.getInstance()!!.logI(TAG, "Use case finished: logged in successfully"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onSuccess(user,activated)})
+        mainHandler.post { callback.onSuccess(user, activated) }
     }
 
     private fun onError(err: RequestError){
         Logger.getInstance()!!.logE(TAG, "Use case finished: logged in error=$err"
                 , DebugMessage.TYPE_USE_CASE)
         compositeDisposable.clear()
-        mainHandler.post({callback.onError(err)})
+        mainHandler.post { callback.onError(err) }
     }
 }

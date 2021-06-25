@@ -19,6 +19,8 @@ import com.pitstop.ui.notifications.NotificationsActivity
 import com.pitstop.ui.service_request.RequestServiceActivity
 import io.reactivex.disposables.Disposable
 import android.location.Geocoder
+import android.os.Build
+import android.text.Html
 import android.view.WindowManager
 import com.google.android.material.textfield.TextInputEditText
 import java.util.*
@@ -58,32 +60,35 @@ class ServiceRequestFleetManager : AppCompatActivity() {
         val serviceRequestLocation = findViewById<TextView>(R.id.service_request_location)
         val alertFleetManagerCheckBox = findViewById<CheckBox>(R.id.alert_fleet_manager_checkbox)
         val additionalInformation = findViewById<TextInputEditText>(R.id.service_request_additional_information)
+        val serviceRequestProblemDescription = findViewById<TextView>(R.id.service_request_problem_description)
+
+        setHtmlText(serviceRequestProblemDescription, "<b>Problem Description:</b>")
 
         val userInformation = presenter.getUserInformation()
         userInformationDisposable = userInformation.subscribe { user, _ ->
             val name = "${user?.firstName ?: ""} ${user?.lastName ?: ""}"
-            diverNameTextView.text = "Name: $name"
+            setHtmlText(diverNameTextView, "<b>Name:</b> $name")
         }
 
         val vehicleInformation = presenter.getVehicleInformation()
         carInformationDisposable = vehicleInformation.subscribe { car, _ ->
             Log.d(TAG, car.toString())
-            val vehicleText = "Vehicle: ${car.make} ${car.model} ${car.year} ${car.vin}"
-            vehicleTextView.text = vehicleText
+            val vehicleText = "<b>Vehicle:</b> ${car.make} ${car.model} ${car.year} ${car.vin}"
+            setHtmlText(vehicleTextView, vehicleText)
         }
 
         val activeDtcs = presenter.getActiveDtcs()
         activeDtcsDisposable = activeDtcs.subscribe { activeDtcs, _ ->
-            activeDtcsTextView.text = "Priority: ${activeDtcs.fold("", { acc, carIssue -> carIssue.name + ", " + acc })}"
-            activeDtcsTextView.text.drop(2)
+            activeDtcsTextView.text = "Existing Issues: ${activeDtcs.fold("", { acc, carIssue -> carIssue.name + ", " + acc })}"
+            activeDtcsTextView.text = activeDtcsTextView.text.dropLast(2)
             if (activeDtcs.isEmpty()) {
-                activeDtcsTextView.text = "Priority: No issues detected"
+                setHtmlText(activeDtcsTextView, "<b>Existing Issues:</b> No issues detected")
             }
         }
 
         addressDisposable = presenter.getAddress(this)
             .subscribe { address ->
-                serviceRequestLocation.text = "Location: ${address}"
+                setHtmlText(serviceRequestLocation, "<b>Location:</b> ${address}")
             }
 
         createRequestButton.setOnTouchListener { view, motionEvent ->
@@ -98,7 +103,7 @@ class ServiceRequestFleetManager : AppCompatActivity() {
 
                     val additionalInformationText = additionalInformation.text.toString()
                     if (additionalInformationText.isNotEmpty()) {
-                        strings.add("Additional information: $additionalInformationText")
+                        strings.add("Problem Description: $additionalInformationText")
                     }
 
                     presenter.sendSmoochMessageWithTexts(strings.toTypedArray(), alertFleetManagerCheckBox.isChecked)
@@ -109,9 +114,7 @@ class ServiceRequestFleetManager : AppCompatActivity() {
             }
             true
         }
-
         Log.d(TAG, userInformation.toString())
-
     }
 
     override fun onDestroy() {
@@ -120,7 +123,11 @@ class ServiceRequestFleetManager : AppCompatActivity() {
         carInformationDisposable?.dispose()
     }
 
-    fun fillScreen(driverName: String, vehicleInformation: String, locationName: String, mainDtcs: String) {
-
+    fun setHtmlText(textView: TextView, htmlText: String) {
+        textView.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(htmlText, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            Html.fromHtml(htmlText)
+        }
     }
 }

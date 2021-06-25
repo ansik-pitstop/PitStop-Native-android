@@ -79,8 +79,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 30
         // Change versioning in productFlavors instead of here
-        versionCode 349
-        versionName "5.4.19"
+        versionCode 351
+        versionName "5.4.21"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
@@ -183,6 +183,7 @@ dependencies {
     implementation 'com.parse:parse-android:1.17.3'
     implementation 'com.parse:parse-gcm-android:1.17.3'
     implementation 'com.facebook.android:facebook-login:4.40.0'
+    implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-urlconnection:1.5.0'
     implementation 'io.smooch:core:8.2.0'

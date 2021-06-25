@@ -62,7 +62,6 @@ class LoginPresenter(private val useCaseComponent: UseCaseComponent
                     view?.displayError(error.message)
                     view?.hideLoading()
                 }
-
             })
         }
     }

@@ -45,7 +45,7 @@ Java_com_pitstop_utils_SecretUtils_getMixpanelTokenProd(JNIEnv *env, jobject ins
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getSmoochTokenDev(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "57e40bb1192d9e45009811b3");
+    return (*env) ->  NewStringUTF(env, "59a8225230a0873400f8615f");
 }
 
 JNIEXPORT jstring JNICALL
