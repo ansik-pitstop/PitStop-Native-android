@@ -3,7 +3,6 @@ package com.pitstop.utils;
 import android.util.Log;
 
 import com.pitstop.bluetooth.dataPackages.ELM327PidPackage;
-import com.pitstop.bluetooth.dataPackages.OBD212PidPackage;
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 
@@ -176,8 +175,6 @@ public class PIDParser {
             decimalPidPackage = new ELM327PidPackage((ELM327PidPackage)original);
         }else if (original instanceof OBD215PidPackage){
             decimalPidPackage = new OBD215PidPackage((OBD215PidPackage)original);
-        }else if (original instanceof OBD212PidPackage){
-            decimalPidPackage = new OBD212PidPackage((OBD212PidPackage)original);
         }else{
             return null;
         }

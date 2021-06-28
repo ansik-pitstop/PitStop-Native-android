@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.pitstop.application.GlobalApplication;
 import com.pitstop.bluetooth.bleDevice.AbstractDevice;
-import com.pitstop.bluetooth.bleDevice.Device212B;
 import com.pitstop.bluetooth.bleDevice.Device215B;
 import com.pitstop.bluetooth.bleDevice.ELM327Device;
 import com.pitstop.bluetooth.communicator.BluetoothCommunicator;
@@ -271,13 +270,6 @@ public class BluetoothDeviceManager{
         }
     }
 
-    private void connectTo212Device(BluetoothDevice device){
-        Log.d(TAG,"connectTo212Device() device: "+device.getName());
-        deviceInterface = new Device212B(mContext, dataListener, device.getName(), this);
-
-        deviceInterface.connectToDevice(device);
-    }
-
     private void connectTo215Device(BluetoothDevice device) {
         Log.d(TAG,"connectTo215Device() device: "+device.getName());
         deviceInterface = new Device215B(mContext, dataListener
@@ -346,12 +338,7 @@ public class BluetoothDeviceManager{
             deviceInterface.closeConnection();
         }
 
-        if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_212)) {
-            Log.d(TAG, "device212 > RSSI_Threshold, device: " + strongestRssiDevice);
-
-            foundDevices.remove(strongestRssiDevice);
-            connectTo212Device(strongestRssiDevice);
-        } else if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
+        if (strongestRssiDevice.getName().contains(ObdManager.BT_DEVICE_NAME_215)) {
             Log.d(TAG, "device215 > RSSI_Threshold, device: " + strongestRssiDevice);
             foundDevices.remove(strongestRssiDevice);
             connectTo215Device(strongestRssiDevice);
@@ -634,8 +621,6 @@ public class BluetoothDeviceManager{
         if (deviceInterface != null)
             if (deviceInterface instanceof Device215B){
                 return DeviceType.OBD215;
-            }else if (deviceInterface instanceof Device212B){
-                return DeviceType.OBD212;
             }else if (deviceInterface instanceof ELM327Device){
                 return DeviceType.ELM327;
             }else{

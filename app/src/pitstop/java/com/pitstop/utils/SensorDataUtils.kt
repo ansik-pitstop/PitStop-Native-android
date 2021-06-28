@@ -1,10 +1,8 @@
 package com.pitstop.utils
 
-import com.pitstop.bluetooth.bleDevice.Device212B
 import com.pitstop.bluetooth.bleDevice.Device215B
 import com.pitstop.bluetooth.bleDevice.ELM327Device
 import com.pitstop.bluetooth.dataPackages.ELM327PidPackage
-import com.pitstop.bluetooth.dataPackages.OBD212PidPackage
 import com.pitstop.bluetooth.dataPackages.OBD215PidPackage
 import com.pitstop.bluetooth.dataPackages.PidPackage
 import com.pitstop.models.sensor_data.DataPoint
@@ -29,13 +27,6 @@ class SensorDataUtils {
             }else if (pid is ELM327PidPackage){
                 deviceName = ELM327Device.NAME
                 rtcTime = 0
-            }else if (pid is OBD212PidPackage){
-                deviceName = Device212B.NAME
-                rtcTime = try{
-                    pid.rtcTime.toLong()
-                }catch(e: Exception){
-                    0L
-                }
             }else{
                 throw IllegalArgumentException()
             }
