@@ -2,7 +2,7 @@ package com.castel.obd215b.util;
 
 import android.util.Log;
 
-import com.castel.obd.OBD;
+import com.castel.obd.util.CRC;
 import com.castel.obd215b.info.SettingInfo;
 
 public class DataPackageUtil {
@@ -18,9 +18,9 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_CI + "," + controlEventID + ","
 				+ Constants.INSTRUCTION_STAR;
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
 
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -32,8 +32,8 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_DTC + "," + controlEventID + ","
 				+ Constants.INSTRUCTION_STAR;
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = OBD.CRC(crcData);
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -44,8 +44,8 @@ public class DataPackageUtil {
 		String crcData = Constants.INSTRUCTION_HEAD + terminalSN + ","
 				+ Constants.INSTRUCTION_PIDT + "," + Constants.INSTRUCTION_STAR;
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = OBD.CRC(crcData);
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -65,8 +65,8 @@ public class DataPackageUtil {
 					+ pidNum + "," + pids + "," + Constants.INSTRUCTION_STAR;
 		}
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = OBD.CRC(crcData);
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -91,8 +91,8 @@ public class DataPackageUtil {
 					+ Constants.INSTRUCTION_STAR;
 		}
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = OBD.CRC(crcData);
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -109,7 +109,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -141,7 +141,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -160,7 +160,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -188,7 +188,7 @@ public class DataPackageUtil {
 				+ ","
 				+ Constants.INSTRUCTION_STAR;
 
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -405,8 +405,8 @@ public class DataPackageUtil {
 				+ Constants.INSTRUCTION_SI + "," + num + "," + value
 				+ Constants.INSTRUCTION_STAR;
 
-		// String crc = Integer.toHexString(OBD.CRC(crcData)).toUpperCase();
-		String crc = OBD.CRC(crcData);
+		// String crc = Integer.toHexString(CRC.getCRC(crcData)).toUpperCase();
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -416,7 +416,7 @@ public class DataPackageUtil {
 	public static String hardwareTestPackage(String testValue) {
 		String crcData = "";
 		crcData = "@@IDD,TEST," + testValue + ",*";
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
@@ -426,7 +426,7 @@ public class DataPackageUtil {
 	public static String replyIDRPackage() {
 		String crcData = "";
 		crcData = "@@IDD,IDR,0,*";
-		String crc = OBD.CRC(crcData);
+		String crc = CRC.getCRC(crcData);
 
 		String msg = crcData + crc + Constants.INSTRUCTION_FOOD;
 
