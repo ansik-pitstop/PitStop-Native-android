@@ -3,7 +3,6 @@ package com.pitstop.interactors.other
 import android.os.Handler
 import android.util.Log
 import com.pitstop.database.LocalFuelConsumptionStorage
-import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository

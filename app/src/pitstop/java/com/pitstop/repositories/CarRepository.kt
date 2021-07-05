@@ -1,14 +1,12 @@
 package com.pitstop.repositories
 
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.JsonIOException
-import com.google.gson.JsonObject
+import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import com.pitstop.BuildConfig
 import com.pitstop.database.LocalCarStorage
 import com.pitstop.database.LocalShopStorage
+import com.pitstop.database.LocalUserStorage
 import com.pitstop.models.Car
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.PendingUpdate
@@ -29,10 +27,9 @@ import org.json.JSONObject
  * Created by Karol Zdebel on 5/26/2017.
  */
 
-open class CarRepository(private val localCarStorage: LocalCarStorage
-                     , private val localShopStorage: LocalShopStorage
-                    , private val networkHelper: NetworkHelper
-                    , private val carApi: PitstopCarApi) : Repository {
+open class CarRepository(
+        private val localUserStorage: LocalUserStorage,
+        private val localCarStorage: LocalCarStorage, private val localShopStorage: LocalShopStorage, private val networkHelper: NetworkHelper, private val carApi: PitstopCarApi) : Repository {
 
     private val tag = javaClass.simpleName
 
@@ -80,9 +77,9 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                 try {
                     val jsonArray = JSONObject(response)
                             .getJSONArray("response")
-                    if (jsonArray.length() > 0){
+                    if (jsonArray.length() > 0) {
                         callback.onSuccess(jsonArray.getJSONObject(0).getInt("shopId"))
-                    }else{
+                    } else {
                         if ((BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_BETA)) {
                             callback.onSuccess(1)
                         } else if (BuildConfig.BUILD_TYPE == BuildConfig.BUILD_TYPE_RELEASE) {
@@ -95,14 +92,13 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
                     callback.onError(RequestError.getUnknownError())
                 }
 
-            }else{
+            } else {
                 callback.onError(requestError)
             }
         }
     }
 
-    fun insert(vin: String, baseMileage: Double, userId: Int
-                        , scannerId: String?, callback: Repository.Callback<Car>) {
+    fun insert(vin: String, baseMileage: Double, userId: Int, scannerId: String?, callback: Repository.Callback<Car>) {
         //Insert to backend
         val body = JSONObject()
 
@@ -142,7 +138,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     fun update(car: Car, callback: Repository.Callback<Any>) {
-        Log.d(tag,"update() car: $car")
+        Log.d(tag, "update() car: $car")
         val body = JSONObject()
 
         try {
@@ -169,20 +165,21 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         localCarStorage.deleteAndStoreCar(car)
     }
 
-    fun updateMileage(carId: Int, mileage: Double): Observable<Boolean>{
-        return carApi.updateMileage(TotalMileage(mileage,carId))
-                .doOnNext({localCarStorage.updateCarMileage(carId, mileage)})
+    fun updateMileage(carId: Int, mileage: Double): Observable<Boolean> {
+        return carApi.updateMileage(TotalMileage(mileage, carId))
+                .doOnNext({ localCarStorage.updateCarMileage(carId, mileage) })
                 .map { true }
                 .doOnError({
                     localCarStorage.storePendingUpdate(
-                            PendingUpdate(carId,PendingUpdate.CAR_MILEAGE_UPDATE,mileage.toString(),System.currentTimeMillis())
-                    )})
+                            PendingUpdate(carId, PendingUpdate.CAR_MILEAGE_UPDATE, mileage.toString(), System.currentTimeMillis())
+                    )
+                })
     }
 
     //User id is needed here since cars that were cached during the VIN verification process or car adding process may be in the local db
     // which do not belong to this user
     fun getCarsByUserId(userId: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<List<Car>>> {
-        Log.d(tag,"getCarsByUserId() userId: $userId")
+        Log.d(tag, "getCarsByUserId() userId: $userId")
         return when (type) {
             Repository.DATABASE_TYPE.LOCAL -> getAllLocal(userId)
             Repository.DATABASE_TYPE.REMOTE -> getAllRemote(userId)
@@ -196,7 +193,7 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     fun get(id: Int, type: Repository.DATABASE_TYPE): Observable<RepositoryResponse<Car>> {
-        Log.d(tag,"get() id: $id")
+        Log.d(tag, "get() id: $id")
         return when (type) {
             Repository.DATABASE_TYPE.LOCAL -> getLocal(id)
             Repository.DATABASE_TYPE.REMOTE -> getRemote(id)
@@ -225,16 +222,16 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
         }
     }
 
-    fun sendPendingUpdates(): Observable<List<PendingUpdate>>{
+    fun sendPendingUpdates(): Observable<List<PendingUpdate>> {
         val pendingUpdates = localCarStorage.getPendingUpdates()
-        Log.d(tag,"Got pending updates: $pendingUpdates")
+        Log.d(tag, "Got pending updates: $pendingUpdates")
         val observables = arrayListOf<Observable<PendingUpdate>>()
         pendingUpdates.forEach {
-            when(it.type){
+            when (it.type) {
                 (PendingUpdate.CAR_MILEAGE_UPDATE) -> {
                     observables.add(updateMileage(it.id, it.value.toDouble())
-                            .doOnNext({ _ -> localCarStorage.removePendingUpdate(it)})
-                            .doOnError({ _ -> localCarStorage.removePendingUpdate(it)}) //Remove it because it is stored again in the mileage update anyway
+                            .doOnNext({ _ -> localCarStorage.removePendingUpdate(it) })
+                            .doOnError({ _ -> localCarStorage.removePendingUpdate(it) }) //Remove it because it is stored again in the mileage update anyway
                             .map { _ -> it })
                 }
             }
@@ -244,8 +241,8 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     private fun getAllLocal(userId: Int): Observable<RepositoryResponse<List<Car>>> {
-        return Observable.just(RepositoryResponse(localCarStorage.getAllCars(userId),true)).doOnNext({ next ->
-            Log.d(tag,"remote.replay() next: $next")
+        return Observable.just(RepositoryResponse(localCarStorage.getAllCars(userId), true)).doOnNext({ next ->
+            Log.d(tag, "remote.replay() next: $next")
             next.data.orEmpty()
                     .forEach {
                         //Set dealership for local responses
@@ -256,60 +253,62 @@ open class CarRepository(private val localCarStorage: LocalCarStorage
     }
 
     private fun getAllRemote(userId: Int): Observable<RepositoryResponse<List<Car>>> {
-        return carApi.getUserCars(userId).map{ carListResponse ->
-            if (!carListResponse.isSuccessful || (carListResponse.body() == null || ( (carListResponse.body() as JsonElement).isJsonObject
-                            && (carListResponse.body() as JsonObject).size() == 0) )){
-                return@map RepositoryResponse(emptyList<Car>(),false)
-            }else{
-                val gson = Gson()
-                val listType = object : TypeToken<List<Car>>() {}.type
-                val carList: List<Car> = gson.fromJson(carListResponse.body(),listType)
-                return@map RepositoryResponse(carList,false)
-            }}.doOnNext {
-                it.data?.forEach {
-                    if (it.shop != null) {
-                        localShopStorage.removeById(it.shopId)
-                        localShopStorage.storeDealership(it.shop)
-                    }
 
-                    val localCar = localCarStorage.getCar(it.id)
-                    if (localCar != null && localCar.isCurrentCar) {
-                        it.isCurrentCar = true
+        val currentCarId = localUserStorage.user!!.settings.carId
+
+        return carApi.getUserCars(userId)
+                .map { carListResponse ->
+                    if (!carListResponse.isSuccessful || (carListResponse.body() == null || ((carListResponse.body() as JsonElement).isJsonObject
+                                    && (carListResponse.body() as JsonObject).size() == 0))) { 
+                        return@map RepositoryResponse(emptyList<Car>(), false)
+                    } else {
+                        val gson = Gson()
+                        val responseType = object : TypeToken<List<Car>>() {}.type
+                        val carListJson = (carListResponse.body() as JsonObject).get("result") as JsonArray
+                        val carList: List<Car> = gson.fromJson(carListJson, responseType)
+                        return@map RepositoryResponse(carList, false)
                     }
-                    localCarStorage.deleteAndStoreCar(it)
+                }.doOnNext {
+                    val carList = it.data
+                    if (carList == null || carList.isEmpty()) return@doOnNext
+                    for (car in carList) {
+                        if (car.shop != null) {
+                            localShopStorage.removeById(car.shopId)
+                            localShopStorage.storeDealership(car.shop)
+                        }
+                        car.isCurrentCar = currentCarId == car.id
+                        localCarStorage.deleteAndStoreCar(car)
+                    }
                 }
-            }
     }
 
-    private fun getLocal(id: Int): Observable<RepositoryResponse<Car>>{
-        Log.d(tag,"getLocal() id: $id")
-        return Observable.just(RepositoryResponse(localCarStorage.getCar(id),true))
+    private fun getLocal(id: Int): Observable<RepositoryResponse<Car>> {
+        Log.d(tag, "getLocal() id: $id")
+        return Observable.just(RepositoryResponse(localCarStorage.getCar(id), true))
                 .doOnNext {
-                    if (it.data != null){
+                    if (it.data != null) {
                         val dealership = localShopStorage.getDealership(it.data.shopId)
                         it.data.shop = dealership
                     }
                 }
     }
 
-    private fun getRemote(id: Int): Observable<RepositoryResponse<Car>>{
-        Log.d(tag,"getRemote() id: $id")
+    private fun getRemote(id: Int): Observable<RepositoryResponse<Car>> {
+        Log.d(tag, "getRemote() id: $id")
         val remote = carApi.getCar(id)
+        val currentCarId = localUserStorage.user!!.settings.carId
 
-        return remote.map{ carListResponse -> RepositoryResponse(carListResponse,false) }
+        return remote.map { carListResponse -> RepositoryResponse(carListResponse, false) }
                 .doOnNext { next ->
-                    if (next.data == null ) return@doOnNext
+                    if (next.data == null) return@doOnNext
 
-                    Log.d(tag,"remote.cache() local store update cars: "+next.data)
+                    Log.d(tag, "remote.cache() local store update cars: " + next.data)
                     //Store shop
-                    if (next.data.shop != null){
+                    if (next.data.shop != null) {
                         localShopStorage.removeById(next.data.shopId)
                         localShopStorage.storeDealership(next.data.shop)
                     }
-                    val localCar = localCarStorage.getCar(next.data!!.id)
-                    if (localCar != null && localCar.isCurrentCar) {
-                        next.data.isCurrentCar = true
-                    }
+                    next.data.isCurrentCar = currentCarId == next.data.id
                     localCarStorage.deleteAndStoreCar(next.data)
                 }
     }

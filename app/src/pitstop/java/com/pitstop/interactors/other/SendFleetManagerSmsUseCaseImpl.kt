@@ -2,7 +2,6 @@ package com.pitstop.interactors.other
 
 import android.annotation.SuppressLint
 import android.os.Handler
-import android.util.Log
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.User
 import com.pitstop.network.RequestError

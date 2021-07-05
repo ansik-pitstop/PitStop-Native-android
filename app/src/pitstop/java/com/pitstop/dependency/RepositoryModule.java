@@ -63,10 +63,10 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public CarRepository getCarRepository(LocalCarStorage localCarStorage
+    public CarRepository getCarRepository(LocalUserStorage localUserStorage, LocalCarStorage localCarStorage
             , LocalShopStorage localShopStorage
             , NetworkHelper networkHelper, PitstopCarApi pitstopCarApi){
-        return new CarRepository(localCarStorage, localShopStorage, networkHelper,pitstopCarApi);
+        return new CarRepository(localUserStorage, localCarStorage, localShopStorage, networkHelper,pitstopCarApi);
     }
 
     @Provides

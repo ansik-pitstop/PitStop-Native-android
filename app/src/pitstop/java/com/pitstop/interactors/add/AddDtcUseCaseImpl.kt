@@ -6,10 +6,7 @@ import com.pitstop.bluetooth.dataPackages.DtcPackage
 import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.CarIssueRepository
-import com.pitstop.repositories.CarRepository
-import com.pitstop.repositories.Repository
-import com.pitstop.repositories.UserRepository
+import com.pitstop.repositories.*
 import com.pitstop.utils.Logger
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -78,7 +75,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                                             }
 
                                         }
-                                        override fun onError(error: RequestError){
+                                        override fun onError(error: RequestError) {
                                             Log.d(tag,"Error adding dtc err: "+error.message)
                                             Log.d(tag,"dtcPackage: "+dtcPackage)
                                             this@AddDtcUseCaseImpl.onError(error)
@@ -91,7 +88,7 @@ class AddDtcUseCaseImpl(val userRepository: UserRepository, val carIssueReposito
                 }
                 else this@AddDtcUseCaseImpl.onError(RequestError.getUnknownError())
             }
-            override fun onError(error: RequestError){
+            override fun onError(error: RequestError) {
                 Log.d(tag,"Error retrieving user err: "+error.message)
                 this@AddDtcUseCaseImpl.onError(error)
             }

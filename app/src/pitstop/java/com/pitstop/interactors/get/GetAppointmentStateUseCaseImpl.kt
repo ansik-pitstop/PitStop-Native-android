@@ -2,15 +2,9 @@ package com.pitstop.interactors.get
 
 import android.os.Handler
 import android.util.Log
-import com.pitstop.models.Appointment
-import com.pitstop.models.Dealership
-import com.pitstop.models.DebugMessage
-import com.pitstop.models.Settings
+import com.pitstop.models.*
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.AppointmentRepository
-import com.pitstop.repositories.Repository
-import com.pitstop.repositories.ShopRepository
-import com.pitstop.repositories.UserRepository
+import com.pitstop.repositories.*
 import com.pitstop.retrofit.PredictedService
 import com.pitstop.utils.Logger
 import io.reactivex.disposables.CompositeDisposable

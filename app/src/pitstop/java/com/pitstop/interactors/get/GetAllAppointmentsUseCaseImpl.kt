@@ -10,7 +10,6 @@ import com.pitstop.repositories.AppointmentRepository
 import com.pitstop.repositories.Repository
 import com.pitstop.repositories.UserRepository
 import com.pitstop.utils.Logger
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 

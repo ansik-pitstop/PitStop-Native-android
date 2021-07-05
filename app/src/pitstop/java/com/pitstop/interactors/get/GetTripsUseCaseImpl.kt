@@ -7,10 +7,7 @@ import com.pitstop.models.DebugMessage
 import com.pitstop.models.Settings
 import com.pitstop.models.trip.Trip
 import com.pitstop.network.RequestError
-import com.pitstop.repositories.CarRepository
-import com.pitstop.repositories.Repository
-import com.pitstop.repositories.TripRepository
-import com.pitstop.repositories.UserRepository
+import com.pitstop.repositories.*
 import com.pitstop.utils.Logger
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

@@ -14,7 +14,10 @@ import com.pitstop.repositories.RepositoryResponse;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -88,7 +91,23 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                                     if (carListResponse.getData() == null){
                                         GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());
                                     }else{
-                                        GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
+                                        List<Car> carList = carListResponse.getData();
+                                        if (!isCurrentCarValid(data.getCarId(), carList)) {
+                                            carList.get(0).setCurrentCar(true);
+                                            userRepository.setUserCar(user.getId(), carList.get(0).getId(), new Repository.Callback<Object>() {
+                                                @Override
+                                                public void onSuccess(Object data) {
+                                                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carList);
+                                                }
+                                                @Override
+                                                public void onError(RequestError error) {
+                                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+error);
+                                                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carList);
+                                                }
+                                            });
+                                        } else {
+                                            GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
+                                        }
                                     }
                                 }).doOnError(err -> GetCarsByUserIdUseCaseImpl.this.onError(new RequestError(err)))
                                 .onErrorReturn(err -> {
@@ -112,5 +131,13 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
             }
         });
 
+    }
+
+    private boolean isCurrentCarValid(int currentCarId, @NotNull List<Car> carList) {
+        for (int i = 0; i<carList.size(); i++) {
+            Car car = carList.get(i);
+            if (car.getId() == currentCarId) return true;
+        }
+        return false;
     }
 }
