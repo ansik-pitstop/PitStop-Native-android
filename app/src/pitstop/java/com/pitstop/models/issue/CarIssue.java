@@ -285,11 +285,17 @@ public class CarIssue implements Parcelable, Issue {
         dest.writeString(this.doneAt);
         dest.writeInt(this.priority);
         dest.writeString(this.issueType);
-        dest.writeString(this.issueDetail.getItem());
-        dest.writeString(this.issueDetail.getAction());
-        dest.writeString(this.issueDetail.getDescription());
-        dest.writeString(this.issueDetail.getCauses());
-        dest.writeString(this.issueDetail.getSymptoms());
+        if (this.issueDetail == null) return;
+        addToDestIfNotNull(dest, this.issueDetail.getItem());
+        addToDestIfNotNull(dest, this.issueDetail.getAction());
+        addToDestIfNotNull(dest, this.issueDetail.getDescription());
+        addToDestIfNotNull(dest, this.issueDetail.getCauses());
+        addToDestIfNotNull(dest, this.issueDetail.getSymptoms());
+    }
+
+    void addToDestIfNotNull(Parcel dest, String string) {
+        if (string == null || string.isEmpty()) return;
+        dest.writeString(string);
     }
 
     protected CarIssue(Parcel in) {

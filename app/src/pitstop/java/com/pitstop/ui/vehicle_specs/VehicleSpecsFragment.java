@@ -55,6 +55,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -663,6 +664,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, true);
+        if (provider == null || provider.isEmpty()) {
+            List<String> allProviders = locationManager.getAllProviders();
+            if (allProviders.size() == 0) return null;
+            provider = allProviders.get(0);
+        }
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(provider, 1, 1, locationListener);
             String locationProvider = LocationManager.NETWORK_PROVIDER;
