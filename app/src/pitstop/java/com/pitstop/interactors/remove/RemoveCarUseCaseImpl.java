@@ -47,12 +47,13 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     private UserRepository userRepository;
     private TripRepository tripRepository;
     private CarIssueRepository carIssueRepository;
-    private int carToDeleteId;
     private Callback callback;
     private Handler useCaseHandler;
     private Handler mainHandler;
     private NetworkHelper networkHelper;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Integer carId;
+    private Integer userId;
 
     private EventSource eventSource;
 
@@ -69,13 +70,14 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
     }
 
     @Override
-    public void execute(int carToDeleteId,String eventSource, Callback callback) {
-        Logger.getInstance().logI(TAG,"Use case execution started: carToDeleteId="+carToDeleteId
+    public void execute(Integer userId, Integer carId, String eventSource, Callback callback) {
+        Logger.getInstance().logI(TAG,"Use case execution started: carToDeleteId="+carId
                         +", eventSource="+eventSource
                 , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
-        this.carToDeleteId = carToDeleteId;
         this.callback = callback;
+        this.carId = carId;
+        this.userId = userId;
         useCaseHandler.post(this);
     }
 
@@ -95,106 +97,39 @@ public class RemoveCarUseCaseImpl implements RemoveCarUseCase {
 
     @Override
     public void run() {
-
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+        carRepository.delete(userId, carId, new CarRepository.Callback<Object>() {
             @Override
-            public void onSuccess(Settings data) {
+            public void onSuccess(Object response) {
+                carIssueRepository.deleteLocalCarIssueData(carId);
+                userRepository.getCurrentUser(new Repository.Callback<User>() {
 
-                if (!data.hasMainCar()){
-                    RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                }
-                // GET the VIN from the car to be deleted BEFORE it
-                else if (data.hasMainCar()){
-                    Disposable disposable = carRepository.get(carToDeleteId,Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io())
-                            .subscribe(carRepositoryResponse -> {
-                                if (carRepositoryResponse.getData() == null) return;
-                                else carRepository.delete(carToDeleteId, new CarRepository.Callback<Object>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        onCarRemoved();
+//                        Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
+//                                .subscribeOn(Schedulers.computation())
+//                                .observeOn(Schedulers.io())
+//                                .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
+//                                .doOnNext(carListResponse -> {
+//                                    if (carListResponse.isLocal()) return;
+//                                    Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
+//                                    List<Car> cars = carListResponse.getData();
+//                                    if (cars == null){
+//                                        RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+//                                    }
+////                                    onCarRemoved();
+//                                }).onErrorReturn(err -> {
+//                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
+//                                    return new RepositoryResponse<List<Car>>(null,false);
+//                                }).subscribe();
+//                        compositeDisposable.add(disposable);
+                    }
 
-                                    @Override
-                                    public void onSuccess(Object response) {
-
-                                        // Once the car is successfully delete, let's delete all the associated Trips from the local DB
-                                        tripRepository.deleteAllTripsFromCarVin(carRepositoryResponse.getData().getVin(), new Repository.Callback<Object>() {
-                                            @Override
-                                            public void onSuccess(Object data) {
-                                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() response: " + data);
-                                            }
-
-                                            @Override
-                                            public void onError(RequestError error) {
-                                                Log.d(TAG, "tripRepository.deleteTripsFromCarVin() error: " + error);
-                                                RemoveCarUseCaseImpl.this.onError(error);
-                                            }
-                                        });
-
-                                        carIssueRepository.deleteLocalCarIssueData(carToDeleteId);
-
-                                        if(data.getCarId() == carToDeleteId){// deleted the users current car
-                                            userRepository.getCurrentUser(new Repository.Callback<User>() {
-
-                                                @Override
-                                                public void onSuccess(User user) {
-                                                    Disposable disposable = carRepository.getCarsByUserId(user.getId(),Repository.DATABASE_TYPE.REMOTE)
-                                                            .subscribeOn(Schedulers.computation())
-                                                            .observeOn(Schedulers.io())
-                                                            .doOnError(err -> RemoveCarUseCaseImpl.this.onError(new RequestError(err)))
-                                                            .doOnNext(carListResponse -> {
-                                                                if (carListResponse.isLocal()) return;
-                                                                Log.d(TAG,"carRepository.getCarsByUserId() response: "+carListResponse);
-                                                                List<Car> cars = carListResponse.getData();
-                                                                if (cars == null){
-                                                                    RemoveCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                                                                    return;
-                                                                }
-
-                                                                int carId = cars.size() > 0 ? cars.get(cars.size() - 1).getId() : -1;
-                                                                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
-
-                                                                    @Override
-                                                                    public void onSuccess(Object object) {
-                                                                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                                                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                                                ,eventSource));
-                                                                        RemoveCarUseCaseImpl.this.onCarRemoved();
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onError(RequestError error) {
-                                                                        RemoveCarUseCaseImpl.this.onError(error);
-                                                                    }
-                                                                });
-                                                            }).onErrorReturn(err -> {
-                                                        Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
-                                                        return new RepositoryResponse<List<Car>>(null,false);
-                                                    }).subscribe();
-                                                    compositeDisposable.add(disposable);
-                                                }
-
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    RemoveCarUseCaseImpl.this.onError(error);
-                                                }
-                                            });
-                                        }else{
-                                            EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                            EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                                    ,eventSource));
-                                            RemoveCarUseCaseImpl.this.onCarRemoved();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(RequestError error) {
-                                        RemoveCarUseCaseImpl.this.onError(error);
-                                    }
-                                });
-                            },err -> {
-                                RemoveCarUseCaseImpl.this.onError(new RequestError(err));
-                            });
-                    compositeDisposable.add(disposable);
-                }
+                    @Override
+                    public void onError(RequestError error) {
+                        RemoveCarUseCaseImpl.this.onError(error);
+                    }
+                });
             }
 
             @Override

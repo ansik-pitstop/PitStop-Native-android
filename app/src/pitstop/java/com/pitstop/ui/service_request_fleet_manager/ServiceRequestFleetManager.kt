@@ -23,6 +23,7 @@ import android.os.Build
 import android.text.Html
 import android.view.WindowManager
 import com.google.android.material.textfield.TextInputEditText
+import com.pitstop.application.GlobalVariables
 import java.util.*
 
 
@@ -70,16 +71,16 @@ class ServiceRequestFleetManager : AppCompatActivity() {
             setHtmlText(diverNameTextView, "<b>Name:</b> $name")
         }
 
-        val vehicleInformation = presenter.getVehicleInformation()
+        val vehicleInformation = presenter.getVehicleInformation(getMainCarId())
         carInformationDisposable = vehicleInformation.subscribe { car, _ ->
             Log.d(TAG, car.toString())
             val vehicleText = "<b>Vehicle:</b> ${car.make} ${car.model} ${car.year} ${car.vin}"
             setHtmlText(vehicleTextView, vehicleText)
         }
 
-        val activeDtcs = presenter.getActiveDtcs()
+        val activeDtcs = presenter.getActiveDtcs(getMainCarId())
         activeDtcsDisposable = activeDtcs.subscribe { activeDtcs, _ ->
-            activeDtcsTextView.text = "Existing Issues: ${activeDtcs.fold("", { acc, carIssue -> carIssue.name + ", " + acc })}"
+            setHtmlText(activeDtcsTextView, "<b>Existing Issues</b>: ${activeDtcs.fold("", { acc, carIssue -> carIssue.name + ", " + acc })}")
             activeDtcsTextView.text = activeDtcsTextView.text.dropLast(2)
             if (activeDtcs.isEmpty()) {
                 setHtmlText(activeDtcsTextView, "<b>Existing Issues:</b> No issues detected")
@@ -98,12 +99,12 @@ class ServiceRequestFleetManager : AppCompatActivity() {
                     var strings = mutableListOf(
                             diverNameTextView.text.toString(),
                             vehicleTextView.text.toString(),
-                            activeDtcsTextView.text.toString(),
+                            activeDtcsTextView.text.toString().replace("Existing Issues", "Issues"),
                             serviceRequestLocation.text.toString())
 
                     val additionalInformationText = additionalInformation.text.toString()
                     if (additionalInformationText.isNotEmpty()) {
-                        strings.add("Problem Description: $additionalInformationText")
+                        strings.add("Problem: $additionalInformationText")
                     }
 
                     presenter.sendSmoochMessageWithTexts(strings.toTypedArray(), alertFleetManagerCheckBox.isChecked)
@@ -115,6 +116,10 @@ class ServiceRequestFleetManager : AppCompatActivity() {
             true
         }
         Log.d(TAG, userInformation.toString())
+    }
+
+    private fun getMainCarId(): Int? {
+        return GlobalVariables.getMainCarId(applicationContext)
     }
 
     override fun onDestroy() {

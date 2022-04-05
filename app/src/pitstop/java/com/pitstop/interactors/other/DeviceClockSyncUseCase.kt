@@ -13,5 +13,5 @@ interface DeviceClockSyncUseCase: Interactor {
         fun onError(error: RequestError)
     }
 
-    fun execute(rtcTime: Long, deviceId: String, vin: String, callback: Callback)
+    fun execute(carId: Int, rtcTime: Long, deviceId: String, vin: String, callback: Callback)
 }

@@ -15,5 +15,5 @@ public interface UpdateCarMileageUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(double mileage, EventSource eventSource, Callback callback);
+    void execute(Integer carId, double mileage, EventSource eventSource, Callback callback);
 }

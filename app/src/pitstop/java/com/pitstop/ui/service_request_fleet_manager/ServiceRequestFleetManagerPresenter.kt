@@ -35,9 +35,11 @@ class ServiceRequestFleetManagerPresenter(val component: UseCaseComponent) {
         }
     }
 
-    fun getVehicleInformation(): Single<Car> {
+    fun getVehicleInformation(carId: Int?): Single<Car> {
         return Single.create {
-            component.userCarUseCase.execute(Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback {
+            if (carId == null) return@create
+
+            component.userCarUseCase.execute(carId, Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback {
                 override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
                     it.onSuccess(car!!)
                 }
@@ -57,6 +59,10 @@ class ServiceRequestFleetManagerPresenter(val component: UseCaseComponent) {
             }
             fusedLocationProvider.lastLocation.addOnSuccessListener {
                 val geocoder = Geocoder(context, Locale.getDefault())
+                if (it == null) {
+                    single.onSuccess("Could not load address")
+                    return@addOnSuccessListener
+                }
                 val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
 
                 val address = addresses[0].getAddressLine(0) // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
@@ -71,9 +77,12 @@ class ServiceRequestFleetManagerPresenter(val component: UseCaseComponent) {
 
     }
 
-    fun getActiveDtcs(): Single<List<CarIssue>> {
+    fun getActiveDtcs(carId: Int?): Single<List<CarIssue>> {
         return Single.create {
-            component.currentServicesUseCase.execute(object: GetCurrentServicesUseCase.Callback {
+            if (carId == null) {
+                return@create
+            }
+            component.currentServicesUseCase.execute(carId, object: GetCurrentServicesUseCase.Callback {
                 override fun onGotCurrentServices(currentServices: MutableList<CarIssue>?, customIssues: MutableList<CarIssue>?, local: Boolean) {
                     val services = mutableListOf<CarIssue>()
                     if (currentServices != null) services.addAll(currentServices)

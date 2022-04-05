@@ -23,6 +23,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -315,6 +316,7 @@ public class VinEntryFragment extends Fragment implements VinEntryView{
     public void onCarAddedWithoutShop(Car car) {
         Log.d(TAG,"onCarAddedWithoutShop() car:"+car);
 
+        GlobalVariables.Companion.setMainCarId(getContext(), car.getId());
         if (fragmentSwitcher == null) return;
         fragmentSwitcher.endAddCarSuccess(car,false);
     }

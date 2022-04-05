@@ -64,33 +64,33 @@ public class SetUserCarUseCaseImpl implements SetUserCarUseCase {
 
     @Override
     public void run() {
-        Log.d(TAG,"run() carId: "+carId+", eventSource: "+eventSource.getSource());
-        userRepository.getCurrentUser(new Repository.Callback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                Log.d(TAG,"current user: "+user);
-                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
-                    @Override
-                    public void onSuccess(Object object) {
-                        Log.d(TAG,"Car set success! response: "+object);
-                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                ,eventSource));
-                        SetUserCarUseCaseImpl.this.onUserCarSet();
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        SetUserCarUseCaseImpl.this.onError(error);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                SetUserCarUseCaseImpl.this.onError(error);
-            }
-        });
+//        Log.d(TAG,"run() carId: "+carId+", eventSource: "+eventSource.getSource());
+//        userRepository.getCurrentUser(new Repository.Callback<User>() {
+//            @Override
+//            public void onSuccess(User user) {
+//                Log.d(TAG,"current user: "+user);
+//                userRepository.setUserCar(user.getId(), carId, new Repository.Callback<Object>() {
+//                    @Override
+//                    public void onSuccess(Object object) {
+//                        Log.d(TAG,"Car set success! response: "+object);
+//                        EventType eventType = new EventTypeImpl(EventType.EVENT_CAR_ID);
+//                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
+//                                ,eventSource));
+//                        SetUserCarUseCaseImpl.this.onUserCarSet();
+//                    }
+//
+//                    @Override
+//                    public void onError(RequestError error) {
+//                        SetUserCarUseCaseImpl.this.onError(error);
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onError(RequestError error) {
+//                SetUserCarUseCaseImpl.this.onError(error);
+//            }
+//        });
 
     }
 }

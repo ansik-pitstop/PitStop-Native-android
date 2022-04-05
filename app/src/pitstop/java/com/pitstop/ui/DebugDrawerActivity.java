@@ -21,6 +21,7 @@ import com.pitstop.BuildConfig;
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.R;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.bluetooth.elm.enums.ObdProtocols;
@@ -169,10 +170,12 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
             }
         });
 
+
+
         Button getMileage = findViewById(R.id.getMileage);
         getMileage.setOnClickListener(v -> {
             Log.d(TAG,"getMileage()");
-            useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
+            useCaseComponent.getUserCarUseCase().execute(getMainCarId(), Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
                 @Override
                 public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                     editText.setText("mileage: "+car.getTotalMileage());
@@ -196,7 +199,7 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         updateMileage.setOnClickListener(v -> {
             try{
                 int num = Integer.valueOf(editText.getText().toString());
-                useCaseComponent.updateCarMileageUseCase().execute(num
+                useCaseComponent.updateCarMileageUseCase().execute(getMainCarId(), num
                         ,new EventSourceImpl(EventSource.SOURCE_DRAWER), new UpdateCarMileageUseCase.Callback() {
                     @Override
                     public void onMileageUpdated() {
@@ -263,6 +266,10 @@ public abstract class DebugDrawerActivity extends AppCompatActivity implements B
         });
 
         setupLogging();
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getBaseContext());
     }
 
     private void setChunkSize(int chunkSize) {

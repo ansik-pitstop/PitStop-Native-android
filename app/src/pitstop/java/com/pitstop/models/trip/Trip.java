@@ -7,10 +7,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-/**
- * Created by David C. on 9/3/18.
- */
-
 public class Trip {
 
     @SerializedName("_id")

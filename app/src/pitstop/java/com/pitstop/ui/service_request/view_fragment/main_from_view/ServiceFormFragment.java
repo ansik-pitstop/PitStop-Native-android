@@ -1,5 +1,7 @@
 package com.pitstop.ui.service_request.view_fragment.main_from_view;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -150,7 +153,7 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         dateButton.setOnClickListener(v -> presenter.dateButtonClicked());
         addButton.setOnClickListener(v -> presenter.addButtonClicked());
 
-        submitButton.setOnClickListener(v -> presenter.onSubmitClicked());
+        submitButton.setOnClickListener(v -> presenter.onSubmitClicked(getMainCarId()));
         return view;
     }
 
@@ -158,9 +161,13 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
-        presenter.populateViews();
+        presenter.populateViews(getMainCarId());
         Calendar calendar = Calendar.getInstance();
         calendarView.state().edit().setMinimumDate(calendar).commit();
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getApplicationContext());
     }
 
     @Override

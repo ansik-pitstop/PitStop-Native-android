@@ -17,5 +17,5 @@ interface AddAlarmUseCase : Interactor {
         fun onAlarmsDisabled()
     }
 
-    fun execute(alarm: Alarm, callback: Callback)
+    fun execute(carId: Int, alarm: Alarm, callback: Callback)
 }

@@ -14,6 +14,9 @@ interface PitstopTripApi {
     fun store(@Body body: JsonElement): Observable<Response<JsonElement>>
 
     @GET("/v1/trip")
+    fun getTripListFromCarVin1(@Query("vin") vin: String): Observable<PitstopResponse<List<Trip>>>
+
+    @GET("/v1/trip")
     fun getTripListFromCarVin(@Query("vin") vin: String): Observable<PitstopResponse<List<Trip>>>
 
     @DELETE("/v1/trip")

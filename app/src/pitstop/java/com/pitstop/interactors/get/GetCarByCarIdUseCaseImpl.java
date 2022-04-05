@@ -73,7 +73,7 @@ public class GetCarByCarIdUseCaseImpl implements GetCarByCarIdUseCase {
 
             @Override
             public void onSuccess(User user) {
-                Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.BOTH)
+                Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.REMOTE)
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.io())
                         .subscribe(response -> {

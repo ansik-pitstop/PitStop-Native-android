@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -149,10 +150,18 @@ public class ServiceFormFragment extends Fragment implements ServiceFormView {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                presenter.onCreateButton();
+                presenter.onCreateButton(getMainCarId(), getUserId());
             }
         });
         return view;
+    }
+
+    Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
+    }
+
+    Integer getUserId() {
+        return GlobalVariables.Companion.getUserId(context);
     }
 
     @Override

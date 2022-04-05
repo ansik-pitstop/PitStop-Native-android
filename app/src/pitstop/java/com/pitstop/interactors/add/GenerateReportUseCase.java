@@ -20,5 +20,5 @@ public interface GenerateReportUseCase extends Interactor {
         void onError(RequestError requestError);
     }
 
-    void execute(PidPackage pid, DtcPackage dtc, Callback callback);
+    void execute(Integer carId, PidPackage pid, DtcPackage dtc, Callback callback);
 }

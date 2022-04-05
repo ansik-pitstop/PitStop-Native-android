@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.current;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
@@ -7,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentServicesUseCase;
 import com.pitstop.interactors.set.SetServicesDoneUseCase;
@@ -45,10 +47,12 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     private List<CarIssue> storedEngineIssueList = new ArrayList<>();
     private List<CarIssue> potentialEngineIssuesList = new ArrayList<>();
     private List<CarIssue> recallList = new ArrayList<>();
+    private Context context;
 
-    CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    CurrentServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper, Context context) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        this.context = context;
     }
 
     @Override
@@ -123,14 +127,20 @@ class CurrentServicesPresenter extends TabPresenter<CurrentServicesView> {
     @Override
     public EventSource getSourceType() { return EVENT_SOURCE; }
 
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (getView() == null) return;
         if (updating) return;
         else updating = true;
         getView().showLoading();
+        Integer carId = getMainCarId();
+        if (carId == null) return;
 
-        useCaseComponent.getCurrentServicesUseCase().execute(new GetCurrentServicesUseCase.Callback() {
+        useCaseComponent.getCurrentServicesUseCase().execute(carId, new GetCurrentServicesUseCase.Callback() {
             @Override
             public void onGotCurrentServices(List<CarIssue> currentServices, List<CarIssue> customIssues, boolean local) {
                 Log.d(TAG,"getCurrentServicesUseCase.onGotCurrentServices()");

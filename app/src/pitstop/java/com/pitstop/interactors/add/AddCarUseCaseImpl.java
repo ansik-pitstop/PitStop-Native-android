@@ -11,6 +11,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.models.Car;
 import com.pitstop.models.DebugMessage;
 import com.pitstop.models.User;
@@ -123,36 +124,16 @@ public class AddCarUseCaseImpl implements AddCarUseCase {
                 , new Repository.Callback<Car>() {
                     @Override
                     public void onSuccess(Car car) {
-                        Log.d(TAG,"insert.onSuccess() car: "+car);
+                        Log.d(TAG, "insert.onSuccess() car: " + car);
 
-                        userRepository.setUserCar(userId, car.getId(), new Repository.Callback<Object>() {
-                            @Override
-                            public void onSuccess(Object data) {
-                                Log.d(TAG,"setUsercar.onSuccess() response: "+data);
+                        SmoochUtil.Companion.sendUserAddedCarSmoochMessage(user, car);
+                        SmoochUtil.Companion.setSmoochProperties(car);
 
-                                SmoochUtil.Companion.sendUserAddedCarSmoochMessage(user,car);
-                                SmoochUtil.Companion.setSmoochProperties(car);
-
-                                //Process succeeded, notify eventbus
-                                EventType eventType
-                                        = new EventTypeImpl(EventType.EVENT_CAR_ID);
-                                EventBus.getDefault().post(new CarDataChangedEvent(
-                                        eventType, eventSource));
-
-                                if (car.getShop() == null) {
-                                    AddCarUseCaseImpl.this.onCarAdded(car);
-                                }
-                                else{
-                                    AddCarUseCaseImpl.this.onCarAddedWithBackendShop(car);
-                                }
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                Log.d(TAG,"setUserCar.onError() error: "+error.getMessage());
-                                AddCarUseCaseImpl.this.onError(error);
-                            }
-                        });
+                        if (car.getShop() == null) {
+                            AddCarUseCaseImpl.this.onCarAdded(car);
+                        } else {
+                            AddCarUseCaseImpl.this.onCarAddedWithBackendShop(car);
+                        }
                     }
                     @Override
                     public void onError(RequestError error) {

@@ -23,5 +23,5 @@ public interface HandleVinOnConnectUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(String vin, String deviceId, Callback callback);
+    void execute(Integer carId, String vin, String deviceId, Callback callback);
 }

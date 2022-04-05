@@ -18,11 +18,17 @@ class SnapToRoadRepository(private val snapToRoadApi: GoogleSnapToRoadApi) : Rep
         Log.d(tag, "getSnapToRoadFromLocations() listLatLng: $listLatLng")
 
         val remoteResponse: Observable<RepositoryResponse<List<SnappedPoint>>> = snapToRoadApi
-                .getSnapToRoadFromLatLng(listLatLng, "false", key).map { snappedPointListResponse ->
-            Log.d(tag,"snapped points response: ${snappedPointListResponse.snappedPoints}")
-            return@map RepositoryResponse(snappedPointListResponse.snappedPoints, false)
-
-        }
+            .getSnapToRoadFromLatLng(listLatLng, "false", key)
+                .doOnNext {
+                    print(it)
+                }
+                .doOnError {
+                    print(it)
+                }
+                .map { snappedPointListResponse ->
+                    Log.d(tag,"snapped points response: ${snappedPointListResponse.snappedPoints}")
+                    return@map RepositoryResponse(snappedPointListResponse.snappedPoints, false)
+                }
 
         return remoteResponse
 

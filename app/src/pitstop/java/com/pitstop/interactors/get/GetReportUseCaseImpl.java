@@ -31,6 +31,7 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private Callback callback;
+    private Integer userId;
 
     public GetReportUseCaseImpl(UserRepository userRepository
             , ReportRepository reportRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -41,10 +42,11 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
     }
 
     @Override
-    public void execute(Callback callback) {
+    public void execute(Integer userId, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
+        this.userId = userId;
         useCaseHandler.post(this);
     }
 
@@ -62,51 +64,36 @@ public class GetReportUseCaseImpl implements GetReportsUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+        reportRepository.getVehicleHealthReports(userId, new Repository.Callback<List<VehicleHealthReport>>() {
             @Override
-            public void onSuccess(Settings settings) {
-                if (!settings.hasMainCar()){
-                    GetReportUseCaseImpl.this.onError(RequestError.getUnknownError());
-                    return;
-                }
+            public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
+                Collections.sort(vehicleHealthReports
+                        , (t1,t2) -> t2.getDate().compareTo(t1.getDate()));
 
-                reportRepository.getVehicleHealthReports(settings.getCarId(), new Repository.Callback<List<VehicleHealthReport>>() {
+                reportRepository.getEmissionReports(userId, new Repository.Callback<List<EmissionsReport>>() {
                     @Override
-                    public void onSuccess(List<VehicleHealthReport> vehicleHealthReports) {
-                        Collections.sort(vehicleHealthReports
-                                , (t1,t2) -> t2.getDate().compareTo(t1.getDate()));
+                    public void onSuccess(List<EmissionsReport> emissionsReports) {
+                        Log.d(TAG,"Got emission reports: "+emissionsReports);
 
-                        reportRepository.getEmissionReports(settings.getCarId(), new Repository.Callback<List<EmissionsReport>>() {
-                            @Override
-                            public void onSuccess(List<EmissionsReport> emissionsReports) {
-                                Log.d(TAG,"Got emission reports: "+emissionsReports);
-
-                                List<FullReport> fullReports = new ArrayList<>();
-                                List<VehicleHealthReport> toRemove = new ArrayList<>();
-                                for (VehicleHealthReport v: vehicleHealthReports){
-                                    for (EmissionsReport e: emissionsReports){
-                                        if (e.getVhrId() != -1 && e.getVhrId() == v.getId()){
-                                            fullReports.add(new FullReport(v,e));
-                                            toRemove.add(v);
-                                        }
-
-                                    }
+                        List<FullReport> fullReports = new ArrayList<>();
+                        List<VehicleHealthReport> toRemove = new ArrayList<>();
+                        for (VehicleHealthReport v: vehicleHealthReports){
+                            for (EmissionsReport e: emissionsReports){
+                                if (e.getVhrId() != -1 && e.getVhrId() == v.getId()){
+                                    fullReports.add(new FullReport(v,e));
+                                    toRemove.add(v);
                                 }
-                                Log.d(TAG,"Got full reports: "+fullReports);
-                                vehicleHealthReports.removeAll(toRemove);
-                                for (VehicleHealthReport v: vehicleHealthReports){
-                                    fullReports.add(new FullReport(v));
-                                }
-                                GetReportUseCaseImpl.this
-                                        .onGotReports(fullReports);
 
                             }
+                        }
+                        Log.d(TAG,"Got full reports: "+fullReports);
+                        vehicleHealthReports.removeAll(toRemove);
+                        for (VehicleHealthReport v: vehicleHealthReports){
+                            fullReports.add(new FullReport(v));
+                        }
+                        GetReportUseCaseImpl.this
+                                .onGotReports(fullReports);
 
-                            @Override
-                            public void onError(RequestError error) {
-                                GetReportUseCaseImpl.this.onError(error);
-                            }
-                        });
                     }
 
                     @Override

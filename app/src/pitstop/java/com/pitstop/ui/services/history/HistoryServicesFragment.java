@@ -19,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.pitstop.R;
 import com.pitstop.adapters.HistoryIssueGroupAdapter;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -90,7 +91,7 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
                     .build();
-            presenter = new HistoryServicesPresenter(mixpanelHelper, useCaseComponent);
+            presenter = new HistoryServicesPresenter(mixpanelHelper, useCaseComponent, getContext());
         }
 
         doneServices = new ArrayList<>();
@@ -121,6 +122,10 @@ public class HistoryServicesFragment extends Fragment implements HistoryServices
 
 
         return view;
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getContext());
     }
 
     public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){

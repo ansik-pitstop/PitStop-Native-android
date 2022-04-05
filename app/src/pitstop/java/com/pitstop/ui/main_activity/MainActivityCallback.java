@@ -9,5 +9,5 @@ import java.util.List;
  */
 
 public interface MainActivityCallback {
-    void startDisplayIssueActivity(List<CarIssue> issue, int position);
+    void startDisplayIssueActivity(Integer carId, List<CarIssue> issue, int position);
 }

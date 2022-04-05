@@ -3,6 +3,7 @@ package com.pitstop.ui.vehicle_specs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 
 import androidx.fragment.app.Fragment;
 
@@ -11,6 +12,7 @@ import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddLicensePlateUseCase;
@@ -84,7 +86,8 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     @Override
     public void onAppStateChanged() {
-        onUpdateNeeded(false);
+        Integer carId = GlobalVariables.Companion.getMainCarId(context);
+        onUpdateNeeded(carId,false);
     }
 
     @Override
@@ -93,10 +96,12 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
     }
 
     public static final String BASE_URL_PHOTO = "https://media.ed.edmunds-media.com";
+    private Context context;
 
-    public VehicleSpecsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    public VehicleSpecsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper, Context context) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        this.context = context;
     }
 
     public void updateTimezone() {
@@ -146,19 +151,19 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         });
     }
 
-    public void deleteCar() {
+    public void deleteCar(Integer carId) {
+        if (carId == null) return;
         if (getView() == null || updating || mCar == null) return;
         updating = true;
         getView().showLoadingDialog("Loading...");
         Log.d(TAG, "deleteCar()");
-        useCaseComponent.removeCarUseCase().execute(this.mCar.getId(), EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
+        useCaseComponent.removeCarUseCase().execute(this.mCar.getUserId(), this.mCar.getId(), EventSource.SOURCE_MY_GARAGE, new RemoveCarUseCase.Callback() {
             @Override
             public void onCarRemoved() {
                 updating = false;
                 if (getView() == null) return;
                 getView().hideLoadingDialog();
-                onUpdateNeeded(false);
-
+                onUpdateNeeded(null, false);
             }
 
             @Override
@@ -194,12 +199,18 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         getView().showPairScannerDialog();
     }
 
-    public void onUpdateNeeded(boolean refreshing) {
+    public void onUpdateNeeded(Integer carId, boolean refreshing) {
         Log.d(TAG, "onUdateNeeded()");
         if (getView() == null || updating) return;
+        if (carId == null) {
+            VehicleSpecsView view = getView();
+            if (view == null) return;
+            view.showNoCarView();
+            return;
+        }
         updating = true;
         getView().showLoading();
-        useCaseComponent.getGetAlarmCountUseCase().execute(new GetAlarmCountUseCase.Callback() {
+        useCaseComponent.getGetAlarmCountUseCase().execute(carId, new GetAlarmCountUseCase.Callback() {
             @Override
             public void onAlarmCountGot(int alarmCount) {
                 numAlarms = alarmCount;
@@ -234,7 +245,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
             }
         });
 
-        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(carId, Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 mCar = car;
@@ -281,9 +292,9 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
                     else if (!refreshing && !getView().hasBeenPopulated())
                         getView().showOfflineErrorView();
                 } else {
-                    if (getView().hasBeenPopulated() && refreshing)
-                        getView().displayUnknownErrorDialog();
-                    else if (!refreshing && !getView().hasBeenPopulated())
+//                    if (getView().hasBeenPopulated() && refreshing)
+//                        getView().displayUnknownErrorDialog();
+                    if (!refreshing && !getView().hasBeenPopulated())
                         getView().showUnknownErrorView();
                 }
                 getView().hideLoading();
@@ -325,9 +336,13 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
 
     }
 
-    public void onRefresh() {
+    public void onRefresh(Integer carId) {
         Log.d(TAG, "onRefresh()");
-        onUpdateNeeded(true);
+        if (carId == null) {
+            getView().hideLoading();
+            return;
+        }
+        onUpdateNeeded(carId, true);
     }
 
     private void getAmountSpent(String scannerId) {

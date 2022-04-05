@@ -9,7 +9,7 @@ import com.pitstop.network.RequestError
  */
 interface GetAllAppointmentsUseCase: Interactor {
 
-    fun execute(callback: Callback)
+    fun execute(carId: Int, callback: Callback)
 
     interface Callback{
         fun onGotAppointments(appointments: List<Appointment>);

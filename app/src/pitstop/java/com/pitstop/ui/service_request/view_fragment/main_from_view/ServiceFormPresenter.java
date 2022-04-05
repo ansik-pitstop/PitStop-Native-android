@@ -81,12 +81,13 @@ public class ServiceFormPresenter implements PresenterCallback{
         view = null;
     }
 
-    void populateViews(){
+    void populateViews(Integer carId){
+        if (carId == null) return;
         if(view.getRequestServiceCallback().checkTentative().equals(STATE_TENTATIVE)){
             setCommentHint("Salesperson");
         }
         view.showLoading(true);
-        component.getDealershipWithCarIssuesUseCase().execute(new GetDealershipWithCarIssuesUseCase.Callback() {
+        component.getDealershipWithCarIssuesUseCase().execute(carId, new GetDealershipWithCarIssuesUseCase.Callback() {
             @Override
             public void onGotDealershipAndIssues(@NotNull Dealership dealership, @NotNull List<? extends CarIssue> carIssues) {
                 Log.d(TAG,"getDealershipWithCarIssuesUseCase.onGotDealershipAndIssues()" +
@@ -227,7 +228,7 @@ public class ServiceFormPresenter implements PresenterCallback{
         view.showReminder(message);
     }
 
-    void onSubmitClicked(){
+    void onSubmitClicked(Integer carId){
         Log.d(TAG,"onSubmitClicked()");
         mixpanelHelper.trackButtonTapped("SubmitButton","RequestServiceForm");
         if(view == null || view.getRequestServiceCallback() == null || dealership == null){return;}
@@ -271,7 +272,7 @@ public class ServiceFormPresenter implements PresenterCallback{
                                 toAdd.add(c);
                         }
                         if(view == null || view.getRequestServiceCallback() == null){return;}
-                       component.getAddServicesUseCase().execute(toAdd
+                       component.getAddServicesUseCase().execute(carId, toAdd
                                , EventSource.SOURCE_REQUEST_SERVICE,new AddServicesUseCase.Callback() {
                            @Override
                            public void onServicesAdded() {

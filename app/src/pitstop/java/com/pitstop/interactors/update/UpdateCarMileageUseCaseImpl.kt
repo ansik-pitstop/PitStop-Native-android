@@ -32,12 +32,14 @@ class UpdateCarMileageUseCaseImpl(private val carRepository: CarRepository
     private var callback: UpdateCarMileageUseCase.Callback? = null
     private var mileage: Double = 0.toDouble()
     private lateinit var eventSource: EventSource
+    private var carId: Int = 0
 
-    override fun execute(mileage: Double, eventSource: EventSource, callback: UpdateCarMileageUseCase.Callback) {
+    override fun execute(carId: Int, mileage: Double, eventSource: EventSource, callback: UpdateCarMileageUseCase.Callback) {
         Logger.getInstance()!!.logI(TAG, "Use case execution started: mileage=$mileage", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         this.mileage = mileage
         this.eventSource = eventSource
+        this.carId = carId
         usecaseHandler.post(this)
     }
 
@@ -63,28 +65,13 @@ class UpdateCarMileageUseCaseImpl(private val carRepository: CarRepository
 
     override fun run() {
         Log.d(TAG, "run()")
-        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
-            override fun onSuccess(settings: Settings) {
-                Log.d(TAG, "got current user settings: $settings")
-                if (!settings.hasMainCar()) {
-                    this@UpdateCarMileageUseCaseImpl.onNoCarAdded()
-                    return
+        val disposable = carRepository.updateMileage(this.carId, mileage)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe({ next -> this@UpdateCarMileageUseCaseImpl.onMileageUpdated()
+                }) { err ->
+                    this@UpdateCarMileageUseCaseImpl.onError(RequestError(err))
                 }
-
-                val disposable = carRepository.updateMileage(settings.carId, mileage)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io())
-                        .subscribe({ next -> this@UpdateCarMileageUseCaseImpl.onMileageUpdated()
-                        }) { err ->
-                            this@UpdateCarMileageUseCaseImpl.onError(RequestError(err))
-                        }
-                compositeDisposable.add(disposable)
-
-            }
-
-            override fun onError(error: RequestError) {
-                this@UpdateCarMileageUseCaseImpl.onError(error)
-            }
-        })
+        compositeDisposable.add(disposable)
     }
 }

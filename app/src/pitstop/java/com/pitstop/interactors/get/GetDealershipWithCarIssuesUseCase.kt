@@ -14,5 +14,5 @@ interface GetDealershipWithCarIssuesUseCase: Interactor {
         fun onError(error: RequestError)
     }
 
-    fun execute(callback: Callback)
+    fun execute(carId: Int, callback: Callback)
 }

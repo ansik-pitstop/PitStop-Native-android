@@ -8,8 +8,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.pitstop.EventBus.CarDataChangedEvent;
+import com.pitstop.EventBus.EventSource;
+import com.pitstop.EventBus.EventSourceImpl;
+import com.pitstop.EventBus.EventType;
+import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.bluetooth.BluetoothWriter;
 import com.pitstop.models.Car;
@@ -22,6 +28,8 @@ import com.pitstop.ui.add_car.vin_entry.VinEntryFragment;
 import com.pitstop.ui.custom_shops.CustomShopActivity;
 import com.pitstop.ui.main_activity.MainActivity;
 import com.pitstop.utils.MixpanelHelper;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by Karol Zdebel on 8/1/2017.
@@ -153,6 +161,15 @@ public class AddCarActivity extends IBluetoothServiceActivity implements Fragmen
         data.putExtra(MainActivity.CAR_EXTRA, car);
 
         //Go back to previous activity
+        GlobalVariables.Companion.setMainCarId(getApplicationContext(), car.getId());
+
+        //Process succeeded, notify eventbus
+        EventSourceImpl eventSource = new EventSourceImpl(EventSource.SOURCE_ADD_CAR);
+        EventType eventType
+                = new EventTypeImpl(EventType.EVENT_CAR_ID);
+        EventBus.getDefault().post(new CarDataChangedEvent(
+                eventType, eventSource));
+
         if (hasDealership){
             setResult(ADD_CAR_SUCCESS_HAS_DEALER, data);
             finish();

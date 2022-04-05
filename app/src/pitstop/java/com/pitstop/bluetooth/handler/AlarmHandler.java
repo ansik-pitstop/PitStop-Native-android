@@ -1,8 +1,11 @@
 package com.pitstop.bluetooth.handler;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 import android.util.Log;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.add.AddAlarmUseCase;
 import com.pitstop.models.Alarm;
@@ -50,9 +53,13 @@ public class AlarmHandler {
         return false;
     }
 
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getApplicationContext());
+    }
+
     public void addAlarm(Alarm alarm){
 
-        useCaseComponent.addAlarmUseCase().execute(alarm, new AddAlarmUseCase.Callback() {
+        useCaseComponent.addAlarmUseCase().execute(getMainCarId(), alarm, new AddAlarmUseCase.Callback() {
             @Override
             public void onAlarmAdded(@NotNull Alarm alarm) {
                 alarmObservable.notifyAlarmAdded(alarm);

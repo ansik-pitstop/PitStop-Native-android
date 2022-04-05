@@ -10,6 +10,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUserCarUseCase;
@@ -142,7 +143,7 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
     @Override
     public void onAppStateChanged() {
         Log.d(TAG,"onAppStateChanged() view null? "+(getView() == null));
-        if (getView() != null) loadView();
+        if (getView() != null) loadView(null);
     }
 
     @Override
@@ -240,14 +241,17 @@ public class StartReportPresenter extends TabPresenter<StartReportView> implemen
         }
     }
 
-    void onViewReadyForLoad(){
+    void onViewReadyForLoad(Integer carId){
         Log.d(TAG,"onViewReadyForLoad()");
-        if (getView() != null) loadView();
+        if (carId == null) return;
+        if (getView() != null) loadView(carId);
     }
 
-    private void loadView(){
+    private void loadView(Integer carId){
+        if (carId == null) return;
+
         CompositeDisposable compositeDisposable = new CompositeDisposable();
-        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(carId, Repository.DATABASE_TYPE.REMOTE, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG,"onCarRetrieved() car: "+car);

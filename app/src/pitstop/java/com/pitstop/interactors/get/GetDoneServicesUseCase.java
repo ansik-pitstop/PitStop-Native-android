@@ -18,5 +18,5 @@ public interface GetDoneServicesUseCase extends Interactor {
     }
 
     //Executes usecase
-    void execute(Callback callback);
+    void execute(Integer carId, Callback callback);
 }

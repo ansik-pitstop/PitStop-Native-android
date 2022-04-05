@@ -97,36 +97,44 @@ public class TripsPresenter extends TabPresenter<TripsView> implements
         if (locations.size() == 1){
             getView().displayEndMarker(new LatLng(locations.get(0).getLatitude()
                     ,locations.get(0).getLongitude()));
-        } else useCaseComponent.getSnapToRoadUseCase().execute(locations
-                    , new GetSnapToRoadUseCase.Callback() {
-                        @Override
-                        public void onError(@NotNull RequestError error) {
+        } else {
+            if (getView() == null) return;
 
-                            updating = false;
-                            if (getView() == null) return;
-
-                            if (error.getError().equals(RequestError.ERR_OFFLINE)) {
-                                getView().showToast(R.string.polyline_error_offline_message);
-
-                            } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
-                                getView().showToast(R.string.polyline_error_message);
-                            }
-                            getView().hideLoading();
-
-                        }
-
-                        @Override
-                        public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
-                            PolylineOptions polylineOptions = TripUtils.Companion.snappedPointListToPolylineOptions(snappedPointList);
-                            Log.d(TAG,"Received snapped points: "+snappedPointList+", input was: "+locations);
-                            if (getView() == null) return;
-
-                            getView().displayTripPolylineOnMap(polylineOptions);
-                            getView().displayStartMarker(polylineOptions.getPoints().get(0));
-                            getView().displayEndMarker(polylineOptions.getPoints().get(polylineOptions.getPoints().size()-1));
-
-                        }
-                    });
+            PolylineOptions polylineOptions = TripUtils.Companion.locationListToPolylineOptions(locations);
+            getView().displayTripPolylineOnMap(polylineOptions);
+            getView().displayStartMarker(polylineOptions.getPoints().get(0));
+            getView().displayEndMarker(polylineOptions.getPoints().get(polylineOptions.getPoints().size()-1));
+        }
+//            useCaseComponent.getSnapToRoadUseCase().execute(locations
+//                    , new GetSnapToRoadUseCase.Callback() {
+//                        @Override
+//                        public void onError(@NotNull RequestError error) {
+//
+//                            updating = false;
+//                            if (getView() == null) return;
+//
+//                            if (error.getError().equals(RequestError.ERR_OFFLINE)) {
+//                                getView().showToast(R.string.polyline_error_offline_message);
+//
+//                            } else if (error.getError().equals(RequestError.ERR_UNKNOWN)) {
+//                                getView().showToast(R.string.polyline_error_message);
+//                            }
+//                            getView().hideLoading();
+//
+//                        }
+//
+//                        @Override
+//                        public void onSnapToRoadRetrieved(@NotNull List<? extends SnappedPoint> snappedPointList) {
+//                            PolylineOptions polylineOptions = TripUtils.Companion.snappedPointListToPolylineOptions(snappedPointList);
+//                            Log.d(TAG,"Received snapped points: "+snappedPointList+", input was: "+locations);
+//                            if (getView() == null) return;
+//
+//                            getView().displayTripPolylineOnMap(polylineOptions);
+//                            getView().displayStartMarker(polylineOptions.getPoints().get(0));
+//                            getView().displayEndMarker(polylineOptions.getPoints().get(polylineOptions.getPoints().size()-1));
+//
+//                        }
+//                    });
 
     }
 

@@ -32,6 +32,8 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     private Handler useCaseHandler;
     private Handler mainHandler;
     private Callback callback;
+    private Integer carId;
+    private Integer userId;
 
     private CarIssue issue;
 
@@ -47,11 +49,13 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
     }
 
     @Override
-    public void execute(CarIssue issue, EventSource eventSource, Callback callback) {
+    public void execute(Integer carId, Integer userId, CarIssue issue, EventSource eventSource, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: issue="+issue, DebugMessage.TYPE_USE_CASE);
         this.eventSource = eventSource;
         this.issue = issue;
         this.callback = callback;
+        this.carId = carId;
+        this.userId = userId;
         useCaseHandler.post(this);
     }
 
@@ -67,30 +71,19 @@ public class AddCustomServiceUseCaseImpl implements AddCustomServiceUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+        carIssueRepository.insertCustom(carId, userId, issue, new Repository.Callback<CarIssue>() {
             @Override
-            public void onSuccess(Settings data) {
-                carIssueRepository.insertCustom(data.getCarId(), data.getUserId(), issue, new Repository.Callback<CarIssue>() {
-                    @Override
-                    public void onSuccess(CarIssue data) {
+            public void onSuccess(CarIssue data) {
 
-                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
-                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                ,eventSource));
-                        AddCustomServiceUseCaseImpl.this.onIssueAdded(data);
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        AddCustomServiceUseCaseImpl.this.onError(error);
-                    }
-                });
+                EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                        ,eventSource));
+                AddCustomServiceUseCaseImpl.this.onIssueAdded(data);
             }
 
             @Override
             public void onError(RequestError error) {
                 AddCustomServiceUseCaseImpl.this.onError(error);
-
             }
         });
     }

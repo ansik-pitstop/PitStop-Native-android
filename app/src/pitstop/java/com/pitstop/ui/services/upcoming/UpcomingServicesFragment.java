@@ -20,6 +20,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -102,7 +103,7 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
             UseCaseComponent useCaseComponent = DaggerUseCaseComponent.builder()
                     .contextModule(new ContextModule(getActivity()))
                     .build();
-            presenter = new UpcomingServicesPresenter(useCaseComponent,mixPanelHelper);
+            presenter = new UpcomingServicesPresenter(useCaseComponent,mixPanelHelper, getContext());
         }
 
         timelineAdapter = new TimelineAdapter(upcomingServices,listOfMileages, this);
@@ -111,6 +112,10 @@ public class UpcomingServicesFragment extends Fragment implements UpcomingServic
         timelineRecyclerView.setAdapter(timelineAdapter);
 
         return view;
+    }
+
+    private Integer getUserId() {
+        return GlobalVariables.Companion.getUserId(getContext());
     }
 
     public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){

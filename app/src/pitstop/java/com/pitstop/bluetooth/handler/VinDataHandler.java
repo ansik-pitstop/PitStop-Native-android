@@ -47,7 +47,7 @@ public class VinDataHandler{
         return recentVin;
     }
 
-    public void handleVinData(String vin, String deviceId, boolean ignoreVerification){
+    public void handleVinData(Integer carId, String vin, String deviceId, boolean ignoreVerification){
         Log.d(TAG,"handleVinData() vin:"+vin+", deviceId:"+deviceId
                 +", ignoreVerification?"+ignoreVerification);
 
@@ -65,7 +65,7 @@ public class VinDataHandler{
             bluetoothDataHandlerManager.onHandlerVerifyingDevice();
             verificationInProgress = true;
 
-            useCaseComponent.handleVinOnConnectUseCase().execute(vin,deviceId
+            useCaseComponent.handleVinOnConnectUseCase().execute(carId, vin,deviceId
                     , new HandleVinOnConnectUseCase.Callback() {
                 @Override
                 public void onSuccess() {

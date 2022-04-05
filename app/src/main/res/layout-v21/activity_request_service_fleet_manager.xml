@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.15"
+            app:layout_constraintGuide_percent="0.05"
             />
 
         <androidx.constraintlayout.widget.Guideline
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.85"
+            app:layout_constraintGuide_percent="0.95"
             />
 
         <TextView
@@ -35,7 +35,7 @@
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
             android:textStyle="bold"
             android:text="Fill out the breakdown service request form"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:paddingTop="20dp"/>
 
         <TextView
@@ -47,7 +47,7 @@
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
             android:layout_marginTop="25dp"
             android:textColor="#000"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/service_request_vehicle_information"
@@ -58,7 +58,7 @@
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
             android:layout_marginTop="15dp"
             android:textColor="#000"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/service_request_active_dtcs"
@@ -69,7 +69,7 @@
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
             android:layout_marginTop="15dp"
             android:textColor="#000"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/service_request_location"
@@ -80,14 +80,14 @@
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
             android:layout_marginTop="15dp"
             android:textColor="#000"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/service_request_problem_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Problem Description"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:layout_marginTop="15dp"
             android:textColor="#000"
             app:layout_constraintTop_toBottomOf="@id/service_request_location"
@@ -127,12 +127,12 @@
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="Alert fleet manager with SMS"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
 
         <LinearLayout
             android:id="@+id/create_a_request_button"
             android:layout_width="0dp"
-            android:layout_height="65dp"
+            android:layout_height="50dp"
             app:layout_constraintLeft_toLeftOf="@id/left_content_constraint"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="@id/right_content_constraint"
@@ -145,7 +145,7 @@
                 android:layout_width="match_parent"
                 android:gravity="center"
                 android:text="Create a Request"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textColor="#FFFFFF"
                 />
         </LinearLayout>

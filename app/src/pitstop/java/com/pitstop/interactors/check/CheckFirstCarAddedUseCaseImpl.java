@@ -53,23 +53,24 @@ public class CheckFirstCarAddedUseCaseImpl implements CheckFirstCarAddedUseCase 
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings userSettings) {
-
-                //If everything went right during the add car process, this should return true
-                if (userSettings.isFirstCarAdded()){
-                    CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
-                }else{
-                    CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(false);
-
-                }
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                CheckFirstCarAddedUseCaseImpl.this.onError(error);
-            }
-        });
+        CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(true);
+//        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+//            @Override
+//            public void onSuccess(Settings userSettings) {
+//
+//                //If everything went right during the add car process, this should return true
+//                if (userSettings.isFirstCarAdded()){
+//
+//                }else{
+//                    CheckFirstCarAddedUseCaseImpl.this.onFirstCarAddedChecked(false);
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onError(RequestError error) {
+//                CheckFirstCarAddedUseCaseImpl.this.onError(error);
+//            }
+//        });
     }
 }

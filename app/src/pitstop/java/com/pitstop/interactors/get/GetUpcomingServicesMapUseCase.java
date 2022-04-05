@@ -19,5 +19,5 @@ public interface GetUpcomingServicesMapUseCase extends Interactor {
     }
 
     //Executes usecase
-    void execute(Callback callback);
+    void execute(Integer userId, Callback callback);
 }

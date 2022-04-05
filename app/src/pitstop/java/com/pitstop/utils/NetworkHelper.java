@@ -110,6 +110,18 @@ public class NetworkHelper {
                 .executeAsync();
     }
 
+    public void delete(String uri, RequestCallback callback) {
+        new HttpRequest.Builder().uri(uri)
+                .header("Client-Id", CLIENT_ID)
+                .header("Authorization", "Bearer " + getAccessToken())
+                .requestCallBack(callback)
+                .requestType(RequestType.DELETE)
+                .pitstopAuthApi(pitstopAuthApi)
+                .context(context)
+                .createRequest()
+                .executeAsync();
+    }
+
     public void putNoAuth(String uri, RequestCallback callback, JSONObject body) {
         new HttpRequest.Builder().uri(uri)
                 .header("Client-Id", CLIENT_ID)
@@ -138,17 +150,9 @@ public class NetworkHelper {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void deleteUserCar(int carId, RequestCallback callback) {
-
-        JSONObject body = new JSONObject();
-        try {
-            body.put("userId", 0);
-            body.put("carId", carId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        put("car", callback, body);
+    public void deleteUserCar(int userId, int carId, RequestCallback callback) {
+//        /v1/users/3877/cars/96529
+        delete("v1/users/" + userId + "/cars/" + carId, callback);
     }
 
     public void getShops(RequestCallback callback) {

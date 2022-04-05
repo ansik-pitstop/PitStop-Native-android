@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -78,9 +79,13 @@ public class PastReportsFragment extends Fragment implements PastReportsView {
                     .build();
             MixpanelHelper mixpanelHelper
                     = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
-            presenter = new PastReportsPresenter(useCaseComponent,mixpanelHelper);
+            presenter = new PastReportsPresenter(useCaseComponent,mixpanelHelper, getUserId());
         }
         return root;
+    }
+
+    private Integer getUserId() {
+        return GlobalVariables.Companion.getUserId(getContext());
     }
 
     @Override

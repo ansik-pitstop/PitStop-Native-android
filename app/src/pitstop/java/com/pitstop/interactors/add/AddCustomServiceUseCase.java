@@ -16,5 +16,5 @@ public interface AddCustomServiceUseCase extends Interactor {
     }
 
     //Executes usecase
-    void execute(CarIssue issue, EventSource eventSource, Callback callback);
+    void execute(Integer carId, Integer userId, CarIssue issue, EventSource eventSource, Callback callback);
 }

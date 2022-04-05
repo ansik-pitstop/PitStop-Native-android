@@ -1,12 +1,14 @@
 package com.pitstop.ui.main_activity
 
+import android.content.Context
 import android.util.Log
 import com.pitstop.BuildConfig
 import com.pitstop.EventBus.*
+import com.pitstop.application.GlobalVariables
+import com.pitstop.application.GlobalVariables.Companion.getUserId
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.check.CheckFirstCarAddedUseCase
 import com.pitstop.interactors.get.GetCarsByUserIdUseCase
-import com.pitstop.interactors.get.GetCarsWithDealershipsUseCase
 import com.pitstop.interactors.set.SetFirstCarAddedUseCase
 import com.pitstop.interactors.set.SetUserCarUseCase
 import com.pitstop.models.Car
@@ -18,12 +20,11 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Created by ishan on 2017-10-20.
  */
-class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelHelper: MixpanelHelper) : Presenter<MainView> {
+class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelHelper: MixpanelHelper, val context: Context) : Presenter<MainView> {
 
     var view : MainView? = null
     val TAG:String = this.javaClass.simpleName
@@ -47,10 +48,14 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         /*Respond to event only if its EventType isn't being ignored
         * AND if it wasn't sent by this fragment*/
         if (!ignoredEvents.contains(event.eventType) && event.eventSource != EVENT_SOURCE) {
+
             onUpdateNeeded()
         }
     }
 
+    private fun getUserId(): Int? {
+        return getUserId(context)
+    }
 
     fun getmCar(): Car?{
         return mCar;
@@ -109,41 +114,44 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun onCarAdded(withDealer: Boolean){
         Log.d(TAG,"onCarAdded()")
+//        GlobalVariables.setMainCarId(context, carId)
         view?.closeDrawer()
-        useCaseCompnent.checkFirstCarAddedUseCase()!!
-                .execute(object: CheckFirstCarAddedUseCase.Callback{
-
-                    override fun onFirstCarAddedChecked(added: Boolean) {
-                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
-                        if (!added){
-                            if (view != null && withDealer)
-                                view!!.showTentativeAppointmentShowcase()
-
-                            useCaseCompnent.setFirstCarAddedUseCase()!!
-                                    .execute(true, object : SetFirstCarAddedUseCase.Callback {
-                                        override fun onFirstCarAddedSet() {
-                                            //Variable has been set
-                                        }
-                                        override fun onError(error: RequestError) {
-                                            //Networking error logic here
-                                        }
-                                    })
-                        }
-                    }
-                    override fun onError(error: RequestError?) {
-                        //error logic here
-                    }})
+        onRefresh()
+//        useCaseCompnent.checkFirstCarAddedUseCase()!!
+//                .execute(object: CheckFirstCarAddedUseCase.Callback{
+//
+//                    override fun onFirstCarAddedChecked(added: Boolean) {
+//                        Log.d(TAG,"checkFirstCarAddedUseCase() result: $added")
+//                        if (!added){
+//                            if (view != null && withDealer)
+//                                view!!.showTentativeAppointmentShowcase()
+//
+//                            useCaseCompnent.setFirstCarAddedUseCase()!!
+//                                    .execute(true, object : SetFirstCarAddedUseCase.Callback {
+//                                        override fun onFirstCarAddedSet() {
+//                                            //Variable has been set
+//                                        }
+//                                        override fun onError(error: RequestError) {
+//                                            //Networking error logic here
+//                                        }
+//                                    })
+//                        }
+//                    }
+//                    override fun onError(error: RequestError?) {
+//                        //error logic here
+//                    }})
     }
 
     private fun loadCars() {
         Log.d(TAG, "loadCars()")
         if (isLoading) return
+        val userId = getUserId() ?: return
         if (!carListLoaded){
             view?.showCarsLoading()
             isLoading  = true
 
 
-            useCaseCompnent.carsByUserIdUseCase.execute(object: GetCarsByUserIdUseCase.Callback {
+            useCaseCompnent.carsByUserIdUseCase.execute(userId, object: GetCarsByUserIdUseCase.Callback {
                 override fun onCarsRetrieved(cars: MutableList<Car>?) {
                     Log.d(TAG, "onCarsRetrieved()")
 

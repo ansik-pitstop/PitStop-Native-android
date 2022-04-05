@@ -41,73 +41,75 @@ class GetCarsWithDealershipsUseCaseImpl(val userRepository: UserRepository
     }
 
     override fun run() {
-        userRepository.getCurrentUser(object : Repository.Callback<User> {
+        this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car, Dealership>(), true)
 
-            override fun onSuccess(user: User) {
-                Log.d(tag,"Got user")
-                val disposable = carRepository.getCarsByUserId(user.id,Repository.DATABASE_TYPE.BOTH)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io(),true)
-                        .doOnError({err ->
-                            Log.d(tag,"err: "+err)
-                            this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))
-                        })
-                        .doOnNext { carListResponse ->
-                            val carList = carListResponse.data
-                            Log.d(tag,"got car list: "+carList)
-                            if (carList == null && carListResponse.isLocal) {
-                                return@doOnNext
-                            }else if (carList == null && carListResponse.data == null){
-                                this@GetCarsWithDealershipsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
-                                return@doOnNext
-                            }
-                            userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
-                                override fun onSuccess(settings: Settings) {
-                                    Log.d(tag,"Got current settings: "+settings)
-                                    if (carList!!.isEmpty()) {
-                                        this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()
-                                                ,carListResponse.isLocal)
-                                        return@onSuccess
-                                    }
-
-                                    shopRepository.getAllShops(object : Repository.Callback<List<Dealership>> {
-                                        override fun onSuccess(dealershipList: List<Dealership>) {
-                                            Log.d(tag,"Got all shops shops: "+dealershipList)
-                                            val map = LinkedHashMap<Car,Dealership>()
-                                            for (c in carList) {
-                                                c.isCurrentCar = c.id == settings.carId
-                                                dealershipList
-                                                    .filter { c.shopId == it.id }
-                                                    .forEach {
-                                                        c.shop = it
-                                                        map.put(c, it)
-                                                    }
-                                            }
-                                            this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(map,carListResponse.isLocal)
-                                        }
-
-                                        override fun onError(error: RequestError) {
-                                            this@GetCarsWithDealershipsUseCaseImpl.onError(error)
-                                        }
-                                    })
-                                }
-
-                                override fun onError(error: RequestError) {
-                                    this@GetCarsWithDealershipsUseCaseImpl.onError(error)
-                                }
-
-                            })
-
-                        }.onErrorReturn { err ->
-                            RepositoryResponse<List<Car>>(null, false)
-                        }.doOnError({err -> this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))})
-                        .subscribe()
-                compositeDisposable.add(disposable)
-            }
-
-            override fun onError(error: RequestError) {
-                this@GetCarsWithDealershipsUseCaseImpl.onError(error)
-            }
-        })
+//        userRepository.getCurrentUser(object : Repository.Callback<User> {
+//
+//            override fun onSuccess(user: User) {
+//                Log.d(tag,"Got user")
+//                val disposable = carRepository.getCarsByUserId(user.id,Repository.DATABASE_TYPE.BOTH)
+//                        .subscribeOn(Schedulers.computation())
+//                        .observeOn(Schedulers.io(),true)
+//                        .doOnError({err ->
+//                            Log.d(tag,"err: "+err)
+//                            this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))
+//                        })
+//                        .doOnNext { carListResponse ->
+//                            val carList = carListResponse.data
+//                            Log.d(tag,"got car list: "+carList)
+//                            if (carList == null && carListResponse.isLocal) {
+//                                return@doOnNext
+//                            }else if (carList == null && carListResponse.data == null){
+//                                this@GetCarsWithDealershipsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
+//                                return@doOnNext
+//                            }
+//                            userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+//                                override fun onSuccess(settings: Settings) {
+//                                    Log.d(tag,"Got current settings: "+settings)
+//                                    if (carList!!.isEmpty()) {
+//                                        this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(LinkedHashMap<Car,Dealership>()
+//                                                ,carListResponse.isLocal)
+//                                        return@onSuccess
+//                                    }
+//
+//                                    shopRepository.getAllShops(object : Repository.Callback<List<Dealership>> {
+//                                        override fun onSuccess(dealershipList: List<Dealership>) {
+//                                            Log.d(tag,"Got all shops shops: "+dealershipList)
+//                                            val map = LinkedHashMap<Car,Dealership>()
+//                                            for (c in carList) {
+//                                                c.isCurrentCar = c.id == settings.carId
+//                                                dealershipList
+//                                                    .filter { c.shopId == it.id }
+//                                                    .forEach {
+//                                                        c.shop = it
+//                                                        map.put(c, it)
+//                                                    }
+//                                            }
+//                                            this@GetCarsWithDealershipsUseCaseImpl.onGotCarsWithDealerships(map,carListResponse.isLocal)
+//                                        }
+//
+//                                        override fun onError(error: RequestError) {
+//                                            this@GetCarsWithDealershipsUseCaseImpl.onError(error)
+//                                        }
+//                                    })
+//                                }
+//
+//                                override fun onError(error: RequestError) {
+//                                    this@GetCarsWithDealershipsUseCaseImpl.onError(error)
+//                                }
+//
+//                            })
+//
+//                        }.onErrorReturn { err ->
+//                            RepositoryResponse<List<Car>>(null, false)
+//                        }.doOnError({err -> this@GetCarsWithDealershipsUseCaseImpl.onError(RequestError(err))})
+//                        .subscribe()
+//                compositeDisposable.add(disposable)
+//            }
+//
+//            override fun onError(error: RequestError) {
+//                this@GetCarsWithDealershipsUseCaseImpl.onError(error)
+//            }
+//        })
     }
 }

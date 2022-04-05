@@ -61,27 +61,28 @@ public class ShopTypePresenter {
         if(car == null){
             return;
         }
-        Dealership noDealer = new Dealership();
-        if(BuildConfig.DEBUG){
-            noDealer.setId(1);
-        }else {
-            noDealer.setId(19);
+        if(view != null){
+            switcher.endCustomShops("No Shop");
         }
-        component.getUpdateCarDealershipUseCase().execute(car.getId(), noDealer, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
-            @Override
-            public void onCarDealerUpdated() {
-                if(view != null){
-                    switcher.endCustomShops("No Shop");
-                }
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                if (view != null){
-                    view.displayError(error.getMessage());
-                }
-            }
-        });
+//        Dealership noDealer = new Dealership();
+//        if(BuildConfig.DEBUG){
+//            noDealer.setId(1);
+//        }else {
+//            noDealer.setId(19);
+//        }
+//        component.getUpdateCarDealershipUseCase().execute(car.getId(), noDealer, EventSource.SOURCE_SETTINGS, new UpdateCarDealershipUseCase.Callback() {
+//            @Override
+//            public void onCarDealerUpdated() {
+//
+//            }
+//
+//            @Override
+//            public void onError(RequestError error) {
+//                if (view != null){
+//                    view.displayError(error.getMessage());
+//                }
+//            }
+//        });
 
     }
 }

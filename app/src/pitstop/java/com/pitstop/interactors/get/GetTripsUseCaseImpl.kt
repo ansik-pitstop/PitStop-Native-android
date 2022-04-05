@@ -24,9 +24,11 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
     private val tag = javaClass.simpleName
     private var callback: GetTripsUseCase.Callback? = null
     private val compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(callback: GetTripsUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetTripsUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
+        this.carId = carId
         this.callback = callback
         useCaseHandler.post(this)
     }
@@ -47,7 +49,6 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
         compositeDisposable.clear()
         Logger.getInstance()!!.logI(tag, "Use case finished result: no car added", DebugMessage.TYPE_USE_CASE)
         mainHandler.post({ callback!!.onNoCar() })
-
     }
 
     private fun onTripsRetrieved(tripList: List<Trip>, isLocal: Boolean) {
@@ -61,52 +62,40 @@ class GetTripsUseCaseImpl(private val userRepository: UserRepository,
 
     override fun run() {
         Log.d(tag, "run()")
+        val disposable = carRepository.get(this.carId, Repository.DATABASE_TYPE.BOTH)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(), true)
+                .subscribe({ car ->
+                    if (car.data == null) return@subscribe
+                    Log.d(tag, "got car vin: ${car.data.vin}, isLocal = ${car.isLocal}")
 
-        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
-            override fun onSuccess(data: Settings?) {
-                Log.d(tag, "got settings with carId: ${data!!.carId}")
-                if (!data.hasMainCar()) onNoCar()
-                else{
-                    val disposable = carRepository.get(data.carId, Repository.DATABASE_TYPE.BOTH)
+                    var whatToReturn: String = Constants.TRIP_REQUEST_REMOTE
+//                    if (car.isLocal) {
+//                        whatToReturn = Constants.TRIP_REQUEST_LOCAL
+//                    } else {
+//                        whatToReturn = Constants.TRIP_REQUEST_REMOTE
+//                    }
+
+//                    tripRepository.getTripsByCarVin1(car.data.vin, whatToReturn)
+
+                    val disposable = tripRepository.getTripsByCarVin(car.data.vin, whatToReturn)
                             .subscribeOn(Schedulers.computation())
                             .observeOn(Schedulers.io(), true)
-                            .subscribe({ car ->
-                                if (car.data == null) return@subscribe
-                                Log.d(tag, "got car vin: ${car.data.vin}, isLocal = ${car.isLocal}")
-
-                                var whatToReturn: String
-                                if (car.isLocal) {
-                                    whatToReturn = Constants.TRIP_REQUEST_LOCAL
-                                } else {
-                                    whatToReturn = Constants.TRIP_REQUEST_REMOTE
-                                }
-
-                                val disposable = tripRepository.getTripsByCarVin(car.data.vin, whatToReturn)
-                                        .subscribeOn(Schedulers.computation())
-                                        .observeOn(Schedulers.io(), true)
-                                        .subscribe({ next ->
-                                            Log.d(tag, "tripRepository.onNext() data: $next , isLocal = ${next.isLocal}")
-                                            this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)
-                                        }, { error ->
-                                            Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
-                                            this@GetTripsUseCaseImpl.onError(RequestError(error))
-                                        })
-                                compositeDisposable.add(disposable)
-
-                            }, { err ->
-                                Log.d(tag, "Error: " + err)
-                                err.printStackTrace();
-                                this@GetTripsUseCaseImpl.onError(RequestError(err))
+                            .subscribe({ next ->
+                                Log.d(tag, "tripRepository.onNext()                                                                                                                                    data: $next , isLocal = ${next.isLocal}")
+                                this@GetTripsUseCaseImpl.onTripsRetrieved(next.data.orEmpty(), next.isLocal)
+                            }, { error ->
+                                Log.d(tag, "tripRepository.onErrorResumeNext() error: " + error)
+                                this@GetTripsUseCaseImpl.onError(RequestError(error))
                             })
                     compositeDisposable.add(disposable)
-                }
-            }
 
-            override fun onError(error: RequestError?) {
-                this@GetTripsUseCaseImpl.onError(error)
-            }
-        })
-
+                }, { err ->
+                    Log.d(tag, "Error: " + err)
+                    err.printStackTrace();
+                    this@GetTripsUseCaseImpl.onError(RequestError(err))
+                })
+        compositeDisposable.add(disposable)
     }
 
 }

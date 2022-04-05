@@ -14,6 +14,7 @@ import com.pitstop.repositories.Repository;
 import com.pitstop.repositories.UserRepository;
 import com.pitstop.utils.Logger;
 
+import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,6 +42,7 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Integer userId;
 
     public GetUpcomingServicesMapUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository, CarRepository carRepository
@@ -53,11 +55,12 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
     }
 
     @Override
-    public void execute(Callback callback) {
+    public void execute(Integer userId, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
         compositeDisposable.clear();
         this.callback = callback;
+        this.userId = userId;
         useCaseHandler.post(this);
     }
 
@@ -84,60 +87,29 @@ public class GetUpcomingServicesMapUseCaseImpl implements GetUpcomingServicesMap
 
     @Override
     public void run() {
-
-        //Get current users car
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings data) {
-
-                if (!data.hasMainCar()){
-                    //Check user car list
-                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io(),true)
-                            .subscribe(next -> {
-                                //Ignore local responses
-                                if (next.isLocal()){}
-                                else if (next.getData() != null && next.getData().size() > 0){
-                                    getUpcomingCarIssues(next.getData().get(0).getId());
-
-                                    //Fix settings
-                                    userRepository.setUserCar(data.getUserId(), next.getData().get(0).getId()
-                                            , new Repository.Callback<Object>() {
-
-                                                @Override
-                                                public void onSuccess(Object data) {
-                                                    Log.d(TAG,"fixed settings");
-                                                }
-
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    Log.d(TAG,"Error fixing settings");
-                                                }
-                                            });
-                                }else{
-                                    GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
-                                }
-                            },error -> {
-                                error.printStackTrace();
-                                GetUpcomingServicesMapUseCaseImpl.this
-                                        .onError(new RequestError(error));
-                            });
-                    compositeDisposable.add(disposable);
-                } else getUpcomingCarIssues(data.getCarId());
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                GetUpcomingServicesMapUseCaseImpl.this.onError(error);
-            }
-        });
+        Disposable disposable = carRepository.getCarsByUserId(userId, Repository.DATABASE_TYPE.REMOTE)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(),true)
+                .subscribe(next -> {
+                    //Ignore local responses
+                    if (next.isLocal()){}
+                    else if (next.getData() != null && next.getData().size() > 0){
+                        getUpcomingCarIssues(next.getData().get(0).getId());
+                    }else{
+                        GetUpcomingServicesMapUseCaseImpl.this.onNoCarAdded();
+                    }
+                },error -> {
+                    error.printStackTrace();
+                    GetUpcomingServicesMapUseCaseImpl.this
+                            .onError(new RequestError(error));
+                });
+        compositeDisposable.add(disposable);
 
     }
 
     private void getUpcomingCarIssues(int carId){
         //Use the current users car to get all the current issues
-        Disposable disposable = carIssueRepository.getUpcomingCarIssues(carId, Repository.DATABASE_TYPE.BOTH)
+        Disposable disposable = carIssueRepository.getUpcomingCarIssues(carId, Repository.DATABASE_TYPE.REMOTE)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io(), true)
                 .subscribe(next -> {

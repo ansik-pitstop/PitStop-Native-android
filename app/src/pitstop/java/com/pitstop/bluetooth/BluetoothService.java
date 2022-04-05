@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 
 import com.castel.obd.info.LoginPackageInfo;
 import com.castel.obd.info.ResponsePackageInfo;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.communicator.IBluetoothCommunicator;
 import com.pitstop.bluetooth.communicator.ObdManager;
 import com.pitstop.bluetooth.dataPackages.CastelPidPackage;
@@ -346,6 +347,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         backgroundHandler.postDelayed(periodicGetTerminalTimeRunnable, 10000);
         backgroundHandler.postDelayed(periodicGetVinRunnable,5000);
 
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getBaseContext());
     }
 
     @Override
@@ -749,7 +754,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
                 //execute device clock sync use case if flag has been reset to true and currently connected to device is verified
                 if (readyDevice != null && readyForDeviceTime){
                     Log.d(TAG,"executing deviceClockSyncUseCase()");
-                    useCaseComponent.getDeviceClockSyncUseCase().execute(rtcTime, readyDevice.getScannerId()
+                    useCaseComponent.getDeviceClockSyncUseCase().execute(getMainCarId(), rtcTime, readyDevice.getScannerId()
                             , readyDevice.getVin(), new DeviceClockSyncUseCase.Callback() {
                         @Override
                         public void onClockSynced() {
@@ -777,7 +782,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         else if (parameterPackage.paramType.equals(ParameterPackage.ParamType.VIN)){
             Logger.getInstance().logI(TAG, "Vin retrieval result: " + parameterPackage.value
                     , DebugMessage.TYPE_BLUETOOTH);
-            vinDataHandler.handleVinData(parameterPackage.value
+            vinDataHandler.handleVinData(getMainCarId(), parameterPackage.value
                     ,currentDeviceId,ignoreVerification);
         }
         //Supported pids received from device
@@ -801,7 +806,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     public void handleVinData(String Vin, String deviceID){
         Logger.getInstance().logI(TAG, "Vin retrieval result: " + Vin
                 , DebugMessage.TYPE_BLUETOOTH);
-        vinDataHandler.handleVinData(Vin
+        vinDataHandler.handleVinData(getMainCarId(), Vin
                 ,deviceID,ignoreVerification);
     }
 
@@ -884,7 +889,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
         }
 
         dtcPackage.deviceId = currentDeviceId;
-        dtcDataHandler.handleDtcData(dtcPackage);
+        dtcDataHandler.handleDtcData(getMainCarId(), dtcPackage);
         Log.d(TAG,"requestedDtcs before appending: "+requestedDtcs);
         if (dtcRequested){
             Log.d(TAG, "setting received DTCs to true");
@@ -1188,7 +1193,10 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
     @Override
     public void onConnectedToInternet(){
         Log.i(TAG, "Sending stored PIDS and DTCS");
-        dtcDataHandler.sendLocalDtc();
+        Integer carId = getMainCarId();
+        if (carId != null) {
+            dtcDataHandler.sendLocalDtc(carId);
+        }
     }
 
     /**
@@ -1411,7 +1419,7 @@ public class BluetoothService extends Service implements ObdManager.IBluetoothDa
 
     private void sendConnectedNotification(){
 
-        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL
+        useCaseComponent.getUserCarUseCase().execute(getMainCarId(), Repository.DATABASE_TYPE.LOCAL
                 , new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {

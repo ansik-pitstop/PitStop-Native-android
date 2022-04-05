@@ -51,18 +51,5 @@ public class SetFirstCarAddedUseCaseImpl implements SetFirstCarAddedUseCase {
 
     @Override
     public void run() {
-        userRepository.setFirstCarAdded(sent
-                , new Repository.Callback<Object>() {
-
-            @Override
-            public void onSuccess(Object object) {
-                SetFirstCarAddedUseCaseImpl.this.onFirstCarAddedSet();
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                SetFirstCarAddedUseCaseImpl.this.onError(error);
-            }
-        });
     }
 }

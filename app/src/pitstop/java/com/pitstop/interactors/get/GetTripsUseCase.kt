@@ -18,6 +18,6 @@ interface GetTripsUseCase : Interactor {
     }
 
     //Execute the use case
-    fun execute(callback: Callback)
+    fun execute(carId: Int, callback: Callback)
 
 }

@@ -23,12 +23,13 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
     private var alarm : Alarm? = null;
     private var callback: AddAlarmUseCase.Callback? = null
     private var compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-
-    override fun execute(alarm: Alarm, callback: AddAlarmUseCase.Callback) {
+    override fun execute(carId: Int, alarm: Alarm, callback: AddAlarmUseCase.Callback) {
         Logger.getInstance().logI(TAG, "Use case execution started, input alarm: "+alarm, DebugMessage.TYPE_USE_CASE)
         this.alarm = alarm
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
@@ -51,46 +52,27 @@ class AddAlarmUseCaseImpl (val userRepository: UserRepository, val carRepository
     }
 
     override fun run() {
-       userRepository.getCurrentUserSettings(object : Repository.Callback<Settings>{
-           override fun onSuccess(settings: Settings) {
-               if (!settings.hasMainCar()) {
-                   this@AddAlarmUseCaseImpl.onError(RequestError.getUnknownError())
-                   return
-               }
-               if (!settings.isAlarmsEnabled) {
-                   this@AddAlarmUseCaseImpl.onAlarmsDisabled()
-               } else {
+        val disposable = carRepository.get(this.carId, Repository.DATABASE_TYPE.REMOTE)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe({response ->
+                    val car = response.data
+                    if (car == null){
+                        callback!!.onError(RequestError.getUnknownError())
+                        return@subscribe
+                    }
+                    alarm?.carID = car.id
+                    localAlarmStorage.storeAlarm(alarm,
+                            object : Repository.Callback<Alarm> {
+                                override fun onSuccess(alarm: Alarm?) {
+                                    this@AddAlarmUseCaseImpl.onAlarmAdded(alarm!!)
+                                }
+                                override fun onError(error: RequestError) {
+                                    this@AddAlarmUseCaseImpl.onError(error)
+                                }
+                            })
 
-                   if (settings.hasMainCar()){
-                       val disposable = carRepository.get(settings.carId, Repository.DATABASE_TYPE.REMOTE)
-                               .subscribeOn(Schedulers.computation())
-                               .observeOn(Schedulers.io())
-                               .subscribe({response ->
-                                   val car = response.data
-                                   if (car == null){
-                                       callback!!.onError(RequestError.getUnknownError())
-                                       return@subscribe
-                                   }
-                                   alarm?.carID = car.id
-                                   localAlarmStorage.storeAlarm(alarm,
-                                           object : Repository.Callback<Alarm> {
-                                               override fun onSuccess(alarm: Alarm?) {
-                                                   this@AddAlarmUseCaseImpl.onAlarmAdded(alarm!!)
-                                               }
-                                               override fun onError(error: RequestError) {
-                                                   this@AddAlarmUseCaseImpl.onError(error)
-                                               }
-                                           })
-
-                               },{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err)) })
-                       compositeDisposable.add(disposable)
-                   }
-                   else AddAlarmUseCaseImpl@onError(RequestError.getUnknownError())
-               }
-           }
-           override fun onError(error: RequestError) {
-               this@AddAlarmUseCaseImpl.onError(error)
-           }
-       })
+                },{ err -> this@AddAlarmUseCaseImpl.onError(RequestError(err)) })
+        compositeDisposable.add(disposable)
     }
 }

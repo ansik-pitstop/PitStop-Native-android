@@ -248,7 +248,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         view.togglePriorityList();
     }
 
-    public void onCreateButton(){
+    public void onCreateButton(Integer carId, Integer userId){
         if(view == null || callback == null){return;}
         mixpanelHelper.trackButtonTapped("Create",MIX_VIEW);
         view.disableCreateButton(false);
@@ -275,9 +275,7 @@ public class ServiceFormPresenter implements PresenterCallback {
         }else {
             customIssue.setPriority(2);
         }
-        postService(customIssue);
-
-
+        postService(carId, userId, customIssue);
     }
 
     public void datePicked (int year, int month, int day){
@@ -303,10 +301,10 @@ public class ServiceFormPresenter implements PresenterCallback {
             }
         });
     }
-    private void postService(CarIssue customIssue){
+    private void postService(Integer carId, Integer userId, CarIssue customIssue){
         if(view == null || callback == null){return;}
 
-        component.getAddCustomServiceUseCase().execute(customIssue, eventSource, new AddCustomServiceUseCase.Callback() {
+        component.getAddCustomServiceUseCase().execute(carId, userId, customIssue, eventSource, new AddCustomServiceUseCase.Callback() {
             @Override
             public void onIssueAdded(CarIssue data) {
                 if(view == null || callback == null){return;}

@@ -131,163 +131,6 @@
 
                     <!-- dealership image-->
 
-
-                    <TextView
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/estimated_usage"
-                        android:layout_gravity="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <include layout="@layout/divider" />
-
-                    <!-- Fuel Consumption Row -->
-                    <RelativeLayout
-                        android:id="@+id/fuel_consumption_row"
-                        android:background="@color/white"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/fuel_consumption_icon"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/gas_station_3x"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp" />
-
-                        <TextView
-                            android:id="@+id/fuel_consumption_title"
-                            android:layout_toEndOf="@+id/fuel_consumption_icon"
-                            android:layout_marginStart="15dp"
-                            android:layout_centerVertical="true"
-                            style="@style/vehicle_specs_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/fuel_consumption_header"
-                            android:textStyle="bold" />
-
-
-                        <TextView
-                            android:text="N/A"
-                            android:textAlignment="viewEnd"
-                            android:layout_alignParentEnd="true"
-                            style="@style/vehicle_specs_text"
-                            android:layout_toEndOf="@id/fuel_consumption_title"
-                            android:layout_centerVertical="true"
-                            android:id="@+id/fuel_consumed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </RelativeLayout>
-
-                    <include layout="@layout/divider" />
-
-                    <!-- Fuel Expense Row -->
-                    <RelativeLayout
-                        android:id="@+id/fuel_expense_row"
-                        android:background="@color/white"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:layout_alignParentStart="true"
-                            android:id="@+id/fuel_expense_icon"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/dollar_sign_3x"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp" />
-
-                        <TextView
-                            android:id="@+id/fuel_expense_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            style="@style/vehicle_specs_text"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="15dp"
-                            android:layout_toEndOf="@+id/fuel_expense_icon"
-                            android:text="@string/fuel_expense"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/money_spent"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAlignment="viewEnd"
-                            style="@style/vehicle_specs_text"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentTop="true"
-                            android:text="N/A" />
-
-                    </RelativeLayout>
-
-                    <include layout="@layout/divider" />
-
-                    <!-- Alarms Row -->
-                    <RelativeLayout
-                        android:id="@+id/alarms_row"
-                        android:background="@color/white"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/driving_alarms_icon"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:src="@drawable/car_alarms_3x"
-                            android:layout_centerVertical="true"/>
-
-                        <TextView
-                            android:id="@+id/driving_alarms_text"
-                            style="@style/vehicle_specs_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="15dp"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@+id/driving_alarms_icon"
-                            android:text="@string/driving_alarms"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:visibility="gone"
-                            android:id="@+id/alarm_badge"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:layout_gravity="right"
-                            android:background="@drawable/badge"
-                            android:gravity="center"
-                            android:text="9+"
-                            android:layout_toLeftOf="@id/chevron"
-                            android:textColor="@color/white"
-                            android:textSize="11sp" />
-
-                        <ImageView
-                            android:id="@+id/chevron"
-                            android:layout_alignParentEnd="true"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:tint="@color/dark_grey"
-                            android:src="@drawable/right_chevron" />
-
-                    </RelativeLayout>
-
-                    <include layout="@layout/divider" />
-
                     <TextView
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
@@ -771,6 +614,162 @@
                             android:id="@+id/tank_size"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
+
+                    </RelativeLayout>
+
+                    <include layout="@layout/divider" />
+
+                    <TextView
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/estimated_usage"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <include layout="@layout/divider" />
+
+                    <!-- Fuel Consumption Row -->
+                    <RelativeLayout
+                        android:id="@+id/fuel_consumption_row"
+                        android:background="@color/white"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/fuel_consumption_icon"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/gas_station_3x"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp" />
+
+                        <TextView
+                            android:id="@+id/fuel_consumption_title"
+                            android:layout_toEndOf="@+id/fuel_consumption_icon"
+                            android:layout_marginStart="15dp"
+                            android:layout_centerVertical="true"
+                            style="@style/vehicle_specs_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/fuel_consumption_header"
+                            android:textStyle="bold" />
+
+
+                        <TextView
+                            android:text="N/A"
+                            android:textAlignment="viewEnd"
+                            android:layout_alignParentEnd="true"
+                            style="@style/vehicle_specs_text"
+                            android:layout_toEndOf="@id/fuel_consumption_title"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/fuel_consumed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </RelativeLayout>
+
+                    <include layout="@layout/divider" />
+
+                    <!-- Fuel Expense Row -->
+                    <RelativeLayout
+                        android:id="@+id/fuel_expense_row"
+                        android:background="@color/white"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_alignParentStart="true"
+                            android:id="@+id/fuel_expense_icon"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/dollar_sign_3x"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp" />
+
+                        <TextView
+                            android:id="@+id/fuel_expense_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/vehicle_specs_text"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="15dp"
+                            android:layout_toEndOf="@+id/fuel_expense_icon"
+                            android:text="@string/fuel_expense"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/money_spent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="viewEnd"
+                            style="@style/vehicle_specs_text"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentTop="true"
+                            android:text="N/A" />
+
+                    </RelativeLayout>
+
+                    <include layout="@layout/divider" />
+
+                    <!-- Alarms Row -->
+                    <RelativeLayout
+                        android:id="@+id/alarms_row"
+                        android:background="@color/white"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/driving_alarms_icon"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/car_alarms_3x"
+                            android:layout_centerVertical="true"/>
+
+                        <TextView
+                            android:id="@+id/driving_alarms_text"
+                            style="@style/vehicle_specs_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="15dp"
+                            android:layout_centerVertical="true"
+                            android:layout_toRightOf="@+id/driving_alarms_icon"
+                            android:text="@string/driving_alarms"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:visibility="gone"
+                            android:id="@+id/alarm_badge"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="right"
+                            android:background="@drawable/badge"
+                            android:gravity="center"
+                            android:text="9+"
+                            android:layout_toLeftOf="@id/chevron"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+
+                        <ImageView
+                            android:id="@+id/chevron"
+                            android:layout_alignParentEnd="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:tint="@color/dark_grey"
+                            android:src="@drawable/right_chevron" />
 
                     </RelativeLayout>
 

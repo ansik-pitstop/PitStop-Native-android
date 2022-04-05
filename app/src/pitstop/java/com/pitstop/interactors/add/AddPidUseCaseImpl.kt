@@ -29,15 +29,16 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
     private lateinit var pidPackage: PidPackage
     private lateinit var vin: String
     private var compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(pidPackage: PidPackage, vin: String, callback: AddPidUseCase.Callback) {
+    override fun execute(carId: Int, pidPackage: PidPackage, vin: String, callback: AddPidUseCase.Callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: pidPackage=$pidPackage"
                 , DebugMessage.TYPE_USE_CASE)
         this.pidPackage = pidPackage
         this.vin = vin
         this.callback = callback
+        this.carId = carId
         usecaseHandler.post(this)
-
     }
 
     override fun run() {
@@ -45,33 +46,15 @@ class AddPidUseCaseImpl(private val sensorDataRepository: SensorDataRepository
         Log.d(TAG,"stored $rows rows into Pid Repository!")
         //Get vin from car repo if empty
         if (vin.isEmpty()){
-            userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
-                override fun onSuccess(data: Settings?) {
-                    if (data == null) return
-                    var usedLocalCar = false
-                    if (data.hasMainCar()){
-                        val disposable = carRepository.get(data.carId, Repository.DATABASE_TYPE.BOTH)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.computation())
-                                .subscribe({car ->
-                                    if (car.data == null || usedLocalCar) return@subscribe
-                                    if (car.isLocal) usedLocalCar = true
-
-                                    sendData(SensorDataUtils.pidToSensorData(pidPackage, car.data?.vin))
-
-                                },{err ->
-                                    this@AddPidUseCaseImpl.onError(RequestError(err))
-                                })
-                        compositeDisposable.add(disposable)
-                    }
-                    else this@AddPidUseCaseImpl.onError(RequestError.getUnknownError())
-                }
-
-                override fun onError(error: RequestError) {
-                    this@AddPidUseCaseImpl.onError(error)
-                }
-
-            })
+            val disposable = carRepository.get(this.carId, Repository.DATABASE_TYPE.BOTH)
+                    .observeOn(Schedulers.io())
+                    .subscribeOn(Schedulers.computation())
+                    .subscribe({car ->
+                        car.data?.let { sendData(SensorDataUtils.pidToSensorData(pidPackage, it.vin)) }
+                    },{err ->
+                        this@AddPidUseCaseImpl.onError(RequestError(err))
+                    })
+            compositeDisposable.add(disposable)
         }
         //Use already existing vin
         else{

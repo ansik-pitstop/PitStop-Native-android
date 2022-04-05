@@ -1,5 +1,7 @@
 package com.pitstop.ui.my_appointments;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.database.LocalAppointmentStorage;
 import com.pitstop.database.LocalDatabaseHelper;
 import com.pitstop.dependency.ContextModule;
@@ -81,6 +84,10 @@ public class MyAppointmentActivity extends AppCompatActivity {
         mixpanelHelper.trackViewAppeared("My Appointments");
     }
 
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getApplicationContext());
+    }
+
     private void fetchAppointments(){
         mLoadingSpinner.setVisibility(View.VISIBLE);
 
@@ -88,7 +95,10 @@ public class MyAppointmentActivity extends AppCompatActivity {
              GrabLocal grabLocal = new GrabLocal();
              grabLocal.execute();
         }
-        useCaseComponent.getAllAppointmentsUseCase().execute(new GetAllAppointmentsUseCase.Callback() {
+        Integer carId = getMainCarId();
+        if (carId == null) return;
+
+        useCaseComponent.getAllAppointmentsUseCase().execute(carId, new GetAllAppointmentsUseCase.Callback() {
             @Override
             public void onGotAppointments(@NotNull List<? extends Appointment> appointments) {
                 Log.d(TAG,"onGotAppointments() appointments: "+appointments);

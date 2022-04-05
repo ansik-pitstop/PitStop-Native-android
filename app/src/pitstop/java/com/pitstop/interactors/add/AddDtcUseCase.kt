@@ -14,5 +14,5 @@ interface AddDtcUseCase: Interactor {
         fun onError(requestError: RequestError)
     }
 
-    fun execute(dtcPackage: DtcPackage, callback: Callback)
+    fun execute(carId: Int, dtcPackage: DtcPackage, callback: Callback)
 }

@@ -4,7 +4,7 @@
 
 JNIEXPORT jstring JNICALL
 Java_com_pitstop_utils_SecretUtils_getPitstopEndpointStaging(JNIEnv *env, jobject instance) {
-    return (*env) ->  NewStringUTF(env, "http://staging.api.getpitstop.io:10010/");
+    return (*env) ->  NewStringUTF(env, "http://10.0.2.2:10010/");
 }
 
 JNIEXPORT jstring JNICALL

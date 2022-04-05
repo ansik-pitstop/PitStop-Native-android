@@ -189,6 +189,7 @@ import com.pitstop.retrofit.PitstopSmoochApi;
 import com.pitstop.utils.LoginManager;
 import com.pitstop.utils.NetworkHelper;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import dagger.Module;
@@ -249,20 +250,20 @@ public class UseCaseModule {
     }
 
     @Provides
-    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
-            , UserRepository userRepository, CarRepository carRepository
-            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
-
-        return new RequestServiceUseCaseImpl(carIssueRepository,userRepository,carRepository
-                ,useCaseHandler, mainHandler);
-    }
-
-    @Provides
     AddServicesUseCase addServicesUseCase(CarIssueRepository carIssueRepository
             , UserRepository userRepository, @Named("useCaseHandler")Handler useCaseHandler
             ,@Named("mainHandler") Handler mainHandler){
 
         return new AddServicesUseCaseImpl(carIssueRepository,userRepository
+                ,useCaseHandler, mainHandler);
+    }
+
+    @Provides
+    RequestServiceUseCase requestServiceUseCase(CarIssueRepository carIssueRepository
+            , UserRepository userRepository, CarRepository carRepository
+            , @Named("useCaseHandler")Handler useCaseHandler, @Named("mainHandler") Handler mainHandler){
+
+        return new RequestServiceUseCaseImpl(carIssueRepository,userRepository,carRepository
                 ,useCaseHandler, mainHandler);
     }
 

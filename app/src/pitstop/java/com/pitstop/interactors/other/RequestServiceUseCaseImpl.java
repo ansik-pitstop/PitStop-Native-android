@@ -40,6 +40,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
     private String comments;
     private Callback callback;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Integer carId;
 
     public RequestServiceUseCaseImpl(CarIssueRepository carIssueRepository
             , UserRepository userRepository, CarRepository carRepository
@@ -50,6 +51,7 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
         this.userRepository = userRepository;
         this.useCaseHandler = useCaseHandler;
         this.mainHandler = mainHandler;
+        this.carId = carId;
     }
 
     private void onServicesRequested(){
@@ -73,54 +75,39 @@ public class RequestServiceUseCaseImpl implements RequestServiceUseCase {
             @Override
             public void onSuccess(User user) {
                 Log.d(TAG,"got user: "+user);
-                userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-                    @Override
-                    public void onSuccess(Settings data) {
-                        Log.d(TAG,"got user settings: "+data);
-                        if (!data.hasMainCar()){
-                          RequestServiceUseCaseImpl.this.onError(RequestError.getUnknownError());
-                        } else if (data.hasMainCar()){
-                            Disposable disposable = carRepository.get(data.getCarId(),Repository.DATABASE_TYPE.REMOTE)
-                                    .subscribeOn(Schedulers.computation())
-                                    .observeOn(Schedulers.io())
-                                    .subscribe(response -> {
-                                                Log.d(TAG, "got car: " + response);
-                                                Log.d(TAG, "remote data, proceeding");
-                                                if (response.getData() == null) {
-                                                    Log.d(TAG, "data null, returning");
-                                                    callback.onError(RequestError.getUnknownError());
-                                                    return;
+                Disposable disposable = carRepository.get(carId, Repository.DATABASE_TYPE.REMOTE)
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.io())
+                        .subscribe(response -> {
+                                    Log.d(TAG, "got car: " + response);
+                                    Log.d(TAG, "remote data, proceeding");
+                                    if (response.getData() == null) {
+                                        Log.d(TAG, "data null, returning");
+                                        callback.onError(RequestError.getUnknownError());
+                                        return;
+                                    }
+                                    Log.d(TAG, "data is fine, proceeding");
+                                    Car car = response.getData();
+
+                                    Appointment appointment = new Appointment(car.getShopId()
+                                            , state, date, comments);
+                                    Log.d(TAG, "requestingService");
+                                    carIssueRepository.requestService(user.getId(), car.getId(), appointment
+                                            , new Repository.Callback<Object>() {
+
+                                                @Override
+                                                public void onSuccess(Object object) {
+                                                    RequestServiceUseCaseImpl.this.onServicesRequested();
                                                 }
-                                                Log.d(TAG, "data is fine, proceeding");
-                                                Car car = response.getData();
 
-                                                Appointment appointment = new Appointment(car.getShopId()
-                                                        , state, date, comments);
-                                                Log.d(TAG, "requestingService");
-                                                carIssueRepository.requestService(user.getId(), car.getId(), appointment
-                                                        , new Repository.Callback<Object>() {
-
-                                                            @Override
-                                                            public void onSuccess(Object object) {
-                                                                RequestServiceUseCaseImpl.this.onServicesRequested();
-                                                            }
-
-                                                            @Override
-                                                            public void onError(RequestError error) {
-                                                                RequestServiceUseCaseImpl.this.onError(error);
-                                                            }
-                                                        });
-                                            }, err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err))
-                                    );
-                            compositeDisposable.add(disposable);
-                        }
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        RequestServiceUseCaseImpl.this.onError(error);
-                    }
-                });
+                                                @Override
+                                                public void onError(RequestError error) {
+                                                    RequestServiceUseCaseImpl.this.onError(error);
+                                                }
+                                            });
+                                }, err -> RequestServiceUseCaseImpl.this.onError(new RequestError(err))
+                        );
+                compositeDisposable.add(disposable);
             }
             @Override
             public void onError(RequestError error) {

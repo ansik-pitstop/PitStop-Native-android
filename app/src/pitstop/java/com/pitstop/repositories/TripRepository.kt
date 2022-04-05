@@ -4,6 +4,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.pitstop.application.Constants
 import com.pitstop.database.LocalPendingTripStorage
 import com.pitstop.database.LocalTripStorage
@@ -21,6 +22,8 @@ import com.pitstop.retrofit.SnapToRoadResponse
 import com.pitstop.utils.Logger
 import com.pitstop.utils.TripUtils
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 import java.io.IOException
@@ -43,6 +46,25 @@ open class TripRepository(private val tripApi: PitstopTripApi
     private val tag = javaClass.simpleName
     private val gson: Gson = Gson()
     private var dumping: Boolean = false
+
+    fun getTripsByCarVin1(vin: String, whatToReturn: String) {
+        val remoteResponse: Disposable? = tripApi.getTripListFromCarVin(vin)
+                .subscribe {
+                    print(it)
+                }
+        print(remoteResponse)
+
+
+//                .doOnNext { tripListResponse ->
+//                    print(tripListResponse)
+//                    print("")
+//                }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io(), true)
+//                .subscribe(Consumer {
+//                    print(it)
+//                })
+    }
 
     /**
      *
@@ -84,11 +106,8 @@ open class TripRepository(private val tripApi: PitstopTripApi
 
             Log.d(tag, "getLocalTripsByCarVin() next: $tripList")
             Log.d("jakarta", "GETTING LOCAL DATA, ${tripList.data.orEmpty().size} Trips")
-
             tripList
-
         }
-
     }
 
     private fun getRemoteTripsByCarVin(vin: String): Observable<RepositoryResponse<List<Trip>>> {

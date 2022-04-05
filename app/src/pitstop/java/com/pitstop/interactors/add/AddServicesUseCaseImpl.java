@@ -34,6 +34,7 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
     private List<CarIssue> carIssues;
     private Handler useCaseHandler;
     private Handler mainHandler;
+    private Integer carId;
 
     private EventSource eventSource;
 
@@ -57,24 +58,14 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
+        carIssueRepository.insert(carId ,carIssues,new CarIssueRepository.Callback<Object>(){
+
             @Override
-            public void onSuccess(Settings data) {
-                carIssueRepository.insert(data.getCarId(),carIssues,new CarIssueRepository.Callback<Object>(){
-
-                    @Override
-                    public void onSuccess(Object response) {
-                        EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
-                        EventBus.getDefault().post(new CarDataChangedEvent(eventType
-                                ,eventSource));
-                        AddServicesUseCaseImpl.this.onServicesAdded();
-                    }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        AddServicesUseCaseImpl.this.onError(error);
-                    }
-                });
+            public void onSuccess(Object response) {
+                EventType eventType = new EventTypeImpl(EventType.EVENT_SERVICES_NEW);
+                EventBus.getDefault().post(new CarDataChangedEvent(eventType
+                        ,eventSource));
+                AddServicesUseCaseImpl.this.onServicesAdded();
             }
 
             @Override
@@ -82,14 +73,14 @@ public class AddServicesUseCaseImpl implements AddServicesUseCase {
                 AddServicesUseCaseImpl.this.onError(error);
             }
         });
-
     }
 
     @Override
-    public void execute(List<CarIssue> carIssues, String eventSource, Callback callback) {
+    public void execute(Integer carId, List<CarIssue> carIssues, String eventSource, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started input: carIssues="+carIssues
                 , DebugMessage.TYPE_USE_CASE);
         this.eventSource = new EventSourceImpl(eventSource);
+        this.carId = carId;
         this.callback = callback;
         this.carIssues = carIssues;
         useCaseHandler.post(this);

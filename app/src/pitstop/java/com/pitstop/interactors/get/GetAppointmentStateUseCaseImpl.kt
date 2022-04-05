@@ -24,82 +24,68 @@ class GetAppointmentStateUseCaseImpl(private val userRepository: UserRepository
     private val tag = javaClass.simpleName
     private var callback: GetAppointmentStateUseCase.Callback? = null
     private var compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(callback: GetAppointmentStateUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetAppointmentStateUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
+        this.carId = carId
         usecaseHandler.post(this)
     }
 
     override fun run() {
         Log.d(tag,"run()")
-        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
-            override fun onSuccess(data: Settings?) {
-                Log.d(tag,"got user settings: "+data)
-                if (data == null){
-                    this@GetAppointmentStateUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
-                    return
-                }
+        val disposable = appointmentRepository.getAllAppointments(this.carId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe({response ->
+                    Log.d(tag,"appointments: "+response)
+                    //null if none found
+                    val leastRecentAppointment = getLeastRecentAppointment(response)
+                    Log.d(tag,"leastRecentAppointment: "+leastRecentAppointment)
+                    if (leastRecentAppointment != null){
+                        shopRepository.getAllShops(object: Repository.Callback<List<Dealership>>{
+                            override fun onSuccess(dealershipList: List<Dealership>) {
+                                val dealer = dealershipList.find { it.id == leastRecentAppointment.shopId }
+                                if (dealer != null){
+                                    this@GetAppointmentStateUseCaseImpl.onAppointmentBookedState(leastRecentAppointment,dealer)
+                                }else{
+                                    Log.d(tag,"Couldn't find dealership matching appointment")
+                                    this@GetAppointmentStateUseCaseImpl.onError(RequestError.getUnknownError())
+                                }
+                            }
 
-                val disposable = appointmentRepository.getAllAppointments(data.carId)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io())
-                        .subscribe({response ->
-                            Log.d(tag,"appointments: "+response)
-                            //null if none found
-                            val leastRecentAppointment = getLeastRecentAppointment(response)
-                            Log.d(tag,"leastRecentAppointment: "+leastRecentAppointment)
-                            if (leastRecentAppointment != null){
-                                shopRepository.getAllShops(object: Repository.Callback<List<Dealership>>{
-                                    override fun onSuccess(dealershipList: List<Dealership>) {
-                                        val dealer = dealershipList.find { it.id == leastRecentAppointment.shopId }
-                                        if (dealer != null){
-                                            this@GetAppointmentStateUseCaseImpl.onAppointmentBookedState(leastRecentAppointment,dealer)
-                                        }else{
-                                            Log.d(tag,"Couldn't find dealership matching appointment")
-                                            this@GetAppointmentStateUseCaseImpl.onError(RequestError.getUnknownError())
-                                        }
-                                    }
-
-                                    override fun onError(error: RequestError?) {
-                                        this@GetAppointmentStateUseCaseImpl.onError(error)
+                            override fun onError(error: RequestError?) {
+                                this@GetAppointmentStateUseCaseImpl.onError(error)
+                            }
+                        })
+                    }else{
+                        //Get predicted service
+                        val disposable = appointmentRepository.getPredictedService(this.carId)
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(Schedulers.io())
+                                .subscribe({response ->
+                                    Log.d(tag,"Got predicted service: "+response)
+                                    this@GetAppointmentStateUseCaseImpl.onPredictedServiceState(response)
+                                },{error ->
+                                    Log.d(tag,"error getting predicted service" +
+                                            ", err.localizedMessage: ${error.localizedMessage}" +
+                                            ", error.message: ${error.message.toString()}")
+                                    if (error.message != null && error.message!!.contains("HTTP 400")){
+                                        Log.d(tag,"Contains not enough")
+                                        this@GetAppointmentStateUseCaseImpl.onMileageUpdateNeededState()
+                                    }else{
+                                        this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
                                     }
                                 })
-                            }else{
-                                //Get predicted service
-                                val disposable = appointmentRepository.getPredictedService(data.carId)
-                                        .subscribeOn(Schedulers.computation())
-                                        .observeOn(Schedulers.io())
-                                        .subscribe({response ->
-                                            Log.d(tag,"Got predicted service: "+response)
-                                            this@GetAppointmentStateUseCaseImpl.onPredictedServiceState(response)
-                                        },{error ->
-                                            Log.d(tag,"error getting predicted service" +
-                                                    ", err.localizedMessage: ${error.localizedMessage}" +
-                                                    ", error.message: ${error.message.toString()}")
-                                            if (error.message != null && error.message!!.contains("HTTP 400")){
-                                                Log.d(tag,"Contains not enough")
-                                                this@GetAppointmentStateUseCaseImpl.onMileageUpdateNeededState()
-                                            }else{
-                                                this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
-                                            }
-                                        })
-                                compositeDisposable.add(disposable)
-                            }
-                        }, {error ->
-                            Log.d(tag,"error: "+error)
-                            this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
-                        })
-                compositeDisposable.add(disposable)
-            }
-
-            override fun onError(error: RequestError?) {
-                Log.d(tag,"error getting settings, err: "+error)
-                this@GetAppointmentStateUseCaseImpl.onError(error!!)
-            }
-
-        })
+                        compositeDisposable.add(disposable)
+                    }
+                }, {error ->
+                    Log.d(tag,"error: "+error)
+                    this@GetAppointmentStateUseCaseImpl.onError(RequestError(error))
+                })
+        compositeDisposable.add(disposable)
     }
 
     //Returns the appointment scheduled most in the future

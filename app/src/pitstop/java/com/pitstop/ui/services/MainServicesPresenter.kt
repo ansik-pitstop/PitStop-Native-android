@@ -35,10 +35,13 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
 
     //Find out which view (#1, #2, or #3) is appropriate to display and command the view to do so
     //Should be called when the view is created, typically after the subscribe() call is made
-    fun loadView(){
-        Log.d(tag,"loadView()")
+    fun loadView(carId: Int?){
+        if (carId == null) {
+            return
+        }
 
-        usecaseComponent.appointmentStateUseCase.execute(object: GetAppointmentStateUseCase.Callback{
+        Log.d(tag,"loadView()")
+        usecaseComponent.appointmentStateUseCase.execute(carId, object: GetAppointmentStateUseCase.Callback{
             override fun onPredictedServiceState(predictedService: PredictedService) {
                 Log.d(tag,"appointment state onPredictedServiceState() predictedService: "+predictedService);
                 if (view != null){
@@ -80,18 +83,23 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
     }
 
     //Launch update mileage use case
-    fun onMileageUpdateInput(input: String){
+    fun onMileageUpdateInput(carId: Int?, input: String){
+        if (carId == null) {
+            if (view != null) view!!.displayErrorMessage("Please add a car")
+            return
+        }
+
         Log.d(tag,"onMileageUpdateInput() input: "+mileage)
         if(view == null) return
         val mileage = input.toIntOrNull()
         if (mileage == null || mileage < 0 || mileage > 3000000){
             view!!.displayErrorMessage(R.string.invalid_mileage_alert_message)
         }else{
-            usecaseComponent.updateCarMileageUseCase().execute(Integer.valueOf(mileage).toDouble(),EVENT_SOURCE, object: UpdateCarMileageUseCase.Callback{
+            usecaseComponent.updateCarMileageUseCase().execute(carId, Integer.valueOf(mileage).toDouble(),EVENT_SOURCE, object: UpdateCarMileageUseCase.Callback{
                 override fun onMileageUpdated() {
                     Log.d(tag,"update mileage onMileageUpdated()")
                     if (view != null){
-                        Handler().postDelayed({loadView()},5000)
+                        Handler().postDelayed({loadView(carId)},5000)
                         view!!.displayWaitingForPredictedService()
                     }
                 }
@@ -110,9 +118,10 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
         }
     }
 
-    fun onRefresh(){
+    fun onRefresh(carId: Int?){
         Log.d(tag,"onRefresh")
-        loadView()
+        if (carId == null) return
+        loadView(carId)
     }
 
     //Invoke beginRequestService() on view
@@ -121,14 +130,15 @@ public class MainServicesPresenter(private val usecaseComponent: UseCaseComponen
         if (view != null) view!!.beginRequestService()
     }
 
-    fun onServiceRequested(){
+    fun onServiceRequested(carId: Int?){
         Log.d(tag,"onServiceRequested()")
-        loadView()
+        if (carId == null) return
+        loadView(carId)
     }
 
     override fun getIgnoredEventTypes(): Array<EventType> = ignoredEvents
 
-    override fun onAppStateChanged() = loadView()
+    override fun onAppStateChanged() = loadView(null)
 
     override fun getSourceType() = EVENT_SOURCE
 

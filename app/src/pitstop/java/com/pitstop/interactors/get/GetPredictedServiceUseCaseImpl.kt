@@ -24,6 +24,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
     private val tag = javaClass.simpleName
     private var callback: GetPredictedServiceUseCase.Callback? = null
     private val compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
     private fun onError(error: RequestError?){
         compositeDisposable.clear()
@@ -45,7 +46,7 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
         mainHandler.post({callback!!.onGotPredictedService(predictedService)})
     }
 
-    override fun execute(callback: GetPredictedServiceUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetPredictedServiceUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case started execution", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
         usecaseHandler.post(this)
@@ -53,28 +54,15 @@ class GetPredictedServiceUseCaseImpl(private val userRepository: UserRepository
 
     override fun run() {
         Log.d(tag,"run()")
-        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
-            override fun onSuccess(data: Settings?) {
-                Log.d(tag,"Got settings: "+data);
-                if (data == null) this@GetPredictedServiceUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
-
-                val disposable = appointmentRepository.getPredictedService(data!!.carId)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io())
-                        .subscribe({response ->
-                            this@GetPredictedServiceUseCaseImpl.onGotPredictedService(response)
-                        },{error ->
-                            Log.e(tag,"Error: "+error);
-                            this@GetPredictedServiceUseCaseImpl.onError(RequestError(error))
-                        })
-                compositeDisposable.add(disposable)
-            }
-
-            override fun onError(error: RequestError?) {
-                Log.d(tag,"Error getting settings err: "+error)
-                this@GetPredictedServiceUseCaseImpl.onError(error)
-            }
-
-        })
+        val disposable = appointmentRepository.getPredictedService(this.carId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe({response ->
+                    this@GetPredictedServiceUseCaseImpl.onGotPredictedService(response)
+                },{error ->
+                    Log.e(tag,"Error: "+error);
+                    this@GetPredictedServiceUseCaseImpl.onError(RequestError(error))
+                })
+        compositeDisposable.add(disposable)
     }
 }

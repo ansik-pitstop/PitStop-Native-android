@@ -11,7 +11,7 @@ import com.pitstop.network.RequestError
 
 interface GetAlarmsUseCase: Interactor{
 
-    fun execute(callback: Callback)
+    fun execute(carId: Int, callback: Callback)
 
     interface Callback{
         fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>, alarmsEnabled: Boolean);

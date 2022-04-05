@@ -9,6 +9,7 @@ import androidx.fragment.app.DialogFragment
 import com.pitstop.EventBus.EventSource
 import com.pitstop.EventBus.EventSourceImpl
 import com.pitstop.R
+import com.pitstop.application.GlobalVariables
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
@@ -40,10 +41,15 @@ class MileageDialog: DialogFragment(),MileageDialogView {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val carId = getMainCarId()
         super.onViewCreated(view, savedInstanceState)
         button_negative.setOnClickListener({presenter?.onNegativeButtonCliced()})
-        button_positive.setOnClickListener({presenter?.onPositiveButtonClicked()})
-        presenter?.loadView()
+        button_positive.setOnClickListener({presenter?.onPositiveButtonClicked(carId)})
+        presenter?.loadView(getMainCarId())
+    }
+
+    private fun getMainCarId(): Int? {
+        return GlobalVariables.getMainCarId(activity!!.applicationContext)
     }
 
     override fun showMileage(mileage: Int) {
@@ -74,7 +80,8 @@ class MileageDialog: DialogFragment(),MileageDialogView {
 
     override fun mileageWasUpdated() {
         val activity = activity as MainActivity
-        activity.mainServicesFragment.presenter?.loadView()
+        context
+        activity.mainServicesFragment.presenter?.loadView(getMainCarId())
     }
 
 //    override fun onDismiss(dialog: DialogInterface?) {

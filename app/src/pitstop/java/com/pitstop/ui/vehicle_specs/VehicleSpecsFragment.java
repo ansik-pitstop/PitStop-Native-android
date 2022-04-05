@@ -34,6 +34,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -218,14 +219,18 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
             MixpanelHelper mixpanelHelper = new MixpanelHelper(
                     (GlobalApplication) getActivity().getApplicationContext());
 
-            presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper);
+            presenter = new VehicleSpecsPresenter(useCaseComponent, mixpanelHelper, getContext());
         }
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh());
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh(getMainCarId()));
 
         return view;
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getContext());
     }
 
     @Override
@@ -233,7 +238,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-        presenter.onUpdateNeeded(false);
+        presenter.onUpdateNeeded(getMainCarId(), false);
         presenter.updateTimezone();
     }
 
@@ -247,6 +252,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @Override
     public void showNoCarView() {
+        GlobalVariables.Companion.setMainCarId(getContext(), null);
         Log.d(TAG, "showNoCarView()");
         mainLayout.setVisibility(View.GONE);
         unknownErrorView.setVisibility(View.GONE);
@@ -405,10 +411,11 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
 
     @OnClick(R.id.set_unit_row)
     public void onUpdateUnit() {
+        if (getMainCarId() == null) return;
         UnitOfLengthDialog unitOfLengthDialog = new UnitOfLengthDialog();
         unitOfLengthDialog.setCallback(() ->
             getActivity().runOnUiThread(() ->
-                    presenter.onRefresh())
+                    presenter.onRefresh(getMainCarId()))
         );
         unitOfLengthDialog.show(getFragmentManager(), "");
     }
@@ -438,7 +445,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
                     .setView(dialogLayout)
                     .setMessage("Are you sure you want to delete this car?")
                     .setPositiveButton("Yes", (dialog, which)
-                            -> presenter.deleteCar())
+                            -> presenter.deleteCar(getMainCarId()))
                     .setNegativeButton("No", (dialog, which) -> dialog.cancel())
                     .create();
         }
@@ -583,13 +590,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
     @OnClick(R.id.offline_try_again)
     public void onOfflineTryAgainClicked() {
         Log.d(TAG, "onOfflineTryAgainClicked()");
-        presenter.onUpdateNeeded(true);
+        presenter.onUpdateNeeded(getMainCarId(), true);
     }
 
     @OnClick(R.id.unknown_error_try_again)
     public void onUnknownTryAgainClicked() {
         Log.d(TAG, "onUnknownTryAgainClicked()");
-        presenter.onUpdateNeeded(true);
+        presenter.onUpdateNeeded(getMainCarId(), true);
     }
 
     @OnClick(R.id.fuel_consumption_row)

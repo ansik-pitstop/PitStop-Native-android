@@ -31,6 +31,7 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
     private PidPackage pid;
     private DtcPackage dtc;
     private Callback callback;
+    private Integer carId;
 
     public GenerateReportUseCaseImpl(ReportRepository reportRepository
             , UserRepository userRepository, Handler mainHandler, Handler useCaseHandler) {
@@ -41,11 +42,12 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
     }
 
     @Override
-    public void execute(PidPackage pid, DtcPackage dtc, Callback callback) {
+    public void execute(Integer carId, PidPackage pid, DtcPackage dtc, Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started: pid="+pid+", dtc="+dtc
                 , DebugMessage.TYPE_USE_CASE);
         this.pid = pid;
         this.dtc = dtc;
+        this.carId = carId;
         this.callback = callback;
         useCaseHandler.post(this);
     }
@@ -71,69 +73,49 @@ public class GenerateReportUseCaseImpl implements GenerateReportUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings settings) {
+        reportRepository.createVehicleHealthReport(carId
+                , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
+                    @Override
+                    public void onSuccess(VehicleHealthReport vhr) {
+                        Log.d(TAG,"vhr generated: "+vhr);
+                        if (pid.getPids().containsKey("2141")){
+                            reportRepository.createEmissionsReport(carId
+                                    ,vhr.getId(), false, dtc, pid
+                                    , new Repository.Callback<EmissionsReport>() {
+                                        @Override
+                                        public void onSuccess(EmissionsReport et) {
+                                            Log.d(TAG,"onSuccess() vhr report: "+vhr
+                                                    + "et report: "+et);
+                                            GenerateReportUseCaseImpl.this
+                                                    .onReportAdded(vhr, et);
+                                        }
 
-                if (!settings.hasMainCar()){
-                    GenerateReportUseCaseImpl
-                            .this.onError(RequestError.getUnknownError());
-                    return;
-                }
+                                        @Override
+                                        public void onError(RequestError error) {
+                                            Log.d(TAG,"Error generating emissions report error: "
+                                                    +error.getMessage());
+                                            if (error.getStatusCode() == 400){
+                                                GenerateReportUseCaseImpl.this
+                                                        .onReportAddedWithoutEmissions(vhr);
+                                            }
+                                            else{
+                                                GenerateReportUseCaseImpl.this.onError(error);
+                                            }
+                                        }
+                                    });
+                        }else{
+                            GenerateReportUseCaseImpl.this
+                                    .onReportAddedWithoutEmissions(vhr);
+                        }
 
-                reportRepository.createVehicleHealthReport(settings.getCarId()
-                        , false, dtc, pid, new Repository.Callback<VehicleHealthReport>() {
-                            @Override
-                            public void onSuccess(VehicleHealthReport vhr) {
-                                Log.d(TAG,"vhr generated: "+vhr);
-                                if (pid.getPids().containsKey("2141")){
-                                    reportRepository.createEmissionsReport(settings.getCarId()
-                                            ,vhr.getId(), false, dtc, pid
-                                            , new Repository.Callback<EmissionsReport>() {
-                                                @Override
-                                                public void onSuccess(EmissionsReport et) {
-                                                    Log.d(TAG,"onSuccess() vhr report: "+vhr
-                                                            + "et report: "+et);
-                                                    GenerateReportUseCaseImpl.this
-                                                            .onReportAdded(vhr, et);
-                                                }
+                    }
 
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    Log.d(TAG,"Error generating emissions report error: "
-                                                            +error.getMessage());
-                                                    if (error.getStatusCode() == 400){
-                                                        GenerateReportUseCaseImpl.this
-                                                                .onReportAddedWithoutEmissions(vhr);
-                                                    }
-                                                    else{
-                                                        GenerateReportUseCaseImpl.this.onError(error);
-                                                    }
-                                                }
-                                            });
-                                }else{
-                                    GenerateReportUseCaseImpl.this
-                                            .onReportAddedWithoutEmissions(vhr);
-                                }
-
-                            }
-
-                            @Override
-                            public void onError(RequestError error) {
-                                Log.d(TAG,"onError() error: "+error);
-                                GenerateReportUseCaseImpl.this.onError(error);
-                            }
-                        });
-
-
-
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                GenerateReportUseCaseImpl.this.onError(error);
-            }
-        });
+                    @Override
+                    public void onError(RequestError error) {
+                        Log.d(TAG,"onError() error: "+error);
+                        GenerateReportUseCaseImpl.this.onError(error);
+                    }
+                });
     }
 
 }

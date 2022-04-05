@@ -16,5 +16,5 @@ public interface GetReportsUseCase extends Interactor {
         void onError(RequestError error);
     }
 
-    void execute(Callback callback);
+    void execute(Integer userId, Callback callback);
 }

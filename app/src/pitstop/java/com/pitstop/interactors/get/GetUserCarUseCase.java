@@ -23,5 +23,5 @@ public interface GetUserCarUseCase extends Interactor {
     }
 
     //Execute the use case
-    void execute(Repository.DATABASE_TYPE type, Callback callback);
+    void execute(Integer carId, Repository.DATABASE_TYPE type, Callback callback);
 }

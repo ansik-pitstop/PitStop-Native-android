@@ -36,6 +36,7 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     private Handler mainHandler;
     private CarRepository carRepository;
     private UserRepository userRepository;
+    private Integer userId;
 
     private GetCarsByUserIdUseCase.Callback callback;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -49,10 +50,11 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
     }
 
     @Override
-    public void execute(GetCarsByUserIdUseCase.Callback callback) {
+    public void execute(Integer userId, GetCarsByUserIdUseCase.Callback callback) {
         Logger.getInstance().logI(TAG,"Use case execution started"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
+        this.userId = userId;
         useCaseHandler.post(this);
     }
 
@@ -72,64 +74,22 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings data) {
-
-                if (!data.hasMainCar()) {
-                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(new ArrayList<Car>());
-                    return;
-                }
-
-                userRepository.getCurrentUser(new Repository.Callback<User>(){
-                    @Override
-                    public void onSuccess(User user) {
-                        Disposable disposable = carRepository.getCarsByUserId(user.getId(), Repository.DATABASE_TYPE.REMOTE)
-                                .subscribeOn(Schedulers.computation())
-                                .observeOn(Schedulers.io())
-                                .doOnNext(carListResponse -> {
-                                    if (carListResponse.getData() == null){
-                                        GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());
-                                    }else{
-                                        List<Car> carList = carListResponse.getData();
-                                        if (!isCurrentCarValid(data.getCarId(), carList)) {
-                                            carList.get(0).setCurrentCar(true);
-                                            userRepository.setUserCar(user.getId(), carList.get(0).getId(), new Repository.Callback<Object>() {
-                                                @Override
-                                                public void onSuccess(Object data) {
-                                                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carList);
-                                                }
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+error);
-                                                    GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carList);
-                                                }
-                                            });
-                                        } else {
-                                            GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
-                                        }
-                                    }
-                                }).doOnError(err -> GetCarsByUserIdUseCaseImpl.this.onError(new RequestError(err)))
-                                .onErrorReturn(err -> {
-                                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
-                                    return new RepositoryResponse<List<Car>>(null,false);
-                                }).subscribe();
-                        compositeDisposable.add(disposable);
+        Disposable disposable = carRepository.getCarsByUserId(userId, Repository.DATABASE_TYPE.REMOTE)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .doOnNext(carListResponse -> {
+                    if (carListResponse.getData() == null){
+                        GetCarsByUserIdUseCaseImpl.this.onError(RequestError.getUnknownError());
+                    }else{
+                        List<Car> carList = carListResponse.getData();
+                        GetCarsByUserIdUseCaseImpl.this.onCarsRetrieved(carListResponse.getData());
                     }
-
-                    @Override
-                    public void onError(RequestError error) {
-                        GetCarsByUserIdUseCaseImpl.this.onError(error);
-                    }
-                });
-
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                GetCarsByUserIdUseCaseImpl.this.onError(error);
-            }
-        });
+                }).doOnError(err -> GetCarsByUserIdUseCaseImpl.this.onError(new RequestError(err)))
+                .onErrorReturn(err -> {
+                    Log.d(TAG,"carRepository.getCarsByUserId() err: "+err);
+                    return new RepositoryResponse<List<Car>>(null,false);
+                }).subscribe();
+        compositeDisposable.add(disposable);
 
     }
 

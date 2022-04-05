@@ -18,6 +18,7 @@ import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -76,7 +77,7 @@ public class HealthReportProgressFragment extends Fragment implements HealthRepo
         Log.d(TAG,"setBluetooth()");
         this.bluetooth = bluetooth;
         if (presenter != null)
-            presenter.setBluetooth(bluetooth);
+            presenter.setBluetooth(getMainCarId(), bluetooth);
     }
 
     @Override
@@ -102,7 +103,11 @@ public class HealthReportProgressFragment extends Fragment implements HealthRepo
         super.onViewCreated(view, savedInstanceState);
         presenter.subscribe(this);
         if (bluetooth != null)
-            presenter.setBluetooth(bluetooth);
+            presenter.setBluetooth(getMainCarId(), bluetooth);
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
     }
 
     @Override

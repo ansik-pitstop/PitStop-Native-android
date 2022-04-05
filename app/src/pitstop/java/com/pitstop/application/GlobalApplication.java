@@ -81,6 +81,7 @@ public class GlobalApplication extends Application implements LoginManager {
     public static RemoteInput remoteInput = null;
     private boolean isBluetoothServiceRunning = false;
 
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);

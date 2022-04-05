@@ -29,9 +29,13 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         this.view = null
     }
 
-    fun loadView(){
+    fun loadView(carId: Int?){
         Log.d(tag,"loadView()")
-        usecaseComponent.userCarUseCase.execute(Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback{
+        if (carId == null) {
+            return
+        }
+
+        usecaseComponent.userCarUseCase.execute(carId, Repository.DATABASE_TYPE.LOCAL, object: GetUserCarUseCase.Callback{
             override fun onCarRetrieved(car: Car?, dealership: Dealership?, isLocal: Boolean) {
                 if (car != null){
                     view?.showMileage(car.totalMileage.toInt())
@@ -48,11 +52,13 @@ class MileageDialogPresenter(private val usecaseComponent: UseCaseComponent) {
         })
     }
 
-    fun onPositiveButtonClicked(){
+    fun onPositiveButtonClicked(carId: Int?){
         Log.d(tag,"onPositiveButtonClicked()")
+        if (carId == null) return
+
         try{
             val mileage = view!!.getMileageInput().toDouble()
-            usecaseComponent.updateCarMileageUseCase().execute(mileage, view?.getEventSource(), object: UpdateCarMileageUseCase.Callback{
+            usecaseComponent.updateCarMileageUseCase().execute(carId, mileage, view?.getEventSource(), object: UpdateCarMileageUseCase.Callback{
                 override fun onMileageUpdated() {
                     Log.d(tag,"onMileageUpdated()")
                     view?.mileageWasUpdated()

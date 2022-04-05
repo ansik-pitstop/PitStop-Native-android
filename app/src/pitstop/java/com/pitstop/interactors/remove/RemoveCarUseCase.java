@@ -18,6 +18,6 @@ public interface RemoveCarUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(int carId,String eventSource, Callback callback);
+    void execute(Integer userId, Integer carId,String eventSource, Callback callback);
 
 }

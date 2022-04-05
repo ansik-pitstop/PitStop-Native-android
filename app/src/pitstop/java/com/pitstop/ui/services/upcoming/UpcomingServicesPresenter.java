@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.upcoming;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
@@ -7,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetUpcomingServicesMapUseCase;
 import com.pitstop.models.service.UpcomingService;
@@ -35,10 +37,12 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
     private MixpanelHelper mixpanelHelper;
 
     private boolean updating = false;
+    private Context context;
 
-    public UpcomingServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    public UpcomingServicesPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper, Context context) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        this.context = context;
     }
 
     @Override
@@ -80,12 +84,21 @@ public class UpcomingServicesPresenter extends TabPresenter<UpcomingServicesView
         }
     }
 
+
+    Integer getUserId() {
+        return GlobalVariables.Companion.getUserId(context);
+    }
+
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (getView() == null || updating) return;
         updating = true;
         getView().showLoading();
-        useCaseComponent.getUpcomingServicesUseCase().execute(new GetUpcomingServicesMapUseCase.Callback() {
+
+        Integer userId = getUserId();
+        if (userId == null) return;
+
+        useCaseComponent.getUpcomingServicesUseCase().execute(userId, new GetUpcomingServicesMapUseCase.Callback() {
             @Override
             public void onGotUpcomingServicesMap(Map<Integer, List<UpcomingService>> serviceMap, boolean local) {
                 if (!local) updating = false;

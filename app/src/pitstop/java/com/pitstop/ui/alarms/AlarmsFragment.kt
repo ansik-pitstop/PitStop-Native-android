@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pitstop.R
 import com.pitstop.adapters.AlarmsAdapter
 import com.pitstop.application.GlobalApplication
+import com.pitstop.application.GlobalVariables
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.models.Alarm
@@ -80,8 +81,12 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
         return view!!
     }
 
+    private fun getMainCarId(): Int? {
+        return GlobalVariables.getMainCarId(activity.applicationContext)
+    }
+
     override fun onAlarmAdded(alarm: Alarm?) {
-        presenter?.refreshAlarms();
+        presenter?.refreshAlarms(getMainCarId());
     }
 
     override fun onPause() {
@@ -96,7 +101,7 @@ class AlarmsFragment : AlarmsView, Fragment(), AlarmObserver{
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated");
         setAlarmsEnabled(true)
-        presenter?.onUpdateNeeded()
+        presenter?.onUpdateNeeded(getMainCarId())
     }
 
     override fun populateAlarms() {

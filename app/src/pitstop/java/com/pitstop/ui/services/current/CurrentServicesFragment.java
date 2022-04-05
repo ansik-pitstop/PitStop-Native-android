@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.pitstop.R;
 import com.pitstop.adapters.ServicesAdapter;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -134,7 +135,7 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
                     .builder().contextModule(new ContextModule(getContext())).build();
             MixpanelHelper mixpanelHelper = new MixpanelHelper(
                     (GlobalApplication)getContext().getApplicationContext());
-            presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper);
+            presenter = new CurrentServicesPresenter(useCaseComponent,mixpanelHelper, getContext());
         }
 
         routineServicesRecyclerView.setNestedScrollingEnabled(false);
@@ -144,6 +145,10 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
         storedEngineIssuesRecyclerView.setNestedScrollingEnabled(false);
 
         return view;
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getContext());
     }
 
     public void setParentSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout){
@@ -527,7 +532,9 @@ public class CurrentServicesFragment extends Fragment implements CurrentServices
     @Override
     public void startDisplayIssueActivity(List<CarIssue> issues, int position){
         if (getActivity() == null) return;
-        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(issues, position);
+        Integer carId = getMainCarId();
+        if (carId == null) return;
+        ((MainActivityCallback)getActivity()).startDisplayIssueActivity(carId, issues, position);
     }
 
     @Override

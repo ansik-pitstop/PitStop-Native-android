@@ -303,6 +303,20 @@ class TripUtils {
 
         }
 
+        fun locationListToPolylineOptions(locations: List<RecordedLocation>): PolylineOptions {
+            val polylineOptions = PolylineOptions()
+                    .width(MapView.POLY_WIDTH)
+                    .geodesic(true)
+                    .color(Color.BLUE)
+                    .startCap(RoundCap())
+                    .endCap(RoundCap())
+            for (location in locations) {
+                val latLng = LatLng(location.latitude, location.longitude)
+                polylineOptions.add(latLng)
+            }
+            return polylineOptions
+        }
+
         fun isLocationPriorityValid(priority: Int): Boolean{
             return when (priority){
                 LocationRequest.PRIORITY_HIGH_ACCURACY -> true

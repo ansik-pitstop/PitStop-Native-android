@@ -223,26 +223,26 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         }
     }
 
-    fun setUserCar(userId: Int, carId: Int, callback: Repository.Callback<Any>) {
-        getUserSettings(userId, RequestCallback{ response, requestError ->
-            if (requestError == null) {
-                try {
-                    val options = JSONObject(response).getJSONObject("user")
-                    options.put("mainCar", carId)
-                    val putOptions = JSONObject()
-                    putOptions.put("settings", options)
-
-                    networkHelper.put("user/$userId/settings", getUserSetCarRequestCallback(callback, carId), putOptions)
-                } catch (e: JSONException) {
-                    Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
-                    callback.onError(RequestError.getUnknownError())
-                }
-
-            } else {
-                callback.onError(requestError)
-            }
-        })
-    }
+//    fun setUserCar(userId: Int, carId: Int, callback: Repository.Callback<Any>) {
+//        getUserSettings(userId, RequestCallback{ response, requestError ->
+//            if (requestError == null) {
+//                try {
+//                    val options = JSONObject(response).getJSONObject("user")
+//                    options.put("mainCar", carId)
+//                    val putOptions = JSONObject()
+//                    putOptions.put("settings", options)
+//
+//                    networkHelper.put("user/$userId/settings", getUserSetCarRequestCallback(callback, carId), putOptions)
+//                } catch (e: JSONException) {
+//                    Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
+//                    callback.onError(RequestError.getUnknownError())
+//                }
+//
+//            } else {
+//                callback.onError(requestError)
+//            }
+//        })
+//    }
 
     private fun getUserSetCarRequestCallback(callback: Repository.Callback<Any>, carId: Int): RequestCallback {
         //Create corresponding request callback
@@ -267,34 +267,34 @@ class UserRepository(private val localUserStorage: LocalUserStorage
         }
     }
 
-    fun setFirstCarAdded(added: Boolean, callback: Repository.Callback<Any>) {
-
-        Log.d(TAG, "setFirstCarAdded() added: $added")
-        val userId = localUserStorage.user!!.id
-
-        getUserSettings(userId, RequestCallback{ response, requestError ->
-            if (requestError == null) {
-                try {
-                    //Get settings and add boolean
-                    val settings = JSONObject(response).getJSONObject("user")
-                    settings.put("isFirstCarAdded", added)
-
-                    val putSettings = JSONObject()
-                    putSettings.put("settings", settings)
-
-                    val requestCallback = getSetFirstCarAddedCallback(callback, added)
-
-                    networkHelper.put("user/$userId/settings", requestCallback, putSettings)
-                } catch (e: JSONException) {
-                    Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
-                    callback.onError(requestError)
-                }
-
-            } else {
-                callback.onError(requestError)
-            }
-        })
-    }
+//    fun setFirstCarAdded(added: Boolean, callback: Repository.Callback<Any>) {
+//
+//        Log.d(TAG, "setFirstCarAdded() added: $added")
+//        val userId = localUserStorage.user!!.id
+//
+//        getUserSettings(userId, RequestCallback{ response, requestError ->
+//            if (requestError == null) {
+//                try {
+//                    //Get settings and add boolean
+//                    val settings = JSONObject(response).getJSONObject("user")
+//                    settings.put("isFirstCarAdded", added)
+//
+//                    val putSettings = JSONObject()
+//                    putSettings.put("settings", settings)
+//
+////                    val requestCallback = getSetFirstCarAddedCallback(callback, added)
+//
+////                    networkHelper.put("user/$userId/settings", requestCallback, putSettings)
+//                } catch (e: JSONException) {
+//                    Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
+//                    callback.onError(requestError)
+//                }
+//
+//            } else {
+//                callback.onError(requestError)
+//            }
+//        })
+//    }
 
 
     fun setAlarmsEnabled(alarmsEnabled: Boolean, callback: Repository.Callback<Any>) {
@@ -348,81 +348,81 @@ class UserRepository(private val localUserStorage: LocalUserStorage
     }
 
 
-    private fun getSetFirstCarAddedCallback(callback: Repository.Callback<Any>, added: Boolean): RequestCallback {
-        //Create corresponding request callback
-        return RequestCallback{ response, requestError ->
-            try {
-                if (requestError == null && localUserStorage.user != null) {
-                    val user = localUserStorage.user
-                    val settingsNew = user!!.settings
-                    settingsNew.isFirstCarAdded = added
-                    user.settings = settingsNew
-                    localUserStorage.updateUser(user)
-                    callback.onSuccess(response)
-                } else {
-                    callback.onError(requestError)
-                }
-            } catch (e: JsonIOException) {
-                Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
-                callback.onError(requestError)
-            }
-        }
-    }
+//    private fun getSetFirstCarAddedCallback(callback: Repository.Callback<Any>, added: Boolean): RequestCallback {
+//        //Create corresponding request callback
+//        return RequestCallback{ response, requestError ->
+//            try {
+//                if (requestError == null && localUserStorage.user != null) {
+//                    val user = localUserStorage.user
+//                    val settingsNew = user!!.settings
+//                    settingsNew.isFirstCarAdded = added
+//                    user.settings = settingsNew
+//                    localUserStorage.updateUser(user)
+//                    callback.onSuccess(response)
+//                } else {
+//                    callback.onError(requestError)
+//                }
+//            } catch (e: JsonIOException) {
+//                Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
+//                callback.onError(requestError)
+//            }
+//        }
+//    }
 
 
-    fun getCurrentUserSettings(callback: Repository.Callback<Settings>) {
-        Log.d(TAG, "getCurrentUserSettings()")
-        if (localUserStorage.user == null) {
-            callback.onError(RequestError.getUnknownError())
-            return
-        } else if (localUserStorage.user!!.settings != null) {
-            Log.d(TAG, "Returning local settings! settings: " + localUserStorage.user!!.settings)
-            callback.onSuccess(localUserStorage.user!!.settings)
-            return
-        }
-        Log.d(TAG, "Fetching settings remotely!()")
-        val userId = localUserStorage.user!!.id
-
-        getUserSettings(userId, RequestCallback{ response, requestError ->
-            if (requestError != null || localUserStorage.user == null) {
-                callback.onError(requestError)
-                return@RequestCallback
-            }
-            try {
-                val settings = JSONObject(response)
-                var carId = -1
-                var firstCarAdded = true //if not present, default is true
-                var alarmsEnabled = false // if not present, default is false
-                var odometer = "km"
-                var timezone = ""
-
-                if (settings.getJSONObject("user").has("alarmsEnabled")) {
-                    alarmsEnabled = settings.getJSONObject("user").getBoolean("alarmsEnabled")
-                }
-                if (settings.getJSONObject("user").has("isFirstCarAdded")) {
-                    firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded")
-                }
-                if (settings.getJSONObject("user").has("mainCar")) {
-                    carId = settings.getJSONObject("user").getInt("mainCar")
-                }
-                if (settings.getJSONObject("user").has("odometer")) {
-                    odometer = settings.getString("odometer")
-                }
-                if (settings.getJSONObject("user").has("timezone")) {
-                    timezone = settings.getString("timezone")
-                }
-
-                val user = localUserStorage.user
-
-                user!!.settings = Settings(user.id, carId, firstCarAdded, alarmsEnabled, odometer, timezone)
-                localUserStorage.updateUser(user)
-                callback.onSuccess(user.settings)
-            } catch (e: JSONException) {
-                Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
-                callback.onError(RequestError.getUnknownError())
-            }
-        })
-    }
+//    fun getCurrentUserSettings(callback: Repository.Callback<Settings>) {
+//        Log.d(TAG, "getCurrentUserSettings()")
+//        if (localUserStorage.user == null) {
+//            callback.onError(RequestError.getUnknownError())
+//            return
+//        } /*else if (localUserStorage.user!!.settings != null) {
+//            Log.d(TAG, "Returning local settings! settings: " + localUserStorage.user!!.settings)
+//            callback.onSuccess(localUserStorage.user!!.settings)
+//            return
+//        }*/
+//        Log.d(TAG, "Fetching settings remotely!()")
+//        val userId = localUserStorage.user!!.id
+//
+//        getUserSettings(userId, RequestCallback{ response, requestError ->
+//            if (requestError != null || localUserStorage.user == null) {
+//                callback.onError(requestError)
+//                return@RequestCallback
+//            }
+//            try {
+//                val settings = JSONObject(response)
+//                var carId = -1
+//                var firstCarAdded = true //if not present, default is true
+//                var alarmsEnabled = false // if not present, default is false
+//                var odometer = "km"
+//                var timezone = ""
+//
+//                if (settings.getJSONObject("user").has("alarmsEnabled")) {
+//                    alarmsEnabled = settings.getJSONObject("user").getBoolean("alarmsEnabled")
+//                }
+//                if (settings.getJSONObject("user").has("isFirstCarAdded")) {
+//                    firstCarAdded = settings.getJSONObject("user").getBoolean("isFirstCarAdded")
+//                }
+//                if (settings.getJSONObject("user").has("mainCar")) {
+//                    carId = settings.getJSONObject("user").getInt("mainCar")
+//                }
+//                if (settings.getJSONObject("user").has("odometer")) {
+//                    odometer = settings.getString("odometer")
+//                }
+//                if (settings.getJSONObject("user").has("timezone")) {
+//                    timezone = settings.getString("timezone")
+//                }
+//
+//                val user = localUserStorage.user
+//
+//                user!!.settings = Settings(user.id, carId, firstCarAdded, alarmsEnabled, odometer, timezone)
+//                localUserStorage.updateUser(user)
+//                callback.onSuccess(user.settings)
+//            } catch (e: JSONException) {
+//                Logger.getInstance()!!.logException(TAG, e, DebugMessage.TYPE_REPO)
+//                callback.onError(RequestError.getUnknownError())
+//            }
+//        })
+//    }
 
     fun updateTimezone() {
         val userId = localUserStorage.user?.id ?: return

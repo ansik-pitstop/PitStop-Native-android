@@ -82,14 +82,15 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
 
                     // For some random reason, login on smooch doesn't work anymore when it's
                     // outside a thread, maybe a race condition
-                    val task: TimerTask = object : TimerTask() {
-                        override fun run() {
-                            loginOnSmooch(user, smoochToken)
-                        }
-                    }
-                    val timer = Timer("Timer")
-                    val delay = 1000L
-                    timer.schedule(task, delay)
+                    loginOnSmooch(user, smoochToken)
+//                    val task: TimerTask = object : TimerTask() {
+//                        override fun run() {
+//                            loginOnSmooch(user, smoochToken)
+//                        }
+//                    }
+//                    val timer = Timer("Timer")
+//                    val delay = 1000L
+//                    timer.schedule(task, delay)
                 } catch(e: IOException) {
                     onErrorFound(RequestError.getOfflineError())
                 }
@@ -103,30 +104,37 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
 
     fun loginOnSmooch(user: User, smoochToken: String) {
         Smooch.login(user.id.toString(), smoochToken) {
-            Log.d(tag, "Logged in on smooch")
-            Log.d(tag, "login response err: " + it.error)
-            if (it.error == null) {
-                //Set user so that when this use case finishes the user is set and ready for messaging
-                SmoochUtil.setSmoochProperties(user)
-                if (user.settings.hasMainCar()) {
-                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io())
-                            .subscribe({next->
-                                val car: Car = next.data!!
-                                Log.d(tag, next.data.toString())
-                                //Set car
-                                SmoochUtil.setSmoochProperties(car)
-                                Log.d(tag,"set smooch user properties! user: $user")
-                                onLogin()
-                            }, {error ->
-                                Log.e(tag,"error storing custom properties! err: $error")
-                                onErrorFound(RequestError.getUnknownError())
-                            })
-                    compositeDisposable.add(disposable)
-                }
-            } else onErrorFound(RequestError.getUnknownError())
+
         }
+
+
+//        Smooch.login(user.id.toString(), smoochToken) {
+//            Log.d(tag, "Logged in on smooch")
+//            Log.d(tag, "login response err: " + it.error)
+//            if (it.error == null) {
+//                //Set user so that when this use case finishes the user is set and ready for messaging
+//                SmoochUtil.setSmoochProperties(user)
+//                if (user.settings.hasMainCar()) {
+//                    val disposable = carRepository.get(user.settings.carId, Repository.DATABASE_TYPE.LOCAL)
+//                            .subscribeOn(Schedulers.computation())
+//                            .observeOn(Schedulers.io())
+//                            .subscribe({next->
+//                                val car: Car = next.data!!
+//                                Log.d(tag, next.data.toString())
+//                                //Set car
+//                                SmoochUtil.setSmoochProperties(car)
+//                                Log.d(tag,"set smooch user properties! user: $user")
+//                                onLogin()
+//                            }, {error ->
+//                                Log.e(tag,"error storing custom properties! err: $error")
+//                                onErrorFound(RequestError.getUnknownError())
+//                            })
+//                    compositeDisposable.add(disposable)
+//                } else {
+//                    onLogin()
+//                }
+//            } else onErrorFound(RequestError.getUnknownError())
+//        }
     }
 
     private fun onErrorFound(err: RequestError){

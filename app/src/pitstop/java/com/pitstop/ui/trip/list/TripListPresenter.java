@@ -1,11 +1,15 @@
 package com.pitstop.ui.trip.list;
 
+import android.content.Context;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.pitstop.EventBus.EventSource;
 import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetTripsUseCase;
 import com.pitstop.models.trip.Trip;
@@ -62,11 +66,13 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
     private boolean updating = false;
     private boolean carAdded = true;
     private boolean tripRunning = false;
+    private Context context;
 
-    public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    public TripListPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper, Context context) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
         compositeDisposable = new CompositeDisposable();
+        this.context = context;
     }
 
     @Override
@@ -184,6 +190,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
 
     }
 
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
+    }
+
     public void onUpdateNeeded(int sortParam) {
         Log.d(TAG, "onUpdateNeeded, TripListPresenter");
         if (getView() == null || updating) {
@@ -192,7 +202,10 @@ public class TripListPresenter extends TabPresenter<TripListView> implements Tri
         updating = true;
         getView().showLoading();
 
-        useCaseComponent.getTripsUseCase().execute(new GetTripsUseCase.Callback() {
+        Integer carId = getMainCarId();
+        if (carId == null) return;
+
+        useCaseComponent.getTripsUseCase().execute(carId, new GetTripsUseCase.Callback() {
             @Override
             public void onNoCar() {
                 Log.d(TAG,"GetTripsUseCase.onNoCar()");

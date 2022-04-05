@@ -25,54 +25,46 @@ class GetAlarmsUseCaseImpl( val carRepository: CarRepository, val userRepository
 
     private val TAG = javaClass.simpleName;
     private var callback: GetAlarmsUseCase.Callback? = null
+    private var carId: Int = 0
 
-    override fun execute( callback: GetAlarmsUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetAlarmsUseCase.Callback) {
         Logger.getInstance().logI(TAG, "Use case execution started"
                 , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
     override fun run() {
-        userRepository.getCurrentUserSettings( object: Repository.Callback<Settings>{
-            override fun onSuccess(settings: Settings?) {
-                    localAlarmStorage.getAlarms(settings?.carId!!, object : Repository.Callback<List<Alarm>>{
-                        override fun onSuccess(list: List<Alarm>?) {
-                            Log.d(TAG, "getAlarmsSuccess()");
-                                    val arrayListAlarm: ArrayList<Alarm>  = ArrayList(list)
-                                    var map: HashMap<String, ArrayList<Alarm>> = HashMap();
-                                    for (alarm in arrayListAlarm) {
-                                        val date = Date()
-                                        date.time = java.lang.Long.parseLong(alarm.rtcTime) * 1000
-                                        val currDate: String = (DateFormatSymbols().months[date.month]+ " " + date.date + " " + (1900 + date.year))
-                                        if (map.containsKey(currDate)){
-                                            map[currDate]?.add(alarm)
-                                        }
-                                        else {
-                                            var currArrayList: ArrayList<Alarm> = ArrayList();
-                                            currArrayList.add(alarm);
-                                            map.put(currDate, currArrayList);
-                                        }
-                                    }
-                                    Log.d(TAG, settings.toString())
+        localAlarmStorage.getAlarms(this.carId, object : Repository.Callback<List<Alarm>>{
+            override fun onSuccess(list: List<Alarm>?) {
+                Log.d(TAG, "getAlarmsSuccess()");
+                val arrayListAlarm: ArrayList<Alarm>  = ArrayList(list)
+                var map: HashMap<String, ArrayList<Alarm>> = HashMap();
+                for (alarm in arrayListAlarm) {
+                    val date = Date()
+                    date.time = java.lang.Long.parseLong(alarm.rtcTime) * 1000
+                    val currDate: String = (DateFormatSymbols().months[date.month]+ " " + date.date + " " + (1900 + date.year))
+                    if (map.containsKey(currDate)){
+                        map[currDate]?.add(alarm)
+                    }
+                    else {
+                        var currArrayList: ArrayList<Alarm> = ArrayList();
+                        currArrayList.add(alarm);
+                        map.put(currDate, currArrayList);
+                    }
+                }
 
-                                    Logger.getInstance().logI(TAG, "Use case finished: alarms:"+map+", enabled="+settings.isAlarmsEnabled
-                                        , DebugMessage.TYPE_USE_CASE)
-                                    mainHandler.post({callback?.onAlarmsGot(map, settings.isAlarmsEnabled)})
-                                }
-                                override fun onError(error: RequestError?) {
-                                    Logger.getInstance().logE(TAG, "Use case returned error: err="+error
-                                            , DebugMessage.TYPE_USE_CASE)
-                                    mainHandler.post({callback?.onError(RequestError.getUnknownError())})
-                                }
-
-                    })
+                Logger.getInstance().logI(TAG, "Use case finished: alarms:$map, enabled=true"
+                        , DebugMessage.TYPE_USE_CASE)
+                mainHandler.post({callback?.onAlarmsGot(map, true)})
             }
             override fun onError(error: RequestError?) {
                 Logger.getInstance().logE(TAG, "Use case returned error: err="+error
                         , DebugMessage.TYPE_USE_CASE)
                 mainHandler.post({callback?.onError(RequestError.getUnknownError())})
             }
+
         })
     }
 }

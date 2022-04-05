@@ -36,6 +36,7 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     private Handler mainHandler;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private Repository.DATABASE_TYPE requestType = Repository.DATABASE_TYPE.BOTH;
+    private Integer carId;
 
     public GetUserCarUseCaseImpl(UserRepository userRepository, CarRepository carRepository
             , ShopRepository shopRepository, Handler useCaseHandler, Handler mainHandler) {
@@ -48,11 +49,12 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
     }
 
     @Override
-    public void execute(Repository.DATABASE_TYPE requestType, Callback callback) {
+    public void execute(Integer carId, Repository.DATABASE_TYPE requestType, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case started execution"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
         this.requestType = requestType;
+        this.carId = carId;
         useCaseHandler.post(this);
     }
 
@@ -90,68 +92,23 @@ public class GetUserCarUseCaseImpl implements GetUserCarUseCase {
 
     @Override
     public void run() {
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings userSettings) {
-
-                //Main car is stored in user settings, retrieve it from there
-                if (userSettings.hasMainCar()){
-                    Disposable disposable = carRepository.get(userSettings.getCarId(),requestType)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io(), true)
-                            .subscribe(response -> {
-                                Log.d(TAG,"carRepository.get() isLocal?"+response.isLocal()+", car: "+response.getData());
-                                if (response.getData() == null && !response.isLocal()){
-                                    GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
-                                    return;
-                                }else if (response.getData() == null && response.isLocal()){
-                                    return;
-                                }
-                                carRepository.setCurrent(response.getData());
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
-                                , null, response.isLocal());
-                            }, err ->{
-                                GetUserCarUseCaseImpl.this.onError(new RequestError(err));
-                            });
-                    compositeDisposable.add(disposable);
-                    return;
-                }
-
-                /*User settings doesn't have mainCar stored, we cannot trust this because settings
-                ** could potentially be corrupted, so perform a double-check by retrieving cars*/
-                Disposable disposable = carRepository.getCarsByUserId(userSettings.getUserId(),Repository.DATABASE_TYPE.BOTH)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io(),true)
-                        .subscribe(carListResponse -> {
-                            List<Car> carList = carListResponse.getData();
-                            if (carList.isEmpty()){
-                                GetUserCarUseCaseImpl.this.onNoCarSet(carListResponse.isLocal());
-                            } else{
-                                GetUserCarUseCaseImpl.this.onCarRetrieved(carList.get(0)
-                                        , carList.get(0).getShop(),carListResponse.isLocal());
-                                //Fix corrupted user settings
-                                userRepository.setUserCar(userSettings.getUserId(), carList.get(0).getId()
-                                        , new Repository.Callback<Object>() {
-                                            @Override
-                                            public void onSuccess(Object response){
-                                                //Successfully fixed corrupted settings
-                                            }
-                                            @Override
-                                            public void onError(RequestError error){
-                                                //Error fixing corrupted settings
-                                            }
-                                        });
-                            }
-                        },err->{
-                            GetUserCarUseCaseImpl.this.onError(new RequestError(err));
-                        });
-                compositeDisposable.add(disposable);
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                GetUserCarUseCaseImpl.this.onError(error);
-            }
-        });
+        Disposable disposable = carRepository.get(this.carId, requestType)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(), true)
+                .subscribe(response -> {
+                    Log.d(TAG,"carRepository.get() isLocal?"+response.isLocal()+", car: "+response.getData());
+                    if (response.getData() == null && !response.isLocal()){
+                        GetUserCarUseCaseImpl.this.onError(RequestError.getUnknownError());
+                        return;
+                    }else if (response.getData() == null && response.isLocal()){
+                        return;
+                    }
+                    carRepository.setCurrent(response.getData());
+                    GetUserCarUseCaseImpl.this.onCarRetrieved(response.getData()
+                            , null, response.isLocal());
+                }, err ->{
+                    GetUserCarUseCaseImpl.this.onError(new RequestError(err));
+                });
+        compositeDisposable.add(disposable);
     }
 }

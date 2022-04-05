@@ -206,8 +206,8 @@ open class CarRepository(
         }
     }
 
-    fun delete(carId: Int, callback: Repository.Callback<Any>) {
-        networkHelper.deleteUserCar(carId) { response, requestError ->
+    fun delete(userId: Int, carId: Int, callback: Repository.Callback<Any>) {
+        networkHelper.deleteUserCar(userId, carId) { response, requestError ->
             try {
                 if (requestError == null) {
                     localCarStorage.deleteCar(carId)

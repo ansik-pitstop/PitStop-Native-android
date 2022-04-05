@@ -24,11 +24,13 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
     private val tag = javaClass.simpleName
     private var callback: GetDealershipWithCarIssuesUseCase.Callback? = null
     private var compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(callback: GetDealershipWithCarIssuesUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetDealershipWithCarIssuesUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started"
                 , DebugMessage.TYPE_USE_CASE)
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
@@ -48,47 +50,35 @@ class GetDealershipWithCarIssuesUseCaseImpl(val userRepository: UserRepository
 
     override fun run() {
         Log.d(tag,"run()")
-        userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
+        val disposable = carIssueRepository.getCurrentCarIssues(this.carId, Repository.DATABASE_TYPE.REMOTE)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io(), true)
+                .subscribe({ (data, isLocal) ->
+                    if (isLocal) return@subscribe
+                    carRepository.getShopId(this.carId, object: Repository.Callback<Int>{
+                        override fun onSuccess(shopId: Int) {
+                            shopRepository.get(shopId, object : Repository.Callback<Dealership> {
 
-            override fun onSuccess(settings: Settings) {
-                Log.d(tag, "got settings: "+settings)
-
-                val disposable = carIssueRepository.getCurrentCarIssues(settings.carId, Repository.DATABASE_TYPE.REMOTE)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io(), true)
-                        .subscribe({ (data, isLocal) ->
-                            if (isLocal) return@subscribe
-                            carRepository.getShopId(settings.carId, object: Repository.Callback<Int>{
-                                override fun onSuccess(shopId: Int) {
-                                    shopRepository.get(shopId, object : Repository.Callback<Dealership> {
-
-                                        override fun onSuccess(dealership: Dealership) {
-                                            Log.d(tag, "got dealership: "+dealership)
-                                            this@GetDealershipWithCarIssuesUseCaseImpl.onGotDealershipAndIssues(dealership,data!!)
-                                        }
-
-                                        override fun onError(error: RequestError) {
-                                            Log.d(tag, "onError() err: ${error.message}")
-                                            this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
-                                        }
-                                    })
+                                override fun onSuccess(dealership: Dealership) {
+                                    Log.d(tag, "got dealership: "+dealership)
+                                    this@GetDealershipWithCarIssuesUseCaseImpl.onGotDealershipAndIssues(dealership,data!!)
                                 }
 
                                 override fun onError(error: RequestError) {
+                                    Log.d(tag, "onError() err: ${error.message}")
                                     this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
                                 }
                             })
-                            Log.d(tag, "got car issues")
-                        }) { error ->
-                            this@GetDealershipWithCarIssuesUseCaseImpl.onError(RequestError(error))
                         }
-                compositeDisposable.add(disposable)
-            }
-            override fun onError(error: RequestError) {
-                Log.d(tag,"onError() err: ${error.message}")
-                this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
-            }
 
-        })
+                        override fun onError(error: RequestError) {
+                            this@GetDealershipWithCarIssuesUseCaseImpl.onError(error)
+                        }
+                    })
+                    Log.d(tag, "got car issues")
+                }) { error ->
+                    this@GetDealershipWithCarIssuesUseCaseImpl.onError(RequestError(error))
+                }
+        compositeDisposable.add(disposable)
     }
 }

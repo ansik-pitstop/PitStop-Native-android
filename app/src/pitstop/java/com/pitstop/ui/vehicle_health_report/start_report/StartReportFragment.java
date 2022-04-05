@@ -24,6 +24,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.BluetoothService;
 import com.pitstop.database.LocalCarStorage;
 import com.pitstop.database.LocalDatabaseHelper;
@@ -303,7 +304,11 @@ public class StartReportFragment extends Fragment implements StartReportView {
                         Log.d(TAG,"error = "+err);
                 });
         compositeDisposable.add(d);
-        presenter.onViewReadyForLoad();
+        presenter.onViewReadyForLoad(getMainCarId());
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
     }
 
     @Override

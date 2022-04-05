@@ -65,8 +65,9 @@ public class VHRMacroUseCase {
     private PidPackage retrievedPid;
 
     private boolean success = true;
+    private Integer carId;
 
-    public VHRMacroUseCase(UseCaseComponent component, BluetoothConnectionObservable bluetooth, Callback callback){
+    public VHRMacroUseCase(Integer carId, UseCaseComponent component, BluetoothConnectionObservable bluetooth, Callback callback){
         this.callback = callback;
         this.bluetooth = bluetooth;
 
@@ -79,22 +80,22 @@ public class VHRMacroUseCase {
         //Timer queue
         progressTimerQueue = new LinkedList<>();
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GET_DTC
+                new ProgressTimer(carId, TYPE_GET_DTC
                         , BluetoothConnectionObservable.RETRIEVAL_LEN_DTC+TIME_PADDING));
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GET_PID
+                new ProgressTimer(carId, TYPE_GET_PID
                         ,BluetoothConnectionObservable.RETRIEVAL_LEN_ALL_PID
                                 +TIME_PADDING+TIME_PID_PADDING_EXTRA));
         progressTimerQueue.add(
-                new ProgressTimer(TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
+                new ProgressTimer(carId, TYPE_GENERATE_REPORT,TIME_GENERATE_REPORT+TIME_PADDING));
 
     }
-    public void start(){
+    public void start(Integer carId){
         Logger.getInstance().logI(TAG,"Macro use case execution started"
                 , DebugMessage.TYPE_USE_CASE);
-        next();
+        next(carId);
     }
-    private void next(){
+    private void next(Integer carId){
         Log.d(TAG,"next()");
         if(interactorQueue.isEmpty()){
             finish();
@@ -147,7 +148,7 @@ public class VHRMacroUseCase {
                 if (progressTimerQueue.peek() != null) progressTimerQueue.peek().cancel();
                 return;
             }
-            ((GenerateReportUseCaseImpl)current).execute(retrievedPid, retrievedDtc
+            ((GenerateReportUseCaseImpl)current).execute(carId, retrievedPid, retrievedDtc
                     , new GenerateReportUseCase.Callback() {
                         @Override
                         public void onReportAddedWithoutEmissions(VehicleHealthReport vehicleHealthReport) {
@@ -197,11 +198,13 @@ public class VHRMacroUseCase {
         private double startProgress;
         private double useCaseTime;
         private int type;
+        private Integer carId;
 
-        ProgressTimer(int type, double useCaseTime){
+        ProgressTimer(Integer carId, int type, double useCaseTime){
             super((long)useCaseTime*1000,600);
             this.useCaseTime = useCaseTime;
             this.type = type;
+            this.carId = carId;
             switch(type){
                 case TYPE_GENERATE_REPORT:
                     this.startProgress = PROGRESS_START_GENERATE_REPORT;
@@ -259,7 +262,7 @@ public class VHRMacroUseCase {
                                 , DebugMessage.TYPE_USE_CASE);
                         callback.onFinishGeneratingReport(vehicleHealthReport, emissionsReport);
                         progressTimerQueue.remove();
-                        next();
+                        next(carId);
                     }
                     break;
 
@@ -275,7 +278,7 @@ public class VHRMacroUseCase {
                                 , DebugMessage.TYPE_USE_CASE);
                         callback.onGotDTC();
                         progressTimerQueue.remove();
-                        next();
+                        next(carId);
                     }
                     break;
 
@@ -294,7 +297,7 @@ public class VHRMacroUseCase {
                                 , DebugMessage.TYPE_USE_CASE);
                         callback.onGotPID();
                         progressTimerQueue.remove();
-                        next();
+                        next(carId);
                     }
                     break;
             }

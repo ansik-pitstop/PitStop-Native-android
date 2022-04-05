@@ -183,8 +183,7 @@ public class HttpRequest {
                     case DELETE: {
                         Request request = webClient.delete(params[0].toString())
                                 .header(Webb.HDR_CONTENT_TYPE, Webb.APP_JSON)
-                                .header(Webb.HDR_ACCEPT, Webb.APP_JSON)
-                                .body(params[2]);
+                                .header(Webb.HDR_ACCEPT, Webb.APP_JSON);
 
                         if (params[3] instanceof HashMap) {
                             headers = (HashMap<String, String>) params[3];

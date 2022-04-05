@@ -17,5 +17,5 @@ public interface AddServicesUseCase extends Interactor {
     }
 
     //Executes the use case
-    void execute(List<CarIssue> carIssues,String eventSource, Callback callback);
+    void execute(Integer carId, List<CarIssue> carIssues,String eventSource, Callback callback);
 }

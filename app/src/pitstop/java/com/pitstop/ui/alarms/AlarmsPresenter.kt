@@ -1,11 +1,13 @@
 package com.pitstop.ui.alarms
 
 import android.util.Log
+import com.pitstop.application.GlobalVariables
 import com.pitstop.dependency.UseCaseComponent
 import com.pitstop.interactors.get.GetAlarmsUseCase
 import com.pitstop.interactors.set.SetAlarmsEnabledUseCase
 import com.pitstop.models.Alarm
 import com.pitstop.network.RequestError
+import com.pitstop.ui.main_activity.MainActivity
 import com.pitstop.utils.MixpanelHelper
 
 /**
@@ -29,13 +31,19 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         this.alarmsView = null
     }
 
-    fun onUpdateNeeded() {
+    fun onUpdateNeeded(carId: Int?) {
         Log.d(TAG, "onUpdateNeeded")
         if (updating) return;
         updating = true
         alarmsView?.showLoading();
 
-        useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
+        if (carId == null) {
+            updating = false;
+            alarmsView?.noAlarmsView()
+            return
+        }
+
+        useCaseComponent.alarmsUseCase.execute(carId, object: GetAlarmsUseCase.Callback{
             override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>,  alarmsEnabled: Boolean) {
                 updating = false;
                 if (alarmsView == null) return;
@@ -92,10 +100,17 @@ class AlarmsPresenter(val useCaseComponent: UseCaseComponent, val mixpanelHelper
         })
     }
 
-    fun refreshAlarms() {
+    fun refreshAlarms(carId: Int?) {
         if (updating) return;
         updating = true
-        useCaseComponent.alarmsUseCase.execute(object: GetAlarmsUseCase.Callback{
+
+        if (carId == null) {
+            alarmsView?.noAlarmsView()
+            updating = false;
+            return
+        }
+
+        useCaseComponent.alarmsUseCase.execute(carId, object: GetAlarmsUseCase.Callback{
             override fun onAlarmsGot(alarms: HashMap<String, ArrayList<Alarm>>,  alarmsEnabled: Boolean) {
                 updating = false;
                 if (alarmsView == null) return;

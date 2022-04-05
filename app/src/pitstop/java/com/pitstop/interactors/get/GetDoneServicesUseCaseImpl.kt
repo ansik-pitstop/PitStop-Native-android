@@ -20,10 +20,12 @@ class GetDoneServicesUseCaseImpl(private val userRepository: UserRepository, pri
     private val TAG = javaClass.simpleName
     private var callback: GetDoneServicesUseCase.Callback? = null
     private val compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(callback: GetDoneServicesUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetDoneServicesUseCase.Callback) {
         Logger.getInstance()!!.logI(TAG, "Use case execution started", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
@@ -50,48 +52,7 @@ class GetDoneServicesUseCaseImpl(private val userRepository: UserRepository, pri
     }
 
     override fun run() {
-
-        //Get current users car
-        userRepository.getCurrentUserSettings(object : Repository.Callback<Settings> {
-            override fun onSuccess(data: Settings) {
-
-                if (!data.hasMainCar()) {
-                    //Double check car repo in case settings is out of sync
-                    val disposable = carRepository.getCarsByUserId(data.userId, Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io(), true)
-                            .subscribe({ (data1, isLocal) ->
-                                if (data1 != null && data1.size > 0) {
-                                    getDoneCarIssues(data1[0].id)
-
-                                    //Fix settings
-                                    userRepository.setUserCar(data.userId, data1[0].id, object : Repository.Callback<Any> {
-
-                                        override fun onSuccess(data: Any) {
-                                            Log.d(TAG, "fixed settings")
-                                        }
-
-                                        override fun onError(error: RequestError) {
-                                            Log.d(TAG, "Error fixing settings")
-                                        }
-                                    })
-                                } else {
-                                    this@GetDoneServicesUseCaseImpl.onNoCarAdded(true)
-                                }
-                            }) { error ->
-                                this@GetDoneServicesUseCaseImpl
-                                        .onError(RequestError(error))
-                            }
-                    compositeDisposable.add(disposable)
-                } else
-                    getDoneCarIssues(data.carId)
-            }
-
-            override fun onError(error: RequestError) {
-                Log.d(TAG, "getCurrentUserSettings.onError() err: $error")
-                this@GetDoneServicesUseCaseImpl.onError(error)
-            }
-        })
+        getDoneCarIssues(this.carId)
     }
 
     private fun getDoneCarIssues(carId: Int) {

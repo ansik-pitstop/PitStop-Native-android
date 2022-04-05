@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.florent37.viewanimator.ViewAnimator;
 import com.pitstop.R;
 import com.pitstop.application.GlobalApplication;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
 import com.pitstop.dependency.UseCaseComponent;
@@ -123,7 +124,7 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
                 .build();
         MixpanelHelper mixpanelHelper
                 = new MixpanelHelper((GlobalApplication)getActivity().getApplicationContext());
-        presenter = new HealthReportPresenter(component, mixpanelHelper);
+        presenter = new HealthReportPresenter(component, mixpanelHelper, getMainCarId());
 
         getActivity().setTitle(getString(R.string.vehicle_health_report));
 
@@ -157,6 +158,10 @@ public class HealthReportFragment extends Fragment implements HealthReportView {
         });
 
         return view;
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
     }
 
     @Override

@@ -24,11 +24,14 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
     private val periodicHandler = Handler()
     private val sendInterval: Long = 30000
     private var isSending = false
+    private val carId: Int = -1
 
     private val periodicPendingDtcSender = object : Runnable {
         override fun run() {
             Log.d(tag, "Sending dtc issue to server periodically.")
-            sendLocalDtc()
+            if (carId != -1) {
+                sendLocalDtc(carId)
+            }
             periodicHandler.postDelayed(this, sendInterval)
         }
     }
@@ -38,13 +41,13 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
         isSending = false
     }
 
-    fun sendLocalDtc(){
+    fun sendLocalDtc(carId: Int){
         Log.d(tag, "sendLocalDtc() localDtc: $dtcToSend, isSending? $isSending")
         if (isSending || dtcToSend.isEmpty()) return
         isSending = true
         val dtcListCopy = ArrayList(dtcToSend)
         for (dtc in dtcListCopy){
-            useCaseComponent.addDtcUseCase().execute(dtc, object : AddDtcUseCase.Callback {
+            useCaseComponent.addDtcUseCase().execute(carId, dtc, object : AddDtcUseCase.Callback {
                 override fun onDtcPackageAdded(addedDtc: DtcPackage) {
                     Log.d(tag,"pending addedDtc added addedDtc: "+ addedDtc)
                     this@DtcDataHandler.dtcToSend.remove(addedDtc)
@@ -62,7 +65,7 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
         }
     }
 
-    fun handleDtcData(dtcPackage: DtcPackage) {
+    fun handleDtcData(carId: Int, dtcPackage: DtcPackage) {
         Log.d(tag, "handleDtcData() dtcPackage: " + dtcPackage)
         val deviceId = dtcPackage.deviceId
 
@@ -75,7 +78,7 @@ class DtcDataHandler(private val bluetoothDataHandlerManager: BluetoothDataHandl
         for (p in pendingDtcPackages) {
 
             if (dtcPackage.dtcs.isNotEmpty()) {
-                useCaseComponent.addDtcUseCase().execute(dtcPackage, object : AddDtcUseCase.Callback {
+                useCaseComponent.addDtcUseCase().execute(carId, dtcPackage, object : AddDtcUseCase.Callback {
                     override fun onDtcPackageAdded(dtc: DtcPackage) {
                         notifyEventBus(EventTypeImpl(
                                 EventType.EVENT_DTC_NEW))

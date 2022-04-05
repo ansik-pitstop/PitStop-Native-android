@@ -35,6 +35,7 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     private Handler useCaseHandler;
     private Handler mainHandler;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Integer carId;
 
     public GetCurrentServicesUseCaseImpl(UserRepository userRepository
             , CarIssueRepository carIssueRepository
@@ -49,10 +50,11 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
     }
 
     @Override
-    public void execute(Callback callback) {
+    public void execute(Integer carId, Callback callback) {
         Logger.getInstance().logI(TAG, "Use case execution started"
                 , DebugMessage.TYPE_USE_CASE);
         this.callback = callback;
+        this.carId = carId;
         useCaseHandler.post(this);
     }
 
@@ -79,52 +81,23 @@ public class GetCurrentServicesUseCaseImpl implements GetCurrentServicesUseCase 
 
     @Override
     public void run() {
-
-        //Get current users car
-        userRepository.getCurrentUserSettings(new Repository.Callback<Settings>() {
-            @Override
-            public void onSuccess(Settings data) {
-
-                if (!data.hasMainCar()){
-                    //Check user car list
-                    Disposable disposable = carRepository.getCarsByUserId(data.getUserId(),Repository.DATABASE_TYPE.REMOTE)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(Schedulers.io(),true)
-                            .subscribe(next -> {
-                                //Ignore local responses
-                                if (next.isLocal()){}
-                                else if (next.getData() != null && next.getData().size() > 0){
-                                    getCurrentCarIssues(next.getData().get(0).getId());
-
-                                    //Fix settings
-                                    userRepository.setUserCar(data.getUserId(), next.getData().get(0).getId()
-                                            , new Repository.Callback<Object>() {
-
-                                                @Override
-                                                public void onSuccess(Object data) {
-                                                    Log.d(TAG,"fixed settings");
-                                                }
-
-                                                @Override
-                                                public void onError(RequestError error) {
-                                                    Log.d(TAG,"Error fixing settings");
-                                                }
-                                            });
-                                }else{
-                                    GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
-                                }
-                            },error -> {
-                                GetCurrentServicesUseCaseImpl.this.onError(new RequestError(error));
-                            });
-                    compositeDisposable.add(disposable);
-                } else getCurrentCarIssues(data.getCarId());
-            }
-
-            @Override
-            public void onError(RequestError error) {
-                GetCurrentServicesUseCaseImpl.this.onError(error);
-            }
-        });
+//        Disposable disposable = carRepository.getCarsByUserId(carId, Repository.DATABASE_TYPE.REMOTE)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(Schedulers.io(),true)
+//                .subscribe(next -> {
+//                    //Ignore local responses
+//                    if (next.isLocal()){}
+//                    else if (next.getData() != null && next.getData().size() > 0){
+//                        getCurrentCarIssues(next.getData().get(0).getId());
+//
+//                    }else{
+//                        GetCurrentServicesUseCaseImpl.this.onNoCarAdded();
+//                    }
+//                },error -> {
+//                    GetCurrentServicesUseCaseImpl.this.onError(new RequestError(error));
+//                });
+//        compositeDisposable.add(disposable);
+        getCurrentCarIssues(carId);
     }
 
     private void getCurrentCarIssues(int carId){

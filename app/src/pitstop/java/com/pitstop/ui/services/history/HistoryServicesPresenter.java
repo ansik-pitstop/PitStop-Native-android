@@ -1,5 +1,6 @@
 package com.pitstop.ui.services.history;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.pitstop.EventBus.EventSource;
@@ -7,6 +8,7 @@ import com.pitstop.EventBus.EventSourceImpl;
 import com.pitstop.EventBus.EventType;
 import com.pitstop.EventBus.EventTypeImpl;
 import com.pitstop.R;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetDoneServicesUseCase;
 import com.pitstop.models.issue.CarIssue;
@@ -31,17 +33,23 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
 
     private MixpanelHelper mixpanelHelper;
     private UseCaseComponent useCaseComponent;
+    private Context context;
 
     private boolean updating = false;
 
-    public HistoryServicesPresenter(MixpanelHelper mixpanelHelper, UseCaseComponent useCaseComponent) {
+    public HistoryServicesPresenter(MixpanelHelper mixpanelHelper, UseCaseComponent useCaseComponent, Context context) {
         this.mixpanelHelper = mixpanelHelper;
         this.useCaseComponent = useCaseComponent;
+        this.context = context;
     }
 
     void onAddCarButtonClicked(){
         if (getView() != null)
             getView().startAddCarActivity();
+    }
+
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(context);
     }
 
     void onUpdateNeeded(){
@@ -50,7 +58,10 @@ public class HistoryServicesPresenter extends TabPresenter<HistoryServicesView>{
         updating = true;
         getView().showLoading();
 
-        useCaseComponent.getDoneServicesUseCase().execute(
+        Integer carId = getMainCarId();
+        if (carId == null) return;
+
+        useCaseComponent.getDoneServicesUseCase().execute(carId,
                 new GetDoneServicesUseCase.Callback() {
             @Override
             public void onGotDoneServices(List<CarIssue> doneServices, boolean isLocal) {

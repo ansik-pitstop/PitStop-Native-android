@@ -24,10 +24,12 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
     private val tag = javaClass.simpleName
     private var callback: GetAllAppointmentsUseCase.Callback? = null
     private var compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(callback: GetAllAppointmentsUseCase.Callback) {
+    override fun execute(carId: Int, callback: GetAllAppointmentsUseCase.Callback) {
         Logger.getInstance()!!.logI(tag, "Use case execution started", DebugMessage.TYPE_USE_CASE)
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
@@ -51,17 +53,10 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
 
     override fun run() {
         Log.d(tag,"run()")
-        userRepository.getCurrentUserSettings(object:  Repository.Callback<Settings>{
-            override fun onSuccess(data: Settings?) {
-                Log.d(tag, "userRepository.getCurrentUserSettings success: " + data)
-                if (data == null) {
-                    this@GetAllAppointmentsUseCaseImpl.onError(com.pitstop.network.RequestError.getUnknownError())
-                    return
-                }
-                val disposable = appointmentRepository.getAllAppointments(data.carId)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.io())
-                        .subscribe(
+        val disposable = appointmentRepository.getAllAppointments(this.carId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe(
                         { next ->
                             Log.d(tag, "appointmentRepository.onNext() data: " + next)
                             this@GetAllAppointmentsUseCaseImpl.onGotAllAppointments(next)
@@ -71,12 +66,6 @@ class GetAllAppointmentsUseCaseImpl(private val appointmentRepository: Appointme
                             this@GetAllAppointmentsUseCaseImpl.onError(RequestError(error))
                         }
                 )
-                compositeDisposable.add(disposable)
-            }
-
-            override fun onError(error: RequestError?) {
-                this@GetAllAppointmentsUseCaseImpl.onError(error)
-            }
-        })
+        compositeDisposable.add(disposable)
     }
 }

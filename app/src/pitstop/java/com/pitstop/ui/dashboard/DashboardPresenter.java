@@ -60,16 +60,17 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
 
     void onUnknownErrorTryAgainClicked(){
         Log.d(TAG,"onUnknownErrorTryAgainClicked()");
-        onUpdateNeeded();
+//        onUpdateNeeded();
     }
 
     void onUpdateNeeded(){
         Log.d(TAG,"onUpdateNeeded()");
         if (updating || getView() == null) return;
+        if (carID == 0) return;
         updating = true;
         getView().showLoading();
 
-        useCaseComponent.getUserCarUseCase().execute(Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
+        useCaseComponent.getUserCarUseCase().execute(carID, Repository.DATABASE_TYPE.BOTH, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 Log.d(TAG, "onCarRetrieved(): " + car.getId());
@@ -183,7 +184,7 @@ public class DashboardPresenter extends TabPresenter<DashboardView>{
             return;
         }
 
-        useCaseComponent.updateCarMileageUseCase().execute(mileage,EVENT_SOURCE
+        useCaseComponent.updateCarMileageUseCase().execute(carID, mileage,EVENT_SOURCE
                 , new UpdateCarMileageUseCase.Callback() {
 
             @Override

@@ -25,8 +25,9 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
     private var vin: String = ""
     private var callback: DeviceClockSyncUseCase.Callback? = null
     private val compositeDisposable = CompositeDisposable()
+    private var carId: Int = 0
 
-    override fun execute(rtcTime: Long, deviceId: String, vin: String
+    override fun execute(carId: Int, rtcTime: Long, deviceId: String, vin: String
                          , callback: DeviceClockSyncUseCase.Callback) {
         Logger.getInstance().logI(tag, "Use case started execution: bluetoothDeviceTime=$rtcTime, deviceId=$deviceId, vin=$vin"
                 , DebugMessage.TYPE_USE_CASE)
@@ -34,6 +35,7 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
         this.deviceId = deviceId
         this.vin = vin
         this.callback = callback
+        this.carId = carId
         useCaseHandler.post(this)
     }
 
@@ -42,50 +44,34 @@ class DeviceClockSyncUseCaseImpl(private val scannerRepository: ScannerRepositor
         //If the deviceId or VIN is missing then attempt to retrieve it from the car repository
         if (deviceId.isEmpty() || vin.isEmpty()){
             Log.d(tag,"device id is empty or vin is empty")
-            userRepository.getCurrentUserSettings(object: Repository.Callback<Settings>{
-                override fun onSuccess(data: Settings?) {
-                    if (data?.hasMainCar() == true){
-                        val disposable = carRepository.get(data.carId,Repository.DATABASE_TYPE.REMOTE)
-                                .subscribeOn(Schedulers.computation())
-                                .observeOn(Schedulers.io(),true)
-                                .subscribe({next ->
-                                    if (next.isLocal) return@subscribe //Only use remote responses
-                                    if (next.data == null){
-                                        Log.e(tag,"Data is null")
-                                        onErrorSyncingClock(RequestError.getUnknownError())
-                                    }else{
-                                        Log.d(tag,"car scanner id: ${next.data.scannerId}, device id in execute: $deviceId")
-                                        //Use deviceId directly from device since its not associated with car on backend
-                                        if (!deviceId.isEmpty() && next.data.scannerId.isNullOrEmpty()){
-                                            Log.d(tag,"using deviceId: $deviceId, vin: ${next.data.vin}")
-                                            deviceClockSync(rtcTime, deviceId, next.data.vin)
-                                        }
-                                        //Use deviceId and VIN both which are associated with the currently selected car by user
-                                        else if (next.data.scannerId != null){
-                                            Log.d(tag,"using deviceId: ${next.data.scannerId}, vin: ${next.data.vin}")
-                                            deviceClockSync(rtcTime, next.data.scannerId, next.data.vin)
-                                        }else{
-                                            Log.e(tag,"no device id to associate with vehicle")
-                                            onErrorSyncingClock(RequestError.getUnknownError())
-                                        }
-                                    }
-                                },{err ->
-                                    onErrorSyncingClock(RequestError(err))
-                                })
-                        compositeDisposable.add(disposable)
-
-                    }else{
-                        Log.e(tag,"No main car found")
-                        onErrorSyncingClock(RequestError.getUnknownError())
-                    }
-                }
-
-                override fun onError(error: RequestError?) {
-                    Log.e(tag,"error retrieving settings")
-                    onErrorSyncingClock(error ?: RequestError.getUnknownError())
-                }
-
-            })
+            val disposable = carRepository.get(this.carId, Repository.DATABASE_TYPE.REMOTE)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.io(),true)
+                    .subscribe({next ->
+                        if (next.isLocal) return@subscribe //Only use remote responses
+                        if (next.data == null){
+                            Log.e(tag,"Data is null")
+                            onErrorSyncingClock(RequestError.getUnknownError())
+                        }else{
+                            Log.d(tag,"car scanner id: ${next.data.scannerId}, device id in execute: $deviceId")
+                            //Use deviceId directly from device since its not associated with car on backend
+                            if (!deviceId.isEmpty() && next.data.scannerId.isNullOrEmpty()){
+                                Log.d(tag,"using deviceId: $deviceId, vin: ${next.data.vin}")
+                                deviceClockSync(rtcTime, deviceId, next.data.vin)
+                            }
+                            //Use deviceId and VIN both which are associated with the currently selected car by user
+                            else if (next.data.scannerId != null){
+                                Log.d(tag,"using deviceId: ${next.data.scannerId}, vin: ${next.data.vin}")
+                                deviceClockSync(rtcTime, next.data.scannerId, next.data.vin)
+                            }else{
+                                Log.e(tag,"no device id to associate with vehicle")
+                                onErrorSyncingClock(RequestError.getUnknownError())
+                            }
+                        }
+                    },{err ->
+                        onErrorSyncingClock(RequestError(err))
+                    })
+            compositeDisposable.add(disposable)
         }
         //Otherwise use values provided directly by the device
         else{

@@ -30,11 +30,12 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
     private UseCaseComponent component;
     private MixpanelHelper mixpanelHelper;
     private Car dashCar;
+    private Integer carId;
 
-
-    public HealthReportPresenter(UseCaseComponent component, MixpanelHelper mixpanelHelper) {
+    public HealthReportPresenter(UseCaseComponent component, MixpanelHelper mixpanelHelper, Integer carId) {
         this.component = component;
         this.mixpanelHelper = mixpanelHelper;
+        this.carId = carId;
     }
 
     public void subscribe(HealthReportView view){
@@ -47,7 +48,8 @@ public class HealthReportPresenter implements HealthReportPresenterCallback {
 
     private void getDashboardCar(){
         Log.d(TAG,"getDashboardCar()");
-        component.getUserCarUseCase().execute(Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
+        if (carId == null) return;
+        component.getUserCarUseCase().execute(carId, Repository.DATABASE_TYPE.LOCAL, new GetUserCarUseCase.Callback() {
             @Override
             public void onCarRetrieved(Car car, Dealership dealership, boolean isLocal) {
                 dashCar = car;

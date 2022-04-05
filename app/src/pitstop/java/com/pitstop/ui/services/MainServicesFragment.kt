@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.pitstop.R
 import com.pitstop.application.GlobalApplication
+import com.pitstop.application.GlobalVariables
 import com.pitstop.dependency.ContextModule
 import com.pitstop.dependency.DaggerUseCaseComponent
 import com.pitstop.ui.main_activity.MainActivity
@@ -57,7 +58,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
                 .setTitle("Update Mileage")
                 .setView(dialogLayout)
                 .setPositiveButton("Confirm") { dialog, which ->
-                    presenter!!.onMileageUpdateInput(
+                    presenter!!.onMileageUpdateInput(getMainCarId(),
                             textInputEditText.text.toString())
                 }
                 .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
@@ -75,6 +76,10 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
         return rootview
     }
 
+    private fun getMainCarId(): Int? {
+        return GlobalVariables.getMainCarId(context!!)
+    }
+
     //For reference by child fragments
     override fun displayServiceErrorDialog(message: String){
         Log.d(tag,"displayServiceErrorDialog() message: "+message)
@@ -90,13 +95,13 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
 
     fun onServiceRequested(){
         Log.d(tag,"onServiceRequested()")
-        if (presenter != null) presenter!!.onServiceRequested()
+        if (presenter != null) presenter!!.onServiceRequested(getMainCarId())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter!!.subscribe(this)
-        presenter!!.loadView()
+        presenter!!.loadView(getMainCarId())
         update_mileage_button.setOnClickListener({presenter!!.onMileageUpdateClicked()})
         request_appointment_button.setOnClickListener({presenter!!.onRequestAppointmentClicked()})
     }
@@ -154,7 +159,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
                 ServicesAdapter.Companion.FRAGMENT_UPCOMING -> upcomingServicesFragment.onRefresh()
                 ServicesAdapter.Companion.FRAGMENT_HISTORY -> historyServicesFragment.onRefresh()
             }
-            presenter!!.onRefresh()
+            presenter!!.onRefresh(getMainCarId())
         }
 
         servicesPager!!.adapter = ServicesAdapter(childFragmentManager
@@ -220,7 +225,7 @@ class MainServicesFragment : Fragment(), MainServicesView, ServiceErrorDisplayer
         Log.d(TAG,"onActivityResult() requestCode: "+requestCode)
         if (presenter != null && requestCode == MainActivity.RC_REQUEST_SERVICE
                 && resultCode == RequestServiceActivity.activityResult.RESULT_SUCCESS){
-            presenter!!.onServiceRequested();
+            presenter!!.onServiceRequested(getMainCarId());
         }else{
             super.onActivityResult(requestCode, resultCode, data)
         }

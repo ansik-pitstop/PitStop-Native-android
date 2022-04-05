@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.MacroUseCases.VHRMacroUseCase;
 import com.pitstop.models.report.EmissionsReport;
@@ -52,16 +53,16 @@ public class HealthReportProgressPresenter {
         started = false;
     }
 
-    private void start(){
+    private void start(Integer carId){
         Log.d(TAG,"start()");
         if(view == null || callback == null || started){return;}
-        vhrMacroUseCase.start();
+        vhrMacroUseCase.start(carId);
         started = true;
     }
 
-    public void setBluetooth(BluetoothConnectionObservable bluetooth){
+    public void setBluetooth(Integer carId, BluetoothConnectionObservable bluetooth){
        Log.d(TAG,"setBluetooth() bluetooth: "+bluetooth);
-        vhrMacroUseCase = new VHRMacroUseCase(component,bluetooth, new VHRMacroUseCase.Callback() {
+        vhrMacroUseCase = new VHRMacroUseCase(carId, component,bluetooth, new VHRMacroUseCase.Callback() {
 
            @Override
            public void onStartGeneratingReport() {
@@ -153,7 +154,7 @@ public class HealthReportProgressPresenter {
                if (view != null) view.setLoading(progress);
            }
        });
-       start();
+       start(carId);
    }
 
    void onErrorButtonClicked(){

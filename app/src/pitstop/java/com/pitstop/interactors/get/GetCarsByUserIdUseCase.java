@@ -17,5 +17,5 @@ public interface GetCarsByUserIdUseCase extends Interactor {
     }
 
     //Execute the use case
-    void execute(GetCarsByUserIdUseCase.Callback callback);
+    void execute(Integer userId, GetCarsByUserIdUseCase.Callback callback);
 }

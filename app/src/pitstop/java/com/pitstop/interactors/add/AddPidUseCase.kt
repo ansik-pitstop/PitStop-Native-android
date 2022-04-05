@@ -14,5 +14,5 @@ interface AddPidUseCase: Interactor {
         fun onError(error: RequestError)
     }
 
-    fun execute(pidPackage: PidPackage, vin: String, callback: Callback)
+    fun execute(carId: Int, pidPackage: PidPackage, vin: String, callback: Callback)
 }

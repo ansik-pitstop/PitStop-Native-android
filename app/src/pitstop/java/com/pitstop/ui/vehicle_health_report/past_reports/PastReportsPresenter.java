@@ -23,12 +23,14 @@ public class PastReportsPresenter {
     private MixpanelHelper mixpanelHelper;
     private PastReportsView view;
     private List<FullReport> savedReports;
+    private Integer userId;
 
     private boolean populating = false;
 
-    public PastReportsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper) {
+    public PastReportsPresenter(UseCaseComponent useCaseComponent, MixpanelHelper mixpanelHelper, Integer userId) {
         this.useCaseComponent = useCaseComponent;
         this.mixpanelHelper = mixpanelHelper;
+        this.userId = userId;
     }
 
     void subscribe(PastReportsView view){
@@ -58,7 +60,7 @@ public class PastReportsPresenter {
 
         //Get all the reports and call view.displayReports
         useCaseComponent.getGetVehicleHealthReportsUseCase()
-                .execute(new GetReportsUseCase.Callback() {
+                .execute(userId, new GetReportsUseCase.Callback() {
                     @Override
                     public void onGotReports(List<FullReport> fullReports) {
                         savedReports = fullReports;

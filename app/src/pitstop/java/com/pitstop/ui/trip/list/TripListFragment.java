@@ -114,7 +114,7 @@ public class TripListFragment extends Fragment implements TripListView {
             MixpanelHelper mixpanelHelper = new MixpanelHelper(
                     (GlobalApplication) getActivity().getApplicationContext());
 
-            presenter = new TripListPresenter(useCaseComponent, mixpanelHelper);
+            presenter = new TripListPresenter(useCaseComponent, mixpanelHelper, context);
 
             if (getParentFragment() instanceof TripsView) {
                 presenter.setCommunicationInteractor(((TripsFragment) getParentFragment()).getPresenter());

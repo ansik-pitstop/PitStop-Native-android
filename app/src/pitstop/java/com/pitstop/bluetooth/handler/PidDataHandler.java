@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.pitstop.BuildConfig;
+import com.pitstop.application.GlobalVariables;
 import com.pitstop.bluetooth.dataPackages.PidPackage;
 import com.pitstop.dependency.ContextModule;
 import com.pitstop.dependency.DaggerUseCaseComponent;
@@ -85,6 +86,10 @@ public class PidDataHandler {
         pendingPidPackages.clear();
     }
 
+    private Integer getMainCarId() {
+        return GlobalVariables.Companion.getMainCarId(getApplicationContext());
+    }
+
     public void handlePidData(PidPackage pidPackage, String vin){
         pidsReceived++;
         if (pidPackage == null){
@@ -108,7 +113,7 @@ public class PidDataHandler {
 //            return;
 //        }
         for (PidPackage p: pendingPidPackages){
-            useCaseComponent.addPidUseCase().execute(p,vin, new AddPidUseCase.Callback() {
+            useCaseComponent.addPidUseCase().execute(getMainCarId(), p,vin, new AddPidUseCase.Callback() {
                 @Override
                 public void onAdded(int size) {
                     if (BuildConfig.DEBUG  || BuildConfig.BUILD_TYPE.equals(BuildConfig.BUILD_TYPE_BETA)) {
