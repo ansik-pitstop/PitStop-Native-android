@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import io.smooch.core.User;
 
 /**
  * Created by ishan on 2017-09-19.

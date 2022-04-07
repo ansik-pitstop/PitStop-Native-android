@@ -170,7 +170,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
     private fun beginTrackingLocationUpdates(){
         Log.d(tag,"beginTrackingLocationUpdatess()")
 
-        LocationServices.getFusedLocationProviderClient(baseContext).removeLocationUpdates(googlePendingIntent)
+        googlePendingIntent?.let { LocationServices.getFusedLocationProviderClient(baseContext).removeLocationUpdates(it) }
         val locationRequest = LocationRequest.create()
         locationRequest.priority = LOC_UPDATE_PRIORITY
         locationRequest.interval = LOC_UPDATE_INTERVAL
@@ -187,8 +187,10 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         settingsClient.checkLocationSettings(locationSettingsRequest)
 
         try{
-             LocationServices.getFusedLocationProviderClient(baseContext)
-                    .requestLocationUpdates(locationRequest,googlePendingIntent)
+            googlePendingIntent?.let {
+                LocationServices.getFusedLocationProviderClient(baseContext)
+                        .requestLocationUpdates(locationRequest, it)
+            }
         }catch(e: SecurityException){
             e.printStackTrace()
         }
@@ -202,7 +204,7 @@ class TripsService: Service(), GoogleApiClient.ConnectionCallbacks
         intent.action = TripBroadcastReceiver.ACTION_PROCESS_UPDATE
         googlePendingIntent = PendingIntent.getBroadcast( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT )
         ActivityRecognition.getClient(baseContext)
-                .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent)
+                .requestActivityUpdates(ACT_UPDATE_INTERVAL, googlePendingIntent!!)
 
         beginTrackingLocationUpdates()
         val intentFilter = IntentFilter()

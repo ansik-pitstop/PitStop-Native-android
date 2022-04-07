@@ -52,25 +52,25 @@ class SecondStepSignUpPresenter(private val useCaseComponent: UseCaseComponent
 
             view?.displayLoading()
 
-            useCaseComponent.signUpAuthMacroUseCase().execute(user, io.smooch.core.User.getCurrentUser()
-                    , object: SignUpAuthMacroUseCase.Callback{
-                override fun onSuccess() {
-                    Log.d(TAG,"SignUpUseCase() returned success!")
-                    if (view == null) return
-                    view!!.switchToOnBoarding()
-                    view?.hideLoading()
-                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_NAME_AND_NUMBER, MixpanelHelper.SUCCESS)
-                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_SIGNED_UP, MixpanelHelper.SIGN_UP_RESULT_SUCCESS_REGULAR)
-                }
-
-                override fun onError(err: RequestError) {
-                    Log.d(TAG,"SignUpUseCase() returned error! err=$err")
-                    if (view == null) return
-                    view?.hideLoading()
-                    view!!.displayErrorDialog(err.message)
-                }
-
-            })
+//            useCaseComponent.signUpAuthMacroUseCase().execute(user, io.smooch.core.User.getCurrentUser()
+//                    , object: SignUpAuthMacroUseCase.Callback{
+//                override fun onSuccess() {
+//                    Log.d(TAG,"SignUpUseCase() returned success!")
+//                    if (view == null) return
+//                    view!!.switchToOnBoarding()
+//                    view?.hideLoading()
+//                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_NAME_AND_NUMBER, MixpanelHelper.SUCCESS)
+//                    mixpanelHelper.trackSignUpProcess(MixpanelHelper.STEP_SIGNUP_SIGNED_UP, MixpanelHelper.SIGN_UP_RESULT_SUCCESS_REGULAR)
+//                }
+//
+//                override fun onError(err: RequestError) {
+//                    Log.d(TAG,"SignUpUseCase() returned error! err=$err")
+//                    if (view == null) return
+//                    view?.hideLoading()
+//                    view!!.displayErrorDialog(err.message)
+//                }
+//
+//            })
 
         }
     }

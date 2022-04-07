@@ -89,7 +89,7 @@ class TripBroadcastReceiver: BroadcastReceiver() {
             var stillActivity = 0
             var vehicleActivity = 0
 
-            activityResult.probableActivities.forEach({
+            activityResult?.probableActivities?.forEach({
 
                 if (it.type == DetectedActivity.ON_FOOT){
                     onFootActivity = it.confidence

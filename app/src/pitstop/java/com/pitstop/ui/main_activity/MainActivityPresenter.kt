@@ -307,25 +307,24 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
     fun makeCarCurrent(car: Car) {
         Log.d(TAG, "makeCarCurrent() car: "+car)
-        if (view == null || isLoading) return
+        if (view == null) return
         if (car.isCurrentCar)return
-        isLoading = true
 
-        var prevCurrCar: Car? = null
-        var selectedCar: Car? = null
-        var prevDealership: Dealership? = null
+//        var prevCurrCar: Car? = null
+//        var selectedCar: Car? = null
+//        var prevDealership: Dealership? = null
         for (currCar in carList){
             when {
                 currCar.isCurrentCar -> {
-                    prevCurrCar = currCar
-                    prevDealership = currCar.shop
+//                    prevCurrCar = currCar
+//                    prevDealership = currCar.shop
                     currCar.isCurrentCar = false
                 }
                 currCar.id == car.id -> {
                     currCar.isCurrentCar = true
                     mCar = currCar
                     mDealership = currCar.shop
-                    selectedCar = currCar
+//                    selectedCar = currCar
                 }
                 else -> currCar.isCurrentCar = false
             }
@@ -333,24 +332,24 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
         view?.notifyCarDataChanged()
         view?.closeDrawer()
 
-       useCaseCompnent.setUserCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
-            override fun onUserCarSet() {
-                isLoading = false
-                if (view == null) return
-            }
-
-            override fun onError(error: RequestError) {
-                isLoading = false
-                if (view == null) return
-                view?.toast(error.message)
-
-                //Revert car selection if an error occurs
-                selectedCar?.isCurrentCar = false
-                prevCurrCar?.isCurrentCar = true
-                mDealership = prevDealership
-                view?.notifyCarDataChanged()
-            }
-        })
+//       useCaseCompnent.setUserCarUseCase().execute(car.id, EventSource.SOURCE_DRAWER, object : SetUserCarUseCase.Callback {
+//            override fun onUserCarSet() {
+//                isLoading = false
+//                if (view == null) return
+//            }
+//
+//            override fun onError(error: RequestError) {
+//                isLoading = false
+//                if (view == null) return
+//                view?.toast(error.message)
+//
+//                //Revert car selection if an error occurs
+//                selectedCar?.isCurrentCar = false
+//                prevCurrCar?.isCurrentCar = true
+//                mDealership = prevDealership
+//                view?.notifyCarDataChanged()
+//            }
+//        })
     }
 
 

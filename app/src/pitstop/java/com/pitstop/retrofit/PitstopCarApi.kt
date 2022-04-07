@@ -11,7 +11,7 @@ import retrofit2.http.*
  */
 interface PitstopCarApi {
 
-    @GET("car/{carId}")
+    @GET("v1/car/{carId}")
     fun getCar(@Path("carId") id: Int): Observable<Car>
 
     @PUT("car")

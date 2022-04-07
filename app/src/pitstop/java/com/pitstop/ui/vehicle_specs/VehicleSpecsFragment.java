@@ -224,9 +224,13 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.onRefresh(getMainCarId()));
+        swipeRefreshLayout.setOnRefreshListener(this::refreshData);
 
         return view;
+    }
+
+    public void refreshData() {
+        presenter.onRefresh(getMainCarId());
     }
 
     private Integer getMainCarId() {

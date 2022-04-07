@@ -19,6 +19,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.pitstop.BuildConfig
+import com.pitstop.EventBus.CarDataChangedEvent
+import com.pitstop.EventBus.EventSource
+import com.pitstop.EventBus.EventType
+import com.pitstop.EventBus.EventTypeImpl
 import com.pitstop.R
 import com.pitstop.adapters.CarsAdapter
 import com.pitstop.application.GlobalApplication
@@ -382,11 +386,12 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         Log.d(TAG, "make car Current " + car.year + " " + car.make + " " + car.model)
         presenter?.makeCarCurrent(car)
         GlobalVariables.setMainCarId(applicationContext, car.id)
+        vehicleSpecsFragment.refreshData()
+        carsAdapter?.notifyDataSetChanged()
     }
 
     override fun notifyCarDataChanged() {
         displayDeviceState(BluetoothConnectionObservable.State.DISCONNECTED)
-        carsAdapter?.notifyDataSetChanged()
     }
 
     private fun setGreetingsNotSent() {

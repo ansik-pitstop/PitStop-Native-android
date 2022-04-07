@@ -52,6 +52,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
@@ -120,15 +123,40 @@ public class GlobalApplication extends Application implements LoginManager {
 
         LocalUserStorage localUserStorage = new LocalUserStorage(LocalDatabaseHelper.getInstance(this));
 
+        useCaseComponent = DaggerUseCaseComponent.builder()
+                .contextModule(new ContextModule(this)).build();
+
+
+//        Smooch.init(this);
+
+//        val task: TimerTask = object : TimerTask() {
+//            override fun run() {
+//                loginOnSmooch(user, smoochToken)
+//            }
+//        }
+//        val timer = Timer("Timer")
+//        val delay = 1000L
+//        timer.schedule(task, delay)
+
+//        GlobalApplication globalApplication = this;
+//        Timer timer = new Timer();
+//        TimerTask task = new TimerTask() {
+//            @Override
+//            public void run() {
+////                for (int i = 0; i < 10; i++) {
+//
+//                timer.cancel();
+//            }
+//        };
+//        timer.schedule(task, 5000);
+
         // Smooch
         Log.d(TAG,"Smooch app id: "+SecretUtils.getSmoochToken(this));
         Settings settings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
         settings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-
-        useCaseComponent = DaggerUseCaseComponent.builder()
-                .contextModule(new ContextModule(this)).build();
         Smooch.init(this, settings, response -> {
-            Log.d(TAG,"Smooch: init response: "+response.getError());
+            Log.d(TAG,"Smooch: response.getData(): "+response.getData());
+            Log.d(TAG,"Smooch: init error: "+response.getError());
         });
 
         // Parse
@@ -370,11 +398,11 @@ public class GlobalApplication extends Application implements LoginManager {
         ParseUser.logOut();
 
         //Login to smooch with userId
-        Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
-        smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
-        Smooch.init(this, smoochSettings, response -> {
-            Log.d(TAG,"Smooch: init response: "+response.getError());
-        });
+//        Settings smoochSettings = new Settings(SecretUtils.getSmoochToken(this)); //ID must be upper case
+//        smoochSettings.setFirebaseCloudMessagingAutoRegistrationEnabled(true);
+//        Smooch.init(this, smoochSettings, response -> {
+//            Log.d(TAG,"Smooch: init response: "+response.getError());
+//        });
     }
 
     public int getCurrentUserId() {
@@ -429,9 +457,9 @@ public class GlobalApplication extends Application implements LoginManager {
 
 
         // Logout from Smooch for the next login
-        Smooch.logout(response -> {
-            Log.d(TAG,"smooch logout response: "+response.getError());
-        });
+//        Smooch.logout(response -> {
+//            Log.d(TAG,"smooch logout response: "+response.getError());
+//        });
 
         LocalDatabaseHelper.getInstance(this).deleteAllData();
         Intent intent = new Intent(this,LoginActivity.class);
