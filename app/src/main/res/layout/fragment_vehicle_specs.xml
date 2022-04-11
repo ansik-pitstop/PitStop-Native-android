@@ -115,17 +115,6 @@
 
                             </LinearLayout>
 
-                            <TextView
-                                android:layout_centerHorizontal="true"
-                                android:layout_centerInParent="true"
-                                android:id="@+id/dealership_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_below="@+id/car_name_container"
-                                android:textColor="@color/white"
-                                android:textSize="18sp"
-                                tools:text="Dealership" />
-
                         </RelativeLayout>
                     </RelativeLayout>
 
@@ -273,16 +262,6 @@
                             android:layout_centerVertical="true"
                             android:textStyle="bold"
                             android:text="@string/dealership" />
-
-                        <TextView
-                            android:id="@+id/dealership_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAlignment="viewEnd"
-                            style="@style/vehicle_specs_text"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:text="N/A" />
 
                     </RelativeLayout>
 

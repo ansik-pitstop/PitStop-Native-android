@@ -834,19 +834,8 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
     override fun onDeviceSyncing() {
     }
 
-    override fun openRequestService(tentative: Boolean) {
-//        val intent = Intent(this, RequestServiceActivity::class.java)
-//        intent.putExtra(RequestServiceActivity.activityResult.EXTRA_FIRST_BOOKING, tentative)
-//        isFirstAppointment = false
-//        //Result is captured by certain fragments such as service fragment which displays booked appointment
-//        startActivityForResult(intent,RC_REQUEST_SERVICE)
-//        hideLoading()
-
-        openServiceRequest()
-    }
-
     override fun openRequestService() {
-        openRequestService(false)
+        openServiceRequest()
     }
 
     override fun openCurrentServices() {

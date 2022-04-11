@@ -109,7 +109,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     fun onShowCaseClosed(){
         Log.d(TAG,"onShowCaseClosed()")
         if (view != null)
-            view!!.openRequestService(true)
+            view!!.openServiceRequest()
     }
 
     fun onCarAdded(withDealer: Boolean){
@@ -230,18 +230,8 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
     }
 
     fun onRequestServiceClicked() {
-        Log.d(TAG, "onRequestServiceCLicked() mDealership: $mDealership")
-        if (this.view == null) return
-        if (mCar == null){
-            view?.showAddCarDialog();
-        }else if (!hasDealership()) {
-            view?.showAddDealerhsipDialog();
-        }
-        else{
-            view?.openRequestService(false)
-        }
-
-
+        Log.d(TAG, "onRequestServiceCLicked()")
+        view?.openServiceRequest()
     }
 
     private fun mergeSetWithCarList(data: Set<Car>) {

@@ -12,40 +12,40 @@ import java.util.*
 class SmoochUtil {
     companion object {
         fun setSmoochProperties(car: Car){
-//            val user = io.smooch.core.User.getCurrentUser()
-//            val customProperties = HashMap<String, Any>()
-//            customProperties["VIN"] = car.vin
-//            customProperties["Car Make"] = car.make
-//            customProperties["Car Model"] = car.model
-//            customProperties["Car Year"] = car.year
-//            user.addMetadata(customProperties)
+            val user = io.smooch.core.User.getCurrentUser()
+            val customProperties = HashMap<String, Any>()
+            customProperties["VIN"] = car.vin
+            customProperties["Car Make"] = car.make
+            customProperties["Car Model"] = car.model
+            customProperties["Car Year"] = car.year
+            user.addMetadata(customProperties)
         }
 
         fun setSmoochProperties(user: User){
-//            val smoochUser = io.smooch.core.User.getCurrentUser()
-//            smoochUser.firstName = user.firstName ?: ""
-//            smoochUser.lastName = user.lastName ?: ""
-//            smoochUser.email = user.email
+            val smoochUser = io.smooch.core.User.getCurrentUser()
+            smoochUser.firstName = user.firstName ?: ""
+            smoochUser.lastName = user.lastName ?: ""
+            smoochUser.email = user.email
         }
 
         fun setSmoochProperties(user: User, car: Car) {
-//            setSmoochProperties(car)
-//            setSmoochProperties(user)
+            setSmoochProperties(car)
+            setSmoochProperties(user)
         }
 
         fun sendSignedUpSmoochMessage(firstName: String, lastName: String){
-//            Smooch.getConversation()!!
-//                    .sendMessage(Message("$firstName $lastName has signed up for Pitstop!"))
+            Smooch.getConversation()!!
+                    .sendMessage(Message("$firstName $lastName has signed up for Pitstop!"))
         }
 
         fun sendUserAddedCarSmoochMessage(user:User, car: Car){
-//            Smooch.getConversation()!!
-//                    .sendMessage(Message("${user.firstName ?: ""} ${user.lastName ?: ""} has added a ${car.make} ${car.model} ${car.year}"))
+            Smooch.getConversation()!!
+                    .sendMessage(Message("${user.firstName ?: ""} ${user.lastName ?: ""} has added a ${car.make} ${car.model} ${car.year}"))
         }
 
         fun sendMessage(text: String) {
-//            Smooch.getConversation()!!
-//                    .sendMessage(Message(text))
+            Smooch.getConversation()!!
+                    .sendMessage(Message(text))
         }
     }
 }
