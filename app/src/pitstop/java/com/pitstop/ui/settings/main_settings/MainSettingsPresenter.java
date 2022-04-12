@@ -1,5 +1,7 @@
 package com.pitstop.ui.settings.main_settings;
 
+import android.util.Log;
+
 import com.pitstop.R;
 import com.pitstop.dependency.UseCaseComponent;
 import com.pitstop.interactors.get.GetCurrentUserUseCase;
@@ -130,26 +132,24 @@ public class MainSettingsPresenter {
             if (text.length() < 9 || text.length() > 15){
                 mainSettings.toast(R.string.invalid_phone_error);
                 return;
-
             }
             mainSettings.showPhone(text);
-            component.getUpdateUserPhoneUseCase().execute(text, new UpdateUserPhoneUseCase.Callback() {
-                @Override
-                public void onUserPhoneUpdated() {
-
-                }
-
-                @Override
-                public void onError(RequestError error) {
-                    if (mainSettings != null){
-                        if (prevNum != null){
-                            mainSettings.showPhone(prevNum);
-                            mainSettings.toast(error.getMessage());
-                        }
-                    }
-                }
-            });
-
+//            component.getUpdateUserPhoneUseCase().execute(text, new UpdateUserPhoneUseCase.Callback() {
+//                @Override
+//                public void onUserPhoneUpdated() {
+//
+//                }
+//
+//                @Override
+//                public void onError(RequestError error) {
+//                    if (mainSettings != null){
+//                        if (prevNum != null){
+//                            mainSettings.showPhone(prevNum);
+//                            mainSettings.toast(error.getMessage());
+//                        }
+//                    }
+//                }
+//            });
         }
     }
     public void logout(){

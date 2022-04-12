@@ -372,7 +372,7 @@ class MainActivity : IBluetoothServiceActivity(), MainActivityCallback, Device21
         } else {
             GlobalVariables.setMainCarId(applicationContext,  carList[0].id)
         }
-
+        vehicleSpecsFragment.refreshData()
         carsAdapter?.notifyDataSetChanged()
     }
 

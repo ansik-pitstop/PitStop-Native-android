@@ -22,26 +22,20 @@ class LoginAuthMacroUseCaseImpl(private val loginUseCase: LoginUseCase
                          , callback: LoginAuthMacroUseCase.Callback) {
         this.callback = callback
         loginUseCase.execute(username, password, object: LoginUseCase.Callback{
-
-
-
             override fun onSuccess(user: User, activated: Boolean) {
-                smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback{
+                this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
+                smoochLoginUseCase.execute(smoochUser, object: SmoochLoginUseCase.Callback {
                     override fun onError(err: RequestError) {
-                        this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
+//                        this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
                     }
-
                     override fun onLogin() {
-                        this@LoginAuthMacroUseCaseImpl.onSuccess(activated)
                     }
-
                 })
             }
 
             override fun onError(error: RequestError) {
                 this@LoginAuthMacroUseCaseImpl.onError(error)
             }
-
         })
     }
 

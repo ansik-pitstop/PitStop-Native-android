@@ -236,7 +236,7 @@ public class VehicleSpecsFragment extends Fragment implements VehicleSpecsView, 
         presenter.subscribe(this);
         Log.d(TAG, "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
-        presenter.onUpdateNeeded(getMainCarId(), false);
+//        presenter.onUpdateNeeded(getMainCarId(), false);
         presenter.updateTimezone();
     }
 

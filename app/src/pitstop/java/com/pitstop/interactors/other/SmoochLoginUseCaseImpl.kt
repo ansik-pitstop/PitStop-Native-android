@@ -82,15 +82,15 @@ class SmoochLoginUseCaseImpl(private val smoochApi: PitstopSmoochApi, private va
 
                     // For some random reason, login on smooch doesn't work anymore when it's
                     // outside a thread, maybe a race condition
-                    loginOnSmooch(user, smoochToken)
-//                    val task: TimerTask = object : TimerTask() {
-//                        override fun run() {
-//                            loginOnSmooch(user, smoochToken)
-//                        }
-//                    }
-//                    val timer = Timer("Timer")
-//                    val delay = 1000L
-//                    timer.schedule(task, delay)
+//                    loginOnSmooch(user, smoochToken)
+                    val task: TimerTask = object : TimerTask() {
+                        override fun run() {
+                            loginOnSmooch(user, smoochToken)
+                        }
+                    }
+                    val timer = Timer("Timer")
+                    val delay = 1000L
+                    timer.schedule(task, delay)
                 } catch(e: IOException) {
                     onErrorFound(RequestError.getOfflineError())
                 }
