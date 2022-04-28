@@ -35,7 +35,6 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
     }
 
     override fun run() {
-
         localDatabaseHelper.deleteAllData()
         val disposable = userRepository.insert(user,false)
                 .subscribeOn(Schedulers.computation())
@@ -47,7 +46,6 @@ class SignUpUseCaseImpl(private val userRepository: UserRepository
                     this@SignUpUseCaseImpl.onError(RequestError(err))
                 })
         compositeDisposable.add(disposable)
-
     }
 
     private fun onSignedUp(){

@@ -90,7 +90,6 @@ public class GetCarsByUserIdUseCaseImpl implements GetCarsByUserIdUseCase {
                     return new RepositoryResponse<List<Car>>(null,false);
                 }).subscribe();
         compositeDisposable.add(disposable);
-
     }
 
     private boolean isCurrentCarValid(int currentCarId, @NotNull List<Car> carList) {

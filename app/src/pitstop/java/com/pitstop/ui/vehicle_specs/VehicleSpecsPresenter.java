@@ -340,6 +340,7 @@ public class VehicleSpecsPresenter extends TabPresenter<VehicleSpecsView> implem
         Log.d(TAG, "onRefresh()");
         if (carId == null) {
             getView().hideLoading();
+            getView().showNoCarView();
             return;
         }
         onUpdateNeeded(carId, true);

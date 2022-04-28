@@ -164,7 +164,7 @@ class MainActivityPresenter(val useCaseCompnent: UseCaseComponent, val mixpanelH
 
                     if (cars == null || cars.size == 0) {
                         Log.d(TAG, "No cars retrieved")
-                        view?.noCarsView()
+                        view?.showCars(mutableListOf())
                         return
                     }
 

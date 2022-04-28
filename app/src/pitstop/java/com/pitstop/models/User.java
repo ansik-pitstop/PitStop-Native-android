@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.castel.obd.util.JsonUtil;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
 
@@ -19,9 +20,15 @@ public class User implements Parcelable {
 
     private int id;
     private List<String> installationId;
+
+    @SerializedName("first_name")
     private String firstName;
+
+    @SerializedName("last_name")
     private String lastName;
     private String email;
+
+    @SerializedName("username")
     private String userName;
     private String password;
     private Car currentCar;
@@ -145,7 +152,7 @@ public class User implements Parcelable {
             user = JsonUtil.json2object(json, User.class);
             //Log.d("installationID", user.getInstallationID().toString());
             Log.d("userJson", json);
-            if(user.getId() == 0) {
+//            if(user.getId() == 0) {
                 user = new User();
 
                 JSONObject userJson = new JSONObject(json).getJSONObject("user");
@@ -186,7 +193,7 @@ public class User implements Parcelable {
                 user.setSettings(new Settings(user.getId(),carId,firstCarAdded,alarmsEnabled, odometer, timezone));
 
                 /*Log.d("installationIDs", user.getInstallationID().toString());*/
-            }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
