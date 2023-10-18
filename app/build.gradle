@@ -62,7 +62,6 @@ android {
         abortOnError false
     }
     compileOptions.encoding = 'ISO-8859-1'
-    compileSdkVersion 30
     def endpointTypeStaging = '\"staging\"'
     def endpointTypeSnapshot = '\"snapshot\"'
     def endpointTypeRelease = '\"release\"'
@@ -76,10 +75,11 @@ android {
         }
         applicationId "com.ansik.pitstop"
         minSdkVersion 19
-        targetSdkVersion 30
+        compileSdkVersion 31
+        targetSdkVersion 31
         // Change versioning in productFlavors instead of here
-        versionCode 360
-        versionName "5.4.28"
+        versionCode 362
+        versionName "5.4.30"
         multiDexEnabled = true
         buildConfigField "String", "BUILD_TYPE_BETA", buildTypeBeta
         buildConfigField "String", "BUILD_TYPE_DEBUG", buildTypeDebug
@@ -89,6 +89,7 @@ android {
         buildConfigField "String", "ENDPOINT_TYPE_RELEASE", endpointTypeRelease
         ndk {
             abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
+            ndkVersion '26.1.10909125'
         }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
